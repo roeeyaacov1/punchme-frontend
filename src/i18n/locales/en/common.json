@@ -1,0 +1,87 @@
+{
+  "app": {
+    "name": "PunchMe"
+  },
+  "language": {
+    "switch": "עברית"
+  },
+  "scaffold": {
+    "title": "Scaffold OK",
+    "subtitle": "Tailwind, fonts, tokens, and RTL wired up"
+  },
+  "auth": {
+    "title": "Sign in or sign up to start designing your card",
+    "error": "Something went wrong signing in. Please try again.",
+    "missingClientId": "Missing Google Client ID (VITE_GOOGLE_CLIENT_ID)",
+    "loadingSession": "Loading..."
+  },
+  "onboardingPlaceholder": {
+    "title": "Signed in successfully",
+    "signedInAs": "Signed in as",
+    "note": "The business + card onboarding wizard goes here (next build step).",
+    "signOut": "Sign out"
+  },
+  "landing": {
+    "nav": {
+      "signIn": "Sign in"
+    },
+    "hero": {
+      "eyebrow": "For small, independent businesses",
+      "headline": "Your punch card, in your customers' digital wallet",
+      "subheadline": "Customers scan a QR code once — the card lands straight in their Apple Wallet or Google Wallet. No app, no signup, and it updates itself with every stamp.",
+      "cta": "Design your card — free",
+      "ctaHint": "Takes under a minute. No credit card required."
+    },
+    "example": {
+      "businessName": "Danny's Barbershop",
+      "reward": "One free haircut"
+    },
+    "values": {
+      "title": "Built to work for you",
+      "items": [
+        {
+          "title": "No app to download",
+          "body": "The card lives in the wallet that's already on every phone — no signup, no password, nothing to delete."
+        },
+        {
+          "title": "Say goodbye to paper cards",
+          "body": "No more torn cards, cards left at home, or cards that run out right before the last stamp."
+        },
+        {
+          "title": "Free until you're ready",
+          "body": "Design and preview exactly how your card will look — for free. Pay only when you activate it for real customers."
+        }
+      ]
+    },
+    "howItWorks": {
+      "title": "Three steps to your first customer",
+      "steps": [
+        {
+          "title": "Design your card",
+          "body": "Logo, colors, stamp count and reward — with a live preview that updates as you go."
+        },
+        {
+          "title": "Customers scan a QR",
+          "body": "Once, no signup — and the card is already in their digital wallet."
+        },
+        {
+          "title": "The card updates itself",
+          "body": "Every stamp updates in real time, right on the lock screen — no app, no hassle."
+        }
+      ]
+    },
+    "niches": {
+      "title": "Built for your small business",
+      "items": ["Barbers", "Cafés", "Personal trainers", "Therapists", "And you"]
+    },
+    "pricing": {
+      "title": "Start for free",
+      "body": "Designing your card and dashboard costs nothing. Pay ₪59/month only when you activate the card for real customers.",
+      "cta": "Let's get started"
+    },
+    "footer": {
+      "tagline": "Digital loyalty for today's small businesses.",
+      "rights": "All rights reserved."
+    }
+  }
+}
