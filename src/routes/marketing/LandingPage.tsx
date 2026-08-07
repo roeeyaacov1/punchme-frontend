@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
 import { Button, Badge, buttonClasses } from "../../components/ui";
 import { Reveal } from "../../components/motion/Reveal";
 import { WalletCardPreview } from "../../components/wallet-card/WalletCardPreview";
+import { SocialProofStrip } from "../../components/marketing/SocialProofStrip";
+import { cn } from "../../lib/cn";
 import logo from "../../assets/logo.png";
 
 interface ValueItem {
@@ -17,6 +21,7 @@ interface StepItem {
 
 export function LandingPage() {
   const { t, i18n } = useTranslation();
+  const [activeStep, setActiveStep] = useState(0);
 
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.resolvedLanguage === "he" ? "en" : "he");
@@ -29,6 +34,33 @@ export function LandingPage() {
     returnObjects: true,
   }) as StepItem[];
   const niches = t("landing.niches.items", { returnObjects: true }) as string[];
+  const trustBullets = t("landing.hero.trustBullets", {
+    returnObjects: true,
+  }) as string[];
+
+  const stepVisual = (index: number) => {
+    if (index === 1) {
+      return (
+        <div
+          dir="ltr"
+          className="bg-white rounded-2xl p-6 shadow-[0_20px_50px_rgba(14,17,32,0.25)]"
+        >
+          <QRCodeSVG value="https://punchme.app/join/demo" size={160} />
+        </div>
+      );
+    }
+    return (
+      <WalletCardPreview
+        backgroundColor="#1b2036"
+        foregroundColor="#ffffff"
+        labelColor="#a7adc9"
+        businessName={t("landing.example.businessName")}
+        stampsRequired={8}
+        currentStamps={index === 2 ? 8 : 0}
+        rewardDescription={t("landing.example.reward")}
+      />
+    );
+  };
 
   return (
     <div className="bg-white text-navy overflow-x-clip">
@@ -85,6 +117,18 @@ export function LandingPage() {
               <span className="text-xs font-mono text-lavender/70 uppercase tracking-wide">
                 {t("landing.hero.ctaHint")}
               </span>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-2 text-xs text-lavender/80 font-body mt-1">
+                {trustBullets.map((bullet, i) => (
+                  <span key={i} className="flex items-center gap-2">
+                    {i > 0 && (
+                      <span className="text-lavender/40" aria-hidden="true">
+                        ·
+                      </span>
+                    )}
+                    {bullet}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
           <div
@@ -105,6 +149,8 @@ export function LandingPage() {
           </div>
         </div>
       </section>
+
+      <SocialProofStrip />
 
       {/* Value props */}
       <section className="max-w-6xl mx-auto px-6 py-16 md:py-24">
@@ -133,19 +179,43 @@ export function LandingPage() {
               {t("landing.howItWorks.title")}
             </h2>
           </Reveal>
-          <div className="grid md:grid-cols-3 gap-10">
-            {steps.map((step, i) => (
-              <Reveal key={i} delay={i * 0.12}>
-                <div className="flex flex-col gap-2 text-center md:text-start">
-                  <span className="font-mono text-sm text-gold-dark">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="text-lg font-heading font-bold">{step.title}</h3>
-                  <p className="text-slate font-body">{step.body}</p>
+          <Reveal>
+            <div className="grid md:grid-cols-2 gap-10 items-center">
+              <div className="flex flex-col gap-2">
+                {steps.map((step, i) => {
+                  const isActive = i === activeStep;
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setActiveStep(i)}
+                      className={cn(
+                        "text-start rounded-2xl px-5 py-4 transition-all duration-200 border",
+                        isActive
+                          ? "bg-white border-navy/10 shadow-[0_1px_2px_rgba(14,17,32,0.06),0_8px_24px_rgba(14,17,32,0.08)]"
+                          : "border-transparent opacity-60 hover:opacity-100",
+                      )}
+                    >
+                      <span className="font-mono text-sm text-gold-dark">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <h3 className="text-lg font-heading font-bold mt-1">
+                        {step.title}
+                      </h3>
+                      {isActive && (
+                        <p className="text-slate font-body mt-1">{step.body}</p>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex justify-center items-center min-h-[280px] md:min-h-[360px]">
+                <div key={activeStep} className="animate-fade-in">
+                  {stepVisual(activeStep)}
                 </div>
-              </Reveal>
-            ))}
-          </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 

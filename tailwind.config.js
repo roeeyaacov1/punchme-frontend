@@ -35,12 +35,17 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
         },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.7s cubic-bezier(0.16,1,0.3,1) both",
         "fade-in": "fade-in 0.7s ease-out both",
         "scale-in": "scale-in 0.8s cubic-bezier(0.16,1,0.3,1) both",
         float: "float 5s ease-in-out infinite",
+        marquee: "marquee 30s linear infinite",
       },
     },
   },
