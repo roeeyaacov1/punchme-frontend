@@ -80,8 +80,8 @@
     "nameLabel": "Your name (optional)",
     "phoneLabel": "Phone number (optional)",
     "phoneInvalid": "That doesn't look like a valid phone number",
+    "genericError": "Something went wrong. Please try again in a moment.",
     "submit": "Add to my wallet",
-    "alreadyEnrolled": "You're already enrolled — here's your card",
     "notFound": "This loyalty card isn't available anymore",
     "upgradeRequired": "This business isn't accepting new customers right now",
     "statusTitle": "Your card"

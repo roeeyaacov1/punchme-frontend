@@ -14,6 +14,8 @@ import { LandingPage } from "./routes/marketing/LandingPage";
 import { DebugPresetsPage } from "./routes/debug-presets";
 import { LoginPage } from "./routes/auth/LoginPage";
 import { OnboardingLayout } from "./routes/onboarding/OnboardingLayout";
+import { JoinPage } from "./routes/public/JoinPage";
+import { CardStatusPage } from "./routes/public/CardStatusPage";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +26,8 @@ const router = createBrowserRouter([
       { path: "style-guide", element: <StyleGuidePage /> },
       { path: "debug/presets", element: <DebugPresetsPage /> },
       { path: "login", element: <LoginPage /> },
+      { path: "join/:templateId", element: <JoinPage /> },
+      { path: "c/:serial", element: <CardStatusPage /> },
       {
         element: <ProtectedRoute />,
         children: [

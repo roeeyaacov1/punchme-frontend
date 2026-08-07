@@ -613,7 +613,13 @@ export interface components {
              */
             display_name: string;
         };
-        /** CardPublicOut */
+        /**
+         * CardPublicOut
+         * @description No customer PII (see CLAUDE.md). Template design fields (colors/logo)
+         *     are not sensitive — they're already visible in the customer's actual
+         *     Wallet pass — and are included so the frontend can render an accurately
+         *     branded card, not just a generic placeholder.
+         */
         CardPublicOut: {
             /** Business Name */
             business_name: string;
@@ -627,6 +633,14 @@ export interface components {
             status: string;
             /** Reward Description */
             reward_description: string;
+            /** Background Color */
+            background_color: string;
+            /** Foreground Color */
+            foreground_color: string;
+            /** Label Color */
+            label_color: string;
+            /** Logo Url */
+            logo_url: string | null;
         };
         /** ScanOut */
         ScanOut: {
