@@ -5,6 +5,15 @@
   "language": {
     "switch": "עברית"
   },
+  "common": {
+    "save": "Save",
+    "next": "Next",
+    "back": "Back",
+    "loading": "Loading...",
+    "retry": "Try again",
+    "copyLink": "Copy link",
+    "copied": "Copied!"
+  },
   "scaffold": {
     "title": "Scaffold OK",
     "subtitle": "Tailwind, fonts, tokens, and RTL wired up"
@@ -20,6 +29,101 @@
     "signedInAs": "Signed in as",
     "note": "The business + card onboarding wizard goes here (next build step).",
     "signOut": "Sign out"
+  },
+  "onboarding": {
+    "steps": {
+      "business": "Your business",
+      "design": "Design your card",
+      "finish": "Try it yourself"
+    },
+    "business": {
+      "title": "Tell us about your business",
+      "nameLabel": "Business name",
+      "nicheLabel": "What kind of business is this?",
+      "phoneLabel": "Phone (optional)"
+    },
+    "design": {
+      "title": "Design your card",
+      "templateNameLabel": "Card name",
+      "stampsRequiredLabel": "Stamps required for a reward",
+      "rewardLabel": "Reward description",
+      "colorsTitle": "Colors",
+      "primaryColorLabel": "Primary color",
+      "backgroundColorLabel": "Background color",
+      "textColorLabel": "Text color",
+      "logoLabel": "Logo",
+      "logoUpload": "Upload an image",
+      "logoUrlLabel": "Or paste an image URL",
+      "logoUploadError": "Couldn't upload that logo — paste a URL instead"
+    },
+    "finish": {
+      "title": "Add your card to your own wallet",
+      "body": "Test it yourself, right now, for free — exactly what your customers will see.",
+      "cta": "Go to dashboard"
+    }
+  },
+  "enroll": {
+    "title": "Join {{businessName}}'s loyalty card",
+    "genericTitle": "Join this loyalty card",
+    "nameLabel": "Your name (optional)",
+    "phoneLabel": "Phone number (optional)",
+    "phoneInvalid": "That doesn't look like a valid phone number",
+    "submit": "Add to my wallet",
+    "alreadyEnrolled": "You're already enrolled — here's your card",
+    "notFound": "This loyalty card isn't available anymore",
+    "upgradeRequired": "This business isn't accepting new customers right now",
+    "statusTitle": "Your card"
+  },
+  "dashboard": {
+    "nav": {
+      "overview": "Overview",
+      "customers": "Customers",
+      "activity": "Activity",
+      "standee": "Standee",
+      "billing": "Billing",
+      "signOut": "Sign out"
+    },
+    "plan": {
+      "free": "Free",
+      "pro": "Pro"
+    },
+    "qr": {
+      "title": "Your enrollment QR",
+      "activateCta": "Activate to get your QR code"
+    },
+    "preview": {
+      "title": "Try your card yourself",
+      "body": "Add your own card to your wallet — free, no activation needed."
+    },
+    "customers": {
+      "title": "Customers",
+      "emptyFree": "Activate to start enrolling real customers",
+      "emptyPro": "Share your QR or standee to get your first one"
+    },
+    "activity": {
+      "title": "Activity",
+      "emptyFree": "Activate to start enrolling real customers",
+      "emptyPro": "Activity will show up here once customers start collecting stamps"
+    },
+    "standee": {
+      "title": "Print your standee",
+      "print": "Print"
+    }
+  },
+  "billing": {
+    "title": "Billing",
+    "activateCta": "Activate",
+    "managePortalCta": "Manage billing",
+    "success": {
+      "finalizing": "Finalizing your subscription…",
+      "timeout": "This is taking longer than expected — check back shortly",
+      "done": "You're live! Real customers can now join your card."
+    },
+    "cancel": {
+      "title": "Checkout cancelled",
+      "body": "No charge was made.",
+      "backCta": "Back to billing"
+    }
   },
   "landing": {
     "nav": {

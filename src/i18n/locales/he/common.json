@@ -5,6 +5,15 @@
   "language": {
     "switch": "English"
   },
+  "common": {
+    "save": "שמירה",
+    "next": "הבא",
+    "back": "חזרה",
+    "loading": "טוען...",
+    "retry": "נסו שוב",
+    "copyLink": "העתקת קישור",
+    "copied": "הועתק!"
+  },
   "scaffold": {
     "title": "הכל מוכן",
     "subtitle": "טיילווינד, פונטים, טוקנים ו-RTL מחוברים"
@@ -20,6 +29,101 @@
     "signedInAs": "מחובר/ת בתור",
     "note": "כאן יבוא אשף ההקמה של העסק והכרטיסייה (השלב הבא בבנייה).",
     "signOut": "התנתקות"
+  },
+  "onboarding": {
+    "steps": {
+      "business": "העסק שלכם",
+      "design": "עיצוב הכרטיסייה",
+      "finish": "נסו בעצמכם"
+    },
+    "business": {
+      "title": "ספרו לנו על העסק שלכם",
+      "nameLabel": "שם העסק",
+      "nicheLabel": "איזה סוג עסק זה?",
+      "phoneLabel": "טלפון (לא חובה)"
+    },
+    "design": {
+      "title": "עיצוב הכרטיסייה",
+      "templateNameLabel": "שם הכרטיסייה",
+      "stampsRequiredLabel": "כמות ניקובים לפרס",
+      "rewardLabel": "תיאור הפרס",
+      "colorsTitle": "צבעים",
+      "primaryColorLabel": "צבע ראשי",
+      "backgroundColorLabel": "צבע רקע",
+      "textColorLabel": "צבע טקסט",
+      "logoLabel": "לוגו",
+      "logoUpload": "העלאת תמונה",
+      "logoUrlLabel": "או הדביקו קישור לתמונה",
+      "logoUploadError": "העלאת הלוגו נכשלה — הדביקו קישור במקום"
+    },
+    "finish": {
+      "title": "הוסיפו את הכרטיסייה לארנק שלכם",
+      "body": "נסו בעצמכם, עכשיו, בחינם — בדיוק מה שהלקוחות שלכם יראו.",
+      "cta": "מעבר ללוח הבקרה"
+    }
+  },
+  "enroll": {
+    "title": "הצטרפות לכרטיסיית הנאמנות של {{businessName}}",
+    "genericTitle": "הצטרפות לכרטיסיית הנאמנות",
+    "nameLabel": "שם (לא חובה)",
+    "phoneLabel": "מספר טלפון (לא חובה)",
+    "phoneInvalid": "זה לא נראה כמו מספר טלפון תקין",
+    "submit": "הוספה לארנק שלי",
+    "alreadyEnrolled": "כבר נרשמתם — הנה הכרטיסייה שלכם",
+    "notFound": "כרטיסיית הנאמנות הזו כבר לא זמינה",
+    "upgradeRequired": "העסק הזה לא קולט לקוחות חדשים כרגע",
+    "statusTitle": "הכרטיסייה שלכם"
+  },
+  "dashboard": {
+    "nav": {
+      "overview": "סקירה",
+      "customers": "לקוחות",
+      "activity": "פעילות",
+      "standee": "שילוט",
+      "billing": "חיוב",
+      "signOut": "התנתקות"
+    },
+    "plan": {
+      "free": "חינמי",
+      "pro": "פרו"
+    },
+    "qr": {
+      "title": "קוד ה-QR להרשמה",
+      "activateCta": "הפעילו כדי לקבל קוד QR"
+    },
+    "preview": {
+      "title": "נסו את הכרטיסייה בעצמכם",
+      "body": "הוסיפו את הכרטיסייה שלכם לארנק — בחינם, בלי צורך בהפעלה."
+    },
+    "customers": {
+      "title": "לקוחות",
+      "emptyFree": "הפעילו כדי להתחיל לרשום לקוחות אמיתיים",
+      "emptyPro": "שתפו את קוד ה-QR או השילוט כדי לקבל את הלקוח הראשון"
+    },
+    "activity": {
+      "title": "פעילות",
+      "emptyFree": "הפעילו כדי להתחיל לרשום לקוחות אמיתיים",
+      "emptyPro": "הפעילות תופיע כאן ברגע שלקוחות יתחילו לאסוף ניקובים"
+    },
+    "standee": {
+      "title": "הדפסת שילוט",
+      "print": "הדפסה"
+    }
+  },
+  "billing": {
+    "title": "חיוב",
+    "activateCta": "הפעלה",
+    "managePortalCta": "ניהול חיוב",
+    "success": {
+      "finalizing": "משלימים את המנוי שלכם…",
+      "timeout": "זה לוקח קצת יותר מהצפוי — בדקו שוב בקרוב",
+      "done": "אתם פעילים! לקוחות אמיתיים יכולים עכשיו להצטרף לכרטיסייה."
+    },
+    "cancel": {
+      "title": "התשלום בוטל",
+      "body": "לא בוצע חיוב.",
+      "backCta": "חזרה לחיוב"
+    }
   },
   "landing": {
     "nav": {
