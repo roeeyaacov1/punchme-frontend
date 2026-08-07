@@ -110,7 +110,13 @@
     "customers": {
       "title": "Customers",
       "emptyFree": "Activate to start enrolling real customers",
-      "emptyPro": "Share your QR or standee to get your first one"
+      "emptyPro": "Share your QR or standee to get your first one",
+      "columns": {
+        "name": "Name",
+        "phone": "Phone",
+        "progress": "Progress",
+        "card": "Card"
+      }
     },
     "activity": {
       "title": "Activity",
@@ -146,7 +152,8 @@
       "headline": "Your punch card, in your customers' digital wallet",
       "subheadline": "Customers scan a QR code once — the card lands straight in their Apple Wallet or Google Wallet. No app, no signup, and it updates itself with every stamp.",
       "cta": "Design your card — free",
-      "ctaHint": "Takes under a minute. No credit card required."
+      "ctaHint": "Takes under a minute. No credit card required.",
+      "trustBullets": ["Free to design", "No credit card required", "Live in minutes"]
     },
     "example": {
       "businessName": "Danny's Barbershop",
@@ -156,16 +163,16 @@
       "title": "Built to work for you",
       "items": [
         {
-          "title": "No app to download",
-          "body": "The card lives in the wallet that's already on every phone — no signup, no password, nothing to delete."
+          "title": "Customers keep coming back",
+          "body": "The card lives in the wallet that's already on every phone — no app to install means no friction to earning your next visit."
         },
         {
-          "title": "Say goodbye to paper cards",
-          "body": "No more torn cards, cards left at home, or cards that run out right before the last stamp."
+          "title": "No more lost sales from lost cards",
+          "body": "Paper cards get torn, forgotten at home, or tossed. A digital card can't be left behind — every visit still counts."
         },
         {
-          "title": "Free until you're ready",
-          "body": "Design and preview exactly how your card will look — for free. Pay only when you activate it for real customers."
+          "title": "Try it with zero risk",
+          "body": "Design and preview exactly how your card will look, for free. You only pay once it's actually bringing customers back."
         }
       ]
     },

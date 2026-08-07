@@ -8,6 +8,7 @@ import { queryClient } from "./lib/queryClient";
 import { AuthProvider } from "./auth/AuthProvider";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
 import { BusinessProvider } from "./business/BusinessProvider";
+import { RequireBusiness } from "./business/RequireBusiness";
 import { RootLayout } from "./routes/root";
 import { StyleGuidePage } from "./routes/style-guide";
 import { LandingPage } from "./routes/marketing/LandingPage";
@@ -16,6 +17,11 @@ import { LoginPage } from "./routes/auth/LoginPage";
 import { OnboardingLayout } from "./routes/onboarding/OnboardingLayout";
 import { JoinPage } from "./routes/public/JoinPage";
 import { CardStatusPage } from "./routes/public/CardStatusPage";
+import { DashboardLayout } from "./routes/dashboard/DashboardLayout";
+import { DashboardOverview } from "./routes/dashboard/DashboardOverview";
+import { CustomersPage } from "./routes/dashboard/CustomersPage";
+import { ActivityPage } from "./routes/dashboard/ActivityPage";
+import { StandeePage } from "./routes/dashboard/StandeePage";
 
 const router = createBrowserRouter([
   {
@@ -37,7 +43,24 @@ const router = createBrowserRouter([
                 <Outlet />
               </BusinessProvider>
             ),
-            children: [{ path: "onboarding", element: <OnboardingLayout /> }],
+            children: [
+              { path: "onboarding", element: <OnboardingLayout /> },
+              {
+                element: <RequireBusiness />,
+                children: [
+                  {
+                    path: "dashboard",
+                    element: <DashboardLayout />,
+                    children: [
+                      { index: true, element: <DashboardOverview /> },
+                      { path: "customers", element: <CustomersPage /> },
+                      { path: "activity", element: <ActivityPage /> },
+                      { path: "standee", element: <StandeePage /> },
+                    ],
+                  },
+                ],
+              },
+            ],
           },
         ],
       },
