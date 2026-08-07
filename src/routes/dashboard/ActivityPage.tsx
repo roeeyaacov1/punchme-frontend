@@ -15,7 +15,7 @@ export function ActivityPage() {
   const canEnroll = canEnrollRealCustomers(business);
   const [page, setPage] = useState(1);
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["activity", business?.id, page],
     queryFn: () => listActivity(business!.id!, page, PAGE_SIZE),
     enabled: !!business?.id,
@@ -30,7 +30,9 @@ export function ActivityPage() {
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-heading">{t("dashboard.activity.title")}</h1>
 
-      {items.length === 0 ? (
+      {isLoading ? (
+        <p className="text-slate font-mono text-sm">{t("common.loading")}</p>
+      ) : items.length === 0 ? (
         <p className="text-slate font-body">
           {canEnroll ? (
             t("dashboard.activity.emptyPro")

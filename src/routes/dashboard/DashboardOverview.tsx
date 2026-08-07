@@ -19,7 +19,7 @@ export function DashboardOverview() {
   const [searchParams] = useSearchParams();
   const justActivated = searchParams.get("activated") === "1";
 
-  const { data: templates } = useQuery({
+  const { data: templates, isLoading: isLoadingTemplates } = useQuery({
     queryKey: ["templates", business?.id],
     queryFn: () => listTemplates(business!.id!),
     enabled: !!business?.id,
@@ -41,7 +41,11 @@ export function DashboardOverview() {
     setTimeout(() => setCopied(false), 2000);
   }
 
-  if (!template) return null;
+  if (!template) {
+    return isLoadingTemplates ? (
+      <p className="text-slate font-mono text-sm">{t("common.loading")}</p>
+    ) : null;
+  }
 
   return (
     <div className="flex flex-col gap-6">

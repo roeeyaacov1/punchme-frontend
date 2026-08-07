@@ -15,7 +15,7 @@ export function CustomersPage() {
   const canEnroll = canEnrollRealCustomers(business);
   const [page, setPage] = useState(1);
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["customers", business?.id, page],
     queryFn: () => listCustomers(business!.id!, page, PAGE_SIZE),
     enabled: !!business?.id,
@@ -30,7 +30,9 @@ export function CustomersPage() {
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-heading">{t("dashboard.customers.title")}</h1>
 
-      {items.length === 0 ? (
+      {isLoading ? (
+        <p className="text-slate font-mono text-sm">{t("common.loading")}</p>
+      ) : items.length === 0 ? (
         <p className="text-slate font-body">
           {canEnroll ? (
             t("dashboard.customers.emptyPro")

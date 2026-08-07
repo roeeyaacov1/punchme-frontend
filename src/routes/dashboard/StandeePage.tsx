@@ -10,14 +10,18 @@ export function StandeePage() {
   const { t } = useTranslation();
   const { business } = useBusiness();
 
-  const { data: templates } = useQuery({
+  const { data: templates, isLoading } = useQuery({
     queryKey: ["templates", business?.id],
     queryFn: () => listTemplates(business!.id!),
     enabled: !!business?.id,
   });
   const template = templates?.[0];
 
-  if (!template) return null;
+  if (!template) {
+    return isLoading ? (
+      <p className="text-slate font-mono text-sm">{t("common.loading")}</p>
+    ) : null;
+  }
 
   return (
     <div className="flex flex-col items-center gap-6">
