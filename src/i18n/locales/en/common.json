@@ -30,6 +30,11 @@
     "note": "The business + card onboarding wizard goes here (next build step).",
     "signOut": "Sign out"
   },
+  "wallet": {
+    "addApple": "Add to Apple Wallet",
+    "addGoogle": "Add to Google Wallet",
+    "pending": "Preparing your wallet pass — this only takes a moment."
+  },
   "onboarding": {
     "steps": {
       "business": "Your business",
@@ -40,7 +45,14 @@
       "title": "Tell us about your business",
       "nameLabel": "Business name",
       "nicheLabel": "What kind of business is this?",
-      "phoneLabel": "Phone (optional)"
+      "phoneLabel": "Phone (optional)",
+      "niches": {
+        "barber": "Barber",
+        "cafe": "Café",
+        "trainer": "Personal trainer",
+        "therapist": "Therapist",
+        "other": "Other"
+      }
     },
     "design": {
       "title": "Design your card",
@@ -48,9 +60,9 @@
       "stampsRequiredLabel": "Stamps required for a reward",
       "rewardLabel": "Reward description",
       "colorsTitle": "Colors",
-      "primaryColorLabel": "Primary color",
       "backgroundColorLabel": "Background color",
-      "textColorLabel": "Text color",
+      "foregroundColorLabel": "Stamp & text color",
+      "labelColorLabel": "Label color",
       "logoLabel": "Logo",
       "logoUpload": "Upload an image",
       "logoUrlLabel": "Or paste an image URL",

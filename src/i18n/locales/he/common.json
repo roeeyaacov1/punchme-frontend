@@ -30,6 +30,11 @@
     "note": "כאן יבוא אשף ההקמה של העסק והכרטיסייה (השלב הבא בבנייה).",
     "signOut": "התנתקות"
   },
+  "wallet": {
+    "addApple": "הוספה לאפל ווליט",
+    "addGoogle": "הוספה לגוגל ווליט",
+    "pending": "מכינים את הכרטיסייה שלכם — זה ייקח רק רגע."
+  },
   "onboarding": {
     "steps": {
       "business": "העסק שלכם",
@@ -40,7 +45,14 @@
       "title": "ספרו לנו על העסק שלכם",
       "nameLabel": "שם העסק",
       "nicheLabel": "איזה סוג עסק זה?",
-      "phoneLabel": "טלפון (לא חובה)"
+      "phoneLabel": "טלפון (לא חובה)",
+      "niches": {
+        "barber": "מספרה",
+        "cafe": "בית קפה",
+        "trainer": "מאמן/ת אישי/ת",
+        "therapist": "מטפל/ת",
+        "other": "אחר"
+      }
     },
     "design": {
       "title": "עיצוב הכרטיסייה",
@@ -48,9 +60,9 @@
       "stampsRequiredLabel": "כמות ניקובים לפרס",
       "rewardLabel": "תיאור הפרס",
       "colorsTitle": "צבעים",
-      "primaryColorLabel": "צבע ראשי",
       "backgroundColorLabel": "צבע רקע",
-      "textColorLabel": "צבע טקסט",
+      "foregroundColorLabel": "צבע ניקובים וטקסט",
+      "labelColorLabel": "צבע כיתוב",
       "logoLabel": "לוגו",
       "logoUpload": "העלאת תמונה",
       "logoUrlLabel": "או הדביקו קישור לתמונה",
