@@ -22,6 +22,9 @@ import { DashboardOverview } from "./routes/dashboard/DashboardOverview";
 import { CustomersPage } from "./routes/dashboard/CustomersPage";
 import { ActivityPage } from "./routes/dashboard/ActivityPage";
 import { StandeePage } from "./routes/dashboard/StandeePage";
+import { BillingSettingsPage } from "./routes/dashboard/BillingSettingsPage";
+import { BillingSuccessPage } from "./routes/billing/BillingSuccessPage";
+import { BillingCancelPage } from "./routes/billing/BillingCancelPage";
 
 const router = createBrowserRouter([
   {
@@ -56,8 +59,11 @@ const router = createBrowserRouter([
                       { path: "customers", element: <CustomersPage /> },
                       { path: "activity", element: <ActivityPage /> },
                       { path: "standee", element: <StandeePage /> },
+                      { path: "billing", element: <BillingSettingsPage /> },
                     ],
                   },
+                  { path: "billing/success", element: <BillingSuccessPage /> },
+                  { path: "billing/cancel", element: <BillingCancelPage /> },
                 ],
               },
             ],

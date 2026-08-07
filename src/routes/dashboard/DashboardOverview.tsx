@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { Button, Card } from "../../components/ui";
 import { WalletCardPreview } from "../../components/wallet-card/WalletCardPreview";
@@ -16,6 +16,8 @@ export function DashboardOverview() {
   const { t } = useTranslation();
   const { business } = useBusiness();
   const canEnroll = canEnrollRealCustomers(business);
+  const [searchParams] = useSearchParams();
+  const justActivated = searchParams.get("activated") === "1";
 
   const { data: templates } = useQuery({
     queryKey: ["templates", business?.id],
@@ -42,47 +44,54 @@ export function DashboardOverview() {
   if (!template) return null;
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start">
-      <div className="flex justify-center w-full lg:w-auto">
-        <WalletCardPreview
-          businessName={business?.name ?? ""}
-          stampsRequired={template.stamps_required}
-          rewardDescription={template.reward_description}
-          backgroundColor={template.background_color}
-          foregroundColor={template.foreground_color}
-          labelColor={template.label_color}
-          logoUrl={template.logo_url ?? undefined}
-        />
-      </div>
+    <div className="flex flex-col gap-6">
+      {justActivated && canEnroll && (
+        <p className="rounded-xl bg-emerald-50 text-emerald-800 px-4 py-3 text-sm font-body">
+          {t("billing.success.done")}
+        </p>
+      )}
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+        <div className="flex justify-center w-full lg:w-auto">
+          <WalletCardPreview
+            businessName={business?.name ?? ""}
+            stampsRequired={template.stamps_required}
+            rewardDescription={template.reward_description}
+            backgroundColor={template.background_color}
+            foregroundColor={template.foreground_color}
+            labelColor={template.label_color}
+            logoUrl={template.logo_url ?? undefined}
+          />
+        </div>
 
-      <div className="flex flex-col gap-6 w-full max-w-sm">
-        <Card>
-          <h2 className="text-lg font-heading mb-3">{t("dashboard.qr.title")}</h2>
-          {canEnroll ? (
-            <div dir="ltr" className="flex flex-col items-center gap-4">
-              <QRCodeSVG value={buildEnrollUrl(template.id!)} size={160} />
-              <Button variant="secondary" size="sm" onClick={handleCopyLink}>
-                {copied ? t("common.copied") : t("common.copyLink")}
-              </Button>
-            </div>
-          ) : (
-            <Link to="/dashboard/billing" className="text-sm text-navy underline">
-              {t("dashboard.qr.activateCta")}
-            </Link>
-          )}
-        </Card>
+        <div className="flex flex-col gap-6 w-full max-w-sm">
+          <Card>
+            <h2 className="text-lg font-heading mb-3">{t("dashboard.qr.title")}</h2>
+            {canEnroll ? (
+              <div dir="ltr" className="flex flex-col items-center gap-4">
+                <QRCodeSVG value={buildEnrollUrl(template.id!)} size={160} />
+                <Button variant="secondary" size="sm" onClick={handleCopyLink}>
+                  {copied ? t("common.copied") : t("common.copyLink")}
+                </Button>
+              </div>
+            ) : (
+              <Link to="/dashboard/billing" className="text-sm text-navy underline">
+                {t("dashboard.qr.activateCta")}
+              </Link>
+            )}
+          </Card>
 
-        <Card>
-          <h2 className="text-lg font-heading mb-1">{t("dashboard.preview.title")}</h2>
-          <p className="text-sm text-slate font-body mb-3">{t("dashboard.preview.body")}</p>
-          {previewResult && (
-            <WalletAddButtons
-              appleUrl={previewResult.wallet_apple_url}
-              googleUrl={previewResult.wallet_google_url}
-              pending={previewResult.wallet_issue_pending}
-            />
-          )}
-        </Card>
+          <Card>
+            <h2 className="text-lg font-heading mb-1">{t("dashboard.preview.title")}</h2>
+            <p className="text-sm text-slate font-body mb-3">{t("dashboard.preview.body")}</p>
+            {previewResult && (
+              <WalletAddButtons
+                appleUrl={previewResult.wallet_apple_url}
+                googleUrl={previewResult.wallet_google_url}
+                pending={previewResult.wallet_issue_pending}
+              />
+            )}
+          </Card>
+        </div>
       </div>
     </div>
   );
