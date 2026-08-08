@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { signInWithGoogle } from "../../api/auth";
+import { ApiError } from "../../api/errors";
 import { useAuth } from "../../auth/useAuth";
 import { GoogleAuthButton } from "../../auth/providers/GoogleAuthButton";
 import logo from "../../assets/logo.png";
@@ -22,8 +23,9 @@ export function LoginPage() {
         (location.state as { from?: { pathname: string } } | null)?.from
           ?.pathname ?? "/onboarding";
       navigate(from, { replace: true });
-    } catch {
-      setError(t("auth.error"));
+    } catch (err) {
+      console.error("Google sign-in failed:", err);
+      setError(err instanceof ApiError ? err.message : t("auth.error"));
     }
   }
 

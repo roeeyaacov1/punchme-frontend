@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, ColorField, Input } from "../../components/ui";
+import { Button, BackgroundPicker, ColorField, IconPicker, Input, Slider } from "../../components/ui";
 import { WalletCardPreview } from "../../components/wallet-card/WalletCardPreview";
 import { patchTemplate, type Business, type CardTemplate } from "../../api/businesses";
 import { uploadLogo } from "../../lib/cloudinaryUpload";
@@ -23,8 +23,13 @@ export function DesignStep({ business, template, onSaved, onBack }: DesignStepPr
   const [logoUrl, setLogoUrl] = useState(template.logo_url ?? "");
   const [logoError, setLogoError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [stampIcon, setStampIcon] = useState<string | undefined>(undefined);
+  const [heroBackground, setHeroBackground] = useState("");
+  const [isUploadingHero, setIsUploadingHero] = useState(false);
+  const [showAdvancedColors, setShowAdvancedColors] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const heroFileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleLogoFile(file: File) {
     setLogoError(null);
@@ -41,11 +46,27 @@ export function DesignStep({ business, template, onSaved, onBack }: DesignStepPr
     }
   }
 
+  async function handleHeroFile(file: File) {
+    setIsUploadingHero(true);
+    try {
+      const url = await uploadLogo(file);
+      setHeroBackground(url);
+    } catch {
+      // Cloudinary unconfigured or upload failed — leave the current
+      // preset/none selection in place rather than surfacing a dead-end error.
+    } finally {
+      setIsUploadingHero(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
     try {
+      // stampIcon/heroBackground are local-only until CardTemplateIn grows
+      // `stamp_icon`/`hero_background` fields on the backend (see plan A.5) —
+      // they drive the live preview here but aren't persisted yet.
       const updated = await patchTemplate(business.id!, template.id!, {
         name,
         stamps_required: stampsRequired,
@@ -74,14 +95,13 @@ export function DesignStep({ business, template, onSaved, onBack }: DesignStepPr
           onChange={(e) => setName(e.target.value)}
           required
         />
-        <Input
+        <Slider
           label={t("onboarding.design.stampsRequiredLabel")}
-          type="number"
+          hint={t("onboarding.design.stampsRequiredHint", { count: stampsRequired })}
           min={1}
           max={50}
           value={stampsRequired}
-          onChange={(e) => setStampsRequired(Number(e.target.value))}
-          required
+          onChange={setStampsRequired}
         />
         <Input
           label={t("onboarding.design.rewardLabel")}
@@ -90,25 +110,60 @@ export function DesignStep({ business, template, onSaved, onBack }: DesignStepPr
           required
         />
 
+        <IconPicker
+          label={t("onboarding.design.stampIconLabel")}
+          value={stampIcon}
+          onChange={setStampIcon}
+        />
+
+        <BackgroundPicker
+          label={t("onboarding.design.heroBackgroundLabel")}
+          hint={t("onboarding.design.heroBackgroundHint")}
+          value={heroBackground}
+          onChange={setHeroBackground}
+          isUploading={isUploadingHero}
+          onUploadClick={() => heroFileInputRef.current?.click()}
+        />
+        <input
+          ref={heroFileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) void handleHeroFile(file);
+          }}
+        />
+
         <div className="flex flex-col gap-3">
-          <p className="text-sm font-medium text-navy font-body">
-            {t("onboarding.design.colorsTitle")}
-          </p>
-          <ColorField
-            label={t("onboarding.design.backgroundColorLabel")}
-            value={backgroundColor}
-            onChange={setBackgroundColor}
-          />
-          <ColorField
-            label={t("onboarding.design.foregroundColorLabel")}
-            value={foregroundColor}
-            onChange={setForegroundColor}
-          />
-          <ColorField
-            label={t("onboarding.design.labelColorLabel")}
-            value={labelColor}
-            onChange={setLabelColor}
-          />
+          <button
+            type="button"
+            onClick={() => setShowAdvancedColors((v) => !v)}
+            className="text-sm font-medium text-navy font-body text-start underline hover:no-underline w-fit"
+          >
+            {showAdvancedColors
+              ? t("onboarding.design.hideAdvancedColors")
+              : t("onboarding.design.showAdvancedColors")}
+          </button>
+          {showAdvancedColors && (
+            <>
+              <ColorField
+                label={t("onboarding.design.backgroundColorLabel")}
+                value={backgroundColor}
+                onChange={setBackgroundColor}
+              />
+              <ColorField
+                label={t("onboarding.design.foregroundColorLabel")}
+                value={foregroundColor}
+                onChange={setForegroundColor}
+              />
+              <ColorField
+                label={t("onboarding.design.labelColorLabel")}
+                value={labelColor}
+                onChange={setLabelColor}
+              />
+            </>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5 text-start">
@@ -155,6 +210,8 @@ export function DesignStep({ business, template, onSaved, onBack }: DesignStepPr
           foregroundColor={foregroundColor}
           labelColor={labelColor}
           logoUrl={logoUrl || undefined}
+          stampIcon={stampIcon}
+          heroBackground={heroBackground || undefined}
         />
       </div>
     </div>

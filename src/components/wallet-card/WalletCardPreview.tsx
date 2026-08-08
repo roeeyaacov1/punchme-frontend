@@ -1,3 +1,7 @@
+import { cn } from "../../lib/cn";
+import { STAMP_ICONS } from "../../lib/stampIcons";
+import { HERO_BACKGROUNDS, isPresetHeroBackground } from "../../lib/heroBackgrounds";
+
 export interface WalletCardPreviewProps {
   backgroundColor: string;
   foregroundColor: string;
@@ -7,6 +11,12 @@ export interface WalletCardPreviewProps {
   stampsRequired: number;
   currentStamps?: number;
   rewardDescription: string;
+  /** Preset icon key (see src/lib/stampIcons.ts) rendered per stamp instead
+   * of a plain circle. Falls back to the circle when unset. */
+  stampIcon?: string;
+  /** A preset key (src/lib/heroBackgrounds.ts) or an uploaded image URL,
+   * rendered behind the stamp row. */
+  heroBackground?: string;
 }
 
 /**
@@ -23,8 +33,20 @@ export function WalletCardPreview({
   stampsRequired,
   currentStamps = 0,
   rewardDescription,
+  stampIcon,
+  heroBackground,
 }: WalletCardPreviewProps) {
   const stamps = Array.from({ length: Math.max(stampsRequired, 1) });
+  const StampIcon = stampIcon ? STAMP_ICONS[stampIcon] : undefined;
+  const heroStyle: React.CSSProperties | undefined = !heroBackground
+    ? undefined
+    : isPresetHeroBackground(heroBackground)
+      ? { background: HERO_BACKGROUNDS[heroBackground] }
+      : {
+          backgroundImage: `url(${heroBackground})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        };
 
   return (
     <div
@@ -54,18 +76,33 @@ export function WalletCardPreview({
           </span>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {stamps.map((_, i) => (
-            <span
-              key={i}
-              className="h-6 w-6 rounded-full border-2"
-              style={{
-                borderColor: foregroundColor,
-                backgroundColor: i < currentStamps ? foregroundColor : "transparent",
-                opacity: i < currentStamps ? 1 : 0.45,
-              }}
-            />
-          ))}
+        <div
+          className={cn("flex flex-wrap gap-2", heroStyle && "rounded-xl p-3 -m-1")}
+          style={heroStyle}
+        >
+          {stamps.map((_, i) =>
+            StampIcon ? (
+              <StampIcon
+                key={i}
+                size={22}
+                strokeWidth={2}
+                style={{
+                  color: foregroundColor,
+                  opacity: i < currentStamps ? 1 : 0.35,
+                }}
+              />
+            ) : (
+              <span
+                key={i}
+                className="h-6 w-6 rounded-full border-2"
+                style={{
+                  borderColor: foregroundColor,
+                  backgroundColor: i < currentStamps ? foregroundColor : "transparent",
+                  opacity: i < currentStamps ? 1 : 0.45,
+                }}
+              />
+            ),
+          )}
         </div>
 
         <div>

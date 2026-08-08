@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, Input } from "../../components/ui";
+import { Button, Input, PlacesAutocomplete } from "../../components/ui";
 import { getPresets, type Preset } from "../../api/presets";
 import {
   createBusiness,
@@ -9,6 +9,7 @@ import {
   type Business,
   type CardTemplate,
 } from "../../api/businesses";
+import type { PlaceResult } from "../../lib/googlePlaces";
 
 const NICHE_ORDER = ["barber", "cafe", "trainer", "therapist", "other"];
 
@@ -28,12 +29,27 @@ export function BusinessStep({ onCreated }: BusinessStepProps) {
   const [name, setName] = useState("");
   const [niche, setNiche] = useState("barber");
   const [phone, setPhone] = useState("");
+  const [autofilled, setAutofilled] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const orderedPresets = (presets ?? []).slice().sort(
     (a, b) => NICHE_ORDER.indexOf(a.niche) - NICHE_ORDER.indexOf(b.niche),
   );
+
+  function handlePlaceSelect(place: PlaceResult) {
+    setName(place.displayName);
+    if (place.internationalPhoneNumber) {
+      setPhone(place.internationalPhoneNumber);
+    }
+    setAutofilled(true);
+  }
+
+  function handleClearAutofill() {
+    setName("");
+    setPhone("");
+    setAutofilled(false);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,7 +60,7 @@ export function BusinessStep({ onCreated }: BusinessStepProps) {
         name,
         niche,
         phone,
-        timezone: "Asia/Jerusalem",
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
       const preset = presets?.find((p: Preset) => p.niche === niche);
       const template = await createTemplate(business.id!, {
@@ -69,12 +85,35 @@ export function BusinessStep({ onCreated }: BusinessStepProps) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full max-w-sm">
       <h1 className="text-2xl text-navy">{t("onboarding.business.title")}</h1>
 
-      <Input
+      <PlacesAutocomplete
         label={t("onboarding.business.nameLabel")}
         value={name}
-        onChange={(e) => setName(e.target.value)}
+        onQueryChange={(value) => {
+          setName(value);
+          if (autofilled) setAutofilled(false);
+        }}
+        onSelect={handlePlaceSelect}
         required
       />
+      {autofilled && (
+        <div className="flex items-start justify-between gap-3 rounded-xl bg-navy/5 px-4 py-3">
+          <div className="flex flex-col gap-0.5">
+            <p className="text-sm font-medium text-navy font-body">
+              {t("onboarding.business.autofillTitle")}
+            </p>
+            <p className="text-xs text-slate font-body">
+              {t("onboarding.business.autofillBody")}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleClearAutofill}
+            className="shrink-0 text-xs font-medium text-navy underline hover:no-underline"
+          >
+            {t("onboarding.business.autofillClear")}
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-col gap-1.5 text-start">
         <label className="text-sm font-medium text-navy font-body">
