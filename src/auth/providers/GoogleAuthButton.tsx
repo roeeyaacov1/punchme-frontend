@@ -13,6 +13,7 @@ declare global {
             callback: (response: { credential: string }) => void;
             auto_select?: boolean;
             cancel_on_tap_outside?: boolean;
+            use_fedcm_for_button?: boolean;
           }) => void;
           renderButton: (
             parent: HTMLElement,
@@ -68,6 +69,13 @@ export function GoogleAuthButton({ onSuccess, onError }: AuthProviderButtonProps
           // under React StrictMode's double-effect in dev.
           auto_select: false,
           cancel_on_tap_outside: true,
+          // Without this, the button falls back to a popup-based OAuth flow
+          // that depends on third-party storage access for its postMessage
+          // bridge back to this page. Browsers increasingly block that
+          // silently — the picker still opens and the user can pick an
+          // account, but the callback below never fires. FedCM uses the
+          // browser's native account chooser instead, with no popup/bridge.
+          use_fedcm_for_button: true,
         });
         containerRef.current.innerHTML = "";
         window.google.accounts.id.renderButton(containerRef.current, {
