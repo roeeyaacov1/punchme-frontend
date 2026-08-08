@@ -22,7 +22,15 @@
     "title": "Sign in or sign up to start designing your card",
     "error": "Something went wrong signing in. Please try again.",
     "missingClientId": "Missing Google Client ID (VITE_GOOGLE_CLIENT_ID)",
-    "loadingSession": "Loading..."
+    "loadingSession": "Loading...",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "signInCta": "Sign in",
+    "signUpCta": "Create account",
+    "submitting": "Please wait…",
+    "orDivider": "or",
+    "toggleToSignUp": "Don't have an account? Sign up",
+    "toggleToSignIn": "Already have an account? Sign in"
   },
   "onboardingPlaceholder": {
     "title": "Signed in successfully",

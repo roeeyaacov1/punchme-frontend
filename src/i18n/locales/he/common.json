@@ -22,7 +22,15 @@
     "title": "כניסה או הרשמה כדי להתחיל לעצב את הכרטיסייה שלכם",
     "error": "משהו השתבש בכניסה. נסו שוב.",
     "missingClientId": "חסר מזהה Google Client (VITE_GOOGLE_CLIENT_ID)",
-    "loadingSession": "טוען..."
+    "loadingSession": "טוען...",
+    "emailLabel": "אימייל",
+    "passwordLabel": "סיסמה",
+    "signInCta": "כניסה",
+    "signUpCta": "יצירת חשבון",
+    "submitting": "רגע…",
+    "orDivider": "או",
+    "toggleToSignUp": "אין לכם חשבון? הרשמה",
+    "toggleToSignIn": "כבר יש לכם חשבון? כניסה"
   },
   "onboardingPlaceholder": {
     "title": "מחוברים בהצלחה",

@@ -12,6 +12,22 @@ export function signInWithGoogle(idToken: string) {
   );
 }
 
+export function signUpWithPassword(email: string, password: string) {
+  return api.post<TokenPair>(
+    "/api/auth/signup",
+    { email, password },
+    { auth: false },
+  );
+}
+
+export function signInWithPassword(email: string, password: string) {
+  return api.post<TokenPair>(
+    "/api/auth/login",
+    { email, password },
+    { auth: false },
+  );
+}
+
 export function getCurrentUser() {
   return api.get<User>("/api/auth/me");
 }
