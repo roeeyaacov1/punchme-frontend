@@ -200,21 +200,170 @@
   },
   "landing": {
     "nav": {
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "howItWorks": "How it works",
+      "worth": "What regulars are worth",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "designCta": "Design your card",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "skipToContent": "Skip to content"
     },
     "hero": {
-      "eyebrow": "For small, independent businesses",
-      "headline": "Your punch card, in your customers' digital wallet",
-      "subheadline": "Customers scan a QR code once — the card lands straight in their Apple Wallet or Google Wallet. No app, no signup, and it updates itself with every stamp.",
+      "eyebrow": "A digital customer club for your business",
+      "headline": "Make every customer a regular",
+      "subheadline": "A punch card that lives in your customers' Apple Wallet or Google Wallet. They scan a QR code once. No app, no signup, and it updates itself with every visit.",
       "cta": "Design your card — free",
-      "ctaHint": "Takes under a minute. No credit card required.",
-      "trustBullets": ["Free to design", "No credit card required", "Live in minutes"]
+      "secondaryCta": "See what regulars are worth",
+      "trustBullets": ["Free to design", "No credit card required", "Live in minutes"],
+      "worksWith": "Works with",
+      "appleWallet": "Apple Wallet",
+      "googleWallet": "Google Wallet"
+    },
+    "proof": {
+      "eyebrow": "Why regulars matter",
+      "title": "Your regulars are worth more than you think",
+      "lead": "Three numbers worth knowing before you decide anything. Each one links to where it came from.",
+      "stats": [
+        {
+          "id": "square",
+          "value": "6x",
+          "claim": "Regulars generate about six times more annual revenue than one-time customers.",
+          "context": "Square defined a regular as someone who visits at least four times a year, then analysed seven years of transactions across small businesses like yours.",
+          "source": "Square Local Economy Report, March 2026 (US data)"
+        },
+        {
+          "id": "hbr",
+          "value": "5–25x",
+          "claim": "Winning a new customer costs five to twenty-five times more than keeping one you already have.",
+          "context": "The gap between an ad that buys one visit and a card that earns the next ten.",
+          "source": "Harvard Business Review, 2014"
+        },
+        {
+          "id": "harris",
+          "value": "58%",
+          "claim": "Fifty-eight percent of people are less likely to join a loyalty program that makes them download an app.",
+          "context": "79% said they're more likely to join one with no physical card to carry. A wallet pass is neither.",
+          "source": "Harris Poll for Wilbur, 2019"
+        }
+      ]
+    },
+    "calculator": {
+      "eyebrow": "What regulars are worth",
+      "title": "See what one more visit a month is worth to you",
+      "lead": "Your numbers, your arithmetic. Nothing you type here leaves your browser.",
+      "presetsLabel": "Start from a typical",
+      "presets": {
+        "cafe": "Café",
+        "barbershop": "Barbershop",
+        "studio": "Studio"
+      },
+      "inputs": {
+        "customers": "Different customers you serve in a month",
+        "ticket": "Average spend per visit (₪)",
+        "visits": "Times an average customer comes back per month today",
+        "margin": "Gross margin (%)",
+        "stamps": "Stamps needed for the reward",
+        "adoption": "% of customers who join the card",
+        "lift": "% more often joiners visit"
+      },
+      "assumptions": {
+        "title": "Adjust assumptions",
+        "note": "These two are estimates, not promises. Move them to match what you think is realistic for your business."
+      },
+      "result": {
+        "breakEvenVisits_one": "{{count}} extra visit",
+        "breakEvenVisits_other": "{{count}} extra visits",
+        "breakEvenClaim": "is all it takes for PunchMe to pay for itself this month.",
+        "breakEvenDetail": "At ₪{{ticket}} a visit and {{margin}}% margin, one visit is ₪{{gross}} of gross profit. PunchMe is ₪{{price}}.",
+        "ifLabel": "If your card lifts visits by {{lift}}%…",
+        "extraVisits": "+{{visits}} extra visits a month",
+        "extraRevenue": "+₪{{amount}} extra revenue",
+        "rewardCost": "−₪{{amount}} rewards given away",
+        "rewardCostWhy": "Why this number is deliberately high",
+        "rewardCostTooltip": "Costed pessimistically on purpose: every reward is charged at the full gross profit of an average ticket, as if it replaced a full-price sale. In practice a reward is usually a single item, and some people only came back because of it — so your real cost is lower than this line.",
+        "subscription": "−₪{{amount}} PunchMe",
+        "net": "{{amount}} net, every month",
+        "netAnnual": "{{amount}} over a year",
+        "negative": "At these numbers the reward costs more than the extra visits bring in. Try a higher stamp count — that's the single biggest lever here.",
+        "footnote": "An estimate based on the numbers you entered. Nothing here is sent anywhere — the calculation runs in your browser."
+      },
+      "a11y": {
+        "shekels": "{{value}} shekels",
+        "percent": "{{value}} percent",
+        "visits": "{{value}} times a month",
+        "customers": "{{value}} customers",
+        "stamps": "{{value}} stamps",
+        "summary": "Break-even {{breakEven}}, net {{net}} shekels a month"
+      }
+    },
+    "features": {
+      "eyebrow": "What's included",
+      "title": "Everything you need, nothing you don't",
+      "items": [
+        {
+          "title": "A designer with a live preview",
+          "body": "Logo, colors, stamp count and reward — the card changes as you type."
+        },
+        {
+          "title": "Apple Wallet and Google Wallet",
+          "body": "One pass, both platforms. It sits beside their boarding passes and bank cards."
+        },
+        {
+          "title": "Nothing for customers to install",
+          "body": "No app, no account, no password. One QR scan and the card is saved."
+        },
+        {
+          "title": "Stamps by scanning the pass",
+          "body": "Scan the QR on your customer's card and the stamp lands straight away."
+        },
+        {
+          "title": "Rewards that track themselves",
+          "body": "The card counts up on its own and unlocks the reward the moment it's earned."
+        },
+        {
+          "title": "See who's coming back",
+          "body": "A dashboard of your customers, their progress, and every visit as it happens."
+        }
+      ]
+    },
+    "faq": {
+      "eyebrow": "Questions",
+      "title": "Before you start",
+      "items": [
+        {
+          "q": "Does my customer need to download an app?",
+          "a": "No. The card is a wallet pass, so it opens straight into the Apple Wallet or Google Wallet already on their phone. They scan your QR code once and it's saved — nothing to install, no account to create, no password to forget."
+        },
+        {
+          "q": "How do I add a stamp?",
+          "a": "You scan the QR code on the customer's pass. It takes about as long as handing back a receipt, and the stamp appears on their card straight away."
+        },
+        {
+          "q": "What happens if they change phones?",
+          "a": "Their stamps are stored against their card on our side, not on the phone itself, so the count is never lost. Moving the pass onto a new handset isn't automatic yet — message us and we'll sort it out."
+        },
+        {
+          "q": "What does it cost, and when am I charged?",
+          "a": "Designing your card, previewing it on your own phone and using the dashboard are free for as long as you like. You're charged ₪59 a month only when you activate the card for real customers."
+        },
+        {
+          "q": "Can I change the design after I launch?",
+          "a": "Yes. Colors, stamp count and reward can all be changed after you go live — message us with what you want changed and we'll apply it to your card."
+        },
+        {
+          "q": "Does it work on both iPhone and Android?",
+          "a": "Yes. iPhone customers get an Apple Wallet pass and Android customers get a Google Wallet pass. Both update the same way, and you scan them the same way."
+        }
+      ]
     },
     "example": {
       "businessName": "Danny's Barbershop",
       "reward": "One free haircut"
     },
     "values": {
+      "eyebrow": "Why PunchMe",
       "title": "Built to work for you",
       "items": [
         {
@@ -232,7 +381,9 @@
       ]
     },
     "howItWorks": {
+      "eyebrow": "How it works",
       "title": "Three steps to your first customer",
+      "lead": "From an empty page to a card in a customer's pocket, without anyone installing anything.",
       "steps": [
         {
           "title": "Design your card",
@@ -255,11 +406,16 @@
     "pricing": {
       "title": "Start for free",
       "body": "Designing your card and dashboard costs nothing. Pay ₪59/month only when you activate the card for real customers.",
-      "cta": "Let's get started"
+      "cta": "Let's get started",
+      "price": "₪59",
+      "perMonth": "/month",
+      "calcNote": "Based on your numbers, that's ₪{{amount}} back every month."
     },
     "footer": {
       "tagline": "Digital loyalty for today's small businesses.",
-      "rights": "All rights reserved."
+      "rights": "All rights reserved.",
+      "productHeading": "Product",
+      "languageHeading": "Language"
     }
   }
 }
