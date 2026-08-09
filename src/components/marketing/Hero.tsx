@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
-import { WalletCardPreview } from "../wallet-card/WalletCardPreview";
 import { Container, ctaClasses } from "./primitives";
+import { HeroCardCarousel } from "./HeroCardCarousel";
 import { WalletMark } from "./WalletMarks";
 
 export function Hero() {
@@ -86,28 +86,10 @@ export function Hero() {
           </div>
 
           <div className="flex justify-center md:col-span-5">
-            <div className="relative">
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 -z-10 scale-125 rounded-full opacity-70 blur-2xl"
-                style={{
-                  background:
-                    "radial-gradient(circle, rgba(200,138,17,0.22) 0%, rgba(200,138,17,0) 70%)",
-                }}
-              />
-              {/* Float only from md up: on a phone the card is the whole
-                  visual and a moving target is just distracting. */}
-              <div className="rounded-3xl shadow-lift md:animate-float-slow">
-                <WalletCardPreview
-                  backgroundColor="#1b2036"
-                  foregroundColor="#ffffff"
-                  labelColor="#a7adc9"
-                  businessName={t("landing.example.businessName")}
-                  stampsRequired={8}
-                  currentStamps={5}
-                  rewardDescription={t("landing.example.reward")}
-                />
-              </div>
+            {/* Float only from md up: on a phone the card is the whole
+                visual and a moving target is just distracting. */}
+            <div className="w-full md:animate-float-slow">
+              <HeroCardCarousel />
             </div>
           </div>
         </div>
