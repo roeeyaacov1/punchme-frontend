@@ -186,6 +186,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/businesses/{business_id}/templates/from-preset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Template From Preset */
+        post: operations["apps_businesses_api_create_template_from_preset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/businesses/{business_id}/templates/{template_id}": {
         parameters: {
             query?: never;
@@ -203,6 +220,62 @@ export interface paths {
         patch: operations["apps_businesses_api_patch_template"];
         trace?: never;
     };
+    "/api/businesses/{business_id}/templates/{template_id}/design": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Template Design */
+        get: operations["apps_businesses_api_get_template_design"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/templates/{template_id}/design/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Template Design
+         * @description Stateless: applies the candidate changes in memory only and returns
+         *     the same payload as GET .../design — the editor's debounced live-edit
+         *     loop. Nothing is saved and no provider call is made.
+         */
+        post: operations["apps_businesses_api_preview_template_design"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/templates/{template_id}/images": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload Template Image */
+        post: operations["apps_businesses_api_upload_template_image"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/presets": {
         parameters: {
             query?: never;
@@ -214,6 +287,27 @@ export interface paths {
         get: operations["apps_businesses_api_get_presets"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/join/{template_id}/otp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request Join Otp
+         * @description Step 1 of the public join flow: send an SMS verification code.
+         *     Always 204 (no user enumeration); rate-limit hits surface as 429.
+         */
+        post: operations["apps_loyalty_api_request_join_otp"];
         delete?: never;
         options?: never;
         head?: never;
@@ -396,6 +490,82 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Catalog */
+        get: operations["apps_businesses_api_list_catalog"];
+        put?: never;
+        /** Create Catalog Entry */
+        post: operations["apps_businesses_api_create_catalog_entry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/catalog/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reorder Catalog */
+        post: operations["apps_businesses_api_reorder_catalog"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/catalog/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Catalog Entry
+         * @description Stateless designer preview for catalog authoring — the admin area
+         *     reuses the Card Studio designer against this instead of an owned
+         *     template. Nothing is saved and no provider is called.
+         */
+        post: operations["apps_businesses_api_preview_catalog_entry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/catalog/{catalog_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Catalog Entry */
+        get: operations["apps_businesses_api_get_catalog_entry"];
+        put?: never;
+        post?: never;
+        /** Delete Catalog Entry */
+        delete: operations["apps_businesses_api_delete_catalog_entry"];
+        options?: never;
+        head?: never;
+        /** Patch Catalog Entry */
+        patch: operations["apps_businesses_api_patch_catalog_entry"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -423,6 +593,11 @@ export interface components {
              * Format: date-time
              */
             date_joined: string;
+            /**
+             * Is Staff
+             * @default false
+             */
+            is_staff: boolean;
         };
         /** GoogleAuthIn */
         GoogleAuthIn: {
@@ -567,6 +742,13 @@ export interface components {
              */
             is_active: boolean;
             /**
+             * Stamp Strategy
+             * @default tierSwap
+             */
+            stamp_strategy: string;
+            /** Design Synced At */
+            design_synced_at?: string | null;
+            /**
              * Created At
              * Format: date-time
              */
@@ -600,6 +782,25 @@ export interface components {
              * @default
              */
             logo_url: string;
+            /**
+             * Stamp Strategy
+             * @default tierSwap
+             */
+            stamp_strategy: string;
+            /**
+             * Design
+             * @default {}
+             */
+            design: {
+                [key: string]: unknown;
+            };
+        };
+        /** TemplateFromPresetIn */
+        TemplateFromPresetIn: {
+            /** Preset Id */
+            preset_id: string;
+            /** Name */
+            name?: string | null;
         };
         /** CardTemplatePatchIn */
         CardTemplatePatchIn: {
@@ -619,13 +820,23 @@ export interface components {
             logo_url?: string | null;
             /** Is Active */
             is_active?: boolean | null;
+            /** Stamp Strategy */
+            stamp_strategy?: string | null;
+            /** Design */
+            design?: {
+                [key: string]: unknown;
+            } | null;
         };
-        /** PresetOut */
-        PresetOut: {
-            /** Niche */
-            niche: string;
-            /** Name */
-            name: string;
+        /**
+         * DesignOut
+         * @description The full client-side-preview payload: our design fields + the derived
+         *     PassKit template JSON + resolved image CDN URLs + sync status.
+         */
+        DesignOut: {
+            /** Template Id */
+            template_id: string;
+            /** Stamp Strategy */
+            stamp_strategy: string;
             /** Stamps Required */
             stamps_required: number;
             /** Reward Description */
@@ -636,6 +847,102 @@ export interface components {
             foreground_color: string;
             /** Label Color */
             label_color: string;
+            /** Design */
+            design: {
+                [key: string]: unknown;
+            };
+            /** Images */
+            images: {
+                [key: string]: unknown;
+            };
+            /** Assets */
+            assets: string[];
+            /** Passkit Template */
+            passkit_template: {
+                [key: string]: unknown;
+            };
+            /** Lint */
+            lint: string[];
+            sync: components["schemas"]["DesignSyncOut"];
+        };
+        /** DesignSyncOut */
+        DesignSyncOut: {
+            /** Synced At */
+            synced_at: string | null;
+            /** Error */
+            error: string;
+        };
+        /**
+         * DesignPreviewIn
+         * @description Candidate (unsaved) design changes for the stateless live preview.
+         *     Any omitted field keeps the stored template's value.
+         */
+        DesignPreviewIn: {
+            /** Name */
+            name?: string | null;
+            /** Stamps Required */
+            stamps_required?: number | null;
+            /** Reward Description */
+            reward_description?: string | null;
+            /** Background Color */
+            background_color?: string | null;
+            /** Foreground Color */
+            foreground_color?: string | null;
+            /** Label Color */
+            label_color?: string | null;
+            /** Stamp Strategy */
+            stamp_strategy?: string | null;
+            /** Design */
+            design?: {
+                [key: string]: unknown;
+            } | null;
+            /** Stamp State */
+            stamp_state?: number | null;
+        };
+        /** TemplateImageOut */
+        TemplateImageOut: {
+            /** Use */
+            use: string;
+            /** Image Id */
+            image_id: string;
+            /** Url */
+            url: string;
+        };
+        /** PresetOut */
+        PresetOut: {
+            /** Id */
+            id: string;
+            /** Niche */
+            niche: string;
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Stamps Required */
+            stamps_required: number;
+            /** Reward Description */
+            reward_description: string;
+            /** Background Color */
+            background_color: string;
+            /** Foreground Color */
+            foreground_color: string;
+            /** Label Color */
+            label_color: string;
+            /**
+             * Design
+             * @default {}
+             */
+            design: {
+                [key: string]: unknown;
+            };
+        };
+        /** OtpRequestIn */
+        OtpRequestIn: {
+            /** Phone */
+            phone: string;
         };
         /**
          * EnrollOut
@@ -651,10 +958,8 @@ export interface components {
             stamps_required: number;
             /** Status */
             status: string;
-            /** Wallet Apple Url */
-            wallet_apple_url?: string | null;
-            /** Wallet Google Url */
-            wallet_google_url?: string | null;
+            /** Wallet Pass Url */
+            wallet_pass_url?: string | null;
             /**
              * Wallet Issue Pending
              * @default false
@@ -670,6 +975,15 @@ export interface components {
              * @default
              */
             display_name: string;
+            /** Birthday */
+            birthday?: string | null;
+            /**
+             * Marketing Opt In
+             * @default false
+             */
+            marketing_opt_in: boolean;
+            /** Otp Code */
+            otp_code?: string | null;
         };
         /**
          * CardPublicOut
@@ -813,6 +1127,174 @@ export interface components {
             plan: string;
             /** Current Period End */
             current_period_end: string | null;
+        };
+        /** CatalogTemplateOut */
+        CatalogTemplateOut: {
+            /** Id */
+            id?: string | null;
+            /** Niche */
+            niche: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /** Stamps Required */
+            stamps_required: number;
+            /** Reward Description */
+            reward_description: string;
+            /**
+             * Background Color
+             * @default #FFFFFF
+             */
+            background_color: string;
+            /**
+             * Foreground Color
+             * @default #000000
+             */
+            foreground_color: string;
+            /**
+             * Label Color
+             * @default #000000
+             */
+            label_color: string;
+            /** Design */
+            design?: Record<string, never> | null;
+            /**
+             * Is Published
+             * @default false
+             */
+            is_published: boolean;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** CatalogTemplateIn */
+        CatalogTemplateIn: {
+            /** Niche */
+            niche: string;
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Stamps Required */
+            stamps_required: number;
+            /** Reward Description */
+            reward_description: string;
+            /**
+             * Background Color
+             * @default #FFFFFF
+             */
+            background_color: string;
+            /**
+             * Foreground Color
+             * @default #000000
+             */
+            foreground_color: string;
+            /**
+             * Label Color
+             * @default #000000
+             */
+            label_color: string;
+            /**
+             * Design
+             * @default {}
+             */
+            design: {
+                [key: string]: unknown;
+            };
+            /**
+             * Is Published
+             * @default false
+             */
+            is_published: boolean;
+        };
+        /** CatalogReorderIn */
+        CatalogReorderIn: {
+            /** Ids */
+            ids: string[];
+        };
+        /**
+         * CatalogPreviewIn
+         * @description Stateless designer preview for catalog authoring — same idea as the
+         *     template design preview, but there's no owned CardTemplate yet.
+         */
+        CatalogPreviewIn: {
+            /**
+             * Name
+             * @default Preview
+             */
+            name: string;
+            /** Stamps Required */
+            stamps_required: number;
+            /**
+             * Reward Description
+             * @default
+             */
+            reward_description: string;
+            /**
+             * Background Color
+             * @default #FFFFFF
+             */
+            background_color: string;
+            /**
+             * Foreground Color
+             * @default #000000
+             */
+            foreground_color: string;
+            /**
+             * Label Color
+             * @default #000000
+             */
+            label_color: string;
+            /**
+             * Design
+             * @default {}
+             */
+            design: {
+                [key: string]: unknown;
+            };
+            /** Stamp State */
+            stamp_state?: number | null;
+        };
+        /** CatalogTemplatePatchIn */
+        CatalogTemplatePatchIn: {
+            /** Niche */
+            niche?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Stamps Required */
+            stamps_required?: number | null;
+            /** Reward Description */
+            reward_description?: string | null;
+            /** Background Color */
+            background_color?: string | null;
+            /** Foreground Color */
+            foreground_color?: string | null;
+            /** Label Color */
+            label_color?: string | null;
+            /** Design */
+            design?: {
+                [key: string]: unknown;
+            } | null;
+            /** Is Published */
+            is_published?: boolean | null;
         };
     };
     responses: never;
@@ -1103,6 +1585,32 @@ export interface operations {
             };
         };
     };
+    apps_businesses_api_create_template_from_preset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TemplateFromPresetIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardTemplateOut"];
+                };
+            };
+        };
+    };
     apps_businesses_api_patch_template: {
         parameters: {
             query?: never;
@@ -1130,6 +1638,93 @@ export interface operations {
             };
         };
     };
+    apps_businesses_api_get_template_design: {
+        parameters: {
+            query?: {
+                stamp_state?: number | null;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DesignOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_preview_template_design: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DesignPreviewIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DesignOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_upload_template_image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Use */
+                    use: string;
+                    /**
+                     * File
+                     * Format: binary
+                     */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateImageOut"];
+                };
+            };
+        };
+    };
     apps_businesses_api_get_presets: {
         parameters: {
             query?: {
@@ -1149,6 +1744,30 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PresetOut"][];
                 };
+            };
+        };
+    };
+    apps_loyalty_api_request_join_otp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OtpRequestIn"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -1385,6 +2004,166 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SubscriptionOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_list_catalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogTemplateOut"][];
+                };
+            };
+        };
+    };
+    apps_businesses_api_create_catalog_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogTemplateIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogTemplateOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_reorder_catalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogReorderIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogTemplateOut"][];
+                };
+            };
+        };
+    };
+    apps_businesses_api_preview_catalog_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogPreviewIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DesignOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_get_catalog_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                catalog_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogTemplateOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_delete_catalog_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                catalog_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    apps_businesses_api_patch_catalog_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                catalog_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogTemplatePatchIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogTemplateOut"];
                 };
             };
         };

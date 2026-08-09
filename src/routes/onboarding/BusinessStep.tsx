@@ -71,6 +71,10 @@ export function BusinessStep({ onCreated }: BusinessStepProps) {
         foreground_color: preset?.foreground_color ?? "#FFFFFF",
         label_color: preset?.label_color ?? "#9CA3AF",
         logo_url: "",
+        stamp_strategy: "tierSwap",
+        // Born with the preset's full design doc — the Card Studio step
+        // then edits the real thing instead of starting from defaults.
+        design: preset?.design ?? {},
       });
       await queryClient.invalidateQueries({ queryKey: ["business", "me"] });
       onCreated(business, template);

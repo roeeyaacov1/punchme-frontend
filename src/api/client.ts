@@ -10,6 +10,9 @@ import {
 interface RequestOptions {
   method?: "GET" | "POST" | "PATCH" | "DELETE";
   body?: unknown;
+  /** Multipart body (file uploads) — sent as-is, browser sets the boundary
+   * header itself; mutually exclusive with `body`. */
+  formData?: FormData;
   /** Set false for public endpoints — skips attaching the Authorization header and the 401-refresh-retry. */
   auth?: boolean;
   query?: Record<string, string | number | undefined>;
@@ -52,7 +55,7 @@ export async function apiFetch<T>(
   options: RequestOptions = {},
   isRetry = false,
 ): Promise<T> {
-  const { method = "GET", body, auth = true, query } = options;
+  const { method = "GET", body, formData, auth = true, query } = options;
 
   const headers: Record<string, string> = {};
   if (body !== undefined) headers["Content-Type"] = "application/json";
@@ -64,7 +67,7 @@ export async function apiFetch<T>(
   const res = await fetch(buildUrl(path, query), {
     method,
     headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: formData ?? (body !== undefined ? JSON.stringify(body) : undefined),
   });
 
   if (res.status === 401 && auth && !isRetry) {
@@ -98,4 +101,13 @@ export const api = {
     body?: unknown,
     options?: Omit<RequestOptions, "method" | "body">,
   ) => apiFetch<T>(path, { ...options, method: "PATCH", body }),
+  postForm: <T>(
+    path: string,
+    formData: FormData,
+    options?: Omit<RequestOptions, "method" | "body" | "formData">,
+  ) => apiFetch<T>(path, { ...options, method: "POST", formData }),
+  delete: <T>(
+    path: string,
+    options?: Omit<RequestOptions, "method" | "body">,
+  ) => apiFetch<T>(path, { ...options, method: "DELETE" }),
 };

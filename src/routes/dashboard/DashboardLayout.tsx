@@ -7,6 +7,7 @@ import { cn } from "../../lib/cn";
 
 const NAV_ITEMS = [
   { to: "/dashboard", end: true, key: "overview" },
+  { to: "/dashboard/design", end: false, key: "design" },
   { to: "/dashboard/customers", end: false, key: "customers" },
   { to: "/dashboard/activity", end: false, key: "activity" },
   { to: "/dashboard/standee", end: false, key: "standee" },

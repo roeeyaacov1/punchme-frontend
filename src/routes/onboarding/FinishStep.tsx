@@ -43,8 +43,7 @@ export function FinishStep({ business, template }: FinishStepProps) {
       {error && <p className="text-sm text-red-600">{error}</p>}
       {card && (
         <WalletAddButtons
-          appleUrl={card.wallet_apple_url}
-          googleUrl={card.wallet_google_url}
+          passUrl={card.wallet_pass_url}
           pending={card.wallet_issue_pending}
         />
       )}

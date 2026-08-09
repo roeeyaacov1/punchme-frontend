@@ -1,4 +1,4 @@
-{
+﻿{
   "app": {
     "name": "פאנץ' מי"
   },
@@ -12,7 +12,8 @@
     "loading": "טוען...",
     "retry": "נסו שוב",
     "copyLink": "העתקת קישור",
-    "copied": "הועתק!"
+    "copied": "הועתק!",
+    "remove": "הסרה"
   },
   "scaffold": {
     "title": "הכל מוכן",
@@ -41,7 +42,83 @@
   "wallet": {
     "addApple": "הוספה לאפל ווליט",
     "addGoogle": "הוספה לגוגל ווליט",
+    "addToWallet": "הוספה לארנק",
     "pending": "מכינים את הכרטיסייה שלכם — זה ייקח רק רגע."
+  },
+  "studio": {
+    "title": "סטודיו הכרטיסיות",
+    "subtitle": "עצבו את הכרטיסייה וראו אותה מתעדכנת בזמן אמת בשני הארנקים. שמירה דוחפת את העיצוב החדש לכל הכרטיסים המותקנים.",
+    "save": "שמירת עיצוב",
+    "saved": "נשמר ✓",
+    "syncError": "הסנכרון האחרון לארנק נכשל — השינויים שמורים ויסונכרנו שוב אוטומטית.",
+    "uploadError": "ההעלאה נכשלה — נסו תמונה אחרת.",
+    "nameLabel": "שם הכרטיסייה",
+    "stampsLabel": "ניקובים עד הפרס",
+    "stampsHint": "{{count}} ניקובים",
+    "rewardLabel": "הפרס",
+    "glyphLabel": "אייקון הניקוב",
+    "uploadStampArt": "העלאת תמונת ניקוב משלכם",
+    "paletteLabel": "ערכות צבעים",
+    "backgroundColor": "רקע הכרטיס",
+    "stampColor": "צבע הניקוב",
+    "textColor": "צבע הטקסט",
+    "labelColor": "צבע התוויות",
+    "patternLabel": "דוגמת רקע",
+    "patterns": { "none": "ללא", "waves": "גלים", "dots": "נקודות", "stripes": "פסים" },
+    "logoLabel": "לוגו",
+    "logoHint": "העלאה אחת הופכת לכל נכסי הארנק (לוגו רחב לאפל, עיגול לגוגל, אייקון). אין לוגו? נציג את שם העסק.",
+    "uploadLogo": "העלאת לוגו",
+    "showAdvanced": "הצגת אפשרויות מתקדמות",
+    "hideAdvanced": "הסתרת אפשרויות מתקדמות",
+    "languageLabel": "שפת הכרטיס",
+    "languages": { "HE": "עברית", "EN": "אנגלית" },
+    "barcodeLabel": "סוג הברקוד",
+    "orgNameLabel": "שם הארגון",
+    "orgNameHint": "יוצג על הכרטיס במקום שם העסק (לא חובה).",
+    "artworkLabel": "גרפיקה מותאמת",
+    "artworkHint": "רקע מלא לפס הניקובים, או תמונות נפרדות לניקוב מלא וריק.",
+    "uploadStripBase": "העלאת רקע לפס הניקובים (מינימום 1125×432)",
+    "uploadStampedArt": "העלאת גרפיקה לניקוב מלא",
+    "uploadUnstampedArt": "העלאת גרפיקה לניקוב ריק",
+    "fieldsLabel": "שדות הכרטיס",
+    "sampleStampsLabel": "ניקובים בתצוגה",
+    "sampleStampsHint": "{{count}} נוקבו",
+    "lintClean": "מוכן לפרסום — הכרטיס מוצג במלואו בשני הארנקים.",
+    "lintTitle": "עוד לא מוכן לפרסום:",
+    "preview": {
+      "apple": "אפל ווליט",
+      "google": "גוגל ווליט",
+      "nameLabel": "שם",
+      "pointsLabel": "ביקורים"
+    },
+    "fields": {
+      "label": "תווית",
+      "section": "מיקום (אפל)",
+      "alignment": "יישור",
+      "changeMessage": "הודעת עדכון",
+      "changeMessageHint": "%@ יוחלף בערך החדש.",
+      "add": "הוספת שדה",
+      "binding": {
+        "person.displayName": "שם הלקוח/ה",
+        "members.member.points": "מספר ניקובים",
+        "members.tier.name": "שם דרגה",
+        "universal.info": "טקסט מידע",
+        "meta.custom": "טקסט חופשי"
+      },
+      "sections": {
+        "HEADER_FIELDS": "כותרת",
+        "PRIMARY_FIELDS": "ראשי",
+        "SECONDARY_FIELDS": "משני",
+        "AUXILIARY_FIELDS": "נלווה",
+        "BACK_FIELDS": "גב הכרטיס"
+      },
+      "alignments": {
+        "NATURAL": "אוטומטי",
+        "LEFT": "שמאל",
+        "CENTER": "מרכז",
+        "RIGHT": "ימין"
+      }
+    }
   },
   "onboarding": {
     "steps": {
@@ -142,6 +219,7 @@
   "dashboard": {
     "nav": {
       "overview": "סקירה",
+      "design": "סטודיו הכרטיסיות",
       "customers": "לקוחות",
       "activity": "פעילות",
       "standee": "שילוט",

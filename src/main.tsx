@@ -19,6 +19,7 @@ import { JoinPage } from "./routes/public/JoinPage";
 import { CardStatusPage } from "./routes/public/CardStatusPage";
 import { DashboardLayout } from "./routes/dashboard/DashboardLayout";
 import { DashboardOverview } from "./routes/dashboard/DashboardOverview";
+import { DesignPage } from "./routes/dashboard/DesignPage";
 import { CustomersPage } from "./routes/dashboard/CustomersPage";
 import { ActivityPage } from "./routes/dashboard/ActivityPage";
 import { StandeePage } from "./routes/dashboard/StandeePage";
@@ -56,6 +57,7 @@ const router = createBrowserRouter([
                     element: <DashboardLayout />,
                     children: [
                       { index: true, element: <DashboardOverview /> },
+                      { path: "design", element: <DesignPage /> },
                       { path: "customers", element: <CustomersPage /> },
                       { path: "activity", element: <ActivityPage /> },
                       { path: "standee", element: <StandeePage /> },

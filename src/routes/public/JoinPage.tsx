@@ -77,8 +77,7 @@ export function JoinPage() {
           logoUrl={card.logo_url ?? undefined}
         />
         <WalletAddButtons
-          appleUrl={enrollResult.wallet_apple_url}
-          googleUrl={enrollResult.wallet_google_url}
+          passUrl={enrollResult.wallet_pass_url}
           pending={enrollResult.wallet_issue_pending}
         />
         <Link to={`/c/${enrollResult.card_serial}`} className="text-sm text-slate underline">

@@ -11,12 +11,28 @@ export type PagedActivity = components["schemas"]["PagedActivityItemOut"];
 export interface EnrollIn {
   phone?: string;
   display_name?: string;
+  /** ISO date (YYYY-MM-DD); optional — birthday rewards only. */
+  birthday?: string;
+  /** Spam-Law marketing consent — a separate, unticked checkbox. */
+  marketing_opt_in?: boolean;
+  /** The SMS code from requestJoinOtp — required in production. */
+  otp_code?: string;
+}
+
+/** Public — no auth. Step 1 of the join flow: sends an SMS verification
+ * code. Always resolves (204) whether or not the phone is known — no user
+ * enumeration; rate limits surface as ApiError 429 (code otp_throttled). */
+export function requestJoinOtp(templateId: string, phone: string) {
+  return api.post<void>(
+    `/api/join/${templateId}/otp`,
+    { phone },
+    { auth: false },
+  );
 }
 
 /** Public — no auth. Idempotent per (customer, template): re-submitting the
- * same phone for the same template returns the existing card, with
- * wallet_apple_url/wallet_google_url as null (the pass was already issued
- * on first enroll) — callers must handle that case explicitly. */
+ * same phone for the same template returns the existing card with its
+ * stored wallet_pass_url. Requires a fresh otp_code from requestJoinOtp. */
 export function enroll(templateId: string, body: EnrollIn) {
   return api.post<EnrollOut>(`/api/enroll/${templateId}`, body, {
     auth: false,

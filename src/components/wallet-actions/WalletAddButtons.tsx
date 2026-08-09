@@ -2,45 +2,30 @@ import { useTranslation } from "react-i18next";
 import { buttonClasses } from "../ui/Button";
 
 export interface WalletAddButtonsProps {
-  appleUrl?: string | null;
-  googleUrl?: string | null;
+  /** PassKit's universal add-to-wallet link — one URL, resolved to the
+   * right wallet (Apple/Google) by device at click time. */
+  passUrl?: string | null;
+  /** True while the wallet push is still in flight (EnrollOut.wallet_issue_pending). */
   pending?: boolean;
 }
 
-/** Renders whichever wallet links are actually present. Neither link is
- * required — a re-enrollment returns both as null (pass already issued) and
- * a fresh one may briefly have pending=true while the wallet push is still
- * in flight; callers decide what to show around this, not this component. */
-export function WalletAddButtons({
-  appleUrl,
-  googleUrl,
-  pending,
-}: WalletAddButtonsProps) {
+/** One universal button, matching the backend's single wallet_pass_url.
+ * A re-enrollment returns the stored URL, so the button stays available;
+ * pending=true renders a waiting note — callers should poll/refetch while
+ * pending (the pass URL appears once the async issue completes). */
+export function WalletAddButtons({ passUrl, pending }: WalletAddButtonsProps) {
   const { t } = useTranslation();
 
-  if (!appleUrl && !googleUrl) {
+  if (!passUrl) {
     if (pending) {
-      return (
-        <p className="text-sm text-slate font-mono">
-          {t("wallet.pending")}
-        </p>
-      );
+      return <p className="text-sm text-slate font-mono">{t("wallet.pending")}</p>;
     }
     return null;
   }
 
   return (
-    <div className="flex flex-wrap gap-3">
-      {appleUrl && (
-        <a href={appleUrl} className={buttonClasses("primary", "md")}>
-          {t("wallet.addApple")}
-        </a>
-      )}
-      {googleUrl && (
-        <a href={googleUrl} className={buttonClasses("secondary", "md")}>
-          {t("wallet.addGoogle")}
-        </a>
-      )}
-    </div>
+    <a href={passUrl} className={buttonClasses("primary", "md")}>
+      {t("wallet.addToWallet")}
+    </a>
   );
 }

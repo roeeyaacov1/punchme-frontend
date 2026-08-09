@@ -89,8 +89,7 @@ export function DashboardOverview() {
             <p className="text-sm text-slate font-body mb-3">{t("dashboard.preview.body")}</p>
             {previewResult && (
               <WalletAddButtons
-                appleUrl={previewResult.wallet_apple_url}
-                googleUrl={previewResult.wallet_google_url}
+                passUrl={previewResult.wallet_pass_url}
                 pending={previewResult.wallet_issue_pending}
               />
             )}

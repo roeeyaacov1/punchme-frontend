@@ -1,4 +1,4 @@
-{
+﻿{
   "app": {
     "name": "PunchMe"
   },
@@ -12,7 +12,8 @@
     "loading": "Loading...",
     "retry": "Try again",
     "copyLink": "Copy link",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "remove": "Remove"
   },
   "scaffold": {
     "title": "Scaffold OK",
@@ -41,7 +42,83 @@
   "wallet": {
     "addApple": "Add to Apple Wallet",
     "addGoogle": "Add to Google Wallet",
+    "addToWallet": "Add to wallet",
     "pending": "Preparing your wallet pass — this only takes a moment."
+  },
+  "studio": {
+    "title": "Card Studio",
+    "subtitle": "Design your loyalty card and watch it update live on both wallets. Saving pushes the new design to every installed pass.",
+    "save": "Save design",
+    "saved": "Saved ✓",
+    "syncError": "The last wallet sync failed — your changes are safe and will be retried automatically.",
+    "uploadError": "Upload failed — try a different image.",
+    "nameLabel": "Card name",
+    "stampsLabel": "Stamps to reward",
+    "stampsHint": "{{count}} stamps",
+    "rewardLabel": "Reward",
+    "glyphLabel": "Stamp icon",
+    "uploadStampArt": "Upload your own stamp image",
+    "paletteLabel": "Color palettes",
+    "backgroundColor": "Card background",
+    "stampColor": "Stamp color",
+    "textColor": "Text color",
+    "labelColor": "Label color",
+    "patternLabel": "Background pattern",
+    "patterns": { "none": "None", "waves": "Waves", "dots": "Dots", "stripes": "Stripes" },
+    "logoLabel": "Logo",
+    "logoHint": "One upload becomes all three wallet assets (wide Apple logo, round Google badge, icon). No logo? We'll render your business name.",
+    "uploadLogo": "Upload logo",
+    "showAdvanced": "Show advanced options",
+    "hideAdvanced": "Hide advanced options",
+    "languageLabel": "Card language",
+    "languages": { "HE": "Hebrew", "EN": "English" },
+    "barcodeLabel": "Barcode format",
+    "orgNameLabel": "Organization name",
+    "orgNameHint": "Shown on the pass instead of your business name (optional).",
+    "artworkLabel": "Custom artwork",
+    "artworkHint": "A full strip background, or separate before/after punch images.",
+    "uploadStripBase": "Upload strip background (min 1125×432)",
+    "uploadStampedArt": "Upload punched-stamp artwork",
+    "uploadUnstampedArt": "Upload empty-stamp artwork",
+    "fieldsLabel": "Card fields",
+    "sampleStampsLabel": "Preview stamps",
+    "sampleStampsHint": "{{count}} punched",
+    "lintClean": "Ready to publish — this card renders fully on both wallets.",
+    "lintTitle": "Not publish-ready yet:",
+    "preview": {
+      "apple": "Apple Wallet",
+      "google": "Google Wallet",
+      "nameLabel": "Name",
+      "pointsLabel": "Visits"
+    },
+    "fields": {
+      "label": "Label",
+      "section": "Position (Apple)",
+      "alignment": "Alignment",
+      "changeMessage": "Update notification",
+      "changeMessageHint": "%@ is replaced with the new value.",
+      "add": "Add field",
+      "binding": {
+        "person.displayName": "Customer name",
+        "members.member.points": "Stamp count",
+        "members.tier.name": "Tier name",
+        "universal.info": "Info text",
+        "meta.custom": "Custom text"
+      },
+      "sections": {
+        "HEADER_FIELDS": "Header",
+        "PRIMARY_FIELDS": "Primary",
+        "SECONDARY_FIELDS": "Secondary",
+        "AUXILIARY_FIELDS": "Auxiliary",
+        "BACK_FIELDS": "Back of card"
+      },
+      "alignments": {
+        "NATURAL": "Automatic",
+        "LEFT": "Left",
+        "CENTER": "Center",
+        "RIGHT": "Right"
+      }
+    }
   },
   "onboarding": {
     "steps": {
@@ -142,6 +219,7 @@
   "dashboard": {
     "nav": {
       "overview": "Overview",
+      "design": "Card Studio",
       "customers": "Customers",
       "activity": "Activity",
       "standee": "Standee",
