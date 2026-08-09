@@ -991,6 +991,11 @@ export interface components {
          *     are not sensitive — they're already visible in the customer's actual
          *     Wallet pass — and are included so the frontend can render an accurately
          *     branded card, not just a generic placeholder.
+         *
+         *     wallet_pass_url is the same sensitivity class as the serial used to
+         *     fetch this card (both let you view/add THIS card, nothing else), so
+         *     exposing it here is safe — it lets /c/{serial} offer re-add-to-wallet
+         *     and lets the join page poll for the URL while issuance is pending.
          */
         CardPublicOut: {
             /** Business Name */
@@ -1013,6 +1018,10 @@ export interface components {
             label_color: string;
             /** Logo Url */
             logo_url: string | null;
+            /** Wallet Pass Url */
+            wallet_pass_url: string | null;
+            /** Wallet Issue Pending */
+            wallet_issue_pending: boolean;
         };
         /** ScanOut */
         ScanOut: {

@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { WalletCardPreview } from "../../components/wallet-card/WalletCardPreview";
+import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
 import { getPublicCard } from "../../api/loyalty";
 
 export function CardStatusPage() {
@@ -42,6 +43,11 @@ export function CardStatusPage() {
         foregroundColor={card.foreground_color}
         labelColor={card.label_color}
         logoUrl={card.logo_url ?? undefined}
+      />
+      {/* Lost the pass? The universal link re-adds this same card. */}
+      <WalletAddButtons
+        passUrl={card.wallet_pass_url}
+        pending={card.wallet_issue_pending}
       />
     </div>
   );
