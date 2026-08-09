@@ -13,7 +13,30 @@
     "retry": "Try again",
     "copyLink": "Copy link",
     "copied": "Copied!",
-    "remove": "Remove"
+    "remove": "Remove",
+    "edit": "Edit"
+  },
+  "admin": {
+    "title": "PunchMe Admin",
+    "badge": "Staff",
+    "backToApp": "Back to app",
+    "catalog": {
+      "title": "Template catalog",
+      "subtitle": "The library businesses choose from. Instantiating COPIES an entry — editing or deleting here never touches a live business card.",
+      "create": "New template",
+      "createTitle": "New catalog template",
+      "editTitle": "Edit catalog template",
+      "published": "Published",
+      "draft": "Draft",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "deleteConfirm": "Delete \"{{name}}\" from the catalog?",
+      "nicheLabel": "Niche",
+      "descriptionLabel": "Description",
+      "publishedLabel": "Published"
+    }
   },
   "scaffold": {
     "title": "Scaffold OK",

@@ -26,6 +26,10 @@ import { StandeePage } from "./routes/dashboard/StandeePage";
 import { BillingSettingsPage } from "./routes/dashboard/BillingSettingsPage";
 import { BillingSuccessPage } from "./routes/billing/BillingSuccessPage";
 import { BillingCancelPage } from "./routes/billing/BillingCancelPage";
+import { RequireStaff } from "./auth/RequireStaff";
+import { AdminLayout } from "./routes/admin/AdminLayout";
+import { AdminCatalogListPage } from "./routes/admin/AdminCatalogListPage";
+import { AdminCatalogEditPage } from "./routes/admin/AdminCatalogEditPage";
 
 const router = createBrowserRouter([
   {
@@ -41,6 +45,23 @@ const router = createBrowserRouter([
       {
         element: <ProtectedRoute />,
         children: [
+          {
+            // Staff-only catalog area — outside BusinessProvider/RequireBusiness:
+            // staff accounts don't necessarily own a Business. The API is the
+            // real gate (403 for non-staff); this is UX.
+            element: <RequireStaff />,
+            children: [
+              {
+                path: "admin",
+                element: <AdminLayout />,
+                children: [
+                  { index: true, element: <AdminCatalogListPage /> },
+                  { path: "catalog", element: <AdminCatalogListPage /> },
+                  { path: "catalog/:catalogId", element: <AdminCatalogEditPage /> },
+                ],
+              },
+            ],
+          },
           {
             element: (
               <BusinessProvider>

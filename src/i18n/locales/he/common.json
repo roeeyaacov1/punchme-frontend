@@ -13,7 +13,30 @@
     "retry": "נסו שוב",
     "copyLink": "העתקת קישור",
     "copied": "הועתק!",
-    "remove": "הסרה"
+    "remove": "הסרה",
+    "edit": "עריכה"
+  },
+  "admin": {
+    "title": "ניהול PunchMe",
+    "badge": "צוות",
+    "backToApp": "חזרה לאפליקציה",
+    "catalog": {
+      "title": "קטלוג התבניות",
+      "subtitle": "הספרייה שעסקים בוחרים ממנה. שימוש בתבנית מעתיק אותה — עריכה או מחיקה כאן לעולם לא נוגעות בכרטיס חי של עסק.",
+      "create": "תבנית חדשה",
+      "createTitle": "תבנית קטלוג חדשה",
+      "editTitle": "עריכת תבנית קטלוג",
+      "published": "מפורסם",
+      "draft": "טיוטה",
+      "publish": "פרסום",
+      "unpublish": "ביטול פרסום",
+      "moveUp": "הזזה למעלה",
+      "moveDown": "הזזה למטה",
+      "deleteConfirm": "למחוק את \"{{name}}\" מהקטלוג?",
+      "nicheLabel": "תחום",
+      "descriptionLabel": "תיאור",
+      "publishedLabel": "מפורסם"
+    }
   },
   "scaffold": {
     "title": "הכל מוכן",

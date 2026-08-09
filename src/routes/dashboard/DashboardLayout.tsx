@@ -16,7 +16,7 @@ const NAV_ITEMS = [
 
 export function DashboardLayout() {
   const { t, i18n } = useTranslation();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const { business, isPro } = useBusiness();
 
   return (
@@ -46,6 +46,11 @@ export function DashboardLayout() {
           ))}
         </nav>
         <div className="flex items-center gap-3">
+          {user?.is_staff && (
+            <NavLink to="/admin" className="text-sm text-gold hover:text-navy">
+              {t("admin.title")}
+            </NavLink>
+          )}
           <button
             type="button"
             onClick={() => i18n.changeLanguage(i18n.resolvedLanguage === "he" ? "en" : "he")}
