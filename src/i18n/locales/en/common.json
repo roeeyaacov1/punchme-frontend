@@ -216,7 +216,11 @@
       "subheadline": "A punch card that lives in your customers' Apple Wallet or Google Wallet. They scan a QR code once. No app, no signup, and it updates itself with every visit.",
       "cta": "Design your card — free",
       "secondaryCta": "See what regulars are worth",
-      "trustBullets": ["Free to design", "No credit card required", "Live in minutes"],
+      "trustBullets": [
+        "Free to design",
+        "No credit card required",
+        "Live in minutes"
+      ],
       "worksWith": "Works with",
       "appleWallet": "Apple Wallet",
       "googleWallet": "Google Wallet"
@@ -251,8 +255,8 @@
     },
     "calculator": {
       "eyebrow": "What regulars are worth",
-      "title": "See what one more visit a month is worth to you",
-      "lead": "Your numbers, your arithmetic. Nothing you type here leaves your browser.",
+      "title": "How many regulars does PunchMe need to pay for itself?",
+      "lead": "Fewer than you would think. Move the sliders to match your shop — nothing you type here leaves your browser.",
       "presetsLabel": "Start from a typical",
       "presets": {
         "cafe": "Café",
@@ -260,42 +264,44 @@
         "studio": "Studio"
       },
       "inputs": {
-        "customers": "Different customers you serve in a month",
         "ticket": "Average spend per visit (₪)",
-        "visits": "Times an average customer comes back per month today",
-        "margin": "Gross margin (%)",
-        "stamps": "Stamps needed for the reward",
-        "adoption": "% of customers who join the card",
-        "lift": "% more often joiners visit"
+        "stamps": "Stamps to earn the reward",
+        "regulars": "Customers who become regulars this year",
+        "margin": "Gross margin (%)"
       },
-      "assumptions": {
-        "title": "Adjust assumptions",
-        "note": "These two are estimates, not promises. Move them to match what you think is realistic for your business."
+      "fineTune": {
+        "title": "Fine-tune",
+        "note": "Only worth changing if you know your margin. Everything above works without touching it."
       },
       "result": {
-        "breakEvenVisits_one": "{{count}} extra visit",
-        "breakEvenVisits_other": "{{count}} extra visits",
-        "breakEvenClaim": "is all it takes for PunchMe to pay for itself this month.",
-        "breakEvenDetail": "At ₪{{ticket}} a visit and {{margin}}% margin, one visit is ₪{{gross}} of gross profit. PunchMe is ₪{{price}}.",
-        "ifLabel": "If your card lifts visits by {{lift}}%…",
-        "extraVisits": "+{{visits}} extra visits a month",
-        "extraRevenue": "+₪{{amount}} extra revenue",
-        "rewardCost": "−₪{{amount}} rewards given away",
-        "rewardCostWhy": "Why this number is deliberately high",
-        "rewardCostTooltip": "Costed pessimistically on purpose: every reward is charged at the full gross profit of an average ticket, as if it replaced a full-price sale. In practice a reward is usually a single item, and some people only came back because of it — so your real cost is lower than this line.",
-        "subscription": "−₪{{amount}} PunchMe",
-        "net": "{{amount}} net, every month",
-        "netAnnual": "{{amount}} over a year",
-        "negative": "At these numbers the reward costs more than the extra visits bring in. Try a higher stamp count — that's the single biggest lever here.",
-        "footnote": "An estimate based on the numbers you entered. Nothing here is sent anywhere — the calculation runs in your browser."
+        "regularsNeeded_one": "{{count}} regular",
+        "regularsNeeded_other": "{{count}} regulars",
+        "regularsClaim": "is all it takes to cover PunchMe for a whole year.",
+        "regularsDetail": "One customer who fills a {{stamps}}-stamp card at ₪{{ticket}} a visit leaves you ₪{{cardNet}} in gross profit. A year of PunchMe is ₪{{annual}}.",
+        "cardTitle": "What one regular is worth",
+        "cardRevenue": "₪{{amount}} spent filling one card",
+        "cardNet": "₪{{amount}} gross profit, after their reward",
+        "totalRevenue": "₪{{amount}} through your till",
+        "totalGross": "₪{{amount}} gross profit",
+        "rewardCost": "−₪{{amount}} rewards you hand over",
+        "rewardCostWhy": "Why the rewards cost so little",
+        "rewardCostTooltip": "A reward is costed at what the free item costs you to provide — ₪{{amount}} here — not at its shelf price. You are giving away one item to someone who has already paid you {{stamps}} times.",
+        "subscription": "−₪{{amount}} PunchMe for the year",
+        "net": "{{amount}} left over",
+        "netSub": "in your pocket, after rewards and PunchMe",
+        "negative": "You would need {{count}} regulars before PunchMe pays for itself at these numbers. Drag the last slider up, or add a stamp or two to the card.",
+        "footnote": "An estimate from the numbers you entered, assuming those customers fill their card. Nothing is sent anywhere — it runs in your browser.",
+        "orMonthly_one": "Or: one extra visit covers your first month.",
+        "orMonthly_other": "Or: {{count}} extra visits cover your first month.",
+        "projectionLabel_one": "If one customer becomes a regular this year",
+        "projectionLabel_other": "If {{count}} customers become regulars this year"
       },
       "a11y": {
         "shekels": "{{value}} shekels",
         "percent": "{{value}} percent",
-        "visits": "{{value}} times a month",
-        "customers": "{{value}} customers",
         "stamps": "{{value}} stamps",
-        "summary": "Break-even {{breakEven}}, net {{net}} shekels a month"
+        "regulars": "{{value}} customers",
+        "summary": "{{count}} regulars cover a year of PunchMe. Projected {{net}} left over."
       }
     },
     "features": {
@@ -401,7 +407,13 @@
     },
     "niches": {
       "title": "Built for your small business",
-      "items": ["Barbers", "Cafés", "Personal trainers", "Therapists", "And you"]
+      "items": [
+        "Barbers",
+        "Cafés",
+        "Personal trainers",
+        "Therapists",
+        "And you"
+      ]
     },
     "pricing": {
       "title": "Start for free",
@@ -409,7 +421,7 @@
       "cta": "Let's get started",
       "price": "₪59",
       "perMonth": "/month",
-      "calcNote": "Based on your numbers, that's ₪{{amount}} back every month."
+      "calcNote": "Based on your numbers, that's ₪{{amount}} left over this year."
     },
     "footer": {
       "tagline": "Digital loyalty for today's small businesses.",

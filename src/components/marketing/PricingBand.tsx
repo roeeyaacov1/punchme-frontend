@@ -4,11 +4,11 @@ import { Check } from "lucide-react";
 import { Container, ctaClasses } from "./primitives";
 
 /**
- * The one place the brand navy lands full-bleed. `netMonthly` is passed in
+ * The one place the brand navy lands full-bleed. `netAnnual` is passed in
  * only once the visitor has actually touched the calculator — an unearned
  * "based on your numbers" line would be a lie about numbers they never gave.
  */
-export function PricingBand({ netMonthly }: { netMonthly: string | null }) {
+export function PricingBand({ netAnnual }: { netAnnual: string | null }) {
   const { t } = useTranslation();
   const trustBullets = t("landing.hero.trustBullets", {
     returnObjects: true,
@@ -47,9 +47,9 @@ export function PricingBand({ netMonthly }: { netMonthly: string | null }) {
             </span>
           </p>
 
-          {netMonthly && (
+          {netAnnual && (
             <p className="mt-4 text-pretty font-semibold text-primary">
-              {t("landing.pricing.calcNote", { amount: netMonthly })}
+              {t("landing.pricing.calcNote", { amount: netAnnual })}
             </p>
           )}
 

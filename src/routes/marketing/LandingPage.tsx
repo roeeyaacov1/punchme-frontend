@@ -22,10 +22,10 @@ export function LandingPage() {
   // null until the visitor moves something and the result is actually
   // positive — we don't claim "based on your numbers" for numbers they
   // never entered, or advertise a loss.
-  const [netMonthly, setNetMonthly] = useState<number | null>(null);
+  const [netAnnual, setNetAnnual] = useState<number | null>(null);
 
   const handleCalculatorResult = useCallback((value: number) => {
-    setNetMonthly(value > 0 ? value : null);
+    setNetAnnual(value > 0 ? value : null);
   }, []);
 
   return (
@@ -53,10 +53,10 @@ export function LandingPage() {
         <FeatureGrid />
         <Industries />
         <PricingBand
-          netMonthly={
-            netMonthly === null
+          netAnnual={
+            netAnnual === null
               ? null
-              : formatCurrency(netMonthly, i18n.resolvedLanguage ?? "en")
+              : formatCurrency(netAnnual, i18n.resolvedLanguage ?? "en")
           }
         />
         <Faq />

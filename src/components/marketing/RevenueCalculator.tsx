@@ -1,14 +1,7 @@
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { ChevronDown, Info } from "lucide-react";
+import { ChevronDown, Coffee, Dumbbell, Gift, Info, Scissors } from "lucide-react";
 import { cn } from "../../lib/cn";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { Section, SectionHeader, ctaClasses, focusRing } from "./primitives";
@@ -16,38 +9,37 @@ import {
   CALCULATOR_BOUNDS,
   CALCULATOR_DEFAULTS,
   CALCULATOR_PRESETS,
-  PUNCHME_MONTHLY_PRICE,
+  PUNCHME_ANNUAL_PRICE,
   calculate,
   clampInput,
   clampInputs,
   formatCurrency,
   formatSignedCurrency,
-  formatVisits,
   type CalculatorInputs,
   type CalculatorPresetKey,
 } from "./calculator";
 
-const INPUT_KEYS = [
-  "customers",
-  "ticket",
-  "visits",
-  "margin",
-  "stamps",
-] as const;
+/** The three sliders that carry the whole story. `margin` sits in
+ * fine-tune — most owners don't know theirs, and the headline works
+ * perfectly well on the 65% default. */
+const PRIMARY_KEYS = ["ticket", "stamps", "regulars"] as const;
+
+const PRESET_ICONS: Record<CalculatorPresetKey, typeof Coffee> = {
+  cafe: Coffee,
+  barbershop: Scissors,
+  studio: Dumbbell,
+};
 
 /** Which a11y phrasing each input's `aria-valuetext` uses. */
 const UNIT: Record<keyof CalculatorInputs, string> = {
-  customers: "customers",
   ticket: "shekels",
-  visits: "visits",
-  margin: "percent",
   stamps: "stamps",
-  adoption: "percent",
-  lift: "percent",
+  regulars: "regulars",
+  margin: "percent",
 };
 
-/** Reads `?ticket=60&visits=1.5&…` so an owner can send themselves a result.
- * Read-only, and there's no personal data in it to leak. */
+/** Reads `?ticket=60&stamps=10&…` so an owner can send themselves a result.
+ * There's no personal data in it to leak. */
 function readQueryString(): Partial<CalculatorInputs> {
   if (typeof window === "undefined") return {};
   const params = new URLSearchParams(window.location.search);
@@ -59,22 +51,16 @@ function readQueryString(): Partial<CalculatorInputs> {
   return out;
 }
 
-/** Eases a number to its new value over ~400ms. Interrupting mid-flight
- * resumes from whatever is currently painted rather than snapping back. */
+/** Eases a number to its new value over ~400ms. */
 function useAnimatedNumber(target: number, duration = 400) {
   const reduced = usePrefersReducedMotion();
   const [display, setDisplay] = useState(target);
   const currentRef = useRef(target);
 
   useEffect(() => {
-    // Jump straight to the value when animating is either unwanted or
-    // impossible: rAF is paused in a hidden tab, so easing there would leave
-    // a stale number on screen until the tab is looked at again.
-    if (
-      reduced ||
-      document.hidden ||
-      Math.abs(currentRef.current - target) < 0.005
-    ) {
+    // Jump straight there when easing is unwanted or impossible: rAF is
+    // paused in a hidden tab, and a frozen number is worse than no easing.
+    if (reduced || document.hidden || Math.abs(currentRef.current - target) < 0.005) {
       currentRef.current = target;
       setDisplay(target);
       return;
@@ -95,6 +81,30 @@ function useAnimatedNumber(target: number, duration = 400) {
   return display;
 }
 
+/**
+ * The card the owner is designing, drawn live from the stamps slider.
+ * It makes the abstract number concrete — you're not setting a variable,
+ * you're deciding how long your card is.
+ */
+function PunchCardStrip({ stamps }: { stamps: number }) {
+  return (
+    <div
+      className="flex flex-wrap items-center gap-1.5"
+      aria-hidden="true"
+    >
+      {Array.from({ length: stamps - 1 }).map((_, i) => (
+        <span
+          key={i}
+          className="h-5 w-5 rounded-full border-2 border-primary/40 bg-primary/10"
+        />
+      ))}
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-navy-deep">
+        <Gift size={12} />
+      </span>
+    </div>
+  );
+}
+
 interface FieldProps {
   name: keyof CalculatorInputs;
   label: string;
@@ -107,13 +117,11 @@ function SliderField({ name, label, value, onChange }: FieldProps) {
   const id = useId();
   const { min, max, step } = CALCULATOR_BOUNDS[name];
 
-  // The text field keeps its own draft so a half-typed "1" on the way to
-  // "150" isn't clamped to the minimum mid-keystroke. It commits whenever
-  // the draft is a valid in-range number, and normalises on blur.
+  // A local draft so a half-typed "1" on the way to "150" isn't clamped to
+  // the minimum mid-keystroke. Commits when valid, normalises on blur.
   const [draft, setDraft] = useState(String(value));
   useEffect(() => setDraft(String(value)), [value]);
 
-  const valueText = t(`landing.calculator.a11y.${UNIT[name]}`, { value });
   const progress = ((value - min) / (max - min)) * 100;
 
   return (
@@ -124,7 +132,7 @@ function SliderField({ name, label, value, onChange }: FieldProps) {
         </label>
         <input
           type="number"
-          inputMode="decimal"
+          inputMode="numeric"
           min={min}
           max={max}
           step={step}
@@ -160,12 +168,13 @@ function SliderField({ name, label, value, onChange }: FieldProps) {
         max={max}
         step={step}
         value={value}
-        aria-valuetext={valueText}
+        aria-valuetext={t(`landing.calculator.a11y.${UNIT[name]}`, { value })}
         // `input`, not `change`, so dragging updates the results live.
         onChange={(e) => onChange(clampInput(name, Number(e.target.value)))}
         className="range-gold"
         style={{ "--range-progress": `${progress}%` } as React.CSSProperties}
       />
+      {name === "stamps" && <PunchCardStrip stamps={value} />}
     </div>
   );
 }
@@ -173,9 +182,9 @@ function SliderField({ name, label, value, onChange }: FieldProps) {
 export function RevenueCalculator({
   onTouchedResult,
 }: {
-  /** Fires only once the visitor has actually moved something, so the
-   * pricing band can't claim to be "based on your numbers" otherwise. */
-  onTouchedResult: (netMonthly: number) => void;
+  /** Fires only once the visitor has moved something, so the pricing band
+   * can't claim to be "based on your numbers" otherwise. */
+  onTouchedResult: (netAnnual: number) => void;
 }) {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? "en";
@@ -199,17 +208,14 @@ export function RevenueCalculator({
 
   const applyPreset = (key: CalculatorPresetKey) => {
     setTouched(true);
-    setInputs((prev) => clampInputs({ ...prev, ...CALCULATOR_PRESETS[key] }));
+    setInputs(clampInputs(CALCULATOR_PRESETS[key]));
   };
 
-  // Mirror state into the query string, but only after a real interaction —
-  // otherwise every visitor's URL grows a tail they never asked for.
+  // Mirror state into the query string, but only after a real interaction.
   useEffect(() => {
     if (!touched) return;
     const params = new URLSearchParams(window.location.search);
-    for (const [key, value] of Object.entries(inputs)) {
-      params.set(key, String(value));
-    }
+    for (const [key, value] of Object.entries(inputs)) params.set(key, String(value));
     window.history.replaceState(
       null,
       "",
@@ -218,22 +224,22 @@ export function RevenueCalculator({
   }, [inputs, touched]);
 
   useEffect(() => {
-    if (touched) onTouchedResult(result.netMonthly);
-  }, [touched, result.netMonthly, onTouchedResult]);
+    if (touched) onTouchedResult(result.netAnnual);
+  }, [touched, result.netAnnual, onTouchedResult]);
 
-  // Screen readers get the totals, but only once the numbers settle —
-  // announcing every frame of a drag would be unusable.
+  // Screen readers get the totals once the numbers settle — announcing
+  // every frame of a drag would be unusable.
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setAnnouncement(
         t("landing.calculator.a11y.summary", {
-          breakEven: result.breakEvenVisits,
-          net: formatCurrency(result.netMonthly, locale),
+          count: result.regularsToBreakEven,
+          net: formatSignedCurrency(result.netAnnual, locale),
         }),
       );
     }, 500);
     return () => window.clearTimeout(timer);
-  }, [result.breakEvenVisits, result.netMonthly, locale, t]);
+  }, [result.regularsToBreakEven, result.netAnnual, locale, t]);
 
   // While a slider is held on a phone the results are off-screen, so a
   // compact bar pins them to the bottom until the drag ends.
@@ -248,18 +254,17 @@ export function RevenueCalculator({
     };
   }, [dragging]);
 
-  const animatedBreakEven = useAnimatedNumber(result.breakEvenVisits);
-  const animatedExtraVisits = useAnimatedNumber(result.extraVisits);
-  const animatedExtraRevenue = useAnimatedNumber(result.extraRevenue);
-  const animatedRewardCost = useAnimatedNumber(result.rewardCost);
-  const animatedNetMonthly = useAnimatedNumber(result.netMonthly);
-  const animatedNetAnnual = useAnimatedNumber(result.netAnnual);
+  const animatedRegulars = useAnimatedNumber(result.regularsToBreakEven);
+  const animatedCardRevenue = useAnimatedNumber(result.cardRevenue);
+  const animatedCardNet = useAnimatedNumber(result.cardNet);
+  const animatedTotalRevenue = useAnimatedNumber(result.totalRevenue);
+  const animatedTotalGross = useAnimatedNumber(result.totalGross);
+  const animatedRewardCost = useAnimatedNumber(result.totalRewardCost);
+  const animatedNet = useAnimatedNumber(result.netAnnual);
 
-  const breakEvenRounded = Math.max(1, Math.round(animatedBreakEven));
-  const isNegative = result.netMonthly < 0;
-  const money = (value: number) => formatCurrency(value, locale);
-  // Net can be negative, so its sign goes outside the shekel symbol.
-  const signedMoney = (value: number) => formatSignedCurrency(value, locale);
+  const regularsShown = Math.max(1, Math.round(animatedRegulars));
+  const isNegative = result.netAnnual < 0;
+  const money = (v: number) => formatCurrency(v, locale);
 
   return (
     <Section id="calculator">
@@ -269,7 +274,7 @@ export function RevenueCalculator({
         lead={t("landing.calculator.lead")}
       />
 
-      <div className="grid gap-12 lg:grid-cols-2">
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-12">
         {/* ── Inputs ─────────────────────────────────────────────────── */}
         <div
           onPointerDown={(e) => {
@@ -280,25 +285,27 @@ export function RevenueCalculator({
             <span className="text-sm text-ink-muted">
               {t("landing.calculator.presetsLabel")}
             </span>
-            {(Object.keys(CALCULATOR_PRESETS) as CalculatorPresetKey[]).map(
-              (key) => (
+            {(Object.keys(CALCULATOR_PRESETS) as CalculatorPresetKey[]).map((key) => {
+              const Icon = PRESET_ICONS[key];
+              return (
                 <button
                   key={key}
                   type="button"
                   onClick={() => applyPreset(key)}
                   className={cn(
-                    "inline-flex min-h-[44px] items-center rounded-full border border-border bg-surface px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary-text",
+                    "inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm font-semibold text-ink transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/10 hover:text-primary-text motion-reduce:hover:translate-y-0",
                     focusRing,
                   )}
                 >
+                  <Icon size={16} aria-hidden="true" />
                   {t(`landing.calculator.presets.${key}`)}
                 </button>
-              ),
-            )}
+              );
+            })}
           </div>
 
-          <div className="mt-8 flex flex-col gap-7">
-            {INPUT_KEYS.map((key) => (
+          <div className="mt-8 flex flex-col gap-8">
+            {PRIMARY_KEYS.map((key) => (
               <SliderField
                 key={key}
                 name={key}
@@ -317,7 +324,7 @@ export function RevenueCalculator({
               )}
             >
               <span className="text-sm font-semibold text-ink">
-                {t("landing.calculator.assumptions.title")}
+                {t("landing.calculator.fineTune.title")}
               </span>
               <ChevronDown
                 size={18}
@@ -325,21 +332,15 @@ export function RevenueCalculator({
                 className="shrink-0 text-ink-subtle transition-transform duration-200 group-open:rotate-180"
               />
             </summary>
-            <div className="flex flex-col gap-7 px-5 pb-6">
-              <p className="text-sm text-pretty text-ink-subtle">
-                {t("landing.calculator.assumptions.note")}
+            <div className="flex flex-col gap-6 px-5 pb-6">
+              <p className="text-pretty text-sm text-ink-subtle">
+                {t("landing.calculator.fineTune.note")}
               </p>
               <SliderField
-                name="adoption"
-                label={t("landing.calculator.inputs.adoption")}
-                value={inputs.adoption}
-                onChange={setField("adoption")}
-              />
-              <SliderField
-                name="lift"
-                label={t("landing.calculator.inputs.lift")}
-                value={inputs.lift}
-                onChange={setField("lift")}
+                name="margin"
+                label={t("landing.calculator.inputs.margin")}
+                value={inputs.margin}
+                onChange={setField("margin")}
               />
             </div>
           </details>
@@ -347,120 +348,147 @@ export function RevenueCalculator({
 
         {/* ── Results ────────────────────────────────────────────────── */}
         <div className="lg:sticky lg:top-28 lg:self-start">
-          <div className="rounded-2xl border border-border bg-surface p-8 shadow-lift">
-            {/* 1 — the hero claim, and the only one that needs no assumption. */}
-            <p className="t-stat text-ink">
-              {t("landing.calculator.result.breakEvenVisits", {
-                count: breakEvenRounded,
-              })}
-            </p>
-            <p className="t-lead mt-2 text-pretty text-ink">
-              {t("landing.calculator.result.breakEvenClaim")}
-            </p>
-            <p className="mt-3 text-sm text-pretty text-ink-muted">
-              {t("landing.calculator.result.breakEvenDetail", {
-                ticket: money(inputs.ticket),
-                margin: inputs.margin,
-                gross: money(result.grossPerVisit),
-                price: PUNCHME_MONTHLY_PRICE,
-              })}
-            </p>
-
-            <hr className="my-7 border-border" />
-
-            {/* 2 — everything below here depends on the two assumptions. */}
-            <p className="text-sm text-ink-subtle">
-              {t("landing.calculator.result.ifLabel", { lift: inputs.lift })}
-            </p>
-
-            <dl className="mt-4 flex flex-col gap-2.5 text-sm tabular-nums">
-              <div className="flex items-baseline justify-between gap-4">
-                <dt className="text-ink-muted">
-                  {t("landing.calculator.result.extraVisits", {
-                    visits: formatVisits(animatedExtraVisits, locale),
-                  })}
-                </dt>
-                <dd className="font-semibold text-ink">
-                  {t("landing.calculator.result.extraRevenue", {
-                    amount: money(animatedExtraRevenue),
-                  })}
-                </dd>
-              </div>
-
-              <div className="flex items-baseline justify-between gap-4">
-                <dt className="flex items-center gap-1.5 text-ink-muted">
-                  {t("landing.calculator.result.rewardCost", {
-                    amount: money(animatedRewardCost),
-                  })}
-                  {/* Native title tooltip: no dependency, and it reaches
-                      keyboard users via the button's accessible name. */}
-                  <button
-                    type="button"
-                    title={t("landing.calculator.result.rewardCostTooltip")}
-                    aria-label={t("landing.calculator.result.rewardCostTooltip")}
-                    className={cn(
-                      // -my-3 keeps the 44px hit area from stretching the row.
-                      "-my-3 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-ink-subtle transition-colors hover:text-ink",
-                      focusRing,
-                    )}
-                  >
-                    <Info size={14} aria-hidden="true" />
-                  </button>
-                </dt>
-                <dd className="sr-only">
-                  {t("landing.calculator.result.rewardCostWhy")}
-                </dd>
-              </div>
-
-              <div className="flex items-baseline justify-between gap-4">
-                <dt className="text-ink-muted">
-                  {t("landing.calculator.result.subscription", {
-                    amount: PUNCHME_MONTHLY_PRICE,
-                  })}
-                </dt>
-                <dd />
-              </div>
-            </dl>
-
-            <hr className="my-7 border-border" />
-
-            <p
-              className={cn(
-                "font-heading text-3xl font-semibold tracking-[-0.025em] tabular-nums sm:text-4xl",
-                isNegative ? "text-red-700" : "text-primary-text",
-              )}
-            >
-              {t("landing.calculator.result.net", {
-                amount: signedMoney(animatedNetMonthly),
-              })}
-            </p>
-            <p className="mt-1 text-sm tabular-nums text-ink-muted">
-              {t("landing.calculator.result.netAnnual", {
-                amount: signedMoney(animatedNetAnnual),
-              })}
-            </p>
-
-            {isNegative && (
-              <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm text-pretty text-red-800">
-                {t("landing.calculator.result.negative")}
+          <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-lift">
+            {/* The hero: assumption-free, and almost always a tiny number. */}
+            <div className="border-b border-border bg-primary/[0.07] p-8">
+              <p className="t-stat text-ink">
+                {t("landing.calculator.result.regularsNeeded", {
+                  count: regularsShown,
+                })}
               </p>
-            )}
+              <p className="t-lead mt-2 text-pretty text-ink">
+                {t("landing.calculator.result.regularsClaim")}
+              </p>
+              <p className="mt-3 text-pretty text-sm text-ink-muted">
+                {t("landing.calculator.result.regularsDetail", {
+                  stamps: inputs.stamps,
+                  ticket: money(inputs.ticket),
+                  cardNet: money(animatedCardNet),
+                  annual: PUNCHME_ANNUAL_PRICE,
+                })}
+              </p>
+              <p className="mt-3 text-sm font-semibold text-primary-text">
+                {t("landing.calculator.result.orMonthly", {
+                  count: result.breakEvenVisits,
+                })}
+              </p>
+            </div>
 
-            <Link
-              to="/login"
-              className={ctaClasses("primary", "lg", "mt-7 w-full")}
-            >
-              {t("landing.hero.cta")}
-            </Link>
+            <div className="p-8">
+              <p className="t-eyebrow text-ink-subtle">
+                {t("landing.calculator.result.cardTitle")}
+              </p>
+              <dl className="mt-3 flex flex-col gap-1 text-sm tabular-nums">
+                <dt className="font-semibold text-ink">
+                  {t("landing.calculator.result.cardRevenue", {
+                    amount: money(animatedCardRevenue),
+                  })}
+                </dt>
+                <dd className="text-ink-muted">
+                  {t("landing.calculator.result.cardNet", {
+                    amount: money(animatedCardNet),
+                  })}
+                </dd>
+              </dl>
 
-            <p className="mt-4 text-xs text-pretty text-ink-subtle">
-              {t("landing.calculator.result.footnote")}
-            </p>
+              <hr className="my-6 border-border" />
+
+              <p className="text-sm text-ink-subtle">
+                {t("landing.calculator.result.projectionLabel", {
+                  count: inputs.regulars,
+                })}
+              </p>
+
+              <dl className="mt-4 flex flex-col gap-2.5 text-sm tabular-nums">
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="text-ink-muted">
+                    {t("landing.calculator.result.totalRevenue", {
+                      amount: money(animatedTotalRevenue),
+                    })}
+                  </dt>
+                  <dd className="font-semibold text-ink">
+                    {t("landing.calculator.result.totalGross", {
+                      amount: money(animatedTotalGross),
+                    })}
+                  </dd>
+                </div>
+
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="flex items-center gap-1.5 text-ink-muted">
+                    {t("landing.calculator.result.rewardCost", {
+                      amount: money(animatedRewardCost),
+                    })}
+                    <button
+                      type="button"
+                      title={t("landing.calculator.result.rewardCostTooltip", {
+                        amount: money(result.rewardCost),
+                        stamps: inputs.stamps,
+                      })}
+                      aria-label={t("landing.calculator.result.rewardCostTooltip", {
+                        amount: money(result.rewardCost),
+                        stamps: inputs.stamps,
+                      })}
+                      className={cn(
+                        // -my-3 keeps the 44px hit area from stretching the row.
+                        "-my-3 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-ink-subtle transition-colors hover:text-ink",
+                        focusRing,
+                      )}
+                    >
+                      <Info size={14} aria-hidden="true" />
+                    </button>
+                  </dt>
+                  <dd className="sr-only">
+                    {t("landing.calculator.result.rewardCostWhy")}
+                  </dd>
+                </div>
+
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="text-ink-muted">
+                    {t("landing.calculator.result.subscription", {
+                      amount: PUNCHME_ANNUAL_PRICE,
+                    })}
+                  </dt>
+                  <dd />
+                </div>
+              </dl>
+
+              <hr className="my-6 border-border" />
+
+              <p
+                className={cn(
+                  "font-heading text-4xl font-semibold tabular-nums tracking-[-0.03em] sm:text-5xl",
+                  isNegative ? "text-red-700" : "text-primary-text",
+                )}
+              >
+                {t("landing.calculator.result.net", {
+                  amount: formatSignedCurrency(animatedNet, locale),
+                })}
+              </p>
+              <p className="mt-1 text-sm text-ink-muted">
+                {t("landing.calculator.result.netSub")}
+              </p>
+
+              {isNegative && (
+                <p className="mt-4 rounded-xl bg-red-50 p-4 text-pretty text-sm text-red-800">
+                  {t("landing.calculator.result.negative", {
+                    count: result.regularsToBreakEven,
+                  })}
+                </p>
+              )}
+
+              <Link to="/login" className={ctaClasses("primary", "lg", "mt-7 w-full")}>
+                {t("landing.hero.cta")}
+              </Link>
+
+              <p className="mt-4 text-pretty text-xs text-ink-subtle">
+                {t("landing.calculator.result.footnote")}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Debounced, so dragging a slider doesn't produce a torrent. */}
+      {/* Debounced, so dragging doesn't produce a torrent. */}
       <div aria-live="polite" className="sr-only">
         {announcement}
       </div>
@@ -469,8 +497,8 @@ export function RevenueCalculator({
         <div className="fixed inset-x-0 bottom-0 z-30 rounded-t-2xl border-t border-border bg-white px-4 py-3 shadow-[0_-8px_24px_rgb(14_17_32/0.12)] lg:hidden">
           <div className="flex items-center justify-between gap-4">
             <span className="text-sm font-semibold text-ink">
-              {t("landing.calculator.result.breakEvenVisits", {
-                count: breakEvenRounded,
+              {t("landing.calculator.result.regularsNeeded", {
+                count: result.regularsToBreakEven,
               })}
             </span>
             <span
@@ -479,9 +507,7 @@ export function RevenueCalculator({
                 isNegative ? "text-red-700" : "text-primary-text",
               )}
             >
-              {t("landing.calculator.result.net", {
-                amount: signedMoney(result.netMonthly),
-              })}
+              {formatSignedCurrency(result.netAnnual, locale)}
             </span>
           </div>
         </div>
