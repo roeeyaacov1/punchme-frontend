@@ -7,18 +7,47 @@ export interface WalletAddButtonsProps {
   passUrl?: string | null;
   /** True while the wallet push is still in flight (EnrollOut.wallet_issue_pending). */
   pending?: boolean;
+  /** Issuing is taking unusually long — we stopped waiting on it. */
+  slow?: boolean;
+  /** Check again now; rendered with the slow note. */
+  onRetry?: () => void;
 }
 
 /** One universal button, matching the backend's single wallet_pass_url.
  * A re-enrollment returns the stored URL, so the button stays available;
- * pending=true renders a waiting note — callers should poll/refetch while
- * pending (the pass URL appears once the async issue completes). */
-export function WalletAddButtons({ passUrl, pending }: WalletAddButtonsProps) {
+ * pending=true renders a waiting note — drive pending/slow/onRetry from
+ * useWalletPass, which polls until the async issue completes. */
+export function WalletAddButtons({
+  passUrl,
+  pending,
+  slow,
+  onRetry,
+}: WalletAddButtonsProps) {
   const { t } = useTranslation();
 
   if (!passUrl) {
+    if (slow) {
+      return (
+        <div className="flex flex-col items-center gap-1.5">
+          <p className="text-sm text-slate font-body">{t("wallet.pendingSlow")}</p>
+          {onRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="text-sm text-navy underline hover:no-underline"
+            >
+              {t("wallet.retry")}
+            </button>
+          )}
+        </div>
+      );
+    }
     if (pending) {
-      return <p className="text-sm text-slate font-mono">{t("wallet.pending")}</p>;
+      return (
+        <p className="text-sm text-slate font-mono animate-pulse">
+          {t("wallet.pending")}
+        </p>
+      );
     }
     return null;
   }

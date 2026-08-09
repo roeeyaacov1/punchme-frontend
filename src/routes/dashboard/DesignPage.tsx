@@ -10,6 +10,7 @@ import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButto
 import { useBusiness } from "../../business/useBusiness";
 import { listTemplates, patchTemplate, type CardTemplate } from "../../api/businesses";
 import {
+  designImageUrls,
   getTemplateDesign,
   previewTemplateDesign,
   uploadTemplateImage,
@@ -18,6 +19,7 @@ import {
 } from "../../api/designs";
 import { previewCard, type EnrollOut } from "../../api/loyalty";
 import { useDebounce } from "../../hooks/useDebounce";
+import { useWalletPass } from "../../hooks/useWalletPass";
 
 function toStudioValue(template: CardTemplate, design: DesignOut): CardStudioValue {
   return {
@@ -30,17 +32,6 @@ function toStudioValue(template: CardTemplate, design: DesignOut): CardStudioVal
     // The EFFECTIVE design (defaults filled in) so the fields editor shows
     // the real state, not an empty doc.
     design: design.design,
-  };
-}
-
-function imageUrls(design: DesignOut | undefined) {
-  const images = (design?.images ?? {}) as Record<string, unknown>;
-  const url = (key: string) =>
-    typeof images[key] === "string" ? (images[key] as string) : undefined;
-  return {
-    logo: url("logo"),
-    strip_base: url("strip_base"),
-    stamp_art: undefined as string | undefined, // served as data URL below
   };
 }
 
@@ -109,6 +100,9 @@ export function DesignPage() {
     }
   }, [business?.id, template?.id]);
 
+  // The owner's pass is issued asynchronously — poll until its URL lands.
+  const ownerPass = useWalletPass(ownerCard);
+
   if (!business || !template || !draft) {
     return <p className="text-slate font-mono text-sm">{t("common.loading")}</p>;
   }
@@ -141,7 +135,7 @@ export function DesignPage() {
     if (fresh.data) setLint(fresh.data.lint);
   }
 
-  const urls = { ...imageUrls(designQuery.data), ...artUrls };
+  const urls = { ...designImageUrls(designQuery.data), ...artUrls };
   const syncError = designQuery.data?.sync?.error;
 
   return (
@@ -152,12 +146,13 @@ export function DesignPage() {
           {saved && (
             <span className="text-sm text-emerald-700 font-body">{t("studio.saved")}</span>
           )}
-          {ownerCard && (
-            <WalletAddButtons
-              passUrl={ownerCard.wallet_pass_url}
-              pending={ownerCard.wallet_issue_pending}
-            />
-          )}
+          <WalletAddButtons
+            passUrl={ownerPass.passUrl}
+            pending={ownerPass.pending}
+            slow={ownerPass.slow}
+            onRetry={ownerPass.retry}
+          />
+
           <Button onClick={handleSave} disabled={saving || !dirty}>
             {saving ? t("common.loading") : t("studio.save")}
           </Button>

@@ -40,6 +40,16 @@ export interface DesignBarcode {
   alt_text?: string;
 }
 
+/** The hosted image URLs out of a DesignOut (`images` is a plain dict).
+ * Stamp art isn't in there — it's echoed back as a data URL by the upload
+ * call, so callers merge that in themselves. */
+export function designImageUrls(design: DesignOut | undefined) {
+  const images = (design?.images ?? {}) as Record<string, unknown>;
+  const url = (key: string) =>
+    typeof images[key] === "string" ? (images[key] as string) : undefined;
+  return { logo: url("logo"), strip_base: url("strip_base") };
+}
+
 /** Image upload uses the backend accepts (POST .../images). */
 export type ImageUse =
   | "logo"

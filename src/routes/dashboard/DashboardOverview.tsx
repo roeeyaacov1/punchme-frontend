@@ -4,13 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { Button, Card } from "../../components/ui";
-import { WalletCardPreview } from "../../components/wallet-card/WalletCardPreview";
+import { CardPreview } from "../../components/card-studio/CardPreviews";
 import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
 import { useBusiness } from "../../business/useBusiness";
 import { canEnrollRealCustomers } from "../../business/gating";
 import { listTemplates } from "../../api/businesses";
+import { designImageUrls, getTemplateDesign } from "../../api/designs";
 import { previewCard, type EnrollOut } from "../../api/loyalty";
 import { buildEnrollUrl } from "../../lib/enrollUrl";
+import { useWalletPass } from "../../hooks/useWalletPass";
 
 export function DashboardOverview() {
   const { t } = useTranslation();
@@ -26,12 +28,23 @@ export function DashboardOverview() {
   });
   const template = templates?.[0];
 
+  // The effective design doc — what the wallet actually renders, so the
+  // preview here matches the Card Studio and the customer's real pass.
+  const { data: design } = useQuery({
+    queryKey: ["design", template?.id],
+    queryFn: () => getTemplateDesign(business!.id!, template!.id!),
+    enabled: !!business?.id && !!template?.id,
+  });
+
   const [previewResult, setPreviewResult] = useState<EnrollOut | null>(null);
   useEffect(() => {
     if (business?.id && template?.id) {
       previewCard(business.id, template.id).then(setPreviewResult);
     }
   }, [business?.id, template?.id]);
+
+  // Issued asynchronously — poll until the pass URL lands.
+  const ownerPass = useWalletPass(previewResult);
 
   const [copied, setCopied] = useState(false);
   async function handleCopyLink() {
@@ -40,6 +53,8 @@ export function DashboardOverview() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
+
+  const images = designImageUrls(design);
 
   if (!template) {
     return isLoadingTemplates ? (
@@ -56,15 +71,20 @@ export function DashboardOverview() {
       )}
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         <div className="flex justify-center w-full lg:w-auto">
-          <WalletCardPreview
-            businessName={business?.name ?? ""}
-            stampsRequired={template.stamps_required}
-            rewardDescription={template.reward_description}
-            backgroundColor={template.background_color}
-            foregroundColor={template.foreground_color}
-            labelColor={template.label_color}
-            logoUrl={template.logo_url ?? undefined}
-          />
+          {design && (
+            <CardPreview
+              businessName={business?.name ?? ""}
+              stampsRequired={template.stamps_required}
+              currentStamps={previewResult?.stamp_count ?? 0}
+              rewardDescription={template.reward_description}
+              backgroundColor={template.background_color}
+              foregroundColor={template.foreground_color}
+              labelColor={template.label_color}
+              design={design.design}
+              logoUrl={images.logo ?? template.logo_url ?? undefined}
+              stripBaseUrl={images.strip_base}
+            />
+          )}
         </div>
 
         <div className="flex flex-col gap-6 w-full max-w-sm">
@@ -87,12 +107,12 @@ export function DashboardOverview() {
           <Card>
             <h2 className="text-lg font-heading mb-1">{t("dashboard.preview.title")}</h2>
             <p className="text-sm text-slate font-body mb-3">{t("dashboard.preview.body")}</p>
-            {previewResult && (
-              <WalletAddButtons
-                passUrl={previewResult.wallet_pass_url}
-                pending={previewResult.wallet_issue_pending}
-              />
-            )}
+            <WalletAddButtons
+              passUrl={ownerPass.passUrl}
+              pending={ownerPass.pending}
+              slow={ownerPass.slow}
+              onRetry={ownerPass.retry}
+            />
           </Card>
         </div>
       </div>

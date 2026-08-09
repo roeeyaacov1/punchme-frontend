@@ -7,6 +7,7 @@ import {
 } from "../../components/card-studio/CardStudio";
 import { patchTemplate, type Business, type CardTemplate } from "../../api/businesses";
 import {
+  designImageUrls,
   getTemplateDesign,
   uploadTemplateImage,
   type DesignOut,
@@ -47,7 +48,7 @@ export function DesignStep({ business, template, onSaved, onBack }: DesignStepPr
           label_color: template.label_color ?? "#000000",
           design: design.design,
         });
-        setImages(extractUrls(design));
+        setImages(designImageUrls(design));
       })
       .catch(() => setError(t("auth.error")));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -57,7 +58,7 @@ export function DesignStep({ business, template, onSaved, onBack }: DesignStepPr
     const uploaded = await uploadTemplateImage(business.id!, template.id!, use, file);
     const design = await getTemplateDesign(business.id!, template.id!);
     setImages((current) => ({
-      ...extractUrls(design),
+      ...designImageUrls(design),
       ...(use === "stamp_art" ? { stamp_art: uploaded.url } : {}),
       ...(use !== "stamp_art" ? { stamp_art: current.stamp_art } : {}),
     }));
@@ -107,11 +108,4 @@ export function DesignStep({ business, template, onSaved, onBack }: DesignStepPr
       </div>
     </form>
   );
-}
-
-function extractUrls(design: DesignOut) {
-  const images = (design.images ?? {}) as Record<string, unknown>;
-  const url = (key: string) =>
-    typeof images[key] === "string" ? (images[key] as string) : undefined;
-  return { logo: url("logo"), strip_base: url("strip_base"), stamp_art: undefined };
 }
