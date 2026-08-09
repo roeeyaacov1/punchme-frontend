@@ -6,8 +6,9 @@ import { CARD_PATTERNS, patternStyle, type CardPattern } from "../../lib/cardPat
 import { STAMP_GLYPHS, STAMP_GLYPH_NAMES } from "../../lib/stampGlyphs";
 import { cn } from "../../lib/cn";
 import { ColorField, Input, Slider } from "../ui";
-import { DualCardPreview } from "./CardPreviews";
+import { CardPreview } from "./CardPreviews";
 import { FieldsEditor } from "./FieldsEditor";
+import { LabelsEditor } from "./LabelsEditor";
 
 /** Everything the designer edits — the template's flat fields plus the
  * canonical design doc. Mirrors what PATCH .../templates/{id} accepts. */
@@ -40,17 +41,18 @@ export interface CardStudioProps {
   onUpload?: (use: ImageUse, file: File) => Promise<void>;
   /** Publish-readiness problems from the server (DesignOut.lint). */
   lint?: string[];
-  /** Hide the Advanced disclosure (e.g. tight onboarding flows). */
+  /** Trim Advanced to colors + labels (e.g. tight onboarding flows) —
+   * wallet plumbing like barcode format and custom artwork stays out. */
   simpleOnly?: boolean;
 }
 
 const MIN_STAMPS = 2;
 const MAX_STAMPS = 12;
 
-/** The Card Studio designer: simple controls up front, Advanced behind a
- * disclosure, and a live two-platform preview that never lies about the
- * layout differences between Apple and Google. Pure controlled component —
- * persistence (save/upload) belongs to the parent. */
+/** The Card Studio designer: simple controls up front, colors/labels and
+ * the wallet plumbing behind an Advanced disclosure, and a live preview
+ * that switches between the real Apple and Google layouts. Pure controlled
+ * component — persistence (save/upload) belongs to the parent. */
 export function CardStudio({
   value,
   onChange,
@@ -209,31 +211,6 @@ export function CardStudio({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <ColorField
-            label={t("studio.backgroundColor")}
-            value={value.background_color}
-            onChange={(color) => update({ background_color: color })}
-          />
-          <ColorField
-            label={t("studio.stampColor")}
-            value={stampColor}
-            onChange={(color) =>
-              updateDesign({ stamp: { ...design.stamp, color } })
-            }
-          />
-          <ColorField
-            label={t("studio.textColor")}
-            value={value.foreground_color}
-            onChange={(color) => update({ foreground_color: color })}
-          />
-          <ColorField
-            label={t("studio.labelColor")}
-            value={value.label_color}
-            onChange={(color) => update({ label_color: color })}
-          />
-        </div>
-
         {/* Background pattern */}
         <div className="flex flex-col gap-2">
           <span className="text-sm font-medium text-navy font-body">
@@ -281,94 +258,131 @@ export function CardStudio({
         {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
 
         {/* Advanced */}
-        {!simpleOnly && (
-          <div className="flex flex-col gap-4 border-t border-slate/15 pt-4">
-            <button
-              type="button"
-              onClick={() => setShowAdvanced((v) => !v)}
-              className="text-sm font-medium text-navy font-body text-start underline hover:no-underline w-fit"
-            >
-              {showAdvanced ? t("studio.hideAdvanced") : t("studio.showAdvanced")}
-            </button>
+        <div className="flex flex-col gap-4 border-t border-slate/15 pt-4">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced((v) => !v)}
+            className="text-sm font-medium text-navy font-body text-start underline hover:no-underline w-fit"
+          >
+            {showAdvanced ? t("studio.hideAdvanced") : t("studio.showAdvanced")}
+          </button>
 
-            {showAdvanced && (
-              <div className="flex flex-col gap-5">
-                <div className="flex gap-3">
-                  <label className="flex flex-col gap-1 text-sm font-medium text-navy font-body flex-1">
-                    {t("studio.languageLabel")}
-                    <select
-                      className="rounded-lg border border-slate/30 bg-white px-2 py-2 text-sm font-body"
-                      value={design.default_language ?? "HE"}
-                      onChange={(e) =>
-                        updateDesign({ default_language: e.target.value as "HE" | "EN" })
-                      }
-                    >
-                      <option value="HE">{t("studio.languages.HE")}</option>
-                      <option value="EN">{t("studio.languages.EN")}</option>
-                    </select>
-                  </label>
-                  <label className="flex flex-col gap-1 text-sm font-medium text-navy font-body flex-1">
-                    {t("studio.barcodeLabel")}
-                    <select
-                      className="rounded-lg border border-slate/30 bg-white px-2 py-2 text-sm font-body"
-                      value={design.barcode?.format ?? "QR"}
-                      onChange={(e) =>
-                        updateDesign({
-                          barcode: {
-                            ...design.barcode,
-                            format: e.target.value as NonNullable<
-                              DesignDoc["barcode"]
-                            >["format"],
-                          },
-                        })
-                      }
-                    >
-                      {["QR", "PDF417", "AZTEC", "CODE128"].map((format) => (
-                        <option key={format} value={format}>
-                          {format}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-
-                <Input
-                  label={t("studio.orgNameLabel")}
-                  hint={t("studio.orgNameHint")}
-                  value={design.organization_name ?? ""}
-                  onChange={(e) => updateDesign({ organization_name: e.target.value })}
-                />
-
-                {onUpload && (
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-navy font-body">
-                      {t("studio.artworkLabel")}
-                    </span>
-                    <p className="text-xs text-slate font-body">{t("studio.artworkHint")}</p>
-                    {fileButton("strip_base", t("studio.uploadStripBase"))}
-                    {fileButton("stamped_art", t("studio.uploadStampedArt"))}
-                    {fileButton("unstamped_art", t("studio.uploadUnstampedArt"))}
-                  </div>
-                )}
-
-                <div className="flex flex-col gap-2">
-                  <span className="text-sm font-medium text-navy font-body">
-                    {t("studio.fieldsLabel")}
-                  </span>
-                  <FieldsEditor
-                    fields={design.fields ?? []}
-                    onChange={(fields) => updateDesign({ fields })}
+          {showAdvanced && (
+            <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-navy font-body">
+                  {t("studio.colorsLabel")}
+                </span>
+                <div className="grid grid-cols-2 gap-3">
+                  <ColorField
+                    label={t("studio.backgroundColor")}
+                    value={value.background_color}
+                    onChange={(color) => update({ background_color: color })}
+                  />
+                  <ColorField
+                    label={t("studio.stampColor")}
+                    value={stampColor}
+                    onChange={(color) =>
+                      updateDesign({ stamp: { ...design.stamp, color } })
+                    }
+                  />
+                  <ColorField
+                    label={t("studio.textColor")}
+                    value={value.foreground_color}
+                    onChange={(color) => update({ foreground_color: color })}
+                  />
+                  <ColorField
+                    label={t("studio.labelColor")}
+                    value={value.label_color}
+                    onChange={(color) => update({ label_color: color })}
                   />
                 </div>
               </div>
-            )}
-          </div>
-        )}
+
+              <LabelsEditor
+                fields={design.fields ?? []}
+                onChange={(fields) => updateDesign({ fields })}
+              />
+
+              {!simpleOnly && (
+                <>
+                  <div className="flex gap-3">
+                    <label className="flex flex-col gap-1 text-sm font-medium text-navy font-body flex-1">
+                      {t("studio.languageLabel")}
+                      <select
+                        className="rounded-lg border border-slate/30 bg-white px-2 py-2 text-sm font-body"
+                        value={design.default_language ?? "HE"}
+                        onChange={(e) =>
+                          updateDesign({ default_language: e.target.value as "HE" | "EN" })
+                        }
+                      >
+                        <option value="HE">{t("studio.languages.HE")}</option>
+                        <option value="EN">{t("studio.languages.EN")}</option>
+                      </select>
+                    </label>
+                    <label className="flex flex-col gap-1 text-sm font-medium text-navy font-body flex-1">
+                      {t("studio.barcodeLabel")}
+                      <select
+                        className="rounded-lg border border-slate/30 bg-white px-2 py-2 text-sm font-body"
+                        value={design.barcode?.format ?? "QR"}
+                        onChange={(e) =>
+                          updateDesign({
+                            barcode: {
+                              ...design.barcode,
+                              format: e.target.value as NonNullable<
+                                DesignDoc["barcode"]
+                              >["format"],
+                            },
+                          })
+                        }
+                      >
+                        {["QR", "PDF417", "AZTEC", "CODE128"].map((format) => (
+                          <option key={format} value={format}>
+                            {format}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <Input
+                    label={t("studio.orgNameLabel")}
+                    hint={t("studio.orgNameHint")}
+                    value={design.organization_name ?? ""}
+                    onChange={(e) => updateDesign({ organization_name: e.target.value })}
+                  />
+
+                  {onUpload && (
+                    <div className="flex flex-col gap-2">
+                      <span className="text-sm font-medium text-navy font-body">
+                        {t("studio.artworkLabel")}
+                      </span>
+                      <p className="text-xs text-slate font-body">{t("studio.artworkHint")}</p>
+                      {fileButton("strip_base", t("studio.uploadStripBase"))}
+                      {fileButton("stamped_art", t("studio.uploadStampedArt"))}
+                      {fileButton("unstamped_art", t("studio.uploadUnstampedArt"))}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-2">
+                    <span className="text-sm font-medium text-navy font-body">
+                      {t("studio.fieldsLabel")}
+                    </span>
+                    <FieldsEditor
+                      fields={design.fields ?? []}
+                      onChange={(fields) => updateDesign({ fields })}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Live preview */}
       <div className="flex flex-col gap-4 w-full xl:sticky xl:top-8">
-        <DualCardPreview
+        <CardPreview
           businessName={businessName}
           stampsRequired={value.stamps_required}
           currentStamps={sampleStamps}

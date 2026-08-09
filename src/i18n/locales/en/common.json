@@ -82,19 +82,30 @@
     "glyphLabel": "Stamp icon",
     "uploadStampArt": "Upload your own stamp image",
     "paletteLabel": "Color palettes",
+    "colorsLabel": "Colors",
+    "labelsLabel": "Field labels",
+    "labelsHint": "What the card calls the customer's name and their stamp count. Leave empty for the defaults.",
     "backgroundColor": "Card background",
     "stampColor": "Stamp color",
     "textColor": "Text color",
     "labelColor": "Label color",
     "patternLabel": "Background pattern",
-    "patterns": { "none": "None", "waves": "Waves", "dots": "Dots", "stripes": "Stripes" },
+    "patterns": {
+      "none": "None",
+      "waves": "Waves",
+      "dots": "Dots",
+      "stripes": "Stripes"
+    },
     "logoLabel": "Logo",
     "logoHint": "One upload becomes all three wallet assets (wide Apple logo, round Google badge, icon). No logo? We'll render your business name.",
     "uploadLogo": "Upload logo",
     "showAdvanced": "Show advanced options",
     "hideAdvanced": "Hide advanced options",
     "languageLabel": "Card language",
-    "languages": { "HE": "Hebrew", "EN": "English" },
+    "languages": {
+      "HE": "Hebrew",
+      "EN": "English"
+    },
     "barcodeLabel": "Barcode format",
     "orgNameLabel": "Organization name",
     "orgNameHint": "Shown on the pass instead of your business name (optional).",
@@ -259,7 +270,11 @@
   "standee": {
     "title": "Print signage",
     "print": "Print",
-    "formats": { "a4": "A4", "a5": "A5", "tent": "Table tent" },
+    "formats": {
+      "a4": "A4",
+      "a5": "A5",
+      "tent": "Table tent"
+    },
     "activateFirst": "Your card is ready — activate your subscription so customers can join.",
     "downloadHint": "To download a file: Print → Save as PDF.",
     "step1": "1. Scan the code",
@@ -557,6 +572,28 @@
       "rights": "All rights reserved.",
       "productHeading": "Product",
       "languageHeading": "Language"
+    },
+    "templates": {
+      "ariaLabel": "Card templates",
+      "nameLabel": "Customer",
+      "pointsLabel": "Visits",
+      "items": {
+        "barber": {
+          "business": "Danny's Barbershop",
+          "reward": "10th haircut free",
+          "caption": "The barber template — 10 stamps, a free cut"
+        },
+        "cafe": {
+          "business": "Rothschild Coffee",
+          "reward": "Free coffee on your 8th visit",
+          "caption": "The café template — 8 stamps, a coffee on the house"
+        },
+        "trainer": {
+          "business": "Studio Nine",
+          "reward": "1 free training session",
+          "caption": "The trainer template — 10 sessions, one on us"
+        }
+      }
     }
   }
 }

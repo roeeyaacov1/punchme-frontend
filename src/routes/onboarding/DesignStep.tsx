@@ -22,9 +22,10 @@ interface DesignStepProps {
 }
 
 /** Onboarding wrapper around the Card Studio designer (simple mode —
- * Advanced lives in the dashboard's Design page). The template already
- * exists (BusinessStep created it from the niche preset), so uploads and
- * saves target the real thing. */
+ * Advanced is trimmed to colors and labels; the wallet plumbing lives in
+ * the dashboard's Design page). The template already exists (BusinessStep
+ * created it from the niche preset), so uploads and saves target the real
+ * thing. */
 export function DesignStep({ business, template, onSaved, onBack }: DesignStepProps) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<CardStudioValue | null>(null);
