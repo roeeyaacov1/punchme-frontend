@@ -63,6 +63,7 @@ export function FinishStep({ business, template }: FinishStepProps) {
           labelColor={template.label_color}
           design={design.design}
           logoUrl={images.logo ?? template.logo_url ?? undefined}
+          appleLogoUrl={images.apple_logo}
           stripBaseUrl={images.strip_base}
         />
       ) : (

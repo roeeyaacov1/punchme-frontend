@@ -178,6 +178,9 @@ export function DesignPage() {
         images={urls}
         onUpload={handleUpload}
         lint={lint}
+        // While edits are unsaved the published PNGs are stale — the preview
+        // falls back to the live approximation rather than lying with old art.
+        unsaved={dirty}
       />
     </div>
   );

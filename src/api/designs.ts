@@ -47,7 +47,23 @@ export function designImageUrls(design: DesignOut | undefined) {
   const images = (design?.images ?? {}) as Record<string, unknown>;
   const url = (key: string) =>
     typeof images[key] === "string" ? (images[key] as string) : undefined;
-  return { logo: url("logo"), strip_base: url("strip_base") };
+  // apple_logo and logo are DIFFERENT assets, not two names for one: Apple
+  // renders the wide one, Google circle-crops the square one. Previewing the
+  // square badge as Apple's logo is how the app came to disagree with the
+  // installed pass.
+  const stateMap = (key: string): Record<string, string> | undefined => {
+    const value = images[key];
+    return value && typeof value === "object" ? (value as Record<string, string>) : undefined;
+  };
+  return {
+    logo: url("logo"),
+    apple_logo: url("apple_logo"),
+    strip_base: url("strip_base"),
+    // The literal PNGs PassKit serves, keyed by stamp state. Showing these
+    // beats any client-side redraw: it IS the card.
+    strip_states: stateMap("strip_states"),
+    hero_states: stateMap("hero_states"),
+  };
 }
 
 /** Image upload uses the backend accepts (POST .../images). */

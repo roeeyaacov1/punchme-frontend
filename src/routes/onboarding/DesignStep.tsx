@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "../../components/ui";
 import {
   CardStudio,
+  type CardStudioImages,
   type CardStudioValue,
 } from "../../components/card-studio/CardStudio";
 import { patchTemplate, type Business, type CardTemplate } from "../../api/businesses";
@@ -30,9 +31,8 @@ interface DesignStepProps {
 export function DesignStep({ business, template, onSaved, onBack }: DesignStepProps) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<CardStudioValue | null>(null);
-  const [images, setImages] = useState<{ logo?: string; stamp_art?: string; strip_base?: string }>(
-    {},
-  );
+  const [images, setImages] = useState<CardStudioImages>({});
+  const [dirty, setDirty] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -89,7 +89,11 @@ export function DesignStep({ business, template, onSaved, onBack }: DesignStepPr
 
       <CardStudio
         value={draft}
-        onChange={setDraft}
+        onChange={(next) => {
+          setDraft(next);
+          setDirty(true);
+        }}
+        unsaved={dirty}
         businessName={business.name}
         images={images}
         onUpload={handleUpload}

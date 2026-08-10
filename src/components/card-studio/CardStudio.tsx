@@ -24,10 +24,14 @@ export interface CardStudioValue {
 
 export interface CardStudioImages {
   logo?: string;
+  apple_logo?: string;
   stamp_art?: string;
   strip_base?: string;
   stamped_art?: string;
   unstamped_art?: string;
+  /** Published per-state artwork — the exact PNGs on the phone. */
+  strip_states?: Record<string, string>;
+  hero_states?: Record<string, string>;
 }
 
 export interface CardStudioProps {
@@ -41,6 +45,9 @@ export interface CardStudioProps {
   onUpload?: (use: ImageUse, file: File) => Promise<void>;
   /** Publish-readiness problems from the server (DesignOut.lint). */
   lint?: string[];
+  /** Unsaved edits pending: the published artwork is stale, so the preview
+   * falls back to the live approximation until the design is saved. */
+  unsaved?: boolean;
   /** Trim Advanced to colors + labels (e.g. tight onboarding flows) —
    * wallet plumbing like barcode format and custom artwork stays out. */
   simpleOnly?: boolean;
@@ -60,13 +67,15 @@ export function CardStudio({
   images = {},
   onUpload,
   lint,
+  unsaved,
   simpleOnly = false,
 }: CardStudioProps) {
   const { t } = useTranslation();
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [sampleStamps, setSampleStamps] = useState(
-    Math.min(3, value.stamps_required),
-  );
+  // Starts at 0 — the state of a freshly issued card. Defaulting to a few
+  // punched stamps showed the designed stamp colour on a card that, in the
+  // owner's actual wallet, is entirely grey until someone earns a stamp.
+  const [sampleStamps, setSampleStamps] = useState(0);
   const [uploading, setUploading] = useState<ImageUse | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -392,8 +401,12 @@ export function CardStudio({
           labelColor={value.label_color}
           design={design}
           logoUrl={images.logo}
+          appleLogoUrl={images.apple_logo}
           stampArtUrl={images.stamp_art}
           stripBaseUrl={images.strip_base}
+          stripStates={images.strip_states}
+          heroStates={images.hero_states}
+          unsaved={unsaved}
         />
         <div className="max-w-xs mx-auto w-full">
           <Slider

@@ -15,9 +15,31 @@ export interface CardPreviewValue {
   foregroundColor: string;
   labelColor: string;
   design: DesignDoc;
+  /** Square badge — what Google circle-crops. */
   logoUrl?: string;
+  /** Wide logo — what Apple actually renders. Falls back to the business
+   * name, which is exactly what the server generates when none was uploaded. */
+  appleLogoUrl?: string;
   stampArtUrl?: string;
   stripBaseUrl?: string;
+  /** The real published strip/hero PNGs by stamp state. When present (and the
+   * draft matches what's saved) we show the actual card art instead of the
+   * CSS approximation — same renderer as the phone, so they cannot disagree. */
+  stripStates?: Record<string, string>;
+  heroStates?: Record<string, string>;
+  /** True while there are unsaved edits: the published PNGs are stale, so the
+   * live CSS approximation is the honest thing to show. */
+  unsaved?: boolean;
+}
+
+/** The published artwork for a stamp state, when it is safe to trust it. */
+function publishedArt(
+  states: Record<string, string> | undefined,
+  currentStamps: number,
+  unsaved: boolean | undefined,
+): string | undefined {
+  if (unsaved || !states) return undefined;
+  return states[String(currentStamps)] || undefined;
 }
 
 export type PreviewPlatform = "apple" | "google";
@@ -45,6 +67,46 @@ function fieldLabel(value: CardPreviewValue, binding: string, fallback: string):
 
 const SAMPLE_NAME = "דנה לוי";
 
+/** The card art. Prefers the PUBLISHED PNG — the identical file PassKit
+ * serves to the phone — and only falls back to the CSS approximation while
+ * there are unsaved edits (or before the first sync). Redrawing the strip in
+ * CSS is what made the studio and the installed pass disagree about stamp
+ * size, strip proportions, patterns and custom artwork. */
+function StripArt({
+  value,
+  states,
+  aspect = "1125 / 432",
+}: {
+  value: CardPreviewValue;
+  states?: Record<string, string>;
+  /** Apple strip is 1125x432; Google's hero is its own 1032x336 render. */
+  aspect?: string;
+}) {
+  const published = publishedArt(states, value.currentStamps, value.unsaved);
+  if (published) {
+    return (
+      <img
+        src={published}
+        alt=""
+        className="block w-full"
+        style={{ aspectRatio: aspect, objectFit: "cover" }}
+      />
+    );
+  }
+  return (
+    <StampGrid
+      stampsRequired={value.stampsRequired}
+      currentStamps={value.currentStamps}
+      stampColor={stampColor(value)}
+      backgroundColor={value.backgroundColor}
+      glyph={glyph(value)}
+      pattern={pattern(value)}
+      stampArtUrl={value.stampArtUrl}
+      stripBaseUrl={value.stripBaseUrl}
+    />
+  );
+}
+
 /** Apple Wallet storeCard layout: logo row up top, the strip (stamp grid)
  * in the middle, secondary fields, barcode at the bottom. */
 export function AppleCardPreview(value: CardPreviewValue) {
@@ -55,8 +117,8 @@ export function AppleCardPreview(value: CardPreviewValue) {
       style={{ backgroundColor: value.backgroundColor, color: value.foregroundColor }}
     >
       <div className="flex items-center gap-2.5 px-4 pt-4 pb-3">
-        {value.logoUrl ? (
-          <img src={value.logoUrl} alt="" className="h-8 max-w-[140px] object-contain" />
+        {value.appleLogoUrl ? (
+          <img src={value.appleLogoUrl} alt="" className="h-8 max-w-[160px] object-contain" />
         ) : (
           <span className="text-sm font-heading font-semibold truncate">
             {value.businessName || "—"}
@@ -64,18 +126,9 @@ export function AppleCardPreview(value: CardPreviewValue) {
         )}
       </div>
 
-      <div className="px-3">
-        <StampGrid
-          stampsRequired={value.stampsRequired}
-          currentStamps={value.currentStamps}
-          stampColor={stampColor(value)}
-          backgroundColor={value.backgroundColor}
-          glyph={glyph(value)}
-          pattern={pattern(value)}
-          stampArtUrl={value.stampArtUrl}
-          stripBaseUrl={value.stripBaseUrl}
-        />
-      </div>
+      {/* Apple renders the strip full-bleed at a fixed 375x144 — no insets,
+          no rounding. */}
+      <StripArt value={value} states={value.stripStates} />
 
       <div className="flex justify-between gap-3 px-4 pt-3 pb-2">
         <div className="min-w-0">
@@ -159,16 +212,8 @@ export function GoogleCardPreview(value: CardPreviewValue) {
         <PreviewBarcode format={barcodeFormat(value)} />
       </div>
 
-      <StampGrid
-        stampsRequired={value.stampsRequired}
-        currentStamps={value.currentStamps}
-        stampColor={stampColor(value)}
-        backgroundColor={value.backgroundColor}
-        glyph={glyph(value)}
-        pattern={pattern(value)}
-        stampArtUrl={value.stampArtUrl}
-        stripBaseUrl={value.stripBaseUrl}
-      />
+      {/* Google's hero is its own render (1032x336), not the Apple strip. */}
+      <StripArt value={value} states={value.heroStates} aspect="1032 / 336" />
     </div>
   );
 }
