@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useAuth } from "../../auth/useAuth";
 import { useBusiness } from "../../business/useBusiness";
 import { BusinessStep } from "./BusinessStep";
 import { DesignStep } from "./DesignStep";
@@ -12,6 +13,7 @@ const STEPS: Step[] = ["business", "design", "finish"];
 
 export function OnboardingLayout() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { isLoading, hasBusiness } = useBusiness();
   const [step, setStep] = useState<Step>("business");
   const [business, setBusiness] = useState<Business | null>(null);
@@ -35,6 +37,18 @@ export function OnboardingLayout() {
 
   return (
     <div className="min-h-screen flex flex-col items-center gap-10 bg-white text-navy px-6 py-16">
+      {/* A staff account typically has no Business of its own, so it never
+          reaches the dashboard — the only other place the admin link lives.
+          Without this the catalog editor is unreachable except by URL. */}
+      {user?.is_staff && (
+        <div className="w-full max-w-lg rounded-xl bg-gold/10 border border-gold/30 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+          <span className="text-sm font-body text-navy">{t("admin.staffHere")}</span>
+          <Link to="/admin" className="text-sm font-medium text-navy underline hover:no-underline">
+            {t("admin.openAdmin")}
+          </Link>
+        </div>
+      )}
+
       <div className="flex items-center gap-3">
         {STEPS.map((s, i) => (
           <div key={s} className="flex items-center gap-3">
