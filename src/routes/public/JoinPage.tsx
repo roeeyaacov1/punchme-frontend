@@ -13,6 +13,7 @@ import {
 } from "../../api/loyalty";
 import { isLikelyIlPhone } from "../../lib/phone";
 import { ApiError } from "../../api/errors";
+import { env } from "../../lib/env";
 
 type Step =
   | { kind: "details" }
@@ -26,7 +27,10 @@ const RESEND_SECONDS = 60;
 /** The public join flow — a stranger standing at a counter with one hand
  * free: name + phone (+ optional birthday), SMS code, done. Carries the
  * s.11 privacy notice and a separate unticked marketing checkbox (Spam
- * Law), per the G3 research. */
+ * Law), per the G3 research.
+ *
+ * When env.otpRequired is false the code step is skipped entirely and the
+ * details form enrolls directly — see the note in submitDetails. */
 export function JoinPage() {
   const { t } = useTranslation();
   const { templateId } = useParams<{ templateId: string }>();
@@ -76,10 +80,17 @@ export function JoinPage() {
     };
   }, [step]);
 
-  async function sendCode() {
+  async function submitDetails() {
     if (!templateId) return;
     if (!isLikelyIlPhone(phone)) {
       setError(t("enroll.phoneInvalid"));
+      return;
+    }
+    // With OTP off there is no code to wait for, and asking for one anyway
+    // would still burn the backend's per-phone send limit — three taps and
+    // the customer is locked out of a step that isn't even required.
+    if (!env.otpRequired) {
+      await completeEnrollment();
       return;
     }
     setError(null);
@@ -101,7 +112,9 @@ export function JoinPage() {
     }
   }
 
-  async function submitCode() {
+  /** Shared by both paths: with a code when OTP is on, without one when it
+   * isn't (the API ignores otp_code entirely in that mode). */
+  async function completeEnrollment(otpCode?: string) {
     if (!templateId) return;
     setError(null);
     setBusy(true);
@@ -111,7 +124,7 @@ export function JoinPage() {
         display_name: displayName.trim() || undefined,
         birthday: birthday || undefined,
         marketing_opt_in: marketingOptIn,
-        otp_code: code.trim(),
+        otp_code: otpCode,
       });
       const card = await getPublicCard(enrollResult.card_serial);
       setStep({ kind: "success", enrollResult, card });
@@ -170,7 +183,7 @@ export function JoinPage() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            void submitCode();
+            void completeEnrollment(code.trim());
           }}
           className="flex flex-col gap-4 w-full max-w-xs"
         >
@@ -202,7 +215,7 @@ export function JoinPage() {
             <button
               type="button"
               disabled={resendIn > 0 || busy}
-              onClick={() => void sendCode()}
+              onClick={() => void submitDetails()}
               className="text-navy underline hover:no-underline disabled:opacity-40 disabled:no-underline"
             >
               {resendIn > 0
@@ -221,7 +234,7 @@ export function JoinPage() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          void sendCode();
+          void submitDetails();
         }}
         className="flex flex-col gap-5 w-full max-w-sm"
       >
@@ -269,7 +282,9 @@ export function JoinPage() {
 
         {error && <p className="text-sm text-red-600">{error}</p>}
         <Button type="submit" disabled={busy}>
-          {busy ? t("common.loading") : t("enroll.sendCodeCta")}
+          {busy
+            ? t("common.loading")
+            : t(env.otpRequired ? "enroll.sendCodeCta" : "enroll.submit")}
         </Button>
       </form>
     </div>
