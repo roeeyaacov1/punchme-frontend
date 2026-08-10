@@ -37,3 +37,23 @@ This lines up with what I saw independently: with multiple dev-server instances 
 2. Verify the backend's configured Google OAuth client ID (used to validate the token's `audience`) matches the frontend's `VITE_GOOGLE_CLIENT_ID` (`.env`). A mismatch here is the most common cause of "picker works, exchange fails."
 3. Confirm the Google token verification library/method being used (e.g. `google-auth`'s `verify_oauth2_token`) and that it isn't rejecting on issuer, audience, or clock-skew grounds.
 4. Double check this isn't environment-specific — i.e. that the client ID used in the currently deployed/tested frontend build matches whichever client ID the backend expects, especially if there are separate dev/staging/prod Google OAuth clients.
+
+## 3. `POST /api/auth/login` appears to accept any password (reported 2026-08-10)
+
+**Reported symptom:** sign up, sign out from the dashboard, then sign in again — "it works for every user and password, and it signs me in as the user I logged out from."
+
+That symptom turned out to be two separate bugs. The second half was ours and is fixed; the first half is server-side.
+
+**Fixed on the frontend (this change):** the React Query cache was never cleared on sign-out or sign-in, so a new session started holding the previous owner's cached data. Reproduced end-to-end: owner A signs in, signs out, then owner D — a *different, valid* account that owns no Business at all — signs in and lands on **A's dashboard**. `["business","me"]` was still inside its 30s `staleTime`, so it was served straight from cache with no refetch, `RequireBusiness` accepted it, and `DashboardOverview` then requested `/api/businesses/{A's id}/templates` using D's bearer token. Both `login()` and `logout()` in `src/auth/AuthProvider.tsx` now call `queryClient.clear()`. Also fixed alongside it: a token refresh in flight during sign-out could land afterwards and put a live access token for the old user back into the store (`src/api/client.ts`). Regression tests in `src/api/client.test.ts`.
+
+**Still needs the backend:** the "any password is accepted" half could not be reproduced against a correct server. Running the real frontend against a mock backend that rejects bad credentials with `401`, a wrong password and an unknown email both correctly show "Invalid email or password." and leave the user signed out. The frontend cannot manufacture a session on its own here — `signInWithPassword` posts the typed email/password to `/api/auth/login` with `{ auth: false }`, which means no `Authorization` header and no 401-refresh-retry (`src/api/client.ts`), and the request is cross-origin with fetch's default `credentials: "same-origin"`, so no Django session cookie is sent either. If the app signs in, the backend returned `200` with a token pair.
+
+**Decisive test** (backend running, no frontend involved) — sign up a user, then log in with a deliberately wrong password:
+
+```bash
+curl -s -X POST http://127.0.0.1:8000/api/auth/login -H 'Content-Type: application/json' -d '{"email":"<a real account>","password":"definitely-not-the-password"}' -w '\nHTTP %{http_code}\n'
+```
+
+`401` means the backend is fine and the reported symptom was entirely the cache bug above. Anything `2xx` is the bug — a token pair is being issued for a wrong password.
+
+**Where to look in `apps/accounts/`:** the classic shape is a `check_password` whose return value is never branched on (`user.check_password(data.password)` on its own line, then `issue_token_pair(user)` unconditionally), or an `authenticate()` result that is only checked for `None` after a fallback lookup has already selected the user. Note this contradicts the wrong-password rejection recorded as tested under item #1 above, so it is worth checking whether that behaviour regressed after that work landed.

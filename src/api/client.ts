@@ -40,6 +40,13 @@ async function refreshAccessToken(): Promise<boolean> {
     body: JSON.stringify({ refresh }),
   });
 
+  // The session can end (sign-out) or change hands (another owner signs in)
+  // while this is in flight. Applying the result then would put a live access
+  // token for the *old* user back into a store that no longer belongs to
+  // them; clearing on failure would wipe the new owner's tokens instead.
+  // Either way the answer is stale — drop it and let the caller see its 401.
+  if (getRefreshToken() !== refresh) return false;
+
   if (!res.ok) {
     clearTokens();
     return false;
