@@ -68,6 +68,11 @@ export default {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-50%)" },
         },
+        // Popovers: quick enough not to sit between the click and the panel.
+        "pop-in": {
+          "0%": { opacity: "0", transform: "translateY(-4px) scale(0.96)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.7s cubic-bezier(0.16,1,0.3,1) both",
@@ -76,6 +81,7 @@ export default {
         float: "float 5s ease-in-out infinite",
         "float-slow": "float-slow 6s ease-in-out infinite",
         marquee: "marquee 30s linear infinite",
+        "pop-in": "pop-in 0.16s cubic-bezier(0.16,1,0.3,1) both",
       },
       boxShadow: {
         // Two levels only. Cards pair the resting shadow with a hairline

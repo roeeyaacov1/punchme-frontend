@@ -74,6 +74,13 @@
                    "pendingSlow":  "Your pass is still being prepared. You can carry on — it\u0027ll be waiting on your dashboard.",
                    "retry":  "Check again"
                },
+    "colorPicker":  {
+                   "hex":  "Hex color code",
+                   "presets":  "Swatches",
+                   "recent":  "Recently used",
+                   "eyedropper":  "Pick a color from the screen",
+                   "random":  "Surprise me"
+               },
     "studio":  {
                    "title":  "Card Studio",
                    "subtitle":  "Design your loyalty card and watch it update live on both wallets. Saving pushes the new design to every installed pass.",

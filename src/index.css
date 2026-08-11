@@ -158,6 +158,49 @@ h4 {
   }
 }
 
+/* ── Colour picker ──────────────────────────────────────────────────────
+   react-colorful injects its own stylesheet at runtime, so these overrides
+   restyle it rather than dress an unstyled component: a softer saturation
+   pane, a slim pill for the hue rail instead of the default 24px slab, and
+   a pointer that reads as a lens over the colour underneath. */
+@layer components {
+  .pm-colorful .react-colorful {
+    width: 100%;
+    height: 168px;
+    gap: 12px;
+  }
+
+  .pm-colorful .react-colorful__saturation {
+    border-bottom: none;
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 1px rgb(14 17 32 / 0.08);
+  }
+
+  .pm-colorful .react-colorful__hue,
+  .pm-colorful .react-colorful__last-control {
+    height: 14px;
+    border-radius: 9999px;
+    box-shadow: inset 0 0 0 1px rgb(14 17 32 / 0.08);
+  }
+
+  .pm-colorful .react-colorful__pointer {
+    width: 22px;
+    height: 22px;
+    border-width: 3px;
+    box-shadow: 0 2px 6px rgb(14 17 32 / 0.35);
+  }
+
+  .pm-colorful .react-colorful__hue-pointer {
+    width: 18px;
+    height: 18px;
+  }
+
+  .pm-colorful .react-colorful__interactive:focus-visible .react-colorful__pointer {
+    outline: 2px solid theme("colors.navy");
+    outline-offset: 2px;
+  }
+}
+
 /* Native <details> marker removal — the chevron is ours. */
 @layer components {
   .faq-item > summary::-webkit-details-marker {
@@ -183,7 +226,8 @@ h4 {
   .animate-marquee,
   .animate-fade-up,
   .animate-fade-in,
-  .animate-scale-in {
+  .animate-scale-in,
+  .animate-pop-in {
     animation: none !important;
   }
 }

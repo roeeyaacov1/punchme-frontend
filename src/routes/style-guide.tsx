@@ -3,13 +3,16 @@
  * Not linked from anywhere real — safe to delete once the landing page
  * and dashboard exist and exercise these components in context.
  */
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Input, Card, Badge } from "../components/ui";
+import { Button, Input, Card, Badge, ColorField } from "../components/ui";
 import { WalletCardPreview } from "../components/wallet-card/WalletCardPreview";
 import logo from "../assets/logo.png";
 
 export function StyleGuidePage() {
   const { t, i18n } = useTranslation();
+  const [demoBg, setDemoBg] = useState("#4B2E1E");
+  const [demoStamp, setDemoStamp] = useState("#F0B429");
 
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.resolvedLanguage === "he" ? "en" : "he");
@@ -42,6 +45,14 @@ export function StyleGuidePage() {
           <Badge>Neutral</Badge>
           <Badge tone="warning">Warning</Badge>
           <Badge tone="success">Success</Badge>
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-xl">Color picker</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md">
+          <ColorField label="Card background" value={demoBg} onChange={setDemoBg} />
+          <ColorField label="Stamp color" value={demoStamp} onChange={setDemoStamp} />
         </div>
       </section>
 

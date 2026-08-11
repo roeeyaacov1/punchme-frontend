@@ -282,7 +282,9 @@ export function CardStudio({
                 <span className="text-sm font-medium text-navy font-body">
                   {t("studio.colorsLabel")}
                 </span>
-                <div className="grid grid-cols-2 gap-3">
+                {/* One column below `sm`: the picker panel is wider than a
+                    half-width cell and would run off a phone screen. */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <ColorField
                     label={t("studio.backgroundColor")}
                     value={value.background_color}
