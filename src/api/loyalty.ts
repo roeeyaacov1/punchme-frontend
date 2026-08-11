@@ -62,6 +62,72 @@ export function listCustomers(
   });
 }
 
+const CUSTOMERS_FETCH_PAGE_SIZE = 200;
+/** Safety stop so a business with an unexpectedly huge roster can't turn one
+ * screen into hundreds of sequential requests. Hitting it sets `truncated`,
+ * which the page surfaces rather than silently searching a partial list. */
+const CUSTOMERS_MAX_PAGES = 25;
+
+/** The list endpoint has no search parameter (see
+ * docs/customers-backend-issues.md), so the dashboard filters, sorts and
+ * exports client-side — which means it needs the whole roster, not one page.
+ *
+ * Pages until the accumulated length reaches the server's own `count`, so a
+ * backend that caps `page_size` below what we asked for still terminates on
+ * the right row instead of stopping after the first short page. */
+export async function listAllCustomers(businessId: string): Promise<{
+  items: CustomerListItem[];
+  count: number;
+  truncated: boolean;
+}> {
+  const items: CustomerListItem[] = [];
+  let count = 0;
+  let truncated = false;
+  let page = 1;
+
+  for (;;) {
+    const res = await listCustomers(businessId, page, CUSTOMERS_FETCH_PAGE_SIZE);
+    count = res.count;
+    items.push(...res.items);
+    if (res.items.length === 0 || items.length >= res.count) break;
+    if (page >= CUSTOMERS_MAX_PAGES) {
+      truncated = true;
+      break;
+    }
+    page += 1;
+  }
+
+  return { items, count, truncated };
+}
+
+export interface StampAdjustOut {
+  card_id: string;
+  stamp_count: number;
+  stamps_required: number;
+  status: string;
+}
+
+/** NOT IN THE BACKEND YET — docs/customers-backend-issues.md specifies the
+ * contract and the reasoning. Gated behind `env.stampAdjustEnabled`, which
+ * fails closed, so the UI ships visibly disabled instead of 404-ing.
+ *
+ * Signed `delta`: +1 stamps, -1 takes one back. Removal is the whole point —
+ * /api/scan can only ever add, so a staff member who double-scans currently
+ * has no way to undo it. Business-scoped so ownership is enforced from the
+ * path like every other dashboard endpoint, and keyed by `card_id` because
+ * that is what the customers list returns; the dashboard never handles a card
+ * serial, and shouldn't have to start. */
+export function adjustCardStamps(
+  businessId: string,
+  cardId: string,
+  delta: number,
+) {
+  return api.post<StampAdjustOut>(
+    `/api/businesses/${businessId}/cards/${cardId}/stamps`,
+    { delta },
+  );
+}
+
 export function listActivity(
   businessId: string,
   page?: number,

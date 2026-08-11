@@ -321,12 +321,58 @@
                                         "title":  "Customers",
                                         "emptyFree":  "Activate to start enrolling real customers",
                                         "emptyPro":  "Share your QR or standee to get your first one",
+                                        "searchLabel":  "Search customers",
+                                        "searchPlaceholder":  "Search by name, phone, or card",
+                                        "noMatches":  "No customers match that search.",
+                                        "clearFilters":  "Clear filters",
+                                        "showing":  "{{total}} customers",
+                                        "showingFiltered":  "{{shown}} of {{total}} customers",
+                                        "truncated":  "Showing the first {{shown}} customers — search and export cover only these until the API gains a search parameter.",
                                         "columns":  {
                                                         "name":  "Name",
                                                         "phone":  "Phone",
                                                         "progress":  "Progress",
-                                                        "card":  "Card"
-                                                    }
+                                                        "status":  "Status",
+                                                        "card":  "Card",
+                                                        "stamps":  "Stamps",
+                                                        "required":  "Stamps required",
+                                                        "joined":  "Joined"
+                                                    },
+                                        "stats":  {
+                                                      "total":  "Customers",
+                                                      "ready":  "Reward ready",
+                                                      "recent":  "Joined in {{days}} days"
+                                                  },
+                                        "filter":  {
+                                                       "label":  "Show",
+                                                       "all":  "Everyone",
+                                                       "ready":  "Reward ready",
+                                                       "progress":  "In progress",
+                                                       "new":  "Not started"
+                                                   },
+                                        "sort":  {
+                                                     "label":  "Sort by",
+                                                     "progress":  "Most stamps",
+                                                     "recent":  "Recently joined",
+                                                     "name":  "Name"
+                                                 },
+                                        "status":  {
+                                                       "ready":  "Reward ready",
+                                                       "progress":  "In progress",
+                                                       "new":  "Not started"
+                                                   },
+                                        "stamps":  {
+                                                       "add":  "Add a stamp",
+                                                       "remove":  "Remove a stamp",
+                                                       "atMax":  "This card is already full",
+                                                       "atZero":  "No stamps to remove",
+                                                       "pendingBackend":  "Adding and removing stamps needs a backend endpoint that isn't deployed yet — see docs/customers-backend-issues.md",
+                                                       "failed":  "Couldn't update that card: {{reason}}"
+                                                   },
+                                        "export":  {
+                                                       "cta":  "Export CSV",
+                                                       "filename":  "punchme-customers"
+                                                   }
                                     },
                       "activity":  {
                                        "title":  "Activity",
