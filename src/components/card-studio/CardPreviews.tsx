@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import type { DesignDoc } from "../../api/designs";
 import type { CardPattern } from "../../lib/cardPatterns";
 import { cn } from "../../lib/cn";
-import { PreviewBarcode } from "./PreviewBarcode";
+import { barcodeFormat, resolveBarcodePayload } from "../../lib/passBarcode";
+import { PassBarcode } from "../wallet-card/PassBarcode";
 import { StampGrid } from "./StampGrid";
 
 export interface CardPreviewValue {
@@ -54,10 +55,6 @@ function glyph(value: CardPreviewValue): string {
 
 function pattern(value: CardPreviewValue): CardPattern {
   return (value.design.pattern as CardPattern) || "none";
-}
-
-function barcodeFormat(value: CardPreviewValue): string {
-  return value.design.barcode?.format || "QR";
 }
 
 function fieldLabel(value: CardPreviewValue, binding: string, fallback: string): string {
@@ -152,7 +149,10 @@ export function AppleCardPreview(value: CardPreviewValue) {
       </div>
 
       <div className="bg-white mx-4 mb-4 mt-2 rounded-lg p-2 flex items-center justify-center h-[72px]">
-        <PreviewBarcode format={barcodeFormat(value)} />
+        <PassBarcode
+          format={barcodeFormat(value.design)}
+          payload={resolveBarcodePayload(value.design)}
+        />
       </div>
     </div>
   );
@@ -209,7 +209,10 @@ export function GoogleCardPreview(value: CardPreviewValue) {
       </div>
 
       <div className="bg-white mx-4 my-3 rounded-lg p-2 flex items-center justify-center h-[64px]">
-        <PreviewBarcode format={barcodeFormat(value)} />
+        <PassBarcode
+          format={barcodeFormat(value.design)}
+          payload={resolveBarcodePayload(value.design)}
+        />
       </div>
 
       {/* Google's hero is its own render (1032x336), not the Apple strip. */}

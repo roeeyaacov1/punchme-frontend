@@ -43,6 +43,9 @@ export function CardStatusPage() {
         foregroundColor={card.foreground_color}
         labelColor={card.label_color}
         logoUrl={card.logo_url ?? undefined}
+        // The serial from the URL is what /api/scan takes, so the code on
+        // this page scans exactly like the one on the installed pass.
+        serial={serial}
       />
       {/* Lost the pass? The universal link re-adds this same card. */}
       <WalletAddButtons

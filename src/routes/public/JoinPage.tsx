@@ -161,6 +161,9 @@ export function JoinPage() {
           foregroundColor={card.foreground_color}
           labelColor={card.label_color}
           logoUrl={card.logo_url ?? undefined}
+          // Scannable straight away — a customer who skips "add to wallet"
+          // can still get their first stamp on the spot.
+          serial={enrollResult.card_serial}
         />
         <WalletAddButtons
           passUrl={enrollResult.wallet_pass_url}

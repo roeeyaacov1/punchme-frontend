@@ -1,6 +1,8 @@
 import { cn } from "../../lib/cn";
 import { STAMP_ICONS } from "../../lib/stampIcons";
 import { HERO_BACKGROUNDS, isPresetHeroBackground } from "../../lib/heroBackgrounds";
+import { DEFAULT_BARCODE_FORMAT, SAMPLE_SERIAL } from "../../lib/passBarcode";
+import { PassBarcode } from "./PassBarcode";
 
 export interface WalletCardPreviewProps {
   backgroundColor: string;
@@ -17,12 +19,20 @@ export interface WalletCardPreviewProps {
   /** A preset key (src/lib/heroBackgrounds.ts) or an uploaded image URL,
    * rendered behind the stamp row. */
   heroBackground?: string;
+  /** The card serial. Supplying it turns the barcode from a simulation into
+   * the real thing — it encodes exactly what `/api/scan` consumes, so staff
+   * can scan this card straight off the screen when the customer never added
+   * the pass to their wallet, or lost it. Omit for design previews. */
+  serial?: string;
+  /** Symbology from the template design. Cards almost always use QR. */
+  barcodeFormat?: string;
 }
 
 /**
- * Pure, presentational CSS mock of an Apple/Google Wallet store-card pass.
- * Not a real .pkpass render — reused as-is in the marketing hero, the card
- * designer's live preview, and the dashboard.
+ * Presentational CSS mock of an Apple/Google Wallet store-card pass — the
+ * chrome is an approximation, but the barcode is not: it is drawn from the
+ * real symbology and encodes the real serial when one is passed, so the
+ * public pages double as a scannable fallback for the pass itself.
  */
 export function WalletCardPreview({
   backgroundColor,
@@ -35,7 +45,10 @@ export function WalletCardPreview({
   rewardDescription,
   stampIcon,
   heroBackground,
+  serial,
+  barcodeFormat = DEFAULT_BARCODE_FORMAT,
 }: WalletCardPreviewProps) {
+  const code = serial || SAMPLE_SERIAL;
   const stamps = Array.from({ length: Math.max(stampsRequired, 1) });
   const StampIcon = stampIcon ? STAMP_ICONS[stampIcon] : undefined;
   const heroStyle: React.CSSProperties | undefined = !heroBackground
@@ -118,17 +131,20 @@ export function WalletCardPreview({
         </div>
       </div>
 
-      <div className="h-12 bg-white flex items-center justify-center gap-[3px] px-5">
-        {Array.from({ length: 28 }).map((_, i) => (
-          <span
-            key={i}
-            className="bg-navy"
-            style={{
-              width: 2,
-              height: i % 3 === 0 ? 20 : 28,
-            }}
-          />
-        ))}
+      {/* The barcode panel, laid out the way a real pass does it: the code
+          on white with a quiet zone, its value in small type underneath
+          (Apple's altText) so it can still be keyed in by hand if a scan
+          fails. Real and scannable whenever `serial` is set. */}
+      <div className="bg-white flex flex-col items-center gap-2 px-5 py-4">
+        <div className="h-[116px] w-full">
+          <PassBarcode format={barcodeFormat} payload={code} />
+        </div>
+        <span
+          dir="ltr"
+          className="font-mono text-[10px] uppercase tracking-[0.14em] text-navy/60"
+        >
+          {code}
+        </span>
       </div>
     </div>
   );
