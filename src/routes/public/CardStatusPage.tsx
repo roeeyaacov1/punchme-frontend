@@ -43,8 +43,10 @@ export function CardStatusPage() {
         foregroundColor={card.foreground_color}
         labelColor={card.label_color}
         logoUrl={card.logo_url ?? undefined}
-        // The serial from the URL is what /api/scan takes, so the code on
-        // this page scans exactly like the one on the installed pass.
+        // The installed pass encodes its PassKit member id, but the scan
+        // lookup matches `serial OR passkit_pass_id` — the serial being the
+        // printed-QR path — so a code built from the URL resolves to this
+        // same card even though the two payloads differ.
         serial={serial}
       />
       {/* Lost the pass? The universal link re-adds this same card. */}

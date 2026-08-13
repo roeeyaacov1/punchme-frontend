@@ -20,9 +20,10 @@ export interface WalletCardPreviewProps {
    * rendered behind the stamp row. */
   heroBackground?: string;
   /** The card serial. Supplying it turns the barcode from a simulation into
-   * the real thing — it encodes exactly what `/api/scan` consumes, so staff
-   * can scan this card straight off the screen when the customer never added
-   * the pass to their wallet, or lost it. Omit for design previews. */
+   * the real thing: `/api/scan` resolves a code against `serial` as well as
+   * the PassKit member id the installed pass carries, so staff can scan this
+   * card straight off the screen when the customer never added the pass to
+   * their wallet, or lost it. Omit for design previews. */
   serial?: string;
   /** Symbology from the template design. Cards almost always use QR. */
   barcodeFormat?: string;
