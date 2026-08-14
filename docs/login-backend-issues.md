@@ -40,6 +40,12 @@ This lines up with what I saw independently: with multiple dev-server instances 
 
 ## 3. `POST /api/auth/login` appears to accept any password (reported 2026-08-10)
 
+> **Status (2026-08-14): backend verified fine.** `authenticate_with_password`
+> branches correctly on `check_password` and `InvalidCredentials` maps to
+> 401 in `config/api.py` — the reported symptom was entirely the frontend
+> cache bug fixed below. (The unknown-email path now also burns a dummy
+> hash so response timing can't enumerate registered emails.)
+
 **Reported symptom:** sign up, sign out from the dashboard, then sign in again — "it works for every user and password, and it signs me in as the user I logged out from."
 
 That symptom turned out to be two separate bugs. The second half was ours and is fixed; the first half is server-side.

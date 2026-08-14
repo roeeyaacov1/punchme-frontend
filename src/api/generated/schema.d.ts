@@ -93,6 +93,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Auth Logout
+         * @description auth=None on purpose: the refresh token in the body IS the
+         *     credential, and logout must work after the access token expired.
+         */
+        post: operations["apps_accounts_api_auth_logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/me": {
         parameters: {
             query?: never;
@@ -399,6 +420,27 @@ export interface paths {
         put?: never;
         /** Redeem */
         post: operations["apps_loyalty_api_redeem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/cards/{card_id}/stamps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Adjust Stamps
+         * @description Dashboard stamp correction by card id — see
+         *     docs/customers-backend-issues.md in the frontend repo for the contract.
+         */
+        post: operations["apps_loyalty_api_adjust_stamps"];
         delete?: never;
         options?: never;
         head?: never;
@@ -956,8 +998,11 @@ export interface components {
             stamp_count: number;
             /** Stamps Required */
             stamps_required: number;
-            /** Status */
-            status: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "reward_ready" | "void";
             /** Wallet Pass Url */
             wallet_pass_url?: string | null;
             /**
@@ -1006,8 +1051,11 @@ export interface components {
             stamp_count: number;
             /** Stamps Required */
             stamps_required: number;
-            /** Status */
-            status: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "reward_ready" | "void";
             /** Reward Description */
             reward_description: string;
             /** Background Color */
@@ -1031,8 +1079,11 @@ export interface components {
             stamp_count: number;
             /** Stamps Required */
             stamps_required: number;
-            /** Status */
-            status: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "reward_ready" | "void";
         };
         /** ScanIn */
         ScanIn: {
@@ -1043,10 +1094,38 @@ export interface components {
         RedeemOut: {
             /** Card Serial */
             card_serial: string;
-            /** Status */
-            status: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "reward_ready" | "void";
             /** Stamps Redeemed */
             stamps_redeemed: number;
+        };
+        /** StampAdjustOut */
+        StampAdjustOut: {
+            /** Card Id */
+            card_id: string;
+            /** Stamp Count */
+            stamp_count: number;
+            /** Stamps Required */
+            stamps_required: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "reward_ready" | "void";
+        };
+        /**
+         * StampAdjustIn
+         * @description Manual dashboard stamp correction — signed delta, one code path for
+         *     add and remove (see docs: the audit row's stamps_added carries the sign).
+         */
+        StampAdjustIn: {
+            /** Delta */
+            delta: number;
+            /** Expected Stamp Count */
+            expected_stamp_count?: number | null;
         };
         /** Input */
         Input: {
@@ -1070,8 +1149,11 @@ export interface components {
             stamp_count: number;
             /** Stamps Required */
             stamps_required: number;
-            /** Status */
-            status: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "reward_ready" | "void";
             /** Template Name */
             template_name: string;
             /**
@@ -1431,6 +1513,28 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AccessOut"];
                 };
+            };
+        };
+    };
+    apps_accounts_api_auth_logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshIn"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -1897,9 +2001,37 @@ export interface operations {
             };
         };
     };
+    apps_loyalty_api_adjust_stamps: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                card_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StampAdjustIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StampAdjustOut"];
+                };
+            };
+        };
+    };
     apps_loyalty_api_list_customers: {
         parameters: {
             query?: {
+                search?: string | null;
                 page?: number;
                 page_size?: number | null;
             };

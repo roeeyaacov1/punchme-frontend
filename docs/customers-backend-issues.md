@@ -1,5 +1,17 @@
 # Customers dashboard — backend gaps
 
+> **Status (2026-08-14): all three items are implemented in
+> `punchme-backend`** (uncommitted working tree as of writing). #1 exists
+> exactly as proposed below — `POST /api/businesses/{business_id}/cards/{card_id}/stamps`
+> with signed `delta`, 0..stamps_required bounds (422 `stamp_adjust_out_of_range`),
+> optional `expected_stamp_count` (409 `stamp_adjust_conflict`), 404 on
+> foreign/preview cards, StampEvent audit row (signed `stamps_added`) and
+> the same wallet push as scan. #2: `?search=` on `/customers` matches name
+> (icontains) and phone on digits (local format finds the stored E.164).
+> #3: `status` is now `Literal["active","reward_ready","void"]` in the
+> OpenAPI schema; `schema.d.ts` here has been regenerated. Flip
+> `VITE_STAMP_ADJUST_ENABLED=true` once the backend deploys.
+
 Frontend context (investigated 2026-08-11): the customers tab
 ([src/routes/dashboard/CustomersPage.tsx](../src/routes/dashboard/CustomersPage.tsx)) was a
 read-only paginated table. It now has search, filtering, sorting, reward-ready highlighting,
