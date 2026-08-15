@@ -9,9 +9,10 @@ export const env = {
    * asks for a code nobody sends or skips one the API still demands.
    * Defaults to true when unset so a forgotten variable fails closed. */
   otpRequired: import.meta.env.VITE_OTP_REQUIRED !== "false",
-  /** The customers table's manual stamp +/- control calls an endpoint the
-   * backend doesn't have yet (docs/customers-backend-issues.md). Defaults to
-   * false so the control renders disabled with a reason instead of 404-ing;
-   * set "true" once that endpoint is deployed. */
+  /** Gates the customers table's manual stamp +/- control. The endpoint it
+   * calls shipped in punchme-backend 32a1743, but this still defaults to false
+   * so a build pointed at an older deploy renders the control disabled with a
+   * reason instead of 404-ing. Vite bakes this in at build time, so a deploy
+   * that doesn't set it ships the control greyed out — see .env.example. */
   stampAdjustEnabled: import.meta.env.VITE_STAMP_ADJUST_ENABLED === "true",
 };

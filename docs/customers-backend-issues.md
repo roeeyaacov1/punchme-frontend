@@ -1,7 +1,7 @@
 # Customers dashboard — backend gaps
 
-> **Status (2026-08-14): all three items are implemented in
-> `punchme-backend`** (uncommitted working tree as of writing). #1 exists
+> **Status (2026-08-15): all three items are implemented and committed in
+> `punchme-backend` (32a1743), and the frontend flag is on.** #1 exists
 > exactly as proposed below — `POST /api/businesses/{business_id}/cards/{card_id}/stamps`
 > with signed `delta`, 0..stamps_required bounds (422 `stamp_adjust_out_of_range`),
 > optional `expected_stamp_count` (409 `stamp_adjust_conflict`), 404 on
@@ -9,19 +9,23 @@
 > the same wallet push as scan. #2: `?search=` on `/customers` matches name
 > (icontains) and phone on digits (local format finds the stored E.164).
 > #3: `status` is now `Literal["active","reward_ready","void"]` in the
-> OpenAPI schema; `schema.d.ts` here has been regenerated. Flip
-> `VITE_STAMP_ADJUST_ENABLED=true` once the backend deploys.
+> OpenAPI schema; `schema.d.ts` here has been regenerated.
+>
+> `VITE_STAMP_ADJUST_ENABLED` now defaults to `true` in
+> [.env.example](../.env.example). **Vite reads it at build time**, so every
+> deploy has to set it — a Railway build without it ships the +/- control
+> greyed out, which is exactly what "the buttons don't work" looks like.
 
 Frontend context (investigated 2026-08-11): the customers tab
 ([src/routes/dashboard/CustomersPage.tsx](../src/routes/dashboard/CustomersPage.tsx)) was a
 read-only paginated table. It now has search, filtering, sorting, reward-ready highlighting,
-CSV export, and a manual add/remove-stamp control. Everything except the last one works
-against the API as it exists today.
+CSV export, and a manual add/remove-stamp control. All of it works against the API as it
+exists today.
 
-Three asks below, in priority order. #1 is a blocker — the UI for it is built and shipping
-disabled.
+The three asks below are kept for the rationale behind each endpoint's shape — they are the
+record of why the contract looks the way it does, not an open worklist.
 
-## 1. No way to add or remove a stamp from the dashboard — BLOCKER
+## 1. No way to add or remove a stamp from the dashboard — DONE
 
 An owner looking at a customer's row cannot change that customer's stamp count. Two separate
 reasons, both server-side:
@@ -68,16 +72,14 @@ The frontend already calls exactly this — see `adjustCardStamps` in
   reflect the correction, the feature is actively misleading.
 - Apply whatever plan gate `/api/scan` applies.
 
-### Open question
+### Open question — answered on the backend, not yet used here
 
 Two staff members with the dashboard open can both send `delta: -1` against the same
-displayed count and take off two stamps. If that matters, add an optional
-`expected_stamp_count` and return 409 on mismatch; the frontend doesn't send it today and
-would need a small change to do so.
-
-**Until this ships:** the control renders disabled with an explanatory tooltip, gated on
-`VITE_STAMP_ADJUST_ENABLED` (defaults false, see [.env.example](../.env.example)). Flip it to
-`true` once the endpoint is deployed — no frontend code change needed.
+displayed count and take off two stamps. The backend took the optional `expected_stamp_count`
+route and returns 409 `stamp_adjust_conflict` on mismatch — **the frontend still doesn't send
+it**, so that race is live in the UI today. Sending it means threading the row's displayed
+count into `adjustCardStamps` and surfacing the 409 as "someone else changed this, reloading"
+rather than a generic failure.
 
 ## 2. `GET /api/businesses/{business_id}/customers` has no search parameter
 

@@ -100,16 +100,12 @@ export async function listAllCustomers(businessId: string): Promise<{
   return { items, count, truncated };
 }
 
-export interface StampAdjustOut {
-  card_id: string;
-  stamp_count: number;
-  stamps_required: number;
-  status: string;
-}
+export type StampAdjustOut = components["schemas"]["StampAdjustOut"];
 
-/** NOT IN THE BACKEND YET — docs/customers-backend-issues.md specifies the
- * contract and the reasoning. Gated behind `env.stampAdjustEnabled`, which
- * fails closed, so the UI ships visibly disabled instead of 404-ing.
+/** Shipped in punchme-backend 32a1743 — docs/customers-backend-issues.md has
+ * the contract and the reasoning. Still gated behind `env.stampAdjustEnabled`,
+ * which fails closed, so a build pointed at an older deploy renders the control
+ * visibly disabled instead of 404-ing.
  *
  * Signed `delta`: +1 stamps, -1 takes one back. Removal is the whole point —
  * /api/scan can only ever add, so a staff member who double-scans currently
