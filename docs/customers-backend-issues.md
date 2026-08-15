@@ -97,12 +97,19 @@ search silently covering a partial list is at least visible — but a business p
 gets search that quietly misses people. This is fine at current customer counts and is the
 wrong shape at scale.
 
-## 3. The `status` string on `CustomerListItemOut` is undocumented
+## 3. The `status` string on `CustomerListItemOut` is undocumented — DONE
 
-The schema types it as bare `str` with no enum, and nothing in the frontend has ever consumed
-it. The customers table therefore derives its own status buckets from `stamp_count` vs
-`stamps_required` (reward-ready / in-progress / not-started) rather than guessing at literals.
+It used to be typed as bare `str` with no enum, and nothing in the frontend consumed it. The
+customers table therefore derived *all* of its status buckets from `stamp_count` vs
+`stamps_required` rather than guessing at literals.
 
-That means **there is no "redeemed" filter**, because the frontend can't tell a redeemed card
-from any other. If you document the enum — ideally as a real `Literal[...]` in the schema so
-`npm run gen:api` picks it up — the filter can cover redeemed and expired cards properly.
+**Resolved:** `status` is now `Literal["active","reward_ready","void"]`. The table consumes it
+for `void` only — a voided card previously rendered as "in progress" or (worse) counted toward
+the reward-ready tile, since nothing in the two counters can express "this card is dead."
+Reward-ready / in-progress / no-stamps stay count-derived on purpose, so the badge can never
+contradict the `n / m` printed next to it if the server's `reward_ready` flip lags the count.
+
+**Still open:** there is no *redeemed* state in the enum, so there is still no redeemed filter —
+a card that has been redeemed and reset is indistinguishable from one that never filled up. If
+redemption should be visible in the roster it needs either its own status literal or a
+`redeemed_at` / `rewards_redeemed` field on `CustomerListItemOut`.

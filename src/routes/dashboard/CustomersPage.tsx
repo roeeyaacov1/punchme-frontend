@@ -20,17 +20,28 @@ import { cn } from "../../lib/cn";
 const PAGE_SIZE = 20;
 const RECENT_WINDOW_DAYS = 30;
 
-/** Derived from the stamp counts rather than the API's `status` string: the
- * frontend has never consumed that field and its enum isn't documented
- * anywhere in the schema, whereas these two numbers are unambiguous. */
-type Bucket = "ready" | "progress" | "new";
+/** `void` is read from the API's `status`, because a dead card is dead
+ * whatever its counters say and no arithmetic on the stamps can express that.
+ * The other three stay derived from the counts deliberately: they describe
+ * progress, and deriving them keeps this badge from ever contradicting the
+ * `n / m` rendered beside it should the server's own `reward_ready` flip lag
+ * the count it is computed from. */
+type Bucket = "void" | "ready" | "progress" | "new";
 type Filter = Bucket | "all";
 type Sort = "progress" | "recent" | "name";
 
-const FILTERS: Filter[] = ["all", "ready", "progress", "new"];
+const FILTERS: Filter[] = ["all", "ready", "progress", "new", "void"];
 const SORTS: Sort[] = ["progress", "recent", "name"];
 
+const BUCKET_TONES: Record<Bucket, "neutral" | "warning" | "gold"> = {
+  void: "warning",
+  ready: "gold",
+  progress: "neutral",
+  new: "neutral",
+};
+
 function bucketOf(c: CustomerListItem): Bucket {
+  if (c.status === "void") return "void";
   if (c.stamps_required > 0 && c.stamp_count >= c.stamps_required) return "ready";
   return c.stamp_count > 0 ? "progress" : "new";
 }
@@ -348,7 +359,7 @@ export function CustomersPage() {
                           </div>
                         </td>
                         <td className="py-2 pe-4">
-                          <Badge tone={bucket === "ready" ? "gold" : "neutral"}>
+                          <Badge tone={BUCKET_TONES[bucket]}>
                             {t(`dashboard.customers.status.${bucket}`)}
                           </Badge>
                         </td>

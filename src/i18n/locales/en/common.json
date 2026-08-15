@@ -348,7 +348,8 @@
                                                        "all":  "Everyone",
                                                        "ready":  "Reward ready",
                                                        "progress":  "In progress",
-                                                       "new":  "Not started"
+                                                       "new":  "No stamps yet",
+                                                       "void":  "Void"
                                                    },
                                         "sort":  {
                                                      "label":  "Sort by",
@@ -359,7 +360,8 @@
                                         "status":  {
                                                        "ready":  "Reward ready",
                                                        "progress":  "In progress",
-                                                       "new":  "Not started"
+                                                       "new":  "No stamps yet",
+                                                       "void":  "Void"
                                                    },
                                         "stamps":  {
                                                        "add":  "Add a stamp",
