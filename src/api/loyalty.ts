@@ -112,15 +112,23 @@ export type StampAdjustOut = components["schemas"]["StampAdjustOut"];
  * has no way to undo it. Business-scoped so ownership is enforced from the
  * path like every other dashboard endpoint, and keyed by `card_id` because
  * that is what the customers list returns; the dashboard never handles a card
- * serial, and shouldn't have to start. */
+ * serial, and shouldn't have to start.
+ *
+ * `expectedStampCount` is the count the clicking user was *looking at*, which
+ * the server compares under a row lock before applying the delta — two staff
+ * on two devices clicking `-1` against the same displayed 3 would otherwise
+ * land on 1. Required rather than optional: the guard is only worth having if
+ * no call site can quietly skip it, and 409 `stamp_adjust_conflict` is much
+ * easier to handle than a silently doubled correction. */
 export function adjustCardStamps(
   businessId: string,
   cardId: string,
   delta: number,
+  expectedStampCount: number,
 ) {
   return api.post<StampAdjustOut>(
     `/api/businesses/${businessId}/cards/${cardId}/stamps`,
-    { delta },
+    { delta, expected_stamp_count: expectedStampCount },
   );
 }
 

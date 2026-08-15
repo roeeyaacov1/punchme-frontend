@@ -369,6 +369,8 @@
                                                        "atMax":  "This card is already full",
                                                        "atZero":  "No stamps to remove",
                                                        "pendingBackend":  "Adding and removing stamps needs a backend endpoint that isn't deployed yet — see docs/customers-backend-issues.md",
+                                                       "voided":  "This card has been voided",
+                                                       "conflict":  "Someone else changed this card first — we've refreshed it to the current count, so check it and try again.",
                                                        "failed":  "Couldn't update that card: {{reason}}"
                                                    },
                                         "export":  {

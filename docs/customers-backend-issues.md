@@ -72,14 +72,24 @@ The frontend already calls exactly this — see `adjustCardStamps` in
   reflect the correction, the feature is actively misleading.
 - Apply whatever plan gate `/api/scan` applies.
 
-### Open question — answered on the backend, not yet used here
+### Open question — closed
 
-Two staff members with the dashboard open can both send `delta: -1` against the same
+Two staff members with the dashboard open could both send `delta: -1` against the same
 displayed count and take off two stamps. The backend took the optional `expected_stamp_count`
-route and returns 409 `stamp_adjust_conflict` on mismatch — **the frontend still doesn't send
-it**, so that race is live in the UI today. Sending it means threading the row's displayed
-count into `adjustCardStamps` and surfacing the 409 as "someone else changed this, reloading"
-rather than a generic failure.
+route and returns 409 `stamp_adjust_conflict` on mismatch; the frontend now always sends it
+(the parameter is **required** in `adjustCardStamps`, so no call site can quietly skip the
+guard) and treats that 409 as its own outcome — amber "someone else changed this first"
+rather than a red failure, plus a refetch, since a conflict means the count on screen is
+stale too.
+
+One trap worth keeping in mind if this code is touched again: **the endpoint returns 409 for
+two unrelated reasons.** A lost race carries `code: "stamp_adjust_conflict"`; a voided card
+(`CardVoided`) is also 409 but carries *no code at all*. Matching on the status alone tells an
+owner their card was edited out from under them when it was really just dead. `isStampConflict`
+in [CustomersPage.tsx](../src/routes/dashboard/CustomersPage.tsx) matches on the code for
+exactly this reason. Voided rows now render the control disabled, since the server refuses
+them whatever the counts say — but the guard still matters for a card voided between page load
+and click.
 
 ## 2. `GET /api/businesses/{business_id}/customers` has no search parameter
 

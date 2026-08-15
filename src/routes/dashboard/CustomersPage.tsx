@@ -12,6 +12,7 @@ import {
   listAllCustomers,
   type CustomerListItem,
 } from "../../api/loyalty";
+import { ApiError } from "../../api/errors";
 import { useDebounce } from "../../hooks/useDebounce";
 import { csvText, downloadCsv, toCsv } from "../../lib/csv";
 import { env } from "../../lib/env";
@@ -39,6 +40,14 @@ const BUCKET_TONES: Record<Bucket, "neutral" | "warning" | "gold"> = {
   progress: "neutral",
   new: "neutral",
 };
+
+/** The backend answers 409 for two unrelated reasons — a lost race carries
+ * `stamp_adjust_conflict`, a voided card carries no code at all — so matching
+ * on the status alone would tell an owner their card was edited out from under
+ * them when it was really just dead. */
+function isStampConflict(error: unknown): boolean {
+  return error instanceof ApiError && error.code === "stamp_adjust_conflict";
+}
 
 function bucketOf(c: CustomerListItem): Bucket {
   if (c.status === "void") return "void";
@@ -76,13 +85,28 @@ export function CustomersPage() {
   const all = useMemo(() => data?.items ?? [], [data]);
 
   const adjust = useMutation({
-    mutationFn: ({ cardId, delta }: { cardId: string; delta: number }) =>
-      adjustCardStamps(business!.id!, cardId, delta),
+    mutationFn: ({
+      cardId,
+      delta,
+      expected,
+    }: {
+      cardId: string;
+      delta: number;
+      expected: number;
+    }) => adjustCardStamps(business!.id!, cardId, delta, expected),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       // A manual correction is a stamp event like any other, so the activity
       // feed and the overview's counters are stale the moment this lands.
       queryClient.invalidateQueries({ queryKey: ["activity"] });
+    },
+    onError: (error) => {
+      // A conflict means the count we sent as `expected` was already stale, so
+      // what's on screen is wrong too — refetch rather than leave the owner
+      // looking at the number that just lost the race.
+      if (isStampConflict(error)) {
+        queryClient.invalidateQueries({ queryKey: ["customers"] });
+      }
     },
   });
 
@@ -276,13 +300,20 @@ export function CustomersPage() {
             </p>
           )}
 
-          {adjust.isError && (
-            <p className="rounded-xl bg-red-50 px-4 py-2 text-xs text-red-700 font-body">
-              {t("dashboard.customers.stamps.failed", {
-                reason: adjust.error.message,
-              })}
-            </p>
-          )}
+          {adjust.isError &&
+            (isStampConflict(adjust.error) ? (
+              // Not the owner's mistake, and already self-corrected by the
+              // refetch in onError — amber and reassuring, not red and alarming.
+              <p className="rounded-xl bg-amber-50 px-4 py-2 text-xs text-amber-800 font-body">
+                {t("dashboard.customers.stamps.conflict")}
+              </p>
+            ) : (
+              <p className="rounded-xl bg-red-50 px-4 py-2 text-xs text-red-700 font-body">
+                {t("dashboard.customers.stamps.failed", {
+                  reason: adjust.error.message,
+                })}
+              </p>
+            ))}
 
           {visible.length === 0 ? (
             <div className="flex flex-col items-start gap-3 py-6">
@@ -332,6 +363,14 @@ export function CustomersPage() {
                     const bucket = bucketOf(c);
                     const pending =
                       adjust.isPending && adjust.variables?.cardId === c.card_id;
+                    // A voided card is refused server-side whatever the counts
+                    // look like, so offering live buttons here only promises
+                    // something the next request will take away.
+                    const unavailable =
+                      stampsUnavailable ??
+                      (bucket === "void"
+                        ? t("dashboard.customers.stamps.voided")
+                        : undefined);
                     return (
                       <tr key={c.card_id} className="border-b border-navy/5">
                         <td className="py-2 pe-4">
@@ -369,9 +408,13 @@ export function CustomersPage() {
                             stampCount={c.stamp_count}
                             stampsRequired={c.stamps_required}
                             pending={pending}
-                            unavailableReason={stampsUnavailable}
+                            unavailableReason={unavailable}
                             onAdjust={(delta) =>
-                              adjust.mutate({ cardId: c.card_id, delta })
+                              adjust.mutate({
+                                cardId: c.card_id,
+                                delta,
+                                expected: c.stamp_count,
+                              })
                             }
                           />
                         </td>
