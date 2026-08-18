@@ -7,7 +7,7 @@ import {
   GoogleCardPreview,
   type PreviewPlatform,
 } from "../../components/card-studio/CardPreviews";
-import { PhoneFrame } from "../../components/onboarding/PhoneFrame";
+import { IslandSwitch, PhoneFrame } from "../../components/onboarding/PhoneFrame";
 import { useWakeOnChange } from "../../components/onboarding/useWakeOnChange";
 import { StepProgress } from "../../components/onboarding/StepProgress";
 import { TopBar } from "../../components/onboarding/TopBar";
@@ -144,6 +144,17 @@ function Shell() {
               backgroundColor={preview.backgroundColor}
               accentColor={preview.labelColor}
               wake={wake}
+              island={
+                <IslandSwitch
+                  label={t("onboarding.preview.wallets")}
+                  value={platform}
+                  onChange={setPlatform}
+                  options={PLATFORMS.map((key) => ({
+                    value: key,
+                    label: t(`studio.preview.${key}`),
+                  }))}
+                />
+              }
             >
               {platform === "apple" ? (
                 <AppleCardPreview {...preview} />
@@ -157,35 +168,12 @@ function Shell() {
           </p>
 
           <div className="px-5 pb-7 pt-3 sm:px-8">
-            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-              <p className="min-w-0 truncate text-sm text-ink-subtle">
-                {t("onboarding.preview.caption", {
-                  count: preview.stampsRequired,
-                  reward: preview.rewardDescription,
-                })}
-              </p>
-              <div
-                role="group"
-                aria-label={t("onboarding.preview.wallets")}
-                className="inline-flex shrink-0 rounded-lg border border-border bg-surface p-0.5"
-              >
-                {PLATFORMS.map((key) => (
-                  <button
-                    key={key}
-                    type="button"
-                    aria-pressed={platform === key}
-                    onClick={() => setPlatform(key)}
-                    className={cn(
-                      "min-h-[44px] rounded-md px-3 text-xs font-semibold transition-colors",
-                      platform === key ? "bg-navy-deep text-white" : "text-ink-muted hover:text-ink",
-                      focusRing,
-                    )}
-                  >
-                    {t(`studio.preview.${key}`)}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <p className="text-pretty text-sm text-ink-subtle">
+              {t("onboarding.preview.caption", {
+                count: preview.stampsRequired,
+                reward: preview.rewardDescription,
+              })}
+            </p>
 
             <StepProgress
               className="mt-2"
