@@ -34,10 +34,25 @@ Useful hooks already exist in `src/lib`: `usePrefersReducedMotion`, `useInView`,
 
 Do not add UI dependencies without asking.
 
+## Onboarding
+
+`/onboarding` is **public**. The owner designs the card first — business name and
+trade, card colour, stamp colour, stamp (icon / emoji / picture), stamps and
+reward — and only then makes an account; the wallet and billing steps sit behind
+`OnboardingGate`. The draft lives in `localStorage` (`punchme.onboardingDraft`,
+pictures under `punchme.onboardingDraft.art`) and is turned into the Business
+and CardTemplate by `src/routes/onboarding/commit.ts` in one idempotent pass:
+one Business per account (a second POST is a 500, not a 409), so it always
+looks before it creates, and a Back-and-change after sign-up patches instead
+of duplicating. The pure model in `draft.ts` is unit-tested; keep it that way.
+Emoji stamps are rasterised client-side and uploaded as `stamp_art` — the
+wallet renderer knows only the sixteen glyphs in `src/lib/stampGlyphs.ts`.
+
 ## Redesign rules
 
 The frontend is being redesigned page group by page group: landing → onboarding →
-dashboard. Each phase is presentation-layer only.
+dashboard. Landing and onboarding have shipped; the dashboard phase is
+presentation-layer only.
 
 **Never modify during a redesign:**
 
@@ -64,10 +79,10 @@ constraint, not a translation step.
   `en` and `he` — never a literal string in JSX.
 - Judge typography and layout in Hebrew, not only in English.
 
-**Known issue:** `index.html` loads Inter, Plus Jakarta Sans and IBM Plex Mono.
-None of them have Hebrew glyphs, so the Hebrew site currently renders in an OS
-fallback face. Any typography work must fix this — the Latin and Hebrew faces
-need to be chosen as a pair.
+**Faces:** `index.html` loads Rubik (display), Assistant (body) and IBM Plex
+Mono. Rubik and Assistant carry Hebrew and Latin in one family, so the Hebrew
+site is set rather than falling back to an OS face. Plex Mono has no Hebrew —
+it sets digits and the pass field labels only, never running text.
 
 ## Color and contrast
 
