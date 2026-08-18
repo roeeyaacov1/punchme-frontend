@@ -32,7 +32,7 @@ export function Hero() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                to="/login"
+                to="/onboarding"
                 className={ctaClasses("primary", "lg", "w-full sm:w-auto")}
               >
                 {t("landing.hero.cta")}

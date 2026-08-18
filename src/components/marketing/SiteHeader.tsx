@@ -137,7 +137,7 @@ export function SiteHeader() {
               </Link>
 
               <Link
-                to="/login"
+                to="/onboarding"
                 className={ctaClasses(
                   "primary",
                   "sm",
@@ -211,7 +211,7 @@ export function SiteHeader() {
               {t("landing.nav.signIn")}
             </Link>
             <Link
-              to="/login"
+              to="/onboarding"
               className={ctaClasses("primary", "lg", "mt-4 w-full")}
             >
               {t("landing.hero.cta")}

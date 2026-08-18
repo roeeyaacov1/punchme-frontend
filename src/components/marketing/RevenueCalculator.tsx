@@ -520,7 +520,7 @@ export function RevenueCalculator({
                 </p>
               )}
 
-              <Link to="/login" className={ctaClasses("primary", "lg", "mt-7 w-full")}>
+              <Link to="/onboarding" className={ctaClasses("primary", "lg", "mt-7 w-full")}>
                 {t("landing.hero.cta")}
               </Link>
 

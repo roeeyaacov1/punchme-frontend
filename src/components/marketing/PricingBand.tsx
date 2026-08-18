@@ -53,7 +53,7 @@ export function PricingBand({ netAnnual }: { netAnnual: string | null }) {
 
           <div className="flex justify-center">
             <Link
-              to="/login"
+              to="/onboarding"
               className={ctaClasses("onDark", "lg", "w-full sm:w-auto")}
             >
               {t("landing.pricing.cta")}
