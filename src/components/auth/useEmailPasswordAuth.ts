@@ -40,7 +40,11 @@ export function useEmailPasswordAuth({
       if (err.status === 409) return t("onboarding.account.alreadyRegistered");
       if (err.status === 429) return t("onboarding.account.throttled");
       if (err.status === 422 || err.status === 401) return err.message;
+      return t("auth.error");
     }
+    // fetch rejects with a TypeError when the API can't be reached at all —
+    // a stopped local backend, no network — which is worth saying plainly.
+    if (err instanceof TypeError) return t("auth.offline");
     return t("auth.error");
   }
 
