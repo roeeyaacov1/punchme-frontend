@@ -27,13 +27,6 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden bg-background">
-      {/* The bloom. Sized and placed to sit behind the device on every
-          breakpoint, and purely decorative — no layout depends on it. */}
-      <div
-        aria-hidden="true"
-        className="hero-bloom pointer-events-none absolute end-0 top-24 size-[32rem] translate-x-1/4 rtl:-translate-x-1/4 md:size-[40rem]"
-      />
-
       <Container className="relative">
         <div className="grid gap-10 pb-16 pt-10 md:grid-cols-12 md:items-center md:gap-8 md:pb-24 md:pt-20 lg:gap-14">
           <div className="text-center md:col-span-6 md:text-start lg:col-span-7">
@@ -88,19 +81,22 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="relative flex justify-center md:col-span-6 md:justify-end lg:col-span-5">
-            <FloatingStamp
-              icon={Coffee}
-              className="end-0 top-6 md:-end-2"
-              delay="0s"
-            />
-            <FloatingStamp
-              icon={Star}
-              className="bottom-24 start-0 md:-start-4"
-              delay="1.6s"
-            />
+          <div className="flex justify-center md:col-span-6 md:justify-end lg:col-span-5">
+            {/* `isolate` so the bloom's negative z-index stays inside this
+                box, and everything hangs off the device rather than off the
+                column — which is what kept the light beside the phone
+                instead of behind it. */}
+            <div className="relative isolate">
+              <div
+                aria-hidden="true"
+                className="hero-bloom pointer-events-none absolute start-1/2 top-[42%] -z-10 size-[26rem] -translate-y-1/2 -translate-x-1/2 rtl:translate-x-1/2 md:size-[34rem]"
+              />
 
-            <HeroCardCarousel />
+              <FloatingStamp icon={Coffee} className="-end-5 top-16" delay="0s" />
+              <FloatingStamp icon={Star} className="-start-5 bottom-40" delay="1.6s" />
+
+              <HeroCardCarousel />
+            </div>
           </div>
         </div>
       </Container>

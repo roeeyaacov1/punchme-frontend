@@ -99,9 +99,10 @@ export function HeroCardCarousel() {
         wallpapers={WALLPAPERS}
         activeId={current.id}
         wake={wake}
-        // Clipped at the top on wide screens: you are looking at part of a
-        // phone, not at a picture of one.
-        className="w-full max-w-[380px] rounded-t-[2rem] md:-mt-16 md:rounded-t-none lg:-mt-24"
+        // A whole device, sized so the pass inside lands near life size.
+        // It used to be pulled up and cropped by the section; now it stands
+        // in the hero's light instead of cutting it off.
+        className="w-full max-w-[19rem]"
       >
         <div className="relative">
           {HERO_TEMPLATES.map((template, i) => {

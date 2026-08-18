@@ -3,18 +3,25 @@ import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 
 /**
- * A fragment of a phone's lock screen, at life size.
+ * A phone on its lock screen, with the pass where Wallet puts it.
  *
- * Deliberately not a device mockup: no bezel, no notch, no glossy render, no
- * float. On a wide screen it is clipped at the top, as if the phone were
- * standing on the counter and you were looking at part of it. The point is
- * that the pass is shown where it actually lives, which is the one thing an
- * owner has to believe before anything else on this page matters.
+ * It used to be a fragment — a hard-edged slab of screen, cropped by its own
+ * container, on the assumption that a bezel would read as a stock mockup.
+ * That worked on the old oat ground and stopped working on white: a black
+ * rectangle with square corners reads as a box pasted onto the page, it cut
+ * the hero's violet light off at its edge instead of standing in it, and it
+ * was the only phone left in the product without a frame — the dashboard
+ * mock and the onboarding wizard both draw one.
  *
- * The wallpaper is derived from the cards' own colours rather than a stock
- * photo, so switching trades repaints the whole screen — and so nothing here
- * is invented. `wake` brightens it for a moment, which is what a phone does
- * when a pass updates.
+ * So it is a whole device now, lit from behind and shadowed onto the page.
+ * The clock is deliberately smaller than a real lock screen's: on a phone
+ * the clock is the subject, here the pass is, and at full size it was the
+ * second-loudest thing in the hero after the headline.
+ *
+ * The wallpaper is still derived from the cards' own colours rather than a
+ * stock photo, so switching trades repaints the whole screen — and so
+ * nothing here is invented. `wake` brightens it for a moment, which is what
+ * a phone does when a pass updates.
  */
 
 export interface Wallpaper {
@@ -77,41 +84,72 @@ export function LockScreen({
   }, [locale]);
 
   return (
-    <div className={cn("relative overflow-hidden bg-navy-deep", className)}>
-      {wallpapers.map((paper) => (
+    // The bezel. Near-black rather than pure, so it sits in the same family
+    // as the dashboard mock's frame, and lifted off the white ground by a
+    // long soft shadow rather than a border.
+    <div
+      className={cn(
+        "rounded-[2.75rem] bg-brand-night p-3 shadow-[0_40px_80px_-32px_rgb(15_15_35/0.55)] ring-1 ring-inset ring-white/10",
+        className,
+      )}
+    >
+      {/* No base wallpaper on this element on purpose — only the layers
+          below. A base would snap to the incoming colour while the outgoing
+          layer was still fading over it, which is the half-second of
+          barber-card-on-the-café's-screen the cross-fade exists to avoid. */}
+      <div className="relative overflow-hidden rounded-[2.1rem] bg-brand-night">
+        {wallpapers.map((paper) => (
+          <div
+            key={paper.id}
+            aria-hidden="true"
+            className={cn(
+              "absolute inset-0 transition-opacity duration-500 motion-reduce:transition-none",
+              paper.id === activeId ? "opacity-100" : "opacity-0",
+            )}
+            style={wallpaperStyle(paper)}
+          />
+        ))}
+
+        {/* The screen waking as the pass updates. Pointer-events off; it is
+            light, not a layer anyone can hit. */}
         <div
-          key={paper.id}
           aria-hidden="true"
           className={cn(
-            "absolute inset-0 transition-opacity duration-500 motion-reduce:transition-none",
-            paper.id === activeId ? "opacity-100" : "opacity-0",
+            "pointer-events-none absolute inset-0 bg-white transition-opacity motion-reduce:hidden",
+            wake ? "opacity-[0.09] duration-100" : "opacity-0 duration-[600ms]",
           )}
-          style={wallpaperStyle(paper)}
         />
-      ))}
 
-      {/* The screen waking as the pass updates. Pointer-events off; it is
-          light, not a layer anyone can hit. */}
-      <div
-        aria-hidden="true"
-        className={cn(
-          "pointer-events-none absolute inset-0 bg-white transition-opacity motion-reduce:hidden",
-          wake ? "opacity-[0.09] duration-100" : "opacity-0 duration-[600ms]",
-        )}
-      />
+        <div className="relative flex flex-col px-4 pb-5 pt-3">
+          {/* Dynamic island. Decoration here — on the landing there is
+              nothing live to put in it, unlike the wizard's, which holds
+              the wallet switch. */}
+          <div
+            aria-hidden="true"
+            className="mx-auto h-6 w-20 shrink-0 rounded-full bg-black/85"
+          />
 
-      <div className="relative flex flex-col items-center px-5 pb-8 pt-8 sm:pb-10 sm:pt-16">
-        <p className="text-sm font-medium text-white/70">{date}</p>
-        <p
-          className="mt-1 font-heading text-5xl font-normal tabular-nums tracking-tight text-white sm:text-6xl"
-          // The clock is staging around the real subject; it should not be
-          // read out before the pass.
-          aria-hidden="true"
-        >
-          {time}
-        </p>
+          <p className="mt-6 text-center text-xs font-medium text-white/70">
+            {date}
+          </p>
+          <p
+            className="mt-0.5 text-center font-heading text-4xl font-normal tabular-nums tracking-tight text-white"
+            // Staging around the real subject; it should not be read out
+            // before the pass.
+            aria-hidden="true"
+          >
+            {time}
+          </p>
 
-        <div className="mt-8 w-full max-w-[320px] sm:mt-10">{children}</div>
+          <div className="mt-6">{children}</div>
+
+          {/* Home indicator. The one cue that says the device continues to
+              be a device below the pass. */}
+          <div
+            aria-hidden="true"
+            className="mx-auto mt-8 h-1 w-24 shrink-0 rounded-full bg-white/40"
+          />
+        </div>
       </div>
     </div>
   );
