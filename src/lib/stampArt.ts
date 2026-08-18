@@ -2,12 +2,11 @@
  *
  * The wallet renderer knows sixteen named glyphs and, beyond those, exactly
  * one escape hatch: an uploaded `stamp_art` picture that it circle-masks into
- * each tile (apps/wallet/strips.py). So an emoji stamp is not a glyph the
- * server draws — it is a picture we draw here, once, the way the owner's own
- * device draws that emoji, and upload after sign-up. The same helpers turn an
- * owner's photo into the small square the tile wants.
+ * each tile (apps/wallet/strips.py). These helpers turn an owner's photo or
+ * logo into the small square the tile wants, here in the browser, so it can
+ * be shown on the phone before the account exists and uploaded after.
  *
- * Browser-only (canvas, Image, FileReader) — nothing here is unit-tested. */
+ * Browser-only (canvas, Image) — nothing here is unit-tested. */
 
 /** The tile is ~150 px on the pass and the server caps art at 512 px, so
  * there is nothing to gain from a bigger picture and a lot to lose in
@@ -17,38 +16,6 @@ export const STAMP_ART_SIZE = 512;
 /** Refuse anything the browser would struggle to decode into a 512² tile. */
 export const STAMP_ART_MAX_BYTES = 8 * 1024 * 1024;
 
-/** A first shelf of emoji that map onto the trades this product is built
- * for. Anything else can be typed into the field beside the grid. */
-export const EMOJI_STAMPS = [
-  "☕", "✂️", "💪", "🧘", "💅", "💇", "🧖", "🍕",
-  "🍔", "🥗", "🍰", "🍦", "🍺", "🍷", "🌸", "🐾",
-  "🐶", "🐱", "⭐", "❤️", "🎁", "🔥", "🚗", "📚",
-];
-
-const EMOJI_FONT =
-  "'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Twemoji Mozilla', 'EmojiOne Color', sans-serif";
-
-/** Exactly one user-perceived character (so "👨‍👩‍👧" and "👍🏽" count as one),
- * or null. `Intl.Segmenter` is in every browser this app targets; the
- * fallback only handles simple cases. */
-export function singleGrapheme(value: string): string | null {
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  const Segmenter = (
-    Intl as unknown as {
-      Segmenter?: new (locale?: string, opts?: { granularity: "grapheme" }) => {
-        segment: (s: string) => Iterable<{ segment: string }>;
-      };
-    }
-  ).Segmenter;
-  if (Segmenter) {
-    const parts = Array.from(new Segmenter(undefined, { granularity: "grapheme" }).segment(trimmed));
-    return parts.length === 1 ? parts[0].segment : null;
-  }
-  const chars = Array.from(trimmed);
-  return chars.length <= 2 ? trimmed : null;
-}
-
 function makeCanvas(size: number): [HTMLCanvasElement, CanvasRenderingContext2D] {
   const canvas = document.createElement("canvas");
   canvas.width = size;
@@ -56,30 +23,6 @@ function makeCanvas(size: number): [HTMLCanvasElement, CanvasRenderingContext2D]
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("canvas unavailable");
   return [canvas, ctx];
-}
-
-/** Draw one emoji onto a transparent square, filling about 80% of it. The
- * result is a PNG data URL: it keeps the transparent corners the circle
- * mask needs, and it is what the wizard shows in the phone before the
- * upload exists. */
-export function emojiToPngDataUrl(emoji: string, size = STAMP_ART_SIZE): string {
-  const [canvas, ctx] = makeCanvas(size);
-  let fontSize = Math.round(size * 0.78);
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  // Colour emoji ignore fillStyle, but a monochrome fallback face wouldn't.
-  ctx.fillStyle = "#0E1120";
-  // Shrink until the glyph fits inside the tile with a little air.
-  for (let attempt = 0; attempt < 6; attempt += 1) {
-    ctx.font = `${fontSize}px ${EMOJI_FONT}`;
-    const width = ctx.measureText(emoji).width;
-    if (width <= size * 0.86) break;
-    fontSize = Math.round(fontSize * ((size * 0.86) / width));
-  }
-  ctx.font = `${fontSize}px ${EMOJI_FONT}`;
-  // Emoji sit a touch high at "middle" in most faces; nudge down slightly.
-  ctx.fillText(emoji, size / 2, size / 2 + fontSize * 0.06);
-  return canvas.toDataURL("image/png");
 }
 
 function decodeImage(file: File): Promise<HTMLImageElement> {

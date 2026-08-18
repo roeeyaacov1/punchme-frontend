@@ -27,8 +27,8 @@ export interface CommitContext {
   /** `buildTemplateInput(resolved, …)` — built by the caller so the language
    * and translations are the ones on screen. */
   input: CardTemplateIn;
-  /** The picture to upload as stamp_art, when the stamp is an emoji or an
-   * image. Null for a glyph. */
+  /** The picture to upload as stamp_art, when the stamp is a picture. Null
+   * for a glyph. */
   art: { hash: string; dataUrl: string } | null;
   queryClient: QueryClient;
   /** Persist progress into the draft as it happens (business created →

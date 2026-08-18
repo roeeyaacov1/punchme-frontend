@@ -6,9 +6,9 @@
  * trade never overwrites a colour the owner already chose — `resolveDraft`
  * fills whatever is still null with the trade's defaults so the phone shows a
  * complete card from step one, and each step's Next writes its resolved value
- * down. And *the draft is small*: pixels (an emoji rasterised to PNG, a
- * cropped photo) live under a separate key that is only written when the
- * picture changes, so the per-keystroke draft write never carries base64.
+ * down. And *the draft is small*: pixels (a cropped photo) live under a
+ * separate key that is only written when the picture changes, so the
+ * per-keystroke draft write never carries base64.
  *
  * Everything in this file is pure; the storage helpers are the only ones that
  * touch the browser, and they are wrapped so a full or disabled localStorage
@@ -20,6 +20,7 @@ import type { DesignDoc } from "../../api/designs";
 import type { Preset } from "../../api/presets";
 import type { CardPreviewValue } from "../../components/card-studio/CardPreviews";
 import { derivedLabelColor, relatedAccents } from "../../lib/accentPalette";
+import { CARD_PATTERNS, type CardPattern } from "../../lib/cardPatterns";
 import { HEX_RE, normalizeHex, readableInk } from "../../lib/color";
 import { STAMP_GLYPH_NAMES } from "../../lib/stampGlyphs";
 
@@ -41,8 +42,7 @@ export const MAX_STAMPS = 12;
 
 export type StampChoice =
   | { kind: "glyph"; glyph: string }
-  /** The PNG lives in the art store under `hash`. */
-  | { kind: "emoji"; emoji: string; hash: string }
+  /** The picture lives in the art store under `hash`. */
   | { kind: "image"; hash: string };
 
 export interface CommittedRecord {
@@ -73,6 +73,8 @@ export interface OnboardingDraft {
   /** Advanced text colour; null = whichever ink reads on the background. */
   foreground: string | null;
   stamp: StampChoice | null;
+  /** The texture drawn behind the stamps, in the stamp colour → design.pattern */
+  pattern: CardPattern | null;
   stampsRequired: number | null;
   reward: string | null;
   committed: CommittedRecord | null;
@@ -89,6 +91,7 @@ export function emptyDraft(): OnboardingDraft {
     accent: null,
     foreground: null,
     stamp: null,
+    pattern: null,
     stampsRequired: null,
     reward: null,
     committed: null,
@@ -111,9 +114,6 @@ function parseStamp(value: unknown): StampChoice | null {
   const raw = value as Record<string, unknown>;
   if (raw.kind === "glyph" && typeof raw.glyph === "string" && STAMP_GLYPH_NAMES.includes(raw.glyph)) {
     return { kind: "glyph", glyph: raw.glyph };
-  }
-  if (raw.kind === "emoji" && typeof raw.emoji === "string" && typeof raw.hash === "string") {
-    return { kind: "emoji", emoji: raw.emoji, hash: raw.hash };
   }
   if (raw.kind === "image" && typeof raw.hash === "string") {
     return { kind: "image", hash: raw.hash };
@@ -155,6 +155,7 @@ export function parseDraft(value: unknown): OnboardingDraft | null {
     accent: hexOrNull(raw.accent),
     foreground: hexOrNull(raw.foreground),
     stamp: parseStamp(raw.stamp),
+    pattern: (CARD_PATTERNS as string[]).includes(raw.pattern as string) ? (raw.pattern as CardPattern) : null,
     stampsRequired: stamps !== null && stamps >= MIN_STAMPS && stamps <= MAX_STAMPS ? stamps : null,
     reward: typeof raw.reward === "string" ? raw.reward : null,
     committed: parseCommitted(raw.committed),
@@ -212,6 +213,7 @@ export interface ResolvedDraft {
   foreground: string;
   label: string;
   stamp: StampChoice;
+  pattern: CardPattern;
   stampsRequired: number;
   reward: string;
 }
@@ -243,6 +245,7 @@ export function resolveDraft(
     foreground: draft.foreground ?? readableInk(background),
     label: derivedLabelColor(background),
     stamp: draft.stamp ?? { kind: "glyph", glyph: NICHE_GLYPH[niche] },
+    pattern: draft.pattern ?? "none",
     stampsRequired: draft.stampsRequired ?? preset?.stamps_required ?? FALLBACK.stamps,
     reward: draft.reward ?? rewardDefault,
   };
@@ -287,7 +290,7 @@ export function buildDesignDoc(resolved: ResolvedDraft, lang: string, t: TFuncti
     ],
     barcode: { format: "QR", payload: "${pid}", alt_text: "" },
     stamp: { glyph, color: resolved.accent },
-    pattern: "none",
+    pattern: resolved.pattern,
   };
 }
 

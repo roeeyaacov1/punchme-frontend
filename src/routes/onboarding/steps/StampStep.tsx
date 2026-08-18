@@ -5,32 +5,32 @@ import { ImagePlus } from "lucide-react";
 import { ChoiceGrid } from "../../../components/onboarding/ChoiceGrid";
 import { StepShell } from "../../../components/onboarding/StepShell";
 import { focusRing } from "../../../components/marketing/primitives";
+import { CARD_PATTERNS, patternStyle, type CardPattern } from "../../../lib/cardPatterns";
 import { cn } from "../../../lib/cn";
-import {
-  EMOJI_STAMPS,
-  emojiToPngDataUrl,
-  fileToStampDataUrl,
-  hashDataUrl,
-  singleGrapheme,
-} from "../../../lib/stampArt";
+import { fileToStampDataUrl, hashDataUrl } from "../../../lib/stampArt";
 import { STAMP_GLYPH_NAMES, STAMP_GLYPHS } from "../../../lib/stampGlyphs";
 import { useOnboardingDraft } from "../useOnboardingDraft";
 import type { StampChoice } from "../draft";
 
-type Tab = "icons" | "emoji" | "image";
-const TABS: Tab[] = ["icons", "emoji", "image"];
+type Tab = "icons" | "image";
+const TABS: Tab[] = ["icons", "image"];
 
 function tabFor(stamp: StampChoice): Tab {
-  return stamp.kind === "glyph" ? "icons" : stamp.kind;
+  return stamp.kind === "image" ? "image" : "icons";
 }
 
+/**
+ * What gets punched, and what sits behind it. The stamp is one of the
+ * renderer's sixteen glyphs or the owner's own picture; the texture is one
+ * of the renderer's three patterns, drawn in the stamp colour — both are
+ * exactly what the server bakes into the strip, so the phone can show them
+ * live and mean it.
+ */
 export function StampStep() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { resolved, update, setArt, artPersisted, artUrl } =
-    useOnboardingDraft();
+  const { resolved, update, setArt, artPersisted, artUrl } = useOnboardingDraft();
   const [tab, setTab] = useState<Tab>(() => tabFor(resolved.stamp));
-  const [typed, setTyped] = useState("");
   const [note, setNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -38,36 +38,11 @@ export function StampStep() {
   const stamp = resolved.stamp;
   // A picture stamp whose picture is gone (a full localStorage, a reload)
   // has to be picked again before Next.
-  const artMissing = stamp.kind !== "glyph" && !artUrl;
+  const artMissing = stamp.kind === "image" && !artUrl;
 
   function chooseGlyph(glyph: string) {
     setError(null);
     update({ stamp: { kind: "glyph", glyph } });
-  }
-
-  function chooseEmoji(emoji: string) {
-    setError(null);
-    let dataUrl: string;
-    try {
-      dataUrl = emojiToPngDataUrl(emoji);
-    } catch {
-      setError(t("onboarding.stamp.uploadUnreadable"));
-      return;
-    }
-    const hash = hashDataUrl(dataUrl);
-    const persisted = setArt({ hash, dataUrl });
-    setNote(persisted ? null : t("onboarding.stamp.artMemoryOnly"));
-    update({ stamp: { kind: "emoji", emoji, hash } });
-  }
-
-  function handleTyped(value: string) {
-    setTyped(value);
-    const one = singleGrapheme(value);
-    if (!one) {
-      if (value.trim()) setError(t("onboarding.stamp.emojiInvalid"));
-      return;
-    }
-    chooseEmoji(one);
   }
 
   async function handleFile(e: ChangeEvent<HTMLInputElement>) {
@@ -110,27 +85,33 @@ export function StampStep() {
     };
   });
 
-  const emojiChoices = EMOJI_STAMPS.map((emoji) => ({
-    value: emoji,
-    label: emoji,
+  // Each texture tile is a piece of the strip itself: the card colour with
+  // the pattern in the stamp colour, exactly as the phone above draws it.
+  const patternChoices = CARD_PATTERNS.map((pattern: CardPattern) => ({
+    value: pattern,
+    label: t(`studio.patterns.${pattern}`),
     render: (selected: boolean) => (
       <span
         className={cn(
-          "flex h-11 w-11 items-center justify-center rounded-full text-2xl leading-none ring-offset-2 ring-offset-surface",
-          selected
-            ? "bg-navy-deep ring-2 ring-ink"
-            : "bg-background ring-1 ring-border-strong/70",
+          "flex h-12 w-full items-center justify-center rounded-lg ring-offset-2 ring-offset-surface transition-shadow",
+          selected ? "ring-2 ring-ink" : "ring-1 ring-border-strong/70",
         )}
+        style={{
+          backgroundColor: resolved.background,
+          ...patternStyle(pattern, resolved.accent),
+        }}
       >
-        {emoji}
+        <span
+          className={cn(
+            "rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
+            selected ? "bg-surface text-ink" : "bg-surface/85 text-ink-muted",
+          )}
+        >
+          {t(`studio.patterns.${pattern}`)}
+        </span>
       </span>
     ),
   }));
-
-  const selectedEmoji =
-    stamp.kind === "emoji" && EMOJI_STAMPS.includes(stamp.emoji)
-      ? stamp.emoji
-      : null;
 
   return (
     <StepShell
@@ -138,7 +119,7 @@ export function StampStep() {
       subtitle={t("onboarding.stamp.subtitle")}
       onBack={() => navigate("/onboarding/accent")}
       onNext={() => {
-        update({ stamp });
+        update({ stamp, pattern: resolved.pattern });
         navigate("/onboarding/reward");
       }}
       nextDisabled={artMissing}
@@ -160,9 +141,7 @@ export function StampStep() {
             onClick={() => setTab(key)}
             className={cn(
               "min-h-[40px] flex-1 rounded-md px-2 text-sm font-semibold transition-colors",
-              tab === key
-                ? "bg-navy-deep text-white"
-                : "text-ink-muted hover:text-ink",
+              tab === key ? "bg-navy-deep text-white" : "text-ink-muted hover:text-ink",
               focusRing,
             )}
           >
@@ -172,23 +151,15 @@ export function StampStep() {
       </div>
 
       {artMissing && (
-        <p className="text-sm font-medium text-red-700">
-          {t("onboarding.stamp.artMissing")}
-        </p>
+        <p className="text-sm font-medium text-red-700">{t("onboarding.stamp.artMissing")}</p>
       )}
       {note && !artMissing && <p className="text-sm text-ink-muted">{note}</p>}
-      {!artPersisted && !note && stamp.kind !== "glyph" && (
-        <p className="text-sm text-ink-muted">
-          {t("onboarding.stamp.artMemoryOnly")}
-        </p>
+      {!artPersisted && !note && stamp.kind === "image" && (
+        <p className="text-sm text-ink-muted">{t("onboarding.stamp.artMemoryOnly")}</p>
       )}
 
       {tab === "icons" && (
-        <div
-          role="tabpanel"
-          id="stamp-panel-icons"
-          aria-labelledby="stamp-tab-icons"
-        >
+        <div role="tabpanel" id="stamp-panel-icons" aria-labelledby="stamp-tab-icons">
           <ChoiceGrid
             name="glyph"
             legend={t("onboarding.stamp.gridLabel")}
@@ -199,49 +170,6 @@ export function StampStep() {
             columns={4}
             smColumns={8}
           />
-        </div>
-      )}
-
-      {tab === "emoji" && (
-        <div
-          role="tabpanel"
-          id="stamp-panel-emoji"
-          aria-labelledby="stamp-tab-emoji"
-          className="flex flex-col gap-4"
-        >
-          <ChoiceGrid
-            name="emoji"
-            legend={t("onboarding.stamp.emojiGridLabel")}
-            legendHidden
-            choices={emojiChoices}
-            value={selectedEmoji}
-            onChange={chooseEmoji}
-            columns={6}
-            smColumns={8}
-          />
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="emoji-typed"
-              className="text-sm font-medium text-ink"
-            >
-              {t("onboarding.stamp.emojiInputLabel")}
-            </label>
-            <input
-              id="emoji-typed"
-              type="text"
-              inputMode="text"
-              autoComplete="off"
-              value={typed}
-              onChange={(e) => handleTyped(e.target.value)}
-              className={cn(
-                "w-24 rounded-lg border border-border-strong bg-surface px-3 py-2 text-center text-2xl leading-none",
-                focusRing,
-              )}
-            />
-            <p className="text-xs text-ink-subtle">
-              {t("onboarding.stamp.emojiHint")}
-            </p>
-          </div>
         </div>
       )}
 
@@ -258,11 +186,7 @@ export function StampStep() {
               className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-background ring-1 ring-border-strong/70"
             >
               {stamp.kind === "image" && artUrl ? (
-                <img
-                  src={artUrl}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
+                <img src={artUrl} alt="" className="h-full w-full object-cover" />
               ) : (
                 <ImagePlus size={24} className="text-ink-subtle" />
               )}
@@ -280,9 +204,7 @@ export function StampStep() {
                   ? t("onboarding.stamp.uploadReplace")
                   : t("onboarding.stamp.uploadCta")}
               </button>
-              <p className="text-xs text-ink-subtle">
-                {t("onboarding.stamp.uploadHint")}
-              </p>
+              <p className="text-xs text-ink-subtle">{t("onboarding.stamp.uploadHint")}</p>
             </div>
             <input
               ref={fileInput}
@@ -296,6 +218,16 @@ export function StampStep() {
           </div>
         </div>
       )}
+
+      <ChoiceGrid
+        name="pattern"
+        legend={t("onboarding.stamp.textureLabel")}
+        choices={patternChoices}
+        value={resolved.pattern}
+        onChange={(pattern) => update({ pattern })}
+        columns={4}
+        cellClassName="[&>span]:w-full"
+      />
     </StepShell>
   );
 }

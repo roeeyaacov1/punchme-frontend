@@ -3,14 +3,14 @@ import { cn } from "../../lib/cn";
 
 export interface Choice<T extends string> {
   value: T;
-  /** The accessible name — a colour's name, a glyph's name, the emoji itself. */
+  /** The accessible name — a colour's name, a glyph's name, a texture's name. */
   label: string;
   /** What the option looks like. */
   render: (selected: boolean) => ReactNode;
 }
 
 /**
- * A grid of things to pick one of — colours, glyphs, emoji.
+ * A grid of things to pick one of — colours, glyphs, textures.
  *
  * Built on native radio inputs rather than `role="radio"` buttons: the group
  * semantics, the arrow-key walk and the single Tab stop come free from the

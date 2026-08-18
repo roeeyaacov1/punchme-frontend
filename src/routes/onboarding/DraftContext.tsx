@@ -35,7 +35,7 @@ export interface DraftContextValue {
   update: (patch: Partial<OnboardingDraft>) => void;
   /** Wipe the draft and its picture — done once the wizard is finished. */
   clear: () => void;
-  /** The picture behind an emoji/image stamp, if we still have it. */
+  /** The picture behind a picture stamp, if we still have it. */
   art: StoredArt | null;
   /** Store a new picture. Returns false when it only fits in memory. */
   setArt: (art: StoredArt | null) => boolean;

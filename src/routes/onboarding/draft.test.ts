@@ -108,7 +108,7 @@ describe("firstIncompleteStep", () => {
   });
   it("sends the owner back to the stamp step when the picture is gone", () => {
     const d = fullDraft();
-    d.stamp = { kind: "emoji", emoji: "☕", hash: "abc" };
+    d.stamp = { kind: "image", hash: "abc" };
     expect(firstIncompleteStep(d, () => true)).toBe("account");
     expect(firstIncompleteStep(d, () => false)).toBe("stamp");
   });
@@ -184,9 +184,17 @@ describe("buildTemplateInput", () => {
     expect(design.stamp).toEqual({ glyph: "coffee", color: "#C88A11" });
     expect(design.pattern).toBe("none");
   });
+  it("carries the chosen texture as design.pattern, and drops an unknown one", () => {
+    const d = fullDraft();
+    d.pattern = "dots";
+    const input = buildTemplateInput(resolveDraft(d, PRESETS, t), PRESETS, "he", t);
+    expect((input.design as { pattern: string }).pattern).toBe("dots");
+    expect(parseDraft({ v: 1, pattern: "plaid" })!.pattern).toBeNull();
+    expect(parseDraft({ v: 1, pattern: "waves" })!.pattern).toBe("waves");
+  });
   it("always sends a real glyph name even when the stamp is a picture", () => {
     const d = fullDraft();
-    d.stamp = { kind: "emoji", emoji: "☕", hash: "h" };
+    d.stamp = { kind: "image", hash: "h" };
     const input = buildTemplateInput(resolveDraft(d, PRESETS, t), PRESETS, "en", t);
     expect((input.design as { stamp: { glyph: string } }).stamp.glyph).toBe("check");
     expect((input.design as { default_language: string }).default_language).toBe("EN");

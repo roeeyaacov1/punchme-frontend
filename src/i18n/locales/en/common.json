@@ -243,17 +243,13 @@
         },
         "stamp": {
             "title": "Choose your stamp",
-            "subtitle": "An icon, an emoji or your own picture — punched on every visit.",
+            "subtitle": "An icon or your own picture — punched on every visit. Add a texture behind them if you like.",
             "tabs": {
                 "icons": "Icons",
-                "emoji": "Emoji",
                 "image": "Your picture"
             },
             "gridLabel": "Stamp icon",
-            "emojiGridLabel": "Emoji stamp",
-            "emojiInputLabel": "Or type any emoji",
-            "emojiHint": "Saved as a picture, drawn the way your device draws it.",
-            "emojiInvalid": "One emoji at a time.",
+            "textureLabel": "Texture behind the stamps",
             "uploadCta": "Choose a picture",
             "uploadReplace": "Choose a different picture",
             "uploadHint": "Square works best — it's cropped into a circle on the card.",
