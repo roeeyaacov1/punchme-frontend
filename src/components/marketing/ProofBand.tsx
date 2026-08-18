@@ -28,7 +28,6 @@ export function ProofBand() {
   return (
     <Section id="proof" tone="surface">
       <SectionHeader
-        eyebrow={t("landing.proof.eyebrow")}
         title={t("landing.proof.title")}
         lead={t("landing.proof.lead")}
       />

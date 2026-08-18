@@ -15,7 +15,7 @@
 
 /** Subscription price, shekels per month. Also appears as a literal inside
  * `landing.pricing.body` in both locales; change them together. */
-export const PUNCHME_MONTHLY_PRICE = 59;
+export const PUNCHME_MONTHLY_PRICE = 99;
 
 /** A year of PunchMe — what the headline number has to clear. */
 export const PUNCHME_ANNUAL_PRICE = PUNCHME_MONTHLY_PRICE * 12;

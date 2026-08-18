@@ -12,44 +12,79 @@ export default {
           light: "#ffd875",
           dark: "#c88a11",
         },
-        // ── Marketing landing-page tokens ──────────────────────
-        // The public page is card stock: a warm oat ground with white paper
-        // objects on it, navy for text plus one dark band, gold as the single
-        // accent. Added rather than replacing the names above so the dashboard
-        // and card designer are untouched.
+        // ── Marketing / onboarding tokens ──────────────────────
+        // These resolve through CSS variables so a page can be re-themed by
+        // scoping one class, rather than by rewriting every component that
+        // spends them. The default values in `:root` are the original oat
+        // card stock — a warm ground, white paper objects, navy text plus one
+        // dark band, gold as the single accent — so onboarding and every
+        // shared primitive render exactly as before.
         //
-        // Every ratio below is measured against BOTH grounds — white
-        // (`surface`) and oat (`background`) — because the same token is used
-        // on both. The oat figure is always the tighter of the two.
-        background: "#efe9dc",
-        surface: "#ffffff",
+        // `.theme-purple` (src/index.css) is the redesigned public landing.
+        // Both value sets are measured in that file, against both of their
+        // own grounds, and both meet AA.
+        background: "rgb(var(--c-background) / <alpha-value>)",
+        surface: "rgb(var(--c-surface) / <alpha-value>)",
         ink: {
-          // 15.5:1 on oat, 17.6:1 on white.
-          DEFAULT: "#0e1120",
-          // Warm mid-grey. The old cool #5c6478 read broken against oat.
-          // 5.89:1 on oat, 7.12:1 on white.
-          muted: "#5e5750",
-          // Captions, eyebrows, citations. The old #6b6f81 measures only
-          // 4.11:1 on oat and fails AA outright — this is its warm
-          // replacement at 4.83:1 on oat, 5.85:1 on white.
-          subtle: "#6b6459",
+          DEFAULT: "rgb(var(--c-ink) / <alpha-value>)",
+          muted: "rgb(var(--c-ink-muted) / <alpha-value>)",
+          subtle: "rgb(var(--c-ink-subtle) / <alpha-value>)",
         },
         primary: {
-          // Fill colour only, and it always carries navy text: white on this
-          // gold is 2.96:1 and fails AA, navy on it is 6.30:1.
-          DEFAULT: "#c88a11",
-          hover: "#b87f10",
-          // Gold as *text* on a light band. The old #96670d is 4.09:1 on oat
-          // and fails; this is 4.80:1 on oat, 5.80:1 on white. Never use
-          // `primary` itself for text on light.
-          text: "#8a5d0b",
+          // Fill colour. It never carries white text by assumption — the text
+          // colour is its own token, because the two themes disagree: gold
+          // takes navy (white on gold is 2.96:1 and fails), violet takes
+          // white (6.28:1). Anything sitting on `primary` uses `primary.on`.
+          DEFAULT: "rgb(var(--c-primary) / <alpha-value>)",
+          hover: "rgb(var(--c-primary-hover) / <alpha-value>)",
+          // The accent as *text* on a light ground. Never use `primary`
+          // itself for text on light in either theme.
+          text: "rgb(var(--c-primary-text) / <alpha-value>)",
+          on: "rgb(var(--c-primary-on) / <alpha-value>)",
+          // The 2px seated edge under a CTA — a darker cut of the fill.
+          shadow: "rgb(var(--c-primary-shadow) / <alpha-value>)",
         },
-        // Hairline. Warm, so it belongs to the oat ground rather than
-        // sitting on it — the old slate #e2e8f0 read as a seam.
-        border: "#ded5c2",
-        // A second, heavier rule for receipt totals and section edges.
-        "border-strong": "#c8bca3",
-        "navy-deep": "#0e1120",
+        // Hairline, and a second heavier rule for totals and section edges.
+        border: "rgb(var(--c-border) / <alpha-value>)",
+        "border-strong": "rgb(var(--c-border-strong) / <alpha-value>)",
+        "navy-deep": "rgb(var(--c-navy-deep) / <alpha-value>)",
+
+        // ── Landing redesign, fixed values ─────────────────────
+        // Sampled from the Figma frame, then corrected where the drawing
+        // failed AA (noted per token). These only ever appear inside
+        // `.theme-purple`, so unlike the tokens above they don't vary.
+        brand: {
+          // Bands and fills. All four carry white text.
+          violet: "#683de8", // white 6.14:1
+          indigo: "#5b41e6", // white 6.28:1
+          royal: "#404ee6", // white 6.09:1
+          blue: "#2562ea", // white 5.23:1
+          bright: "#7a3aec", // white 5.76:1 — the violet end of a gradient
+
+          // Light grounds. Both carry ink #111.
+          tint: "#f0f1fc", // ink 16.81:1
+          wash: "#f5f6fe", // ink 17.53:1
+          pill: "#dfd5fa", // ink 13.52:1
+
+          // Body copy on a violet band. Drawn at roughly white/70, which
+          // measures 3.53:1 and fails at 15px; lightened to clear AA.
+          "on-band": "#e3ddfb", // on violet 4.68:1
+
+          // The dashboard mock's dark surfaces.
+          night: "#0f0f23", // white 18.87:1
+          slate: "#1d1d35", // white 16.41:1
+          bezel: "#1e1e2f", // frame only, carries no text
+
+          // The pricing CTA, drawn #f4415c → #fa903c. White on that run
+          // measures 3.65:1 falling to 2.30:1 and fails outright, so both
+          // stops are darkened to the nearest AA-clean pair in the same hues.
+          warm: "#e11d48", // white 4.70:1
+          ember: "#c2410c", // white 5.18:1
+
+          // The dashboard's stat card, drawn #7f3ae9 → #e6479c. The end stop
+          // carries a 14px label at 3.65:1, so it too is darkened.
+          magenta: "#ce2f82", // white 4.82:1
+        },
       },
       // Rubik and Assistant both ship Hebrew and Latin in one family at
       // matching weights, which is the point: the Hebrew site is set rather

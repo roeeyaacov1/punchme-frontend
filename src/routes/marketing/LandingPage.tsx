@@ -5,16 +5,34 @@ import { ctaClasses } from "../../components/marketing/primitives";
 import { formatCurrency } from "../../components/marketing/calculator";
 import { SiteHeader } from "../../components/marketing/SiteHeader";
 import { Hero } from "../../components/marketing/Hero";
+import { PaperCards } from "../../components/marketing/PaperCards";
 import { ProofBand } from "../../components/marketing/ProofBand";
-import { RevenueCalculator } from "../../components/marketing/RevenueCalculator";
+import { PushBand } from "../../components/marketing/PushBand";
 import { HowItWorks } from "../../components/marketing/HowItWorks";
-import { ValueProps } from "../../components/marketing/ValueProps";
-import { FeatureGrid } from "../../components/marketing/FeatureGrid";
-import { Industries } from "../../components/marketing/Industries";
+import { AppShowcase } from "../../components/marketing/AppShowcase";
+import { RevenueCalculator } from "../../components/marketing/RevenueCalculator";
+import { Testimonials } from "../../components/marketing/Testimonials";
+import { AutomationRows } from "../../components/marketing/AutomationRows";
+import { StatsBand } from "../../components/marketing/StatsBand";
 import { PricingBand } from "../../components/marketing/PricingBand";
 import { Faq } from "../../components/marketing/Faq";
+import { FinalCta } from "../../components/marketing/FinalCta";
 import { SiteFooter } from "../../components/marketing/SiteFooter";
 
+/**
+ * The public landing page.
+ *
+ * `theme-purple` is the whole of the repaint's plumbing: the shared
+ * marketing tokens resolve through CSS variables (see src/index.css), so
+ * scoping the class here re-colours every section, the calculator and the
+ * footer at once, and leaves the onboarding wizard on the original oat card
+ * stock until its own phase lands.
+ *
+ * The order is the argument. The paper card is dead → here is the evidence
+ * that regulars are worth chasing → this is what brings them back → this is
+ * how you set it up → this is what you get → and here is your own
+ * arithmetic, which is the one section allowed to talk you out of it.
+ */
 export function LandingPage() {
   const { t, i18n } = useTranslation();
 
@@ -31,7 +49,7 @@ export function LandingPage() {
   return (
     // `relative` anchors the header's scroll sentinel; `overflow-x-clip`
     // is the backstop against a stray pixel from a glow or gradient.
-    <div className="relative overflow-x-clip bg-background text-ink">
+    <div className="theme-purple relative overflow-x-clip bg-background text-ink">
       <a
         href="#main"
         className={cn(
@@ -46,12 +64,15 @@ export function LandingPage() {
 
       <main id="main">
         <Hero />
+        <PaperCards />
         <ProofBand />
-        <RevenueCalculator onTouchedResult={handleCalculatorResult} />
+        <PushBand />
         <HowItWorks />
-        <ValueProps />
-        <FeatureGrid />
-        <Industries />
+        <AppShowcase />
+        <RevenueCalculator onTouchedResult={handleCalculatorResult} />
+        <Testimonials />
+        <AutomationRows />
+        <StatsBand />
         <PricingBand
           netAnnual={
             netAnnual === null
@@ -60,6 +81,7 @@ export function LandingPage() {
           }
         />
         <Faq />
+        <FinalCta />
       </main>
 
       <SiteFooter />

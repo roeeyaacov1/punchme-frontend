@@ -297,7 +297,6 @@ export function RevenueCalculator({
   return (
     <Section id="calculator">
       <SectionHeader
-        eyebrow={t("landing.calculator.eyebrow")}
         title={t("landing.calculator.title")}
         lead={t("landing.calculator.lead")}
       />

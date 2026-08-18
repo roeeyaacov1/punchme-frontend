@@ -2,6 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Themes ─────────────────────────────────────────────────────────────
+   The shared marketing/onboarding tokens resolve through these variables
+   (see tailwind.config.js). Values are space-separated RGB channels so
+   Tailwind's `<alpha-value>` still works — `bg-surface/60` and friends.
+
+   `:root` is the oat card stock the onboarding wizard is built in, carried
+   over unchanged. `.theme-purple` is the redesigned public landing. Scoping
+   the repaint to a class is what lets the two live side by side while the
+   wizard waits its turn, instead of a half-purple product. */
+:root {
+  --c-background: 239 233 220; /* oat  #efe9dc */
+  --c-surface: 255 255 255; /* white #ffffff */
+  --c-ink: 14 17 32; /* 15.5:1 on oat, 17.6:1 on white */
+  --c-ink-muted: 94 87 80; /* 5.89:1 on oat, 7.12:1 on white */
+  --c-ink-subtle: 107 100 89; /* 4.83:1 on oat, 5.85:1 on white */
+  --c-primary: 200 138 17; /* gold fill; carries navy, never white */
+  --c-primary-hover: 184 127 16;
+  --c-primary-text: 138 93 11; /* 4.80:1 on oat, 5.80:1 on white */
+  --c-primary-on: 14 17 32; /* navy on gold 6.30:1 */
+  --c-primary-shadow: 138 93 11;
+  --c-border: 222 213 194;
+  --c-border-strong: 200 188 163;
+  --c-navy-deep: 14 17 32;
+}
+
+/* Every ratio below is measured against both of this theme's grounds —
+   white (`background`) and the pale wash (`surface`, #f5f6fe) — and the
+   tighter of the two is the one quoted. */
+.theme-purple {
+  --c-background: 255 255 255; /* white  #ffffff */
+  --c-surface: 245 246 254; /* wash   #f5f6fe */
+  --c-ink: 17 17 17; /* 17.5:1 on wash, 18.9:1 on white */
+  --c-ink-muted: 65 65 65; /* 9.48:1 on wash, 10.2:1 on white */
+  --c-ink-subtle: 85 85 95; /* 6.84:1 on wash, 7.37:1 on white */
+  --c-primary: 91 65 230; /* indigo fill; carries white 6.28:1 */
+  --c-primary-hover: 79 56 209; /* white 7.45:1 */
+  --c-primary-text: 104 61 232; /* 5.70:1 on wash, 6.14:1 on white */
+  --c-primary-on: 255 255 255;
+  --c-primary-shadow: 63 45 165;
+  --c-border: 226 227 246;
+  --c-border-strong: 202 204 238;
+  --c-navy-deep: 15 15 35; /* #0f0f23 — the dark band and the footer */
+}
+
 body {
   font-family: theme("fontFamily.body");
 }
@@ -288,5 +332,62 @@ h4 {
   .animate-pop-in,
   .animate-stamp-in {
     animation: none !important;
+  }
+}
+
+/* ── Landing gradients ──────────────────────────────────────────────────
+   Written as classes rather than utilities because each one needs a
+   direction flip, and an arbitrary `bg-[linear-gradient(...)]` repeated
+   twice per rule is unreadable.
+
+   The Figma is drawn in Hebrew, where the accent (violet, red) sits at the
+   LEFT edge — the end of the line — and the cooler stop at the right, where
+   Hebrew starts. The `[dir="rtl"]` rule below is therefore the design
+   exactly as drawn; the default LTR rule mirrors it, so in English the
+   accent keeps its place relative to the reader rather than to the screen. */
+@layer components {
+  .grad-cta {
+    background-image: linear-gradient(to left, #7a3aec, #2562ea);
+  }
+
+  [dir="rtl"] .grad-cta {
+    background-image: linear-gradient(to right, #7a3aec, #2562ea);
+  }
+
+  /* The pricing CTA. Darkened from the drawn #f4415c → #fa903c, which put
+     white text at 2.30:1 at the orange end; this run holds 4.70–5.18:1. */
+  .grad-warm {
+    background-image: linear-gradient(to left, #e11d48, #c2410c);
+  }
+
+  [dir="rtl"] .grad-warm {
+    background-image: linear-gradient(to right, #e11d48, #c2410c);
+  }
+
+  /* The violet → magenta stat card inside the dashboard mock. */
+  .grad-magenta {
+    background-image: linear-gradient(to left, #7f3ae9, #ce2f82);
+  }
+
+  [dir="rtl"] .grad-magenta {
+    background-image: linear-gradient(to right, #7f3ae9, #ce2f82);
+  }
+
+  /* The pricing band's ground: royal blue drifting a few degrees warmer
+     down the page. Vertical, so it needs no direction flip. */
+  .grad-band {
+    background-image: linear-gradient(to bottom, #404ee6, #3655e7);
+  }
+
+  /* The hero's light. A violet bloom behind the phone on white, standing in
+     for the drawn 300px ellipse — an ellipse with a hard edge is a shape,
+     and this is meant to read as light. */
+  .hero-bloom {
+    background-image: radial-gradient(
+      closest-side,
+      rgb(122 58 236 / 0.42) 0%,
+      rgb(96 84 240 / 0.22) 55%,
+      transparent 100%
+    );
   }
 }

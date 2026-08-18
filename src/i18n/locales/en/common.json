@@ -1,837 +1,931 @@
-﻿{
-    "app":  {
-                "name":  "PunchMe"
-            },
-    "language":  {
-                     "switch":  "עברית"
-                 },
-    "common":  {
-                   "save":  "Save",
-                   "next":  "Next",
-                   "back":  "Back",
-                   "loading":  "Loading...",
-                   "retry":  "Try again",
-                   "copyLink":  "Copy link",
-                   "copied":  "Copied!",
-                   "remove":  "Remove",
-                   "edit":  "Edit"
-               },
-    "admin":  {
-                  "title":  "PunchMe Admin",
-                  "badge":  "Staff",
-                  "backToApp":  "Back to app",
-                  "catalog":  {
-                                  "title":  "Template catalog",
-                                  "subtitle":  "The library businesses choose from. Instantiating COPIES an entry — editing or deleting here never touches a live business card.",
-                                  "create":  "New template",
-                                  "createTitle":  "New catalog template",
-                                  "editTitle":  "Edit catalog template",
-                                  "published":  "Published",
-                                  "draft":  "Draft",
-                                  "publish":  "Publish",
-                                  "unpublish":  "Unpublish",
-                                  "moveUp":  "Move up",
-                                  "moveDown":  "Move down",
-                                  "deleteConfirm":  "Delete \"{{name}}\" from the catalog?",
-                                  "nicheLabel":  "Niche",
-                                  "descriptionLabel":  "Description",
-                                  "publishedLabel":  "Published"
-                              },
-                  "staffOnly":  "Staff area",
-                  "staffOnlyBody":  "This area is for PunchMe staff. You\u0027re signed in as {{email}}, which doesn\u0027t have staff access.",
-                  "staffHere":  "You\u0027re signed in as PunchMe staff.",
-                  "openAdmin":  "Open the template catalog"
-              },
-    "scaffold":  {
-                     "title":  "Scaffold OK",
-                     "subtitle":  "Tailwind, fonts, tokens, and RTL wired up"
-                 },
-    "auth":  {
-
-                 "error":  "Something went wrong signing in. Please try again.",
-                 "missingClientId":  "Missing Google Client ID (VITE_GOOGLE_CLIENT_ID)",
-                 "loadingSession":  "Loading...",
-                 "emailLabel":  "Email",
-                 "passwordLabel":  "Password",
-                 "signInCta":  "Sign in",
-                 "signUpCta":  "Create account",
-                 "submitting":  "Please wait…",
-                 "orDivider":  "or",
-                 "toggleToSignUp":  "Don\u0027t have an account? Sign up",
-                 "toggleToSignIn":  "Already have an account? Sign in",
-                 "signInTitle":  "Welcome back",
-                 "signInSubtitle":  "Sign in to your dashboard.",
-                 "signUpTitle":  "Create your account",
-                 "signUpSubtitle":  "Then design your card — free.",
-                 "newHere":  "New here? Design your card first — it's free",
-                 "offline":  "Can't reach the server — check your connection and try again.",
-                 "signUpError":  "Something went wrong creating your account. Please try again."
-             },
-    "onboardingPlaceholder":  {
-                                  "title":  "Signed in successfully",
-                                  "signedInAs":  "Signed in as",
-                                  "note":  "The business + card onboarding wizard goes here (next build step).",
-                                  "signOut":  "Sign out"
-                              },
-    "wallet":  {
-                   "addApple":  "Add to Apple Wallet",
-                   "addGoogle":  "Add to Google Wallet",
-                   "addToWallet":  "Add to wallet",
-                   "pending":  "Preparing your wallet pass — this only takes a moment.",
-                   "pendingSlow":  "Your pass is still being prepared. You can carry on — it\u0027ll be waiting on your dashboard.",
-                   "retry":  "Check again"
-               },
-    "colorPicker":  {
-                   "hex":  "Hex color code",
-                   "presets":  "Swatches",
-                   "recent":  "Recently used",
-                   "eyedropper":  "Pick a color from the screen",
-                   "random":  "Surprise me"
-               },
-    "studio":  {
-                   "title":  "Card Studio",
-                   "subtitle":  "Design your loyalty card and watch it update live on both wallets. Saving pushes the new design to every installed pass.",
-                   "save":  "Save design",
-                   "saved":  "Saved ✓",
-                   "syncError":  "The last wallet sync failed — your changes are safe and will be retried automatically.",
-                   "uploadError":  "Upload failed — try a different image.",
-                   "nameLabel":  "Card name",
-                   "stampsLabel":  "Stamps to reward",
-                   "stampsHint":  "{{count}} stamps",
-                   "rewardLabel":  "Reward",
-                   "glyphLabel":  "Stamp icon",
-                   "uploadStampArt":  "Upload your own stamp image",
-                   "paletteLabel":  "Color palettes",
-                   "colorsLabel":  "Colors",
-                   "labelsLabel":  "Field labels",
-                   "labelsHint":  "What the card calls the customer\u0027s name and their stamp count. Leave empty for the defaults.",
-                   "backgroundColor":  "Card background",
-                   "stampColor":  "Stamp color",
-                   "textColor":  "Text color",
-                   "labelColor":  "Label color",
-                   "patternLabel":  "Background pattern",
-                   "patterns":  {
-                                    "none":  "None",
-                                    "waves":  "Waves",
-                                    "dots":  "Dots",
-                                    "stripes":  "Stripes"
-                                },
-                   "logoLabel":  "Logo",
-                   "logoHint":  "One upload becomes all three wallet assets (wide Apple logo, round Google badge, icon). No logo? We\u0027ll render your business name.",
-                   "uploadLogo":  "Upload logo",
-                   "showAdvanced":  "Show advanced options",
-                   "hideAdvanced":  "Hide advanced options",
-                   "languageLabel":  "Card language",
-                   "languages":  {
-                                     "HE":  "Hebrew",
-                                     "EN":  "English"
-                                 },
-                   "barcodeLabel":  "Barcode format",
-                   "orgNameLabel":  "Organization name",
-                   "orgNameHint":  "Shown on the pass instead of your business name (optional).",
-                   "artworkLabel":  "Custom artwork",
-                   "artworkHint":  "A full strip background, or separate before/after punch images.",
-                   "uploadStripBase":  "Upload strip background (min 1125×432)",
-                   "uploadStampedArt":  "Upload punched-stamp artwork",
-                   "uploadUnstampedArt":  "Upload empty-stamp artwork",
-                   "fieldsLabel":  "Card fields",
-                   "sampleStampsLabel":  "Preview stamps",
-                   "sampleStampsHint":  "{{count}} punched",
-                   "lintClean":  "Ready to publish — this card renders fully on both wallets.",
-                   "lintTitle":  "Not publish-ready yet:",
-                   "preview":  {
-                                   "apple":  "Apple Wallet",
-                                   "google":  "Google Wallet",
-                                   "nameLabel":  "Name",
-                                   "pointsLabel":  "Visits"
-                               },
-                   "fields":  {
-                                  "label":  "Label",
-                                  "section":  "Position (Apple)",
-                                  "alignment":  "Alignment",
-                                  "changeMessage":  "Update notification",
-                                  "changeMessageHint":  "%@ is replaced with the new value.",
-                                  "add":  "Add field",
-                                  "binding":  {
-                                                  "person.displayName":  "Customer name",
-                                                  "members.member.points":  "Stamp count",
-                                                  "members.tier.name":  "Tier name",
-                                                  "universal.info":  "Info text",
-                                                  "meta.custom":  "Custom text"
-                                              },
-                                  "sections":  {
-                                                   "HEADER_FIELDS":  "Header",
-                                                   "PRIMARY_FIELDS":  "Primary",
-                                                   "SECONDARY_FIELDS":  "Secondary",
-                                                   "AUXILIARY_FIELDS":  "Auxiliary",
-                                                   "BACK_FIELDS":  "Back of card"
-                                               },
-                                  "alignments":  {
-                                                     "NATURAL":  "Automatic",
-                                                     "LEFT":  "Left",
-                                                     "CENTER":  "Center",
-                                                     "RIGHT":  "Right"
-                                                 }
-                              }
-               },
-    "onboarding":  {
-        "steps": {
-            "business": "Your business",
-            "color": "Card colour",
-            "accent": "Stamp colour",
-            "stamp": "Stamp",
-            "reward": "Reward",
-            "account": "Account",
-            "wallet": "Your wallet",
-            "billing": "Go live"
-        },
-        "progress": "Step {{n}} of {{total}}",
-        "preview": {
-            "ariaLabel": "Preview of your card",
-            "caption_one": "{{count}} stamp · {{reward}}",
-            "caption_other": "{{count}} stamps · {{reward}}",
-            "summary": "{{name}} — {{count}} stamps to a reward. Reward: {{reward}}.",
-            "wallets": "Preview wallet"
-        },
-        "business": {
-            "title": "What's your business called?",
-            "subtitle": "It goes at the top of the card.",
-            "nameLabel": "Business name",
-            "namePlaceholder": "e.g. Danny's Barbershop",
-            "nicheLabel": "What kind of place is it?",
-            "autofillTitle": "Details auto-filled from Google",
-            "autofillBody": "We filled in what we could find. You can edit anything.",
-            "autofillClear": "Clear",
-            "niches": {
-                "barber": "Barber",
-                "cafe": "Café",
-                "trainer": "Personal trainer",
-                "therapist": "Therapist",
-                "other": "Other"
-            }
-        },
-        "color": {
-            "title": "Pick your card colour",
-            "subtitle": "The whole pass takes this colour.",
-            "gridLabel": "Card colour",
-            "custom": "Custom colour",
-            "customLabel": "Card colour",
-            "names": {
-                "midnight": "Midnight",
-                "slate": "Slate",
-                "espresso": "Espresso",
-                "forest": "Forest",
-                "ocean": "Ocean",
-                "indigo": "Indigo",
-                "wine": "Wine",
-                "terracotta": "Terracotta",
-                "blush": "Blush",
-                "cream": "Cream",
-                "custom": "Custom colour {{hex}}"
-            }
-        },
-        "accent": {
-            "title": "Now the stamp colour",
-            "subtitle": "Each of these sits well on the card colour you chose.",
-            "gridLabel": "Stamp colour",
-            "swatchLabel": "Stamp colour {{n}}: {{hex}}",
-            "advanced": "Advanced",
-            "textColorLabel": "Text colour",
-            "textAuto": "Automatic",
-            "textWhite": "White",
-            "textBlack": "Black",
-            "textCustom": "Custom",
-            "customAccent": "Custom stamp colour"
-        },
-        "stamp": {
-            "title": "Choose your stamp",
-            "subtitle": "An icon or your own picture — punched on every visit. Add a texture behind them if you like.",
-            "tabs": {
-                "icons": "Icons",
-                "image": "Your picture"
-            },
-            "gridLabel": "Stamp icon",
-            "textureLabel": "Texture behind the stamps",
-            "uploadCta": "Choose a picture",
-            "uploadReplace": "Choose a different picture",
-            "uploadHint": "Square works best — it's cropped into a circle on the card.",
-            "uploadTooLarge": "That picture is too big — keep it under 8 MB.",
-            "uploadUnreadable": "Couldn't read that picture — try a JPG or PNG.",
-            "artMissing": "Your picture didn't survive the reload — please add it again.",
-            "artMemoryOnly": "Storage is full, so this picture only lasts until you close the tab.",
-            "glyphs": {
-                "check": "Check",
-                "heart": "Heart",
-                "star": "Star",
-                "coffee": "Coffee",
-                "scissors": "Scissors",
-                "dumbbell": "Dumbbell",
-                "gift": "Gift",
-                "leaf": "Leaf",
-                "paw-print": "Paw",
-                "pizza": "Pizza",
-                "flower": "Flower",
-                "sparkles": "Sparkles",
-                "cake": "Cake",
-                "sun": "Sun",
-                "crown": "Crown",
-                "smile": "Smile"
-            }
-        },
-        "reward": {
-            "title": "How many stamps, and what's the reward?",
-            "subtitle": "One stamp a visit; the last one earns the reward.",
-            "stampsLabel": "Stamps to a reward",
-            "stampsValue_one": "{{count}} stamp",
-            "stampsValue_other": "{{count}} stamps",
-            "rewardLabel": "The reward",
-            "rewardPlaceholder": "e.g. 10th haircut free"
-        },
-        "account": {
-            "title": "Save your card",
-            "subtitle": "An account keeps it yours. Free — no card details.",
-            "signedInAs": "Signed in as {{email}}",
-            "saveCta": "Save my card",
-            "createCta": "Create my account",
-            "saving": "Saving your card…",
-            "alreadyRegistered": "That email already has an account — sign in instead.",
-            "throttled": "Too many attempts — try again in a minute.",
-            "existingTitle": "You already have a card",
-            "existingBody": "This account already has a loyalty card. Replace its design with the one you just made, or keep the current one?",
-            "replace": "Replace with my new design",
-            "keep": "Keep my current card",
-            "switchAccount": "Use a different account"
-        },
-        "wallet": {
-            "title": "Add it to your own wallet",
-            "subtitle": "Try it exactly as your customers will.",
-            "preparing": "Preparing your card…",
-            "preparingHint": "We're building the pass for Apple Wallet and Google Wallet. This takes about a minute.",
-            "issuing": "Almost there — issuing your pass…",
-            "ready": "Your card is ready.",
-            "scanHint": "On a computer? Scan this with your phone to add the card there.",
-            "slow": "This is taking longer than usual. Your card is still being prepared — you can continue and add it from the dashboard later.",
-            "checkAgain": "Check again",
-            "failed": "Something went wrong preparing your card.",
-            "retry": "Try again",
-            "continue": "Continue",
-            "skip": "Skip for now"
-        },
-        "billing": {
-            "title": "Go live when you're ready",
-            "subtitle": "Your card and dashboard are free. Pay only when real customers can join.",
-            "priceNote": "a month, cancel any time",
-            "bullets": [
-                "Your QR code and a printable stand for the counter",
-                "Real customers can add the card and collect stamps",
-                "Cancel any time from the dashboard"
-            ],
-            "freeNote": "Not ready? Everything you've made stays free — activate whenever you like.",
-            "activateCta": "Activate for ₪59/month",
-            "notNow": "Not now — take me to my dashboard"
-        },
-        "card": {
-            "templateName": {
-                "barber": "Haircut card",
-                "cafe": "Coffee card",
-                "trainer": "Training card",
-                "therapist": "Treatment card",
-                "other": "Loyalty card"
-            },
-            "fields": {
-                "name": {
-                    "barber": "Customer",
-                    "cafe": "Customer",
-                    "trainer": "Trainee",
-                    "therapist": "Client",
-                    "other": "Customer"
-                },
-                "points": {
-                    "barber": "Haircuts",
-                    "cafe": "Coffees",
-                    "trainer": "Sessions",
-                    "therapist": "Treatments",
-                    "other": "Visits"
-                },
-                "pointsChange": "Your visits were updated: %@",
-                "info": "Info"
-            },
-            "reward": {
-                "barber": "10th haircut free",
-                "cafe": "Free coffee on your 8th visit",
-                "trainer": "1 free training session",
-                "therapist": "Free treatment on your 6th visit",
-                "other": "Free reward after 10 visits"
-            }
-        },
-        "design": {
-            "title": "Design your card",
-            "templateNameLabel": "Card name",
-            "stampsRequiredLabel": "Stamps required for a reward",
-            "stampsRequiredHint": "Customers earn a reward after {{count}} stamps.",
-            "rewardLabel": "Reward description",
-            "stampIconLabel": "Stamp icon",
-            "stampIcons": {
-                "star": "Star",
-                "coffee": "Coffee",
-                "coffeeBean": "Coffee bean",
-                "coffeePot": "Coffee pot",
-                "coffeeToGo": "Coffee to go",
-                "heart": "Heart",
-                "gift": "Gift",
-                "dog": "Dog",
-                "beer": "Beer",
-                "book": "Book",
-                "car": "Car",
-                "cat": "Cat",
-                "wine": "Wine",
-                "burger": "Burger",
-                "food": "Food",
-                "iceCream": "Ice cream",
-                "fruit": "Fruit",
-                "vegetables": "Vegetables",
-                "candy": "Candy",
-                "bone": "Bone",
-                "flower": "Flower",
-                "paw": "Paw",
-                "code": "Code",
-                "meat": "Meat"
-            },
-            "heroBackgroundLabel": "Hero background",
-            "heroBackgroundHint": "Optional — adds a themed background behind your stamps",
-            "heroBackgroundNone": "None",
-            "heroBackgroundUpload": "Upload",
-            "heroBackgrounds": {
-                "coffee": "Coffee",
-                "restaurant": "Restaurant",
-                "beauty": "Beauty",
-                "retail": "Retail",
-                "fitness": "Fitness",
-                "abstract": "Abstract"
-            },
-            "showAdvancedColors": "Customize colors",
-            "hideAdvancedColors": "Hide color options",
-            "colorsTitle": "Colors",
-            "backgroundColorLabel": "Background color",
-            "foregroundColorLabel": "Stamp & text color",
-            "labelColorLabel": "Label color",
-            "logoLabel": "Logo",
-            "logoUpload": "Upload an image",
-            "logoUrlLabel": "Or paste an image URL",
-            "logoUploadError": "Couldn't upload that logo — paste a URL instead"
-        }
+{
+  "app": {
+    "name": "PunchMe"
+  },
+  "language": {
+    "switch": "עברית"
+  },
+  "common": {
+    "save": "Save",
+    "next": "Next",
+    "back": "Back",
+    "loading": "Loading...",
+    "retry": "Try again",
+    "copyLink": "Copy link",
+    "copied": "Copied!",
+    "remove": "Remove",
+    "edit": "Edit"
+  },
+  "admin": {
+    "title": "PunchMe Admin",
+    "badge": "Staff",
+    "backToApp": "Back to app",
+    "catalog": {
+      "title": "Template catalog",
+      "subtitle": "The library businesses choose from. Instantiating COPIES an entry — editing or deleting here never touches a live business card.",
+      "create": "New template",
+      "createTitle": "New catalog template",
+      "editTitle": "Edit catalog template",
+      "published": "Published",
+      "draft": "Draft",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "deleteConfirm": "Delete \"{{name}}\" from the catalog?",
+      "nicheLabel": "Niche",
+      "descriptionLabel": "Description",
+      "publishedLabel": "Published"
     },
-    "enroll":  {
-                   "title":  "Join {{businessName}}\u0027s loyalty card",
-                   "genericTitle":  "Join this loyalty card",
-                   "nameLabel":  "Your name (optional)",
-                   "phoneLabel":  "Phone number (optional)",
-                   "phoneRequiredLabel":  "Mobile phone number",
-                   "birthdayLabel":  "Birthday (optional)",
-                   "birthdayHint":  "Used only for a birthday treat. You can join without it.",
-                   "marketingOptIn":  "I agree to receive marketing messages and updates from this business, including club benefits, by SMS. You can withdraw consent at any time.",
-                   "privacySummary":  "How is my data handled? (privacy notice)",
-                   "privacyNotice":  "Providing your details is not required by law and is entirely voluntary; without them we cannot enroll you in the club and issue your loyalty card. The details you provide (name, mobile number, and birthday — if you chose to share it) are stored in this business\u0027s customer database (the data controller) and processed on its behalf by PunchMe, the digital loyalty-card service, for managing the club, awarding stamps and rewards, and issuing a card to your digital wallet (Apple Wallet / Google Wallet) via wallet infrastructure providers. Your data is not shared with other third parties except as required by law.\n\nYou have the right to access data about you, to request correction or deletion of data that is inaccurate, incomplete, or outdated (sections 13–14 of the Israeli Privacy Protection Law, 1981), and to demand in writing deletion from the direct-mailing database (section 17F).",
-                   "sendCodeCta":  "Send SMS verification code",
-                   "codeTitle":  "Enter the verification code",
-                   "codeSentTo":  "We sent a 6-digit code to {{phone}}",
-                   "codeLabel":  "Verification code",
-                   "verifyCta":  "Verify \u0026 join",
-                   "editPhone":  "Edit number",
-                   "resend":  "Send a new code",
-                   "resendIn":  "You can resend in {{seconds}}s",
-                   "otpInvalid":  "Wrong or expired code — try again or request a new one",
-                   "otpThrottled":  "Too many codes sent — wait a moment and try again",
-                   "phoneInvalid":  "That doesn\u0027t look like a valid Israeli mobile number",
-                   "genericError":  "Something went wrong. Please try again in a moment.",
-                   "submit":  "Add to my wallet",
-                   "notFound":  "This loyalty card isn\u0027t available anymore",
-                   "upgradeRequired":  "This business isn\u0027t accepting new customers right now",
-                   "successTitle":  "Your card is ready! Add it to your wallet",
-                   "statusTitle":  "Your card"
-               },
-    "standee":  {
-                    "title":  "Print signage",
-                    "print":  "Print",
-                    "formats":  {
-                                    "a4":  "A4",
-                                    "a5":  "A5",
-                                    "tent":  "Table tent"
-                                },
-                    "activateFirst":  "Your card is ready — activate your subscription so customers can join.",
-                    "downloadHint":  "To download a file: Print → Save as PDF.",
-                    "step1":  "1. Scan the code",
-                    "step2":  "2. Join in half a minute",
-                    "step3":  "3. Get a stamp every visit",
-                    "scanCta":  "Scan to join — no app, straight to your phone\u0027s wallet"
-                },
-    "dashboard":  {
-                      "nav":  {
-                                  "overview":  "Overview",
-                                  "design":  "Card Studio",
-                                  "customers":  "Customers",
-                                  "activity":  "Activity",
-                                  "standee":  "Standee",
-                                  "billing":  "Billing",
-                                  "signOut":  "Sign out"
-                              },
-                      "plan":  {
-                                   "free":  "Free",
-                                   "pro":  "Pro"
-                               },
-                      "qr":  {
-                                 "title":  "Your enrollment QR",
-                                 "activateCta":  "Activate to get your QR code"
-                             },
-                      "preview":  {
-                                      "title":  "Try your card yourself",
-                                      "body":  "Add your own card to your wallet — free, no activation needed."
-                                  },
-                      "customers":  {
-                                        "title":  "Customers",
-                                        "emptyFree":  "Activate to start enrolling real customers",
-                                        "emptyPro":  "Share your QR or standee to get your first one",
-                                        "searchLabel":  "Search customers",
-                                        "searchPlaceholder":  "Search by name, phone, or card",
-                                        "noMatches":  "No customers match that search.",
-                                        "clearFilters":  "Clear filters",
-                                        "showing":  "{{total}} customers",
-                                        "showingFiltered":  "{{shown}} of {{total}} customers",
-                                        "truncated":  "Showing the first {{shown}} customers — search and export cover only these until the API gains a search parameter.",
-                                        "columns":  {
-                                                        "name":  "Name",
-                                                        "phone":  "Phone",
-                                                        "progress":  "Progress",
-                                                        "status":  "Status",
-                                                        "card":  "Card",
-                                                        "stamps":  "Stamps",
-                                                        "required":  "Stamps required",
-                                                        "joined":  "Joined"
-                                                    },
-                                        "stats":  {
-                                                      "total":  "Customers",
-                                                      "ready":  "Reward ready",
-                                                      "recent":  "Joined in {{days}} days"
-                                                  },
-                                        "filter":  {
-                                                       "label":  "Show",
-                                                       "all":  "Everyone",
-                                                       "ready":  "Reward ready",
-                                                       "progress":  "In progress",
-                                                       "new":  "No stamps yet",
-                                                       "void":  "Void"
-                                                   },
-                                        "sort":  {
-                                                     "label":  "Sort by",
-                                                     "progress":  "Most stamps",
-                                                     "recent":  "Recently joined",
-                                                     "name":  "Name"
-                                                 },
-                                        "status":  {
-                                                       "ready":  "Reward ready",
-                                                       "progress":  "In progress",
-                                                       "new":  "No stamps yet",
-                                                       "void":  "Void"
-                                                   },
-                                        "stamps":  {
-                                                       "add":  "Add a stamp",
-                                                       "remove":  "Remove a stamp",
-                                                       "atMax":  "This card is already full",
-                                                       "atZero":  "No stamps to remove",
-                                                       "pendingBackend":  "Adding and removing stamps needs a backend endpoint that isn't deployed yet — see docs/customers-backend-issues.md",
-                                                       "voided":  "This card has been voided",
-                                                       "conflict":  "Someone else changed this card first — we've refreshed it to the current count, so check it and try again.",
-                                                       "failed":  "Couldn't update that card: {{reason}}"
-                                                   },
-                                        "export":  {
-                                                       "cta":  "Export CSV",
-                                                       "filename":  "punchme-customers"
-                                                   }
-                                    },
-                      "activity":  {
-                                       "title":  "Activity",
-                                       "emptyFree":  "Activate to start enrolling real customers",
-                                       "emptyPro":  "Activity will show up here once customers start collecting stamps"
-                                   },
-                      "standee":  {
-                                      "title":  "Print your standee",
-                                      "print":  "Print"
-                                  }
-                  },
-    "billing":  {
-                    "title":  "Billing",
-                    "activateCta":  "Activate",
-                    "managePortalCta":  "Manage billing",
-                    "status":  "Status",
-                    "error":  "Something went wrong. Please try again in a moment.",
-                    "success":  {
-                                    "finalizing":  "Finalizing your subscription…",
-                                    "timeout":  "This is taking longer than expected — check back shortly",
-                                    "done":  "You\u0027re live! Real customers can now join your card."
-                                },
-                    "cancel":  {
-                                   "title":  "Checkout cancelled",
-                                   "body":  "No charge was made.",
-                                   "backCta":  "Back to billing"
-                               }
-                },
-    "landing":  {
-                    "nav":  {
-                                "signIn":  "Sign in",
-                                "howItWorks":  "How it works",
-                                "worth":  "What regulars are worth",
-                                "pricing":  "Pricing",
-                                "faq":  "FAQ",
-                                "designCta":  "Design your card",
-                                "openMenu":  "Open menu",
-                                "closeMenu":  "Close menu",
-                                "skipToContent":  "Skip to content"
-                            },
-                    "hero":  {
-                                 "eyebrow":  "A digital customer club for your business",
-                                 "headline":  "Make every customer a regular",
-                                 "subheadline":  "A punch card that lives in your customers\u0027 Apple Wallet or Google Wallet. They scan a QR code once. No app, no signup, and it updates itself with every visit.",
-                                 "cta":  "Design your card — free",
-                                 "secondaryCta":  "See what regulars are worth",
-                                 "trustBullets":  [
-                                                      "Free to design",
-                                                      "No credit card required",
-                                                      "Live in minutes"
-                                                  ],
-                                 "worksWith":  "Works with",
-                                 "appleWallet":  "Apple Wallet",
-                                 "googleWallet":  "Google Wallet"
-                             },
-                    "proof":  {
-                                  "eyebrow":  "Why regulars matter",
-                                  "title":  "Your regulars are worth more than you think",
-                                  "lead":  "Three numbers worth knowing before you decide anything. Each one links to where it came from.",
-                                  "stats":  [
-                                                {
-                                                    "id":  "square",
-                                                    "value":  "6x",
-                                                    "claim":  "Regulars generate about six times more annual revenue than one-time customers.",
-                                                    "context":  "Square defined a regular as someone who visits at least four times a year, then analysed seven years of transactions across small businesses like yours.",
-                                                    "source":  "Square Local Economy Report, March 2026 (US data)"
-                                                },
-                                                {
-                                                    "id":  "hbr",
-                                                    "value":  "5–25x",
-                                                    "claim":  "Winning a new customer costs five to twenty-five times more than keeping one you already have.",
-                                                    "context":  "The gap between an ad that buys one visit and a card that earns the next ten.",
-                                                    "source":  "Harvard Business Review, 2014"
-                                                },
-                                                {
-                                                    "id":  "harris",
-                                                    "value":  "58%",
-                                                    "claim":  "Fifty-eight percent of people are less likely to join a loyalty program that makes them download an app.",
-                                                    "context":  "79% said they\u0027re more likely to join one with no physical card to carry. A wallet pass is neither.",
-                                                    "source":  "Harris Poll for Wilbur, 2019"
-                                                }
-                                            ]
-                              },
-                    "calculator":  {
-                                       "eyebrow":  "What regulars are worth",
-                                       "title":  "How many regulars does PunchMe need to pay for itself?",
-                                       "lead":  "Fewer than you would think. Move the sliders to match your shop — nothing you type here leaves your browser.",
-                                       "presetsLabel":  "Start from a typical",
-                                       "yourCard":  "Your card",
-                                       "presets":  {
-                                                       "cafe":  "Café",
-                                                       "barbershop":  "Barbershop",
-                                                       "studio":  "Studio"
-                                                   },
-                                       "inputs":  {
-                                                      "ticket":  "Average spend per visit (₪)",
-                                                      "stamps":  "Stamps to earn the reward",
-                                                      "regulars":  "Customers who become regulars this year",
-                                                      "margin":  "Gross margin (%)"
-                                                  },
-                                       "fineTune":  {
-                                                        "title":  "Fine-tune",
-                                                        "note":  "Only worth changing if you know your margin. Everything above works without touching it."
-                                                    },
-                                       "result":  {
-                                                      "regularsNeeded_one":  "{{count}} regular",
-                                                      "regularsNeeded_other":  "{{count}} regulars",
-                                                      "headline_one":  "regular covers a whole year of PunchMe.",
-                                                      "headline_other":  "regulars cover a whole year of PunchMe.",
-                                                      "regularsDetail":  "One customer who fills a {{stamps}}-stamp card at ₪{{ticket}} a visit leaves you ₪{{cardNet}} in gross profit. A year of PunchMe is ₪{{annual}}.",
-                                                      "cardTitle":  "What one regular is worth",
-                                                      "cardRevenue":  "Spent filling one card",
-                                                      "cardNet":  "Gross profit, after their reward",
-                                                      "totalRevenue":  "Through your till",
-                                                      "totalGross":  "Gross profit",
-                                                      "rewardCost":  "Rewards you hand over",
-                                                      "rewardCostWhy":  "Why the rewards cost so little",
-                                                      "rewardCostTooltip":  "A reward is costed at what the free item costs you to provide — ₪{{amount}} here — not at its shelf price. You are giving away one item to someone who has already paid you {{stamps}} times.",
-                                                      "subscription":  "PunchMe for the year",
-                                                      "net":  "Left over",
-                                                      "netSub":  "in your pocket, after rewards and PunchMe",
-                                                      "negative":  "You would need {{count}} regulars before PunchMe pays for itself at these numbers. Drag the last slider up, or add a stamp or two to the card.",
-                                                      "footnote":  "An estimate from the numbers you entered, assuming those customers fill their card. Nothing is sent anywhere — it runs in your browser.",
-                                                      "orMonthly_one":  "Or: one extra visit covers your first month.",
-                                                      "orMonthly_other":  "Or: {{count}} extra visits cover your first month.",
-                                                      "projectionLabel_one":  "If one customer becomes a regular this year",
-                                                      "projectionLabel_other":  "If {{count}} customers become regulars this year"
-                                                  },
-                                       "a11y":  {
-                                                    "shekels":  "{{value}} shekels",
-                                                    "percent":  "{{value}} percent",
-                                                    "stamps":  "{{value}} stamps",
-                                                    "regulars":  "{{value}} customers",
-                                                    "summary":  "{{count}} regulars cover a year of PunchMe. Projected {{net}} left over."
-                                                }
-                                   },
-                    "features":  {
-                                     "eyebrow":  "What\u0027s included",
-                                     "title":  "Everything you need, nothing you don\u0027t",
-                                     "items":  [
-                                                   {
-                                                       "title":  "A designer with a live preview",
-                                                       "body":  "Logo, colors, stamp count and reward — the card changes as you type."
-                                                   },
-                                                   {
-                                                       "title":  "Apple Wallet and Google Wallet",
-                                                       "body":  "One pass, both platforms. It sits beside their boarding passes and bank cards."
-                                                   },
-                                                   {
-                                                       "title":  "Nothing for customers to install",
-                                                       "body":  "No app, no account, no password. One QR scan and the card is saved."
-                                                   },
-                                                   {
-                                                       "title":  "Stamps by scanning the pass",
-                                                       "body":  "Scan the QR on your customer\u0027s card and the stamp lands straight away."
-                                                   },
-                                                   {
-                                                       "title":  "Rewards that track themselves",
-                                                       "body":  "The card counts up on its own and unlocks the reward the moment it\u0027s earned."
-                                                   },
-                                                   {
-                                                       "title":  "See who\u0027s coming back",
-                                                       "body":  "A dashboard of your customers, their progress, and every visit as it happens."
-                                                   }
-                                               ]
-                                 },
-                    "faq":  {
-                                "eyebrow":  "Questions",
-                                "title":  "Before you start",
-                                "items":  [
-                                              {
-                                                  "q":  "Does my customer need to download an app?",
-                                                  "a":  "No. The card is a wallet pass, so it opens straight into the Apple Wallet or Google Wallet already on their phone. They scan your QR code once and it\u0027s saved — nothing to install, no account to create, no password to forget."
-                                              },
-                                              {
-                                                  "q":  "How do I add a stamp?",
-                                                  "a":  "You scan the QR code on the customer\u0027s pass. It takes about as long as handing back a receipt, and the stamp appears on their card straight away."
-                                              },
-                                              {
-                                                  "q":  "What happens if they change phones?",
-                                                  "a":  "Their stamps are stored against their card on our side, not on the phone itself, so the count is never lost. Moving the pass onto a new handset isn\u0027t automatic yet — message us and we\u0027ll sort it out."
-                                              },
-                                              {
-                                                  "q":  "What does it cost, and when am I charged?",
-                                                  "a":  "Designing your card, previewing it on your own phone and using the dashboard are free for as long as you like. You\u0027re charged ₪59 a month only when you activate the card for real customers."
-                                              },
-                                              {
-                                                  "q":  "Can I change the design after I launch?",
-                                                  "a":  "Yes. Colors, stamp count and reward can all be changed after you go live — message us with what you want changed and we\u0027ll apply it to your card."
-                                              },
-                                              {
-                                                  "q":  "Does it work on both iPhone and Android?",
-                                                  "a":  "Yes. iPhone customers get an Apple Wallet pass and Android customers get a Google Wallet pass. Both update the same way, and you scan them the same way."
-                                              }
-                                          ]
-                            },
-                    "example":  {
-                                    "businessName":  "Danny\u0027s Barbershop",
-                                    "reward":  "One free haircut"
-                                },
-                    "values":  {
-                                   "eyebrow":  "Why PunchMe",
-                                   "title":  "Built to work for you",
-                                   "items":  [
-                                                 {
-                                                     "title":  "Customers keep coming back",
-                                                     "body":  "The card lives in the wallet that\u0027s already on every phone — no app to install means no friction to earning your next visit."
-                                                 },
-                                                 {
-                                                     "title":  "No more lost sales from lost cards",
-                                                     "body":  "Paper cards get torn, forgotten at home, or tossed. A digital card can\u0027t be left behind — every visit still counts."
-                                                 },
-                                                 {
-                                                     "title":  "Try it with zero risk",
-                                                     "body":  "Design and preview exactly how your card will look, for free. You only pay once it\u0027s actually bringing customers back."
-                                                 }
-                                             ]
-                               },
-                    "howItWorks":  {
-                                       "eyebrow":  "How it works",
-                                       "title":  "Three steps to your first customer",
-                                       "lead":  "From an empty page to a card in a customer\u0027s pocket, without anyone installing anything.",
-                                       "steps":  [
-                                                     {
-                                                         "title":  "Design your card",
-                                                         "body":  "Logo, colors, stamp count and reward — with a live preview that updates as you go."
-                                                     },
-                                                     {
-                                                         "title":  "Customers scan a QR",
-                                                         "body":  "Once, no signup — and the card is already in their digital wallet."
-                                                     },
-                                                     {
-                                                         "title":  "The card updates itself",
-                                                         "body":  "Every stamp updates in real time, right on the lock screen — no app, no hassle."
-                                                     }
-                                                 ]
-                                   },
-                    "niches":  {
-                                   "title":  "Built for your small business",
-                                   "items":  [
-                                                 "Barbers",
-                                                 "Cafés",
-                                                 "Personal trainers",
-                                                 "Therapists",
-                                                 "And you"
-                                             ]
-                               },
-                    "pricing":  {
-                                    "title":  "Start for free",
-                                    "body":  "Designing your card and dashboard costs nothing. Pay ₪59/month only when you activate the card for real customers.",
-                                    "cta":  "Let\u0027s get started",
-                                    "price":  "₪59",
-                                    "perMonth":  "/month",
-                                    "calcNote":  "Based on your numbers, that\u0027s ₪{{amount}} left over this year."
-                                },
-                    "footer":  {
-                                   "tagline":  "Digital loyalty for today\u0027s small businesses.",
-                                   "rights":  "All rights reserved.",
-                                   "productHeading":  "Product",
-                                   "languageHeading":  "Language"
-                               },
-                    "templates":  {
-                                      "ariaLabel":  "Card templates",
-                                      "nameLabel":  "Customer",
-                                      "pointsLabel":  "Visits",
-                                      "items":  {
-                                                    "barber":  {
-                                                                   "business":  "Danny\u0027s Barbershop",
-                                                                   "trade":  "Barber",
-                                                                   "reward":  "10th haircut free",
-                                                                   "caption":  "The barber template — 10 stamps, a free cut"
-                                                               },
-                                                    "cafe":  {
-                                                                 "business":  "Rothschild Coffee",
-                                                                 "trade":  "Café",
-                                                                 "reward":  "Free coffee on your 8th visit",
-                                                                 "caption":  "The café template — 8 stamps, a coffee on the house"
-                                                             },
-                                                    "trainer":  {
-                                                                    "business":  "Studio Nine",
-                                                                    "trade":  "Studio",
-                                                                    "reward":  "1 free training session",
-                                                                    "caption":  "The trainer template — 10 sessions, one on us"
-                                                                }
-                                                }
-                                  }
-                }
+    "staffOnly": "Staff area",
+    "staffOnlyBody": "This area is for PunchMe staff. You're signed in as {{email}}, which doesn't have staff access.",
+    "staffHere": "You're signed in as PunchMe staff.",
+    "openAdmin": "Open the template catalog"
+  },
+  "scaffold": {
+    "title": "Scaffold OK",
+    "subtitle": "Tailwind, fonts, tokens, and RTL wired up"
+  },
+  "auth": {
+    "error": "Something went wrong signing in. Please try again.",
+    "missingClientId": "Missing Google Client ID (VITE_GOOGLE_CLIENT_ID)",
+    "loadingSession": "Loading...",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "signInCta": "Sign in",
+    "signUpCta": "Create account",
+    "submitting": "Please wait…",
+    "orDivider": "or",
+    "toggleToSignUp": "Don't have an account? Sign up",
+    "toggleToSignIn": "Already have an account? Sign in",
+    "signInTitle": "Welcome back",
+    "signInSubtitle": "Sign in to your dashboard.",
+    "signUpTitle": "Create your account",
+    "signUpSubtitle": "Then design your card — free.",
+    "newHere": "New here? Design your card first — it's free",
+    "offline": "Can't reach the server — check your connection and try again.",
+    "signUpError": "Something went wrong creating your account. Please try again."
+  },
+  "onboardingPlaceholder": {
+    "title": "Signed in successfully",
+    "signedInAs": "Signed in as",
+    "note": "The business + card onboarding wizard goes here (next build step).",
+    "signOut": "Sign out"
+  },
+  "wallet": {
+    "addApple": "Add to Apple Wallet",
+    "addGoogle": "Add to Google Wallet",
+    "addToWallet": "Add to wallet",
+    "pending": "Preparing your wallet pass — this only takes a moment.",
+    "pendingSlow": "Your pass is still being prepared. You can carry on — it'll be waiting on your dashboard.",
+    "retry": "Check again"
+  },
+  "colorPicker": {
+    "hex": "Hex color code",
+    "presets": "Swatches",
+    "recent": "Recently used",
+    "eyedropper": "Pick a color from the screen",
+    "random": "Surprise me"
+  },
+  "studio": {
+    "title": "Card Studio",
+    "subtitle": "Design your loyalty card and watch it update live on both wallets. Saving pushes the new design to every installed pass.",
+    "save": "Save design",
+    "saved": "Saved ✓",
+    "syncError": "The last wallet sync failed — your changes are safe and will be retried automatically.",
+    "uploadError": "Upload failed — try a different image.",
+    "nameLabel": "Card name",
+    "stampsLabel": "Stamps to reward",
+    "stampsHint": "{{count}} stamps",
+    "rewardLabel": "Reward",
+    "glyphLabel": "Stamp icon",
+    "uploadStampArt": "Upload your own stamp image",
+    "paletteLabel": "Color palettes",
+    "colorsLabel": "Colors",
+    "labelsLabel": "Field labels",
+    "labelsHint": "What the card calls the customer's name and their stamp count. Leave empty for the defaults.",
+    "backgroundColor": "Card background",
+    "stampColor": "Stamp color",
+    "textColor": "Text color",
+    "labelColor": "Label color",
+    "patternLabel": "Background pattern",
+    "patterns": {
+      "none": "None",
+      "waves": "Waves",
+      "dots": "Dots",
+      "stripes": "Stripes"
+    },
+    "logoLabel": "Logo",
+    "logoHint": "One upload becomes all three wallet assets (wide Apple logo, round Google badge, icon). No logo? We'll render your business name.",
+    "uploadLogo": "Upload logo",
+    "showAdvanced": "Show advanced options",
+    "hideAdvanced": "Hide advanced options",
+    "languageLabel": "Card language",
+    "languages": {
+      "HE": "Hebrew",
+      "EN": "English"
+    },
+    "barcodeLabel": "Barcode format",
+    "orgNameLabel": "Organization name",
+    "orgNameHint": "Shown on the pass instead of your business name (optional).",
+    "artworkLabel": "Custom artwork",
+    "artworkHint": "A full strip background, or separate before/after punch images.",
+    "uploadStripBase": "Upload strip background (min 1125×432)",
+    "uploadStampedArt": "Upload punched-stamp artwork",
+    "uploadUnstampedArt": "Upload empty-stamp artwork",
+    "fieldsLabel": "Card fields",
+    "sampleStampsLabel": "Preview stamps",
+    "sampleStampsHint": "{{count}} punched",
+    "lintClean": "Ready to publish — this card renders fully on both wallets.",
+    "lintTitle": "Not publish-ready yet:",
+    "preview": {
+      "apple": "Apple Wallet",
+      "google": "Google Wallet",
+      "nameLabel": "Name",
+      "pointsLabel": "Visits"
+    },
+    "fields": {
+      "label": "Label",
+      "section": "Position (Apple)",
+      "alignment": "Alignment",
+      "changeMessage": "Update notification",
+      "changeMessageHint": "%@ is replaced with the new value.",
+      "add": "Add field",
+      "binding": {
+        "person.displayName": "Customer name",
+        "members.member.points": "Stamp count",
+        "members.tier.name": "Tier name",
+        "universal.info": "Info text",
+        "meta.custom": "Custom text"
+      },
+      "sections": {
+        "HEADER_FIELDS": "Header",
+        "PRIMARY_FIELDS": "Primary",
+        "SECONDARY_FIELDS": "Secondary",
+        "AUXILIARY_FIELDS": "Auxiliary",
+        "BACK_FIELDS": "Back of card"
+      },
+      "alignments": {
+        "NATURAL": "Automatic",
+        "LEFT": "Left",
+        "CENTER": "Center",
+        "RIGHT": "Right"
+      }
+    }
+  },
+  "onboarding": {
+    "steps": {
+      "business": "Your business",
+      "color": "Card colour",
+      "accent": "Stamp colour",
+      "stamp": "Stamp",
+      "reward": "Reward",
+      "account": "Account",
+      "wallet": "Your wallet",
+      "billing": "Go live"
+    },
+    "progress": "Step {{n}} of {{total}}",
+    "preview": {
+      "ariaLabel": "Preview of your card",
+      "caption_one": "{{count}} stamp · {{reward}}",
+      "caption_other": "{{count}} stamps · {{reward}}",
+      "summary": "{{name}} — {{count}} stamps to a reward. Reward: {{reward}}.",
+      "wallets": "Preview wallet"
+    },
+    "business": {
+      "title": "What's your business called?",
+      "subtitle": "It goes at the top of the card.",
+      "nameLabel": "Business name",
+      "namePlaceholder": "e.g. Danny's Barbershop",
+      "nicheLabel": "What kind of place is it?",
+      "autofillTitle": "Details auto-filled from Google",
+      "autofillBody": "We filled in what we could find. You can edit anything.",
+      "autofillClear": "Clear",
+      "niches": {
+        "barber": "Barber",
+        "cafe": "Café",
+        "trainer": "Personal trainer",
+        "therapist": "Therapist",
+        "other": "Other"
+      }
+    },
+    "color": {
+      "title": "Pick your card colour",
+      "subtitle": "The whole pass takes this colour.",
+      "gridLabel": "Card colour",
+      "custom": "Custom colour",
+      "customLabel": "Card colour",
+      "names": {
+        "midnight": "Midnight",
+        "slate": "Slate",
+        "espresso": "Espresso",
+        "forest": "Forest",
+        "ocean": "Ocean",
+        "indigo": "Indigo",
+        "wine": "Wine",
+        "terracotta": "Terracotta",
+        "blush": "Blush",
+        "cream": "Cream",
+        "custom": "Custom colour {{hex}}"
+      }
+    },
+    "accent": {
+      "title": "Now the stamp colour",
+      "subtitle": "Each of these sits well on the card colour you chose.",
+      "gridLabel": "Stamp colour",
+      "swatchLabel": "Stamp colour {{n}}: {{hex}}",
+      "advanced": "Advanced",
+      "textColorLabel": "Text colour",
+      "textAuto": "Automatic",
+      "textWhite": "White",
+      "textBlack": "Black",
+      "textCustom": "Custom",
+      "customAccent": "Custom stamp colour"
+    },
+    "stamp": {
+      "title": "Choose your stamp",
+      "subtitle": "An icon or your own picture — punched on every visit. Add a texture behind them if you like.",
+      "tabs": {
+        "icons": "Icons",
+        "image": "Your picture"
+      },
+      "gridLabel": "Stamp icon",
+      "textureLabel": "Texture behind the stamps",
+      "uploadCta": "Choose a picture",
+      "uploadReplace": "Choose a different picture",
+      "uploadHint": "Square works best — it's cropped into a circle on the card.",
+      "uploadTooLarge": "That picture is too big — keep it under 8 MB.",
+      "uploadUnreadable": "Couldn't read that picture — try a JPG or PNG.",
+      "artMissing": "Your picture didn't survive the reload — please add it again.",
+      "artMemoryOnly": "Storage is full, so this picture only lasts until you close the tab.",
+      "glyphs": {
+        "check": "Check",
+        "heart": "Heart",
+        "star": "Star",
+        "coffee": "Coffee",
+        "scissors": "Scissors",
+        "dumbbell": "Dumbbell",
+        "gift": "Gift",
+        "leaf": "Leaf",
+        "paw-print": "Paw",
+        "pizza": "Pizza",
+        "flower": "Flower",
+        "sparkles": "Sparkles",
+        "cake": "Cake",
+        "sun": "Sun",
+        "crown": "Crown",
+        "smile": "Smile"
+      }
+    },
+    "reward": {
+      "title": "How many stamps, and what's the reward?",
+      "subtitle": "One stamp a visit; the last one earns the reward.",
+      "stampsLabel": "Stamps to a reward",
+      "stampsValue_one": "{{count}} stamp",
+      "stampsValue_other": "{{count}} stamps",
+      "rewardLabel": "The reward",
+      "rewardPlaceholder": "e.g. 10th haircut free"
+    },
+    "account": {
+      "title": "Save your card",
+      "subtitle": "An account keeps it yours. Free — no card details.",
+      "signedInAs": "Signed in as {{email}}",
+      "saveCta": "Save my card",
+      "createCta": "Create my account",
+      "saving": "Saving your card…",
+      "alreadyRegistered": "That email already has an account — sign in instead.",
+      "throttled": "Too many attempts — try again in a minute.",
+      "existingTitle": "You already have a card",
+      "existingBody": "This account already has a loyalty card. Replace its design with the one you just made, or keep the current one?",
+      "replace": "Replace with my new design",
+      "keep": "Keep my current card",
+      "switchAccount": "Use a different account"
+    },
+    "wallet": {
+      "title": "Add it to your own wallet",
+      "subtitle": "Try it exactly as your customers will.",
+      "preparing": "Preparing your card…",
+      "preparingHint": "We're building the pass for Apple Wallet and Google Wallet. This takes about a minute.",
+      "issuing": "Almost there — issuing your pass…",
+      "ready": "Your card is ready.",
+      "scanHint": "On a computer? Scan this with your phone to add the card there.",
+      "slow": "This is taking longer than usual. Your card is still being prepared — you can continue and add it from the dashboard later.",
+      "checkAgain": "Check again",
+      "failed": "Something went wrong preparing your card.",
+      "retry": "Try again",
+      "continue": "Continue",
+      "skip": "Skip for now"
+    },
+    "billing": {
+      "title": "Go live when you're ready",
+      "subtitle": "Your card and dashboard are free. Pay only when real customers can join.",
+      "priceNote": "a month, cancel any time",
+      "bullets": [
+        "Your QR code and a printable stand for the counter",
+        "Real customers can add the card and collect stamps",
+        "Cancel any time from the dashboard"
+      ],
+      "freeNote": "Not ready? Everything you've made stays free — activate whenever you like.",
+      "activateCta": "Activate for ₪99/month",
+      "notNow": "Not now — take me to my dashboard"
+    },
+    "card": {
+      "templateName": {
+        "barber": "Haircut card",
+        "cafe": "Coffee card",
+        "trainer": "Training card",
+        "therapist": "Treatment card",
+        "other": "Loyalty card"
+      },
+      "fields": {
+        "name": {
+          "barber": "Customer",
+          "cafe": "Customer",
+          "trainer": "Trainee",
+          "therapist": "Client",
+          "other": "Customer"
+        },
+        "points": {
+          "barber": "Haircuts",
+          "cafe": "Coffees",
+          "trainer": "Sessions",
+          "therapist": "Treatments",
+          "other": "Visits"
+        },
+        "pointsChange": "Your visits were updated: %@",
+        "info": "Info"
+      },
+      "reward": {
+        "barber": "10th haircut free",
+        "cafe": "Free coffee on your 8th visit",
+        "trainer": "1 free training session",
+        "therapist": "Free treatment on your 6th visit",
+        "other": "Free reward after 10 visits"
+      }
+    },
+    "design": {
+      "title": "Design your card",
+      "templateNameLabel": "Card name",
+      "stampsRequiredLabel": "Stamps required for a reward",
+      "stampsRequiredHint": "Customers earn a reward after {{count}} stamps.",
+      "rewardLabel": "Reward description",
+      "stampIconLabel": "Stamp icon",
+      "stampIcons": {
+        "star": "Star",
+        "coffee": "Coffee",
+        "coffeeBean": "Coffee bean",
+        "coffeePot": "Coffee pot",
+        "coffeeToGo": "Coffee to go",
+        "heart": "Heart",
+        "gift": "Gift",
+        "dog": "Dog",
+        "beer": "Beer",
+        "book": "Book",
+        "car": "Car",
+        "cat": "Cat",
+        "wine": "Wine",
+        "burger": "Burger",
+        "food": "Food",
+        "iceCream": "Ice cream",
+        "fruit": "Fruit",
+        "vegetables": "Vegetables",
+        "candy": "Candy",
+        "bone": "Bone",
+        "flower": "Flower",
+        "paw": "Paw",
+        "code": "Code",
+        "meat": "Meat"
+      },
+      "heroBackgroundLabel": "Hero background",
+      "heroBackgroundHint": "Optional — adds a themed background behind your stamps",
+      "heroBackgroundNone": "None",
+      "heroBackgroundUpload": "Upload",
+      "heroBackgrounds": {
+        "coffee": "Coffee",
+        "restaurant": "Restaurant",
+        "beauty": "Beauty",
+        "retail": "Retail",
+        "fitness": "Fitness",
+        "abstract": "Abstract"
+      },
+      "showAdvancedColors": "Customize colors",
+      "hideAdvancedColors": "Hide color options",
+      "colorsTitle": "Colors",
+      "backgroundColorLabel": "Background color",
+      "foregroundColorLabel": "Stamp & text color",
+      "labelColorLabel": "Label color",
+      "logoLabel": "Logo",
+      "logoUpload": "Upload an image",
+      "logoUrlLabel": "Or paste an image URL",
+      "logoUploadError": "Couldn't upload that logo — paste a URL instead"
+    }
+  },
+  "enroll": {
+    "title": "Join {{businessName}}'s loyalty card",
+    "genericTitle": "Join this loyalty card",
+    "nameLabel": "Your name (optional)",
+    "phoneLabel": "Phone number (optional)",
+    "phoneRequiredLabel": "Mobile phone number",
+    "birthdayLabel": "Birthday (optional)",
+    "birthdayHint": "Used only for a birthday treat. You can join without it.",
+    "marketingOptIn": "I agree to receive marketing messages and updates from this business, including club benefits, by SMS. You can withdraw consent at any time.",
+    "privacySummary": "How is my data handled? (privacy notice)",
+    "privacyNotice": "Providing your details is not required by law and is entirely voluntary; without them we cannot enroll you in the club and issue your loyalty card. The details you provide (name, mobile number, and birthday — if you chose to share it) are stored in this business's customer database (the data controller) and processed on its behalf by PunchMe, the digital loyalty-card service, for managing the club, awarding stamps and rewards, and issuing a card to your digital wallet (Apple Wallet / Google Wallet) via wallet infrastructure providers. Your data is not shared with other third parties except as required by law.\n\nYou have the right to access data about you, to request correction or deletion of data that is inaccurate, incomplete, or outdated (sections 13–14 of the Israeli Privacy Protection Law, 1981), and to demand in writing deletion from the direct-mailing database (section 17F).",
+    "sendCodeCta": "Send SMS verification code",
+    "codeTitle": "Enter the verification code",
+    "codeSentTo": "We sent a 6-digit code to {{phone}}",
+    "codeLabel": "Verification code",
+    "verifyCta": "Verify & join",
+    "editPhone": "Edit number",
+    "resend": "Send a new code",
+    "resendIn": "You can resend in {{seconds}}s",
+    "otpInvalid": "Wrong or expired code — try again or request a new one",
+    "otpThrottled": "Too many codes sent — wait a moment and try again",
+    "phoneInvalid": "That doesn't look like a valid Israeli mobile number",
+    "genericError": "Something went wrong. Please try again in a moment.",
+    "submit": "Add to my wallet",
+    "notFound": "This loyalty card isn't available anymore",
+    "upgradeRequired": "This business isn't accepting new customers right now",
+    "successTitle": "Your card is ready! Add it to your wallet",
+    "statusTitle": "Your card"
+  },
+  "standee": {
+    "title": "Print signage",
+    "print": "Print",
+    "formats": {
+      "a4": "A4",
+      "a5": "A5",
+      "tent": "Table tent"
+    },
+    "activateFirst": "Your card is ready — activate your subscription so customers can join.",
+    "downloadHint": "To download a file: Print → Save as PDF.",
+    "step1": "1. Scan the code",
+    "step2": "2. Join in half a minute",
+    "step3": "3. Get a stamp every visit",
+    "scanCta": "Scan to join — no app, straight to your phone's wallet"
+  },
+  "dashboard": {
+    "nav": {
+      "overview": "Overview",
+      "design": "Card Studio",
+      "customers": "Customers",
+      "activity": "Activity",
+      "standee": "Standee",
+      "billing": "Billing",
+      "signOut": "Sign out"
+    },
+    "plan": {
+      "free": "Free",
+      "pro": "Pro"
+    },
+    "qr": {
+      "title": "Your enrollment QR",
+      "activateCta": "Activate to get your QR code"
+    },
+    "preview": {
+      "title": "Try your card yourself",
+      "body": "Add your own card to your wallet — free, no activation needed."
+    },
+    "customers": {
+      "title": "Customers",
+      "emptyFree": "Activate to start enrolling real customers",
+      "emptyPro": "Share your QR or standee to get your first one",
+      "searchLabel": "Search customers",
+      "searchPlaceholder": "Search by name, phone, or card",
+      "noMatches": "No customers match that search.",
+      "clearFilters": "Clear filters",
+      "showing": "{{total}} customers",
+      "showingFiltered": "{{shown}} of {{total}} customers",
+      "truncated": "Showing the first {{shown}} customers — search and export cover only these until the API gains a search parameter.",
+      "columns": {
+        "name": "Name",
+        "phone": "Phone",
+        "progress": "Progress",
+        "status": "Status",
+        "card": "Card",
+        "stamps": "Stamps",
+        "required": "Stamps required",
+        "joined": "Joined"
+      },
+      "stats": {
+        "total": "Customers",
+        "ready": "Reward ready",
+        "recent": "Joined in {{days}} days"
+      },
+      "filter": {
+        "label": "Show",
+        "all": "Everyone",
+        "ready": "Reward ready",
+        "progress": "In progress",
+        "new": "No stamps yet",
+        "void": "Void"
+      },
+      "sort": {
+        "label": "Sort by",
+        "progress": "Most stamps",
+        "recent": "Recently joined",
+        "name": "Name"
+      },
+      "status": {
+        "ready": "Reward ready",
+        "progress": "In progress",
+        "new": "No stamps yet",
+        "void": "Void"
+      },
+      "stamps": {
+        "add": "Add a stamp",
+        "remove": "Remove a stamp",
+        "atMax": "This card is already full",
+        "atZero": "No stamps to remove",
+        "pendingBackend": "Adding and removing stamps needs a backend endpoint that isn't deployed yet — see docs/customers-backend-issues.md",
+        "voided": "This card has been voided",
+        "conflict": "Someone else changed this card first — we've refreshed it to the current count, so check it and try again.",
+        "failed": "Couldn't update that card: {{reason}}"
+      },
+      "export": {
+        "cta": "Export CSV",
+        "filename": "punchme-customers"
+      }
+    },
+    "activity": {
+      "title": "Activity",
+      "emptyFree": "Activate to start enrolling real customers",
+      "emptyPro": "Activity will show up here once customers start collecting stamps"
+    },
+    "standee": {
+      "title": "Print your standee",
+      "print": "Print"
+    }
+  },
+  "billing": {
+    "title": "Billing",
+    "activateCta": "Activate",
+    "managePortalCta": "Manage billing",
+    "status": "Status",
+    "error": "Something went wrong. Please try again in a moment.",
+    "success": {
+      "finalizing": "Finalizing your subscription…",
+      "timeout": "This is taking longer than expected — check back shortly",
+      "done": "You're live! Real customers can now join your card."
+    },
+    "cancel": {
+      "title": "Checkout cancelled",
+      "body": "No charge was made.",
+      "backCta": "Back to billing"
+    }
+  },
+  "landing": {
+    "nav": {
+      "signIn": "Sign in",
+      "howItWorks": "How it works",
+      "worth": "What regulars are worth",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "designCta": "Design your card",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "skipToContent": "Skip to content"
+    },
+    "hero": {
+      "eyebrow": "The next generation of customer clubs",
+      "headline": "You deserve a customer club too",
+      "subheadline": "A punch card that lives in your customers' Apple Wallet or Google Wallet. They scan a QR code once. No app, no signup, and it updates itself with every visit.",
+      "cta": "Start free",
+      "secondaryCta": "See what regulars are worth",
+      "trustBullets": [
+        "Free to design",
+        "No credit card required",
+        "Live in minutes"
+      ],
+      "worksWith": "Works with",
+      "appleWallet": "Apple Wallet",
+      "googleWallet": "Google Wallet"
+    },
+    "proof": {
+      "title": "Your regulars are worth more than you think",
+      "lead": "Three numbers worth knowing before you decide anything. Each one links to where it came from.",
+      "stats": [
+        {
+          "id": "square",
+          "value": "6x",
+          "claim": "Regulars generate about six times more annual revenue than one-time customers.",
+          "context": "Square defined a regular as someone who visits at least four times a year, then analysed seven years of transactions across small businesses like yours.",
+          "source": "Square Local Economy Report, March 2026 (US data)"
+        },
+        {
+          "id": "hbr",
+          "value": "5–25x",
+          "claim": "Winning a new customer costs five to twenty-five times more than keeping one you already have.",
+          "context": "The gap between an ad that buys one visit and a card that earns the next ten.",
+          "source": "Harvard Business Review, 2014"
+        },
+        {
+          "id": "harris",
+          "value": "58%",
+          "claim": "Fifty-eight percent of people are less likely to join a loyalty program that makes them download an app.",
+          "context": "79% said they're more likely to join one with no physical card to carry. A wallet pass is neither.",
+          "source": "Harris Poll for Wilbur, 2019"
+        }
+      ]
+    },
+    "calculator": {
+      "title": "How many regulars does PunchMe need to pay for itself?",
+      "lead": "Fewer than you would think. Move the sliders to match your shop — nothing you type here leaves your browser.",
+      "presetsLabel": "Start from a typical",
+      "yourCard": "Your card",
+      "presets": {
+        "cafe": "Café",
+        "barbershop": "Barbershop",
+        "studio": "Studio"
+      },
+      "inputs": {
+        "ticket": "Average spend per visit (₪)",
+        "stamps": "Stamps to earn the reward",
+        "regulars": "Customers who become regulars this year",
+        "margin": "Gross margin (%)"
+      },
+      "fineTune": {
+        "title": "Fine-tune",
+        "note": "Only worth changing if you know your margin. Everything above works without touching it."
+      },
+      "result": {
+        "regularsNeeded_one": "{{count}} regular",
+        "regularsNeeded_other": "{{count}} regulars",
+        "headline_one": "regular covers a whole year of PunchMe.",
+        "headline_other": "regulars cover a whole year of PunchMe.",
+        "regularsDetail": "One customer who fills a {{stamps}}-stamp card at ₪{{ticket}} a visit leaves you ₪{{cardNet}} in gross profit. A year of PunchMe is ₪{{annual}}.",
+        "cardTitle": "What one regular is worth",
+        "cardRevenue": "Spent filling one card",
+        "cardNet": "Gross profit, after their reward",
+        "totalRevenue": "Through your till",
+        "totalGross": "Gross profit",
+        "rewardCost": "Rewards you hand over",
+        "rewardCostWhy": "Why the rewards cost so little",
+        "rewardCostTooltip": "A reward is costed at what the free item costs you to provide — ₪{{amount}} here — not at its shelf price. You are giving away one item to someone who has already paid you {{stamps}} times.",
+        "subscription": "PunchMe for the year",
+        "net": "Left over",
+        "netSub": "in your pocket, after rewards and PunchMe",
+        "negative": "You would need {{count}} regulars before PunchMe pays for itself at these numbers. Drag the last slider up, or add a stamp or two to the card.",
+        "footnote": "An estimate from the numbers you entered, assuming those customers fill their card. Nothing is sent anywhere — it runs in your browser.",
+        "orMonthly_one": "Or: one extra visit covers your first month.",
+        "orMonthly_other": "Or: {{count}} extra visits cover your first month.",
+        "projectionLabel_one": "If one customer becomes a regular this year",
+        "projectionLabel_other": "If {{count}} customers become regulars this year"
+      },
+      "a11y": {
+        "shekels": "{{value}} shekels",
+        "percent": "{{value}} percent",
+        "stamps": "{{value}} stamps",
+        "regulars": "{{value}} customers",
+        "summary": "{{count}} regulars cover a year of PunchMe. Projected {{net}} left over."
+      }
+    },
+    "faq": {
+      "title": "Before you start",
+      "items": [
+        {
+          "q": "Does my customer need to download an app?",
+          "a": "No. The card is a wallet pass, so it opens straight into the Apple Wallet or Google Wallet already on their phone. They scan your QR code once and it's saved — nothing to install, no account to create, no password to forget."
+        },
+        {
+          "q": "How do I add a stamp?",
+          "a": "You scan the QR code on the customer's pass. It takes about as long as handing back a receipt, and the stamp appears on their card straight away."
+        },
+        {
+          "q": "What happens if they change phones?",
+          "a": "Their stamps are stored against their card on our side, not on the phone itself, so the count is never lost. Moving the pass onto a new handset isn't automatic yet — message us and we'll sort it out."
+        },
+        {
+          "q": "What does it cost, and when am I charged?",
+          "a": "Designing your card, previewing it on your own phone and using the dashboard are free for as long as you like. You're charged ₪99 a month only when you activate the card for real customers."
+        },
+        {
+          "q": "Can I change the design after I launch?",
+          "a": "Yes. Colors, stamp count and reward can all be changed after you go live — message us with what you want changed and we'll apply it to your card."
+        },
+        {
+          "q": "Does it work on both iPhone and Android?",
+          "a": "Yes. iPhone customers get an Apple Wallet pass and Android customers get a Google Wallet pass. Both update the same way, and you scan them the same way."
+        }
+      ]
+    },
+    "example": {
+      "businessName": "Danny's Barbershop",
+      "reward": "One free haircut"
+    },
+    "howItWorks": {
+      "title": "Here is how it works. Simple.",
+      "lead": "From an empty page to a card in a customer's pocket, without anyone installing anything.",
+      "steps": [
+        {
+          "title": "Create the loyalty card",
+          "body": "Pick a design, set the reward, and the card is ready in a minute."
+        },
+        {
+          "title": "Share a QR with customers",
+          "body": "They scan it at the counter and the card drops straight into their Wallet. No downloads."
+        },
+        {
+          "title": "Scan and reward",
+          "body": "Scan their phone on each visit and they get a stamp. They watch the progress live."
+        }
+      ]
+    },
+    "pricing": {
+      "title": "Simple, fair plans",
+      "body": "Designing your card, previewing it on your own phone and using the dashboard are free for as long as you like. You pay only when you activate the card for real customers.",
+      "calcNote": "Based on your numbers, that's ₪{{amount}} left over this year.",
+      "free": {
+        "price": "Free",
+        "name": "Getting started",
+        "features": [
+          "Design the card and preview it",
+          "The full dashboard",
+          "No credit card"
+        ],
+        "cta": "Start free"
+      },
+      "pro": {
+        "price": "₪99",
+        "per": "/month",
+        "badge": "Most popular 🔥",
+        "features": [
+          "Unlimited customers",
+          "Unlimited push messages",
+          "Automatic win-back",
+          "Analytics and performance reports",
+          "Full custom branding"
+        ],
+        "cta": "Go Pro"
+      }
+    },
+    "footer": {
+      "tagline": "Digital loyalty for today's small businesses.",
+      "rights": "All rights reserved.",
+      "productHeading": "Product",
+      "languageHeading": "Language"
+    },
+    "templates": {
+      "ariaLabel": "Card templates",
+      "nameLabel": "Customer",
+      "pointsLabel": "Visits",
+      "items": {
+        "barber": {
+          "business": "Danny's Barbershop",
+          "trade": "Barber",
+          "reward": "10th haircut free",
+          "caption": "The barber template — 10 stamps, a free cut"
+        },
+        "cafe": {
+          "business": "Rothschild Coffee",
+          "trade": "Café",
+          "reward": "Free coffee on your 8th visit",
+          "caption": "The café template — 8 stamps, a coffee on the house"
+        },
+        "trainer": {
+          "business": "Studio Nine",
+          "trade": "Studio",
+          "reward": "1 free training session",
+          "caption": "The trainer template — 10 sessions, one on us"
+        }
+      }
+    },
+    "paperCards": {
+      "title": "Paper punch cards? That is over.",
+      "body": "Remember the old cards your customers always lost at the bottom of a wallet? Whether you used them or not, it is time every customer who walks in becomes a regular — with a branded digital card that sits in front of their eyes and never goes missing.",
+      "cards": [
+        {
+          "business": "BARBER SHOP",
+          "reward": "Every 10th cut free"
+        },
+        {
+          "business": "NAILS BY DANA",
+          "reward": "A pedicure on us"
+        }
+      ]
+    },
+    "push": {
+      "badge": "Unlimited push messages",
+      "title": "Send a message. They come back.",
+      "body": "Every customer who adds your card to their digital wallet stays connected to your business after they walk out the door. You do not have to chase them or remember to write. Set the automation once and the system sends the push itself, when it is time for them to return.",
+      "notifications": [
+        {
+          "app": "STUDIO PILATES",
+          "when": "now",
+          "message": "Hi Hila, here is 15% off your next block of sessions 💪"
+        },
+        {
+          "app": "Nail Bar",
+          "when": "now",
+          "message": "Dana, you are one stamp away! Come fill it and your manicure is on us 💅"
+        },
+        {
+          "app": "Barber Shop",
+          "when": "now",
+          "message": "Oren, we have not seen you in a month! Come back for 20% off your next cut ✂️"
+        }
+      ]
+    },
+    "app": {
+      "title": "Your whole club. From your phone.",
+      "lead": "Run the club, scan cards, add punches and see who is coming back — all in one simple app.",
+      "ui": {
+        "dashboard": "Dashboard",
+        "greeting": "Hi, Ori",
+        "overview": "Overview",
+        "activeCards": "142",
+        "activeCardsLabel": "active cards",
+        "weekly": "Weekly activity",
+        "weeklyRange": "last 7 days",
+        "customers": "Top customers",
+        "seeAll": "See all"
+      },
+      "days": [
+        "S",
+        "M",
+        "T",
+        "W",
+        "T",
+        "F",
+        "S"
+      ],
+      "customers": [
+        {
+          "name": "Noa Levi",
+          "phone": "054-***123",
+          "punches": "7/10 punches",
+          "badge": "Active card",
+          "progress": 70
+        },
+        {
+          "name": "Idan Cohen",
+          "phone": "052-***987",
+          "punches": "9/10 punches",
+          "badge": "Near reward",
+          "progress": 90
+        }
+      ]
+    },
+    "testimonials": {
+      "title": "Business owners are already using it",
+      "rating": "Rated 5 out of 5",
+      "items": [
+        {
+          "name": "Dana",
+          "trade": "Nail technician",
+          "quote": "I used to chase customers to come back. Now PunchMe does it for me — automatic messages, a card that is actually convenient, and the feeling that my business is moving forward."
+        },
+        {
+          "name": "Yael",
+          "trade": "Cosmetician",
+          "quote": "My clients simply love it. They show the card in their Wallet to their friends, proudly."
+        },
+        {
+          "name": "Daniel",
+          "trade": "Men's barber",
+          "quote": "I always wanted a way to stay in touch between haircuts. PunchMe gave me exactly that — push notifications and a card nobody loses. I see far more returning customers now."
+        }
+      ]
+    },
+    "automation": {
+      "title": "Automations that work while you do",
+      "lead": "Set them once. They keep running whether or not you open the dashboard.",
+      "items": [
+        {
+          "title": "Special offers",
+          "body": "Send the club an exclusive offer during your quiet hours to fill the shop."
+        },
+        {
+          "title": "Smart reminders",
+          "body": "Customer has not been in for two weeks? The system sends a friendly nudge on its own."
+        },
+        {
+          "title": "Automatic win-back",
+          "body": "Bring back customers who drifted away with a coupon that appears in their pocket."
+        }
+      ]
+    },
+    "stats": {
+      "items": [
+        {
+          "value": "10,000+",
+          "label": "active customers"
+        },
+        {
+          "value": "85%",
+          "label": "return rate"
+        },
+        {
+          "value": "<60",
+          "label": "seconds to set up"
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "Ready to turn one-off customers into regulars?",
+      "body": "Join the business owners already earning more with PunchMe.",
+      "cta": "Create your customer club — free",
+      "note": "No credit card. No commitment."
+    }
+  }
 }

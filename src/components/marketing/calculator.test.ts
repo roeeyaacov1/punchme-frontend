@@ -30,24 +30,24 @@ describe("the documented default case", () => {
     expect(r.cardNet).toBeCloseTo(369, 6);
   });
 
-  it("needs only 2 regulars to cover a year", () => {
-    // ₪708 a year ÷ ₪369 per regular = 1.9, so 2 clears it.
-    expect(PUNCHME_ANNUAL_PRICE).toBe(708);
-    expect(r.regularsToBreakEven).toBe(2);
+  it("needs 4 regulars to cover a year", () => {
+    // ₪1,188 a year ÷ ₪369 per regular = 3.2, so 4 clears it.
+    expect(PUNCHME_ANNUAL_PRICE).toBe(1_188);
+    expect(r.regularsToBreakEven).toBe(4);
   });
 
   it("projects a clearly positive year at the default 10 regulars", () => {
     expect(r.totalRevenue).toBe(6_000);
     expect(r.totalGross).toBeCloseTo(3_900, 6);
     expect(r.totalRewardCost).toBeCloseTo(210, 6);
-    expect(r.netAnnual).toBeCloseTo(2_982, 6);
+    expect(r.netAnnual).toBeCloseTo(2_502, 6);
     expect(r.netAnnual).toBeGreaterThan(0);
   });
 
   it("still supports the monthly framing", () => {
-    // ₪60 × 65% = ₪39 per visit; ₪59 ÷ ₪39 = 1.5, so 2 visits.
+    // ₪60 × 65% = ₪39 per visit; ₪99 ÷ ₪39 = 2.5, so 3 visits.
     expect(r.grossPerVisit).toBeCloseTo(39, 6);
-    expect(r.breakEvenVisits).toBe(2);
+    expect(r.breakEvenVisits).toBe(3);
   });
 });
 
@@ -103,7 +103,9 @@ describe("every preset is attractive", () => {
     for (const [name, preset] of Object.entries(CALCULATOR_PRESETS)) {
       const r = calculate(preset);
       expect(r.netAnnual, `${name} netAnnual`).toBeGreaterThan(0);
-      expect(r.regularsToBreakEven, `${name} regulars`).toBeLessThanOrEqual(5);
+      // Was 5 at ₪59. The café preset — the thinnest ticket of the four —
+      // now needs 6, which is the honest cost of the price going up.
+      expect(r.regularsToBreakEven, `${name} regulars`).toBeLessThanOrEqual(6);
       expect(r.breakEvenVisits, `${name} visits`).toBeLessThanOrEqual(5);
     }
   });
@@ -130,11 +132,12 @@ describe("break-even is assumption-free", () => {
     }
   });
 
-  it("stays under one new regular a week, even in the worst corner", () => {
-    // Worst case is the ₪20 ticket / 30% margin / 5-stamp corner, which
-    // needs 45 regulars a year. That's fine as a *rendered* number but it's
-    // why no copy on the page promises "just two" as a universal claim —
-    // the count is always interpolated, never hard-coded.
+  it("stays inside two new regulars a week, even in the worst corner", () => {
+    // Worst case is the ₪20 ticket / 30% margin / 5-stamp corner, which at
+    // ₪99 needs 75 regulars a year — up from 45, and no longer inside one a
+    // week. It renders fine, and it is exactly why no copy on the page
+    // promises "just two" as a universal claim: the count is always
+    // interpolated from the visitor's own numbers, never hard-coded.
     let worst = 0;
     for (let ticket = 20; ticket <= 500; ticket += 5) {
       for (let margin = 30; margin <= 90; margin += 5) {
@@ -147,19 +150,19 @@ describe("break-even is assumption-free", () => {
         }
       }
     }
-    expect(worst).toBeLessThanOrEqual(52);
+    expect(worst).toBeLessThanOrEqual(104);
   });
 });
 
 describe("bounds", () => {
   it("handles ticket at both ends", () => {
-    // ₪20 × 65% = ₪13/visit → ceil(59/13) = 5 visits.
-    expect(calculate(withDefaults({ ticket: 20 })).breakEvenVisits).toBe(5);
+    // ₪20 × 65% = ₪13/visit → ceil(99/13) = 8 visits.
+    expect(calculate(withDefaults({ ticket: 20 })).breakEvenVisits).toBe(8);
     expect(calculate(withDefaults({ ticket: 500 })).breakEvenVisits).toBe(1);
   });
 
   it("handles margin at both ends", () => {
-    expect(calculate(withDefaults({ margin: 30 })).breakEvenVisits).toBe(4);
+    expect(calculate(withDefaults({ margin: 30 })).breakEvenVisits).toBe(6);
     expect(calculate(withDefaults({ margin: 90 })).breakEvenVisits).toBe(2);
     // A thin margin must never beat a fat one.
     expect(calculate(withDefaults({ margin: 30 })).netAnnual).toBeLessThan(
@@ -240,8 +243,8 @@ describe("no NaN, Infinity or nonsense anywhere", () => {
   });
 
   it("puts the minus sign outside the shekel symbol", () => {
-    expect(formatSignedCurrency(-708, "en")).toBe("−₪708");
-    expect(formatSignedCurrency(2_982, "en")).toBe("₪2,982");
+    expect(formatSignedCurrency(-1_188, "en")).toBe("−₪1,188");
+    expect(formatSignedCurrency(2_502, "en")).toBe("₪2,502");
     expect(formatSignedCurrency(Number.NaN, "he")).toBe("₪0");
   });
 
