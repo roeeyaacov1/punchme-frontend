@@ -27,6 +27,12 @@ export function SiteFooter() {
       <Container>
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-2">
+            {/* The asset is black line art on transparency, so this pair
+                of filters is the whole recolour: brightness-0 flattens the
+                ink to black, invert takes it to white, and alpha is left
+                alone. It only started working once the logo stopped being
+                an opaque white box — before, it inverted the box too and
+                painted a solid white slab here. */}
             <img
               src={logo}
               alt={t("app.name")}

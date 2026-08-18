@@ -465,6 +465,7 @@
                                        "title":  "How many regulars does PunchMe need to pay for itself?",
                                        "lead":  "Fewer than you would think. Move the sliders to match your shop — nothing you type here leaves your browser.",
                                        "presetsLabel":  "Start from a typical",
+                                       "yourCard":  "Your card",
                                        "presets":  {
                                                        "cafe":  "Café",
                                                        "barbershop":  "Barbershop",
@@ -483,18 +484,19 @@
                                        "result":  {
                                                       "regularsNeeded_one":  "{{count}} regular",
                                                       "regularsNeeded_other":  "{{count}} regulars",
-                                                      "regularsClaim":  "is all it takes to cover PunchMe for a whole year.",
+                                                      "headline_one":  "regular covers a whole year of PunchMe.",
+                                                      "headline_other":  "regulars cover a whole year of PunchMe.",
                                                       "regularsDetail":  "One customer who fills a {{stamps}}-stamp card at ₪{{ticket}} a visit leaves you ₪{{cardNet}} in gross profit. A year of PunchMe is ₪{{annual}}.",
                                                       "cardTitle":  "What one regular is worth",
-                                                      "cardRevenue":  "₪{{amount}} spent filling one card",
-                                                      "cardNet":  "₪{{amount}} gross profit, after their reward",
-                                                      "totalRevenue":  "₪{{amount}} through your till",
-                                                      "totalGross":  "₪{{amount}} gross profit",
-                                                      "rewardCost":  "−₪{{amount}} rewards you hand over",
+                                                      "cardRevenue":  "Spent filling one card",
+                                                      "cardNet":  "Gross profit, after their reward",
+                                                      "totalRevenue":  "Through your till",
+                                                      "totalGross":  "Gross profit",
+                                                      "rewardCost":  "Rewards you hand over",
                                                       "rewardCostWhy":  "Why the rewards cost so little",
                                                       "rewardCostTooltip":  "A reward is costed at what the free item costs you to provide — ₪{{amount}} here — not at its shelf price. You are giving away one item to someone who has already paid you {{stamps}} times.",
-                                                      "subscription":  "−₪{{amount}} PunchMe for the year",
-                                                      "net":  "{{amount}} left over",
+                                                      "subscription":  "PunchMe for the year",
+                                                      "net":  "Left over",
                                                       "netSub":  "in your pocket, after rewards and PunchMe",
                                                       "negative":  "You would need {{count}} regulars before PunchMe pays for itself at these numbers. Drag the last slider up, or add a stamp or two to the card.",
                                                       "footnote":  "An estimate from the numbers you entered, assuming those customers fill their card. Nothing is sent anywhere — it runs in your browser.",
@@ -643,16 +645,19 @@
                                       "items":  {
                                                     "barber":  {
                                                                    "business":  "Danny\u0027s Barbershop",
+                                                                   "trade":  "Barber",
                                                                    "reward":  "10th haircut free",
                                                                    "caption":  "The barber template — 10 stamps, a free cut"
                                                                },
                                                     "cafe":  {
                                                                  "business":  "Rothschild Coffee",
+                                                                 "trade":  "Café",
                                                                  "reward":  "Free coffee on your 8th visit",
                                                                  "caption":  "The café template — 8 stamps, a coffee on the house"
                                                              },
                                                     "trainer":  {
                                                                     "business":  "Studio Nine",
+                                                                    "trade":  "Studio",
                                                                     "reward":  "1 free training session",
                                                                     "caption":  "The trainer template — 10 sessions, one on us"
                                                                 }

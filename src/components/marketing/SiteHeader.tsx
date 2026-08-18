@@ -76,7 +76,7 @@ export function SiteHeader() {
         className={cn(
           "sticky top-0 z-40 transition-[background-color,box-shadow,border-color] duration-200",
           scrolled
-            ? "border-b border-border bg-white/85 shadow-sm backdrop-blur-md"
+            ? "border-b border-border-strong bg-background/92 backdrop-blur-md"
             : "border-b border-transparent bg-transparent",
         )}
       >
@@ -102,7 +102,9 @@ export function SiteHeader() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "rounded-lg px-3 py-2 text-sm font-medium text-ink-muted transition-colors hover:text-ink",
+                    // min-h rather than padding: the 44px target belongs to
+                    // the link, not to the gap between the links.
+                    "inline-flex min-h-[44px] items-center rounded-lg px-3 text-sm font-semibold text-ink-muted transition-colors hover:text-ink",
                     focusRing,
                   )}
                 >
@@ -165,7 +167,7 @@ export function SiteHeader() {
       {menuOpen && (
         <div
           id="mobile-menu"
-          className="fixed inset-0 z-50 flex flex-col bg-white md:hidden"
+          className="fixed inset-0 z-50 flex flex-col bg-background md:hidden"
           role="dialog"
           aria-modal="true"
         >
@@ -192,7 +194,7 @@ export function SiteHeader() {
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
                 className={cn(
-                  "rounded-xl px-4 py-4 text-lg font-medium text-ink hover:bg-background",
+                  "rounded-lg px-4 py-4 text-lg font-semibold text-ink hover:bg-surface",
                   focusRing,
                 )}
               >
@@ -202,7 +204,7 @@ export function SiteHeader() {
             <Link
               to="/login"
               className={cn(
-                "rounded-xl px-4 py-4 text-lg font-medium text-ink hover:bg-background",
+                "rounded-lg px-4 py-4 text-lg font-semibold text-ink hover:bg-surface",
                 focusRing,
               )}
             >

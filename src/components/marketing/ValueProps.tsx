@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Repeat, ShieldCheck, Sparkles } from "lucide-react";
+import { cn } from "../../lib/cn";
 import { Section, SectionHeader } from "./primitives";
 
 interface ValueItem {
@@ -7,8 +7,15 @@ interface ValueItem {
   body: string;
 }
 
-const ICONS = [Repeat, ShieldCheck, Sparkles];
-
+/**
+ * Three claims, set as claims.
+ *
+ * This used to be a row of tiles with a gold icon chip, sitting immediately
+ * above another row of tiles with a gold icon chip. Two grids saying
+ * different things in identical shapes is most of what made the page read as
+ * a template — so this one is typographic and the feature list below is
+ * dense, and you can tell them apart with the page zoomed out.
+ */
 export function ValueProps() {
   const { t } = useTranslation();
   const items = t("landing.values.items", { returnObjects: true }) as ValueItem[];
@@ -20,22 +27,21 @@ export function ValueProps() {
         title={t("landing.values.title")}
       />
 
-      <div className="grid gap-6 md:grid-cols-3 md:gap-8">
-        {items.map((item, i) => {
-          const Icon = ICONS[i % ICONS.length];
-          return (
-            <div
-              key={item.title}
-              className="rounded-2xl border border-border bg-surface p-8 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift motion-reduce:hover:translate-y-0"
-            >
-              <span className="mb-5 inline-flex rounded-xl bg-primary/10 p-3 text-primary-text">
-                <Icon size={22} aria-hidden="true" />
-              </span>
-              <h3 className="t-card-title text-ink">{item.title}</h3>
-              <p className="mt-2 text-pretty text-ink-muted">{item.body}</p>
-            </div>
-          );
-        })}
+      <div className="flex flex-col">
+        {items.map((item, i) => (
+          <div
+            key={item.title}
+            className={cn(
+              "grid gap-x-10 gap-y-2 py-8 md:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] md:py-10",
+              i > 0 && "border-t border-border",
+            )}
+          >
+            <h3 className="t-h3 text-balance text-ink">{item.title}</h3>
+            <p className="t-lead max-w-2xl text-pretty text-ink-muted">
+              {item.body}
+            </p>
+          </div>
+        ))}
       </div>
     </Section>
   );

@@ -1,12 +1,15 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Check } from "lucide-react";
 import { Container, ctaClasses } from "./primitives";
+import { PunchMark } from "./PunchMark";
 
 /**
  * The one place the brand navy lands full-bleed. `netAnnual` is passed in
  * only once the visitor has actually touched the calculator — an unearned
  * "based on your numbers" line would be a lie about numbers they never gave.
+ *
+ * No glow behind it any more. The depth here comes from the band itself and
+ * from the price being set as an object, which is what the section is for.
  */
 export function PricingBand({ netAnnual }: { netAnnual: string | null }) {
   const { t } = useTranslation();
@@ -17,43 +20,38 @@ export function PricingBand({ netAnnual }: { netAnnual: string | null }) {
   return (
     <section
       id="pricing"
-      className="relative scroll-mt-24 overflow-hidden bg-navy-deep py-20 sm:py-28"
+      className="scroll-mt-24 bg-navy-deep py-20 sm:py-28"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-32 start-[-10%] h-[520px] w-[520px] rounded-full opacity-60 blur-3xl"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(200,138,17,0.30) 0%, rgba(200,138,17,0) 70%)",
-        }}
-      />
-
-      <Container className="relative">
+      <Container>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="t-h2 text-balance text-white">
             {t("landing.pricing.title")}
           </h2>
 
-          <p className="t-lead mt-6 text-pretty text-white/70">
+          <p className="t-lead mt-5 text-pretty text-white/70">
             {t("landing.pricing.body")}
           </p>
 
-          <p className="mt-8 flex items-baseline justify-center gap-1">
-            <span className="font-heading text-5xl font-semibold tracking-[-0.03em] text-white sm:text-6xl">
-              {t("landing.pricing.price")}
-            </span>
-            <span className="text-lg text-white/60">
-              {t("landing.pricing.perMonth")}
-            </span>
-          </p>
-
-          {netAnnual && (
-            <p className="mt-4 text-pretty font-semibold text-primary">
-              {t("landing.pricing.calcNote", { amount: netAnnual })}
+          {/* The price, ruled off top and bottom — a figure on a board rather
+              than a number in a sentence. */}
+          <div className="my-10 border-y border-white/15 py-8">
+            <p className="flex items-baseline justify-center gap-1">
+              <span className="font-heading text-6xl font-bold tracking-tight text-white sm:text-7xl">
+                {t("landing.pricing.price")}
+              </span>
+              <span className="text-lg text-white/60">
+                {t("landing.pricing.perMonth")}
+              </span>
             </p>
-          )}
 
-          <div className="mt-8 flex justify-center">
+            {netAnnual && (
+              <p className="mt-4 text-pretty font-semibold text-primary">
+                {t("landing.pricing.calcNote", { amount: netAnnual })}
+              </p>
+            )}
+          </div>
+
+          <div className="flex justify-center">
             <Link
               to="/login"
               className={ctaClasses("onDark", "lg", "w-full sm:w-auto")}
@@ -62,15 +60,10 @@ export function PricingBand({ netAnnual }: { netAnnual: string | null }) {
             </Link>
           </div>
 
-          <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-sm text-white/60">
-            {trustBullets.map((bullet, i) => (
+          <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-white/60">
+            {trustBullets.map((bullet) => (
               <li key={bullet} className="flex items-center gap-2">
-                {i > 0 && (
-                  <span aria-hidden="true" className="text-white/30">
-                    ·
-                  </span>
-                )}
-                <Check size={16} aria-hidden="true" className="shrink-0" />
+                <PunchMark state="stamped" size={14} />
                 {bullet}
               </li>
             ))}
