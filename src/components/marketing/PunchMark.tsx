@@ -70,10 +70,10 @@ export function PunchMark({
       </svg>
       {children !== undefined && (
         <span
-          // Knocked out of the ink. Navy rather than white or the page
-          // ground: the house rule is that every gold fill carries navy text,
-          // because white on this gold is 2.96:1 and navy is 6.30:1.
-          className="absolute inset-0 flex items-center justify-center font-heading font-bold leading-none text-navy-deep"
+          // Knocked out of the ink, in whatever colour this theme's fill
+          // carries: navy on gold (6.30:1, where white would be 2.96:1) and
+          // white on violet (6.28:1, where navy would be 3.00:1).
+          className="absolute inset-0 flex items-center justify-center font-heading font-bold leading-none text-primary-on"
           style={{ fontSize: size * 0.42 }}
         >
           {children}

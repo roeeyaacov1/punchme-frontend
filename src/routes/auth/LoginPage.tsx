@@ -36,7 +36,7 @@ export function LoginPage() {
   const signup = auth.mode === "signup";
 
   return (
-    <div className="min-h-screen bg-background text-ink">
+    <div className="theme-purple theme-raised min-h-screen bg-background text-ink">
       <TopBar />
       <main className="mx-auto w-full max-w-md px-3 pb-16 sm:max-w-lg sm:px-0">
         <section className="rounded-2xl border border-border bg-surface px-5 py-7 shadow-card sm:px-8">

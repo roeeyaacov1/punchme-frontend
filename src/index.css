@@ -7,10 +7,11 @@
    (see tailwind.config.js). Values are space-separated RGB channels so
    Tailwind's `<alpha-value>` still works — `bg-surface/60` and friends.
 
-   `:root` is the oat card stock the onboarding wizard is built in, carried
-   over unchanged. `.theme-purple` is the redesigned public landing. Scoping
-   the repaint to a class is what lets the two live side by side while the
-   wizard waits its turn, instead of a half-purple product. */
+   `:root` is the original oat card stock. Nothing public wears it any more —
+   the landing, the wizard and the sign-in page are all `.theme-purple` — but
+   it stays as the default so any route that never opts in (the dashboard, the
+   admin screens, anything added later) is unaffected by the repaint, and so
+   the two palettes stay readable side by side. */
 :root {
   --c-background: 239 233 220; /* oat  #efe9dc */
   --c-surface: 255 255 255; /* white #ffffff */
@@ -44,6 +45,16 @@
   --c-border: 226 227 246;
   --c-border-strong: 202 204 238;
   --c-navy-deep: 15 15 35; /* #0f0f23 — the dark band and the footer */
+}
+
+/* The wizard and the sign-in page are one raised panel on a ground, where
+   the landing is a stack of alternating full-width bands. Same palette, but
+   the two lightest values trade places — otherwise the panel is white on a
+   white page and stops reading as paper at all. Both orderings are measured
+   above: ink is 17.53:1 on the wash and 18.88:1 on white. */
+.theme-purple.theme-raised {
+  --c-background: 245 246 254; /* wash ground */
+  --c-surface: 255 255 255; /* white panel */
 }
 
 body {
@@ -186,10 +197,10 @@ h4 {
 }
 
 /* ── Range sliders ──────────────────────────────────────────────────────
-   Gold fill, ≥24px thumb with a 44px tap area via a transparent border.
+   Accent fill, ≥24px thumb with a 44px tap area via a transparent border.
    Cross-browser range styling can't be expressed in Tailwind utilities. */
 @layer components {
-  .range-gold {
+  .range-accent {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
@@ -198,7 +209,7 @@ h4 {
     cursor: pointer;
   }
 
-  .range-gold::-webkit-slider-runnable-track {
+  .range-accent::-webkit-slider-runnable-track {
     height: 6px;
     border-radius: 9999px;
     background: linear-gradient(
@@ -210,7 +221,7 @@ h4 {
 
   /* RTL: the visual fill has to grow from the right, and the native track
      direction doesn't flip on its own. */
-  [dir="rtl"] .range-gold::-webkit-slider-runnable-track {
+  [dir="rtl"] .range-accent::-webkit-slider-runnable-track {
     background: linear-gradient(
       to left,
       theme("colors.primary.DEFAULT") var(--range-progress, 0%),
@@ -218,19 +229,19 @@ h4 {
     );
   }
 
-  .range-gold::-moz-range-track {
+  .range-accent::-moz-range-track {
     height: 6px;
     border-radius: 9999px;
     background: theme("colors.border");
   }
 
-  .range-gold::-moz-range-progress {
+  .range-accent::-moz-range-progress {
     height: 6px;
     border-radius: 9999px;
     background: theme("colors.primary.DEFAULT");
   }
 
-  .range-gold::-webkit-slider-thumb {
+  .range-accent::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     height: 24px;
@@ -242,7 +253,7 @@ h4 {
     box-shadow: theme("boxShadow.lift");
   }
 
-  .range-gold::-moz-range-thumb {
+  .range-accent::-moz-range-thumb {
     height: 24px;
     width: 24px;
     border: 3px solid #fff;
@@ -251,12 +262,12 @@ h4 {
     box-shadow: theme("boxShadow.lift");
   }
 
-  .range-gold:focus-visible::-webkit-slider-thumb {
+  .range-accent:focus-visible::-webkit-slider-thumb {
     outline: 2px solid theme("colors.primary.DEFAULT");
     outline-offset: 2px;
   }
 
-  .range-gold:focus-visible::-moz-range-thumb {
+  .range-accent:focus-visible::-moz-range-thumb {
     outline: 2px solid theme("colors.primary.DEFAULT");
     outline-offset: 2px;
   }

@@ -195,7 +195,7 @@ function SliderField({ name, label, value, onChange }: FieldProps) {
         aria-valuetext={t(`landing.calculator.a11y.${UNIT[name]}`, { value })}
         // `input`, not `change`, so dragging updates the results live.
         onChange={(e) => onChange(clampInput(name, Number(e.target.value)))}
-        className="range-gold"
+        className="range-accent"
         style={{ "--range-progress": `${progress}%` } as React.CSSProperties}
       />
     </div>

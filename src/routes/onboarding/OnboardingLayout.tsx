@@ -111,7 +111,7 @@ function Shell() {
     stepIndex(s as DraftStep) <= stepIndex(first);
 
   return (
-    <div className="min-h-screen bg-background text-ink">
+    <div className="theme-purple theme-raised min-h-screen bg-background text-ink">
       <a
         href="#onboarding-step"
         className={cn(

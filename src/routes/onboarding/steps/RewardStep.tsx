@@ -52,7 +52,7 @@ export function RewardStep() {
           value={stamps}
           onChange={(e) => update({ stampsRequired: Number(e.target.value) })}
           aria-valuetext={stampsText}
-          className="range-gold"
+          className="range-accent"
           style={{ "--range-progress": `${progress}%` } as React.CSSProperties}
         />
         <p className="sr-only" aria-live="polite">
