@@ -40,12 +40,16 @@ export function useEmailPasswordAuth({
       if (err.status === 409) return t("onboarding.account.alreadyRegistered");
       if (err.status === 429) return t("onboarding.account.throttled");
       if (err.status === 422 || err.status === 401) return err.message;
-      return t("auth.error");
+      return generic();
     }
     // fetch rejects with a TypeError when the API can't be reached at all —
     // a stopped local backend, no network — which is worth saying plainly.
     if (err instanceof TypeError) return t("auth.offline");
-    return t("auth.error");
+    return generic();
+  }
+
+  function generic(): string {
+    return mode === "signup" ? t("auth.signUpError") : t("auth.error");
   }
 
   async function run(getTokens: () => Promise<TokenPair>) {

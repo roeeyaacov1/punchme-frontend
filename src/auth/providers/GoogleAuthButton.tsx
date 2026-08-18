@@ -50,7 +50,7 @@ function loadGoogleScript(): Promise<void> {
   });
 }
 
-export function GoogleAuthButton({ onSuccess, onError }: AuthProviderButtonProps) {
+export function GoogleAuthButton({ onSuccess, onError, text = "signin_with" }: AuthProviderButtonProps) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -83,6 +83,7 @@ export function GoogleAuthButton({ onSuccess, onError }: AuthProviderButtonProps
           size: "large",
           shape: "pill",
           width: 320,
+          text,
         });
       })
       .catch((err) => onError?.(err));

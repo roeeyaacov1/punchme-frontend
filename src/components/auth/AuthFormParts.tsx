@@ -96,9 +96,14 @@ export function AuthAlternatives({
         <span className="h-px flex-1 bg-border" />
       </div>
       <div className="flex justify-center" dir="ltr">
-        {/* Google renders the button once per mount; a language change needs
-            a fresh mount to relabel it. */}
-        <GoogleAuthButton key={i18n.resolvedLanguage} onSuccess={onGoogle} onError={onGoogleError} />
+        {/* Google renders the button once per mount; a language or mode change
+            needs a fresh mount to relabel it. */}
+        <GoogleAuthButton
+          key={`${i18n.resolvedLanguage}-${mode}`}
+          text={mode === "signup" ? "signup_with" : "signin_with"}
+          onSuccess={onGoogle}
+          onError={onGoogleError}
+        />
       </div>
     </>
   );

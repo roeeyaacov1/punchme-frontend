@@ -64,7 +64,8 @@
                  "signUpTitle":  "Create your account",
                  "signUpSubtitle":  "Then design your card — free.",
                  "newHere":  "New here? Design your card first — it's free",
-                 "offline":  "Can't reach the server — check your connection and try again."
+                 "offline":  "Can't reach the server — check your connection and try again.",
+                 "signUpError":  "Something went wrong creating your account. Please try again."
              },
     "onboardingPlaceholder":  {
                                   "title":  "Signed in successfully",
