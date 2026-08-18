@@ -18,23 +18,85 @@ export function normalizeHex(raw: string): string | null {
   return null;
 }
 
+/** `#RRGGBB` → 0–255 channels. Null for anything that isn't a full hex. */
+export function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const normalized = normalizeHex(hex);
+  if (!normalized) return null;
+  return {
+    r: parseInt(normalized.slice(1, 3), 16),
+    g: parseInt(normalized.slice(3, 5), 16),
+    b: parseInt(normalized.slice(5, 7), 16),
+  };
+}
+
+/** WCAG 2 relative luminance, 0 (black) to 1 (white). Non-colours read as
+ * black so a half-typed hex never flips a contrast decision to "fine". */
+export function relativeLuminance(hex: string): number {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return 0;
+  const channel = (value255: number) => {
+    const value = value255 / 255;
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(rgb.r) + 0.7152 * channel(rgb.g) + 0.0722 * channel(rgb.b);
+}
+
+/** WCAG contrast ratio between two colours, 1:1 to 21:1. Order-free. */
+export function contrastRatio(a: string, b: string): number {
+  const la = relativeLuminance(a);
+  const lb = relativeLuminance(b);
+  const [light, dark] = la >= lb ? [la, lb] : [lb, la];
+  return (light + 0.05) / (dark + 0.05);
+}
+
 /** Black or white, whichever stays legible on `hex`. Uses WCAG relative
  * luminance rather than a naive channel average, so mid yellows and cyans
  * get the black tick they need instead of an invisible white one. The
  * 0.179 threshold is where white-on-colour and black-on-colour contrast
  * are equal. */
 export function readableInk(hex: string): "#000000" | "#FFFFFF" {
-  const normalized = normalizeHex(hex);
-  if (!normalized) return "#000000";
-  const channel = (index: number) => {
-    const value = parseInt(normalized.slice(1 + index * 2, 3 + index * 2), 16) / 255;
-    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
-  };
-  const luminance = 0.2126 * channel(0) + 0.7152 * channel(1) + 0.0722 * channel(2);
-  return luminance > 0.179 ? "#000000" : "#FFFFFF";
+  if (!normalizeHex(hex)) return "#000000";
+  return relativeLuminance(hex) > 0.179 ? "#000000" : "#FFFFFF";
 }
 
-function hslToHex(h: number, s: number, l: number): string {
+/** `#RRGGBB` → HSL in degrees / percent / percent. Non-colours → black. */
+export function hexToHsl(hex: string): { h: number; s: number; l: number } {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return { h: 0, s: 0, l: 0 };
+  const r = rgb.r / 255;
+  const g = rgb.g / 255;
+  const b = rgb.b / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  if (d === 0) return { h: 0, s: 0, l: l * 100 };
+  const s = d / (1 - Math.abs(2 * l - 1));
+  let h: number;
+  if (max === r) h = ((g - b) / d) % 6;
+  else if (max === g) h = (b - r) / d + 2;
+  else h = (r - g) / d + 4;
+  h = Math.round(h * 60);
+  if (h < 0) h += 360;
+  return { h, s: s * 100, l: l * 100 };
+}
+
+/** Linear blend of two colours in sRGB, `t` = 0 → `a`, 1 → `b`. */
+export function mixHex(a: string, b: string, t: number): string {
+  const ca = hexToRgb(a);
+  const cb = hexToRgb(b);
+  if (!ca || !cb) return normalizeHex(a) ?? "#000000";
+  const clamp = Math.min(1, Math.max(0, t));
+  const channel = (x: number, y: number) =>
+    Math.round(x + (y - x) * clamp)
+      .toString(16)
+      .padStart(2, "0");
+  return `#${channel(ca.r, cb.r)}${channel(ca.g, cb.g)}${channel(ca.b, cb.b)}`.toUpperCase();
+}
+
+/** HSL (degrees, percent, percent) → `#RRGGBB`. Hue wraps. */
+export function hslToHex(hue: number, s: number, l: number): string {
+  const h = ((hue % 360) + 360) % 360;
   const a = (s / 100) * Math.min(l / 100, 1 - l / 100);
   const component = (n: number) => {
     const k = (n + h / 30) % 12;
