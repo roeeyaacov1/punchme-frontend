@@ -77,8 +77,12 @@ function Shell() {
 
   useEffect(() => {
     if (!step) return;
+    const previous = document.title;
     document.title = `${t(`onboarding.steps.${step}`)} — ${t("app.name")}`;
     window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+    return () => {
+      document.title = previous;
+    };
   }, [step, t, reduced]);
 
   // Announced quietly, and only once the owner has stopped changing things.
@@ -162,7 +166,7 @@ function Shell() {
         <section className="overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
           {/* The phone, cropped: you are looking at the top of a phone with
               the pass on it, not at a picture of one. */}
-          <div className="h-[280px] overflow-hidden bg-background/60 pt-5 sm:h-[320px]">
+          <div className="h-[300px] overflow-hidden bg-background/60 pt-3 sm:h-[340px] sm:pt-5">
             <PhoneFrame
               backgroundColor={preview.backgroundColor}
               accentColor={preview.labelColor}
@@ -199,7 +203,7 @@ function Shell() {
                     aria-pressed={platform === key}
                     onClick={() => setPlatform(key)}
                     className={cn(
-                      "min-h-[32px] rounded-md px-2.5 text-xs font-semibold transition-colors",
+                      "min-h-[44px] rounded-md px-3 text-xs font-semibold transition-colors",
                       platform === key ? "bg-navy-deep text-white" : "text-ink-muted hover:text-ink",
                       focusRing,
                     )}

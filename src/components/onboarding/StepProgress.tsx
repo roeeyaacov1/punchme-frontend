@@ -30,7 +30,10 @@ export function StepProgress({
   const index = steps.indexOf(current);
   return (
     <nav aria-label={t("onboarding.progress", { n: index + 1, total: steps.length })} className={className}>
-      <ol className="flex items-center justify-center gap-1.5">
+      {/* Eight marks have to fit a 375px panel: 36px targets there, the full
+          44px from `sm` up. The Back button beside every step is always 44px,
+          so nothing depends on hitting a mark. */}
+      <ol className="flex items-center justify-center gap-0.5 sm:gap-1">
         {steps.map((step, i) => {
           const state = i < index ? "stamped" : i === index ? "reward" : "empty";
           const canGo = i < index && reachable(step);
@@ -42,7 +45,7 @@ export function StepProgress({
                   to={hrefFor(step)}
                   aria-label={labelFor(step)}
                   className={cn(
-                    "inline-flex h-11 w-7 items-center justify-center rounded-md transition-transform hover:scale-110",
+                    "inline-flex h-11 w-9 items-center justify-center rounded-md transition-transform hover:scale-110 sm:w-11",
                     focusRing,
                   )}
                 >
@@ -50,7 +53,7 @@ export function StepProgress({
                 </Link>
               ) : (
                 <span
-                  className="inline-flex h-11 w-7 items-center justify-center"
+                  className="inline-flex h-11 w-9 items-center justify-center sm:w-11"
                   aria-current={i === index ? "step" : undefined}
                   aria-label={labelFor(step)}
                 >

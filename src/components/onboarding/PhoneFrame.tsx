@@ -59,7 +59,7 @@ export function PhoneFrame({
             <div className="h-7 w-24 rounded-full bg-black shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
           </div>
           {/* The pass, where Wallet puts it. */}
-          <div className="relative px-4 pb-6 pt-6">{children}</div>
+          <div className="relative px-4 pb-6 pt-4 sm:pt-6">{children}</div>
         </div>
       </div>
     </div>

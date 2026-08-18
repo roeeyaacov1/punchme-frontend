@@ -4,15 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { createCheckoutSession } from "../../../api/billing";
 import { listTemplates } from "../../../api/businesses";
-import { designImageUrls, getTemplateDesign } from "../../../api/designs";
+import { getTemplateDesign } from "../../../api/designs";
 import { useBusiness } from "../../../business/useBusiness";
-import type { CardPreviewValue } from "../../../components/card-studio/CardPreviews";
 import { PunchMark } from "../../../components/marketing/PunchMark";
 import { StepShell } from "../../../components/onboarding/StepShell";
 import { focusRing } from "../../../components/marketing/primitives";
 import { cn } from "../../../lib/cn";
 import { useOnboardingDraft } from "../useOnboardingDraft";
-import { sampleStamps } from "../draft";
+import { usePublishedPreview } from "../usePublishedPreview";
 
 /**
  * The last step, and the only one that asks for money. It says exactly what
@@ -51,29 +50,10 @@ export function BillingStep() {
     queryFn: () => getTemplateDesign(businessId!, templateId!),
     enabled: !!businessId && !!templateId,
   });
-  const design = designQuery.data;
+  const published = usePublishedPreview(designQuery.data, business, artUrl);
   useEffect(() => {
-    if (!design || !business || !design.sync.synced_at) return;
-    const images = designImageUrls(design);
-    const value: CardPreviewValue = {
-      businessName: business.name,
-      stampsRequired: design.stamps_required,
-      currentStamps: sampleStamps(design.stamps_required),
-      rewardDescription: design.reward_description,
-      backgroundColor: design.background_color,
-      foregroundColor: design.foreground_color,
-      labelColor: design.label_color,
-      design: design.design,
-      logoUrl: images.logo,
-      appleLogoUrl: images.apple_logo,
-      stripBaseUrl: images.strip_base,
-      stripStates: images.strip_states,
-      heroStates: images.hero_states,
-      stampArtUrl: design.assets.includes("stamp_art") ? artUrl : undefined,
-      unsaved: false,
-    };
-    setPreviewOverride(value);
-  }, [design, business, artUrl, setPreviewOverride]);
+    if (published) setPreviewOverride(published);
+  }, [published, setPreviewOverride]);
   useEffect(() => () => setPreviewOverride(null), [setPreviewOverride]);
 
   async function activate() {

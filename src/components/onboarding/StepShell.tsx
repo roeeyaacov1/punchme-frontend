@@ -52,8 +52,8 @@ export function StepShell({
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-      <div className="flex min-h-[28px] items-center">
-        {onBack && (
+      {onBack && (
+        <div className="flex items-center">
           <button
             type="button"
             onClick={onBack}
@@ -65,10 +65,10 @@ export function StepShell({
             <ArrowLeft size={16} aria-hidden="true" className="rtl:-scale-x-100" />
             {t("common.back")}
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div>
+      <div className={cn(!onBack && "pt-2")}>
         <h1
           ref={heading}
           tabIndex={-1}

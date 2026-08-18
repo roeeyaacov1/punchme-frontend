@@ -4,15 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
 import { listTemplates, patchTemplate, type CardTemplate } from "../../../api/businesses";
-import { designImageUrls, getTemplateDesign, type DesignOut } from "../../../api/designs";
+import { getTemplateDesign, type DesignOut } from "../../../api/designs";
 import { previewCard } from "../../../api/loyalty";
 import { useBusiness } from "../../../business/useBusiness";
-import type { CardPreviewValue } from "../../../components/card-studio/CardPreviews";
 import { StepShell } from "../../../components/onboarding/StepShell";
 import { ctaClasses, focusRing } from "../../../components/marketing/primitives";
 import { cn } from "../../../lib/cn";
 import { useOnboardingDraft } from "../useOnboardingDraft";
-import { sampleStamps } from "../draft";
+import { usePublishedPreview } from "../usePublishedPreview";
 
 type Phase = "resolving" | "syncing" | "issuing" | "ready" | "failed" | "slow";
 
@@ -95,6 +94,9 @@ export function WalletStep() {
       if (syncedSinceSave(design) || failedSinceSave(design)) return false;
       return phase === "syncing" || (phase === "slow" && slowFrom === "syncing") ? POLL_MS : false;
     },
+    // The owner may well switch tabs while waiting; the card should be
+    // ready when they come back, not start waiting then.
+    refetchIntervalInBackground: true,
   });
   const design = designQuery.data;
 
@@ -113,12 +115,16 @@ export function WalletStep() {
       !!templateId &&
       (phase === "issuing" || phase === "ready" || (phase === "slow" && slowFrom === "issuing")),
     refetchInterval: (query) => (query.state.data?.wallet_pass_url ? false : POLL_MS),
+    refetchIntervalInBackground: true,
   });
   const passUrl = passQuery.data?.wallet_pass_url ?? null;
 
+  // A cached pass URL from an earlier visit must not skip the wait for the
+  // new sync — the URL doesn't change, the card behind it does.
   useEffect(() => {
-    if (passUrl && phase !== "ready") enter("ready");
-  }, [passUrl, phase]);
+    const issuing = phase === "issuing" || (phase === "slow" && slowFrom === "issuing");
+    if (passUrl && issuing) enter("ready");
+  }, [passUrl, phase, slowFrom]);
 
   // The slow clock — one check a second, announced only when it flips.
   useEffect(() => {
@@ -133,32 +139,17 @@ export function WalletStep() {
     return () => window.clearInterval(timer);
   }, [phase]);
 
-  // Once the real design exists, the phone shows it — the published PNGs,
-  // not the CSS approximation. Cleared on unmount so a walk back to the
-  // colour steps sees the live draft again.
-  const published = syncedSinceSave(design) ? design : undefined;
+  // Once the real design exists (synced since we saved), the phone shows it.
+  // Cleared on unmount so a walk back to the colour steps sees the live
+  // draft again.
+  const published = usePublishedPreview(
+    syncedSinceSave(design) ? design : undefined,
+    business,
+    artUrl,
+  );
   useEffect(() => {
-    if (!published || !business) return;
-    const images = designImageUrls(published);
-    const value: CardPreviewValue = {
-      businessName: business.name,
-      stampsRequired: published.stamps_required,
-      currentStamps: sampleStamps(published.stamps_required),
-      rewardDescription: published.reward_description,
-      backgroundColor: published.background_color,
-      foregroundColor: published.foreground_color,
-      labelColor: published.label_color,
-      design: published.design,
-      logoUrl: images.logo,
-      appleLogoUrl: images.apple_logo,
-      stripBaseUrl: images.strip_base,
-      stripStates: images.strip_states,
-      heroStates: images.hero_states,
-      stampArtUrl: published.assets.includes("stamp_art") ? artUrl : undefined,
-      unsaved: false,
-    };
-    setPreviewOverride(value);
-  }, [published, business, artUrl, setPreviewOverride]);
+    if (published) setPreviewOverride(published);
+  }, [published, setPreviewOverride]);
   useEffect(() => () => setPreviewOverride(null), [setPreviewOverride]);
 
   async function retrySync() {

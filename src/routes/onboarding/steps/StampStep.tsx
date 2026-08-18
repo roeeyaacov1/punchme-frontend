@@ -27,7 +27,8 @@ function tabFor(stamp: StampChoice): Tab {
 export function StampStep() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { resolved, update, setArt, artPersisted, artUrl } = useOnboardingDraft();
+  const { resolved, update, setArt, artPersisted, artUrl } =
+    useOnboardingDraft();
   const [tab, setTab] = useState<Tab>(() => tabFor(resolved.stamp));
   const [typed, setTyped] = useState("");
   const [note, setNote] = useState<string | null>(null);
@@ -98,7 +99,9 @@ export function StampStep() {
         <span
           className={cn(
             "flex h-11 w-11 items-center justify-center rounded-full ring-offset-2 ring-offset-surface transition-colors",
-            selected ? "bg-navy-deep text-white ring-2 ring-ink" : "bg-background text-ink ring-1 ring-border-strong/70",
+            selected
+              ? "bg-navy-deep text-white ring-2 ring-ink"
+              : "bg-background text-ink ring-1 ring-border-strong/70",
           )}
         >
           <Icon size={20} strokeWidth={2.2} aria-hidden="true" />
@@ -114,7 +117,9 @@ export function StampStep() {
       <span
         className={cn(
           "flex h-11 w-11 items-center justify-center rounded-full text-2xl leading-none ring-offset-2 ring-offset-surface",
-          selected ? "bg-navy-deep ring-2 ring-ink" : "bg-background ring-1 ring-border-strong/70",
+          selected
+            ? "bg-navy-deep ring-2 ring-ink"
+            : "bg-background ring-1 ring-border-strong/70",
         )}
       >
         {emoji}
@@ -123,7 +128,9 @@ export function StampStep() {
   }));
 
   const selectedEmoji =
-    stamp.kind === "emoji" && EMOJI_STAMPS.includes(stamp.emoji) ? stamp.emoji : null;
+    stamp.kind === "emoji" && EMOJI_STAMPS.includes(stamp.emoji)
+      ? stamp.emoji
+      : null;
 
   return (
     <StepShell
@@ -137,7 +144,11 @@ export function StampStep() {
       nextDisabled={artMissing}
       error={error}
     >
-      <div role="tablist" aria-label={t("onboarding.stamp.title")} className="flex rounded-lg border border-border bg-surface p-0.5">
+      <div
+        role="tablist"
+        aria-label={t("onboarding.stamp.title")}
+        className="flex rounded-lg border border-border bg-surface p-0.5"
+      >
         {TABS.map((key) => (
           <button
             key={key}
@@ -149,7 +160,9 @@ export function StampStep() {
             onClick={() => setTab(key)}
             className={cn(
               "min-h-[40px] flex-1 rounded-md px-2 text-sm font-semibold transition-colors",
-              tab === key ? "bg-navy-deep text-white" : "text-ink-muted hover:text-ink",
+              tab === key
+                ? "bg-navy-deep text-white"
+                : "text-ink-muted hover:text-ink",
               focusRing,
             )}
           >
@@ -159,96 +172,130 @@ export function StampStep() {
       </div>
 
       {artMissing && (
-        <p className="text-sm font-medium text-red-700">{t("onboarding.stamp.artMissing")}</p>
+        <p className="text-sm font-medium text-red-700">
+          {t("onboarding.stamp.artMissing")}
+        </p>
       )}
       {note && !artMissing && <p className="text-sm text-ink-muted">{note}</p>}
       {!artPersisted && !note && stamp.kind !== "glyph" && (
-        <p className="text-sm text-ink-muted">{t("onboarding.stamp.artMemoryOnly")}</p>
+        <p className="text-sm text-ink-muted">
+          {t("onboarding.stamp.artMemoryOnly")}
+        </p>
       )}
 
-      <div role="tabpanel" id="stamp-panel-icons" aria-labelledby="stamp-tab-icons" hidden={tab !== "icons"}>
-        <ChoiceGrid
-          name="glyph"
-          legend={t("onboarding.stamp.gridLabel")}
-          legendHidden
-          choices={glyphChoices}
-          value={stamp.kind === "glyph" ? stamp.glyph : null}
-          onChange={chooseGlyph}
-          columns={4}
-          smColumns={8}
-        />
-      </div>
-
-      <div role="tabpanel" id="stamp-panel-emoji" aria-labelledby="stamp-tab-emoji" hidden={tab !== "emoji"} className="flex flex-col gap-4">
-        <ChoiceGrid
-          name="emoji"
-          legend={t("onboarding.stamp.emojiGridLabel")}
-          legendHidden
-          choices={emojiChoices}
-          value={selectedEmoji}
-          onChange={chooseEmoji}
-          columns={6}
-          smColumns={8}
-        />
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="emoji-typed" className="text-sm font-medium text-ink">
-            {t("onboarding.stamp.emojiInputLabel")}
-          </label>
-          <input
-            id="emoji-typed"
-            type="text"
-            inputMode="text"
-            autoComplete="off"
-            value={typed}
-            onChange={(e) => handleTyped(e.target.value)}
-            className={cn(
-              "w-24 rounded-lg border border-border-strong bg-surface px-3 py-2 text-center text-2xl leading-none",
-              focusRing,
-            )}
+      {tab === "icons" && (
+        <div
+          role="tabpanel"
+          id="stamp-panel-icons"
+          aria-labelledby="stamp-tab-icons"
+        >
+          <ChoiceGrid
+            name="glyph"
+            legend={t("onboarding.stamp.gridLabel")}
+            legendHidden
+            choices={glyphChoices}
+            value={stamp.kind === "glyph" ? stamp.glyph : null}
+            onChange={chooseGlyph}
+            columns={4}
+            smColumns={8}
           />
-          <p className="text-xs text-ink-subtle">{t("onboarding.stamp.emojiHint")}</p>
         </div>
-      </div>
+      )}
 
-      <div role="tabpanel" id="stamp-panel-image" aria-labelledby="stamp-tab-image" hidden={tab !== "image"} className="flex flex-col gap-3">
-        <div className="flex items-center gap-4">
-          <span
-            aria-hidden="true"
-            className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-background ring-1 ring-border-strong/70"
-          >
-            {stamp.kind === "image" && artUrl ? (
-              <img src={artUrl} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <ImagePlus size={24} className="text-ink-subtle" />
-            )}
-          </span>
-          <div className="flex flex-col gap-1">
-            <button
-              type="button"
-              onClick={() => fileInput.current?.click()}
+      {tab === "emoji" && (
+        <div
+          role="tabpanel"
+          id="stamp-panel-emoji"
+          aria-labelledby="stamp-tab-emoji"
+          className="flex flex-col gap-4"
+        >
+          <ChoiceGrid
+            name="emoji"
+            legend={t("onboarding.stamp.emojiGridLabel")}
+            legendHidden
+            choices={emojiChoices}
+            value={selectedEmoji}
+            onChange={chooseEmoji}
+            columns={6}
+            smColumns={8}
+          />
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="emoji-typed"
+              className="text-sm font-medium text-ink"
+            >
+              {t("onboarding.stamp.emojiInputLabel")}
+            </label>
+            <input
+              id="emoji-typed"
+              type="text"
+              inputMode="text"
+              autoComplete="off"
+              value={typed}
+              onChange={(e) => handleTyped(e.target.value)}
               className={cn(
-                "inline-flex min-h-[44px] items-center justify-center rounded-lg border border-border-strong bg-surface px-4 text-sm font-semibold text-ink hover:bg-background",
+                "w-24 rounded-lg border border-border-strong bg-surface px-3 py-2 text-center text-2xl leading-none",
                 focusRing,
               )}
-            >
-              {stamp.kind === "image" && artUrl
-                ? t("onboarding.stamp.uploadReplace")
-                : t("onboarding.stamp.uploadCta")}
-            </button>
-            <p className="text-xs text-ink-subtle">{t("onboarding.stamp.uploadHint")}</p>
+            />
+            <p className="text-xs text-ink-subtle">
+              {t("onboarding.stamp.emojiHint")}
+            </p>
           </div>
-          <input
-            ref={fileInput}
-            type="file"
-            accept="image/png,image/jpeg,image/webp,image/gif,image/bmp"
-            onChange={handleFile}
-            className="sr-only"
-            tabIndex={-1}
-            aria-hidden="true"
-          />
         </div>
-      </div>
+      )}
 
+      {tab === "image" && (
+        <div
+          role="tabpanel"
+          id="stamp-panel-image"
+          aria-labelledby="stamp-tab-image"
+          className="flex flex-col gap-3"
+        >
+          <div className="flex items-center gap-4">
+            <span
+              aria-hidden="true"
+              className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-background ring-1 ring-border-strong/70"
+            >
+              {stamp.kind === "image" && artUrl ? (
+                <img
+                  src={artUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <ImagePlus size={24} className="text-ink-subtle" />
+              )}
+            </span>
+            <div className="flex flex-col gap-1">
+              <button
+                type="button"
+                onClick={() => fileInput.current?.click()}
+                className={cn(
+                  "inline-flex min-h-[44px] items-center justify-center rounded-lg border border-border-strong bg-surface px-4 text-sm font-semibold text-ink hover:bg-background",
+                  focusRing,
+                )}
+              >
+                {stamp.kind === "image" && artUrl
+                  ? t("onboarding.stamp.uploadReplace")
+                  : t("onboarding.stamp.uploadCta")}
+              </button>
+              <p className="text-xs text-ink-subtle">
+                {t("onboarding.stamp.uploadHint")}
+              </p>
+            </div>
+            <input
+              ref={fileInput}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif,image/bmp"
+              onChange={handleFile}
+              className="sr-only"
+              tabIndex={-1}
+              aria-hidden="true"
+            />
+          </div>
+        </div>
+      )}
     </StepShell>
   );
 }
