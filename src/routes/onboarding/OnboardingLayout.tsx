@@ -1,104 +1,230 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
-import { useBusiness } from "../../business/useBusiness";
-import { BusinessStep } from "./BusinessStep";
-import { DesignStep } from "./DesignStep";
-import { FinishStep } from "./FinishStep";
-import type { Business, CardTemplate } from "../../api/businesses";
+import {
+  AppleCardPreview,
+  GoogleCardPreview,
+  type PreviewPlatform,
+} from "../../components/card-studio/CardPreviews";
+import { PhoneFrame } from "../../components/onboarding/PhoneFrame";
+import { useWakeOnChange } from "../../components/onboarding/useWakeOnChange";
+import { StepProgress } from "../../components/onboarding/StepProgress";
+import { focusRing } from "../../components/marketing/primitives";
+import { useDebounce } from "../../hooks/useDebounce";
+import { cn } from "../../lib/cn";
+import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
+import logo from "../../assets/logo.png";
+import { OnboardingDraftProvider } from "./DraftContext";
+import { useOnboardingDraft } from "./useOnboardingDraft";
+import {
+  ALL_STEPS,
+  DRAFT_STEPS,
+  firstIncompleteStep,
+  stepIndex,
+  type DraftStep,
+  type WizardStep,
+} from "./draft";
 
-type Step = "business" | "design" | "finish";
-const STEPS: Step[] = ["business", "design", "finish"];
-
+/**
+ * The wizard's shell: one paper panel on the card-stock ground, with the
+ * owner's pass in a phone at the top and one step at a time underneath.
+ * Public — the draft lives on this device until the account step turns it
+ * into a real card. Anything after that (wallet, billing) sits behind
+ * `OnboardingGate` in the route tree, not here.
+ */
 export function OnboardingLayout() {
-  const { t } = useTranslation();
-  const { user } = useAuth();
-  const { isLoading, hasBusiness } = useBusiness();
-  const [step, setStep] = useState<Step>("business");
-  const [business, setBusiness] = useState<Business | null>(null);
-  const [template, setTemplate] = useState<CardTemplate | null>(null);
+  return (
+    <OnboardingDraftProvider>
+      <Shell />
+    </OnboardingDraftProvider>
+  );
+}
 
-  // Checked exactly once, the first time isLoading resolves — a stale
-  // bookmark from a completed owner belongs on the dashboard. Reading
-  // hasBusiness reactively instead would also fire mid-wizard: BusinessStep
-  // invalidates ["business","me"] right after creating the Business, which
-  // flips hasBusiness true while step is still "business", well before the
-  // wizard itself is done.
-  const [skipToDashboard, setSkipToDashboard] = useState<boolean | null>(null);
+const PLATFORMS: PreviewPlatform[] = ["apple", "google"];
+
+function stepFromPath(pathname: string): WizardStep | null {
+  const last = pathname.replace(/\/+$/, "").split("/").pop() ?? "";
+  return (ALL_STEPS as readonly string[]).includes(last) ? (last as WizardStep) : null;
+}
+
+function Shell() {
+  const { t, i18n } = useTranslation();
+  const { user, isAuthenticated } = useAuth();
+  const location = useLocation();
+  const reduced = usePrefersReducedMotion();
+  const { draft, resolved, preview, hasArt } = useOnboardingDraft();
+  const [platform, setPlatform] = useState<PreviewPlatform>("apple");
+
+  const step = stepFromPath(location.pathname);
+  const first = firstIncompleteStep(draft, hasArt);
+
+  // The screen brightens when the card changes — colours, stamp, count — but
+  // not on every keystroke of the name.
+  const wakeKey = useMemo(
+    () =>
+      [
+        preview.backgroundColor,
+        preview.foregroundColor,
+        preview.design.stamp?.color,
+        preview.design.stamp?.glyph,
+        preview.stampArtUrl,
+        preview.stampsRequired,
+      ].join("|"),
+    [preview],
+  );
+  const wake = useWakeOnChange(wakeKey);
+
   useEffect(() => {
-    if (!isLoading && skipToDashboard === null) {
-      setSkipToDashboard(hasBusiness);
-    }
-  }, [isLoading, hasBusiness, skipToDashboard]);
+    if (!step) return;
+    document.title = `${t(`onboarding.steps.${step}`)} — ${t("app.name")}`;
+    window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+  }, [step, t, reduced]);
 
-  if (skipToDashboard === null) return null;
-  if (skipToDashboard) return <Navigate to="/dashboard" replace />;
+  // Announced quietly, and only once the owner has stopped changing things.
+  const spoken = useDebounce(
+    t("onboarding.preview.summary", {
+      name: resolved.name || t("onboarding.business.nameLabel"),
+      count: preview.stampsRequired,
+      reward: preview.rewardDescription,
+    }),
+    1200,
+  );
+
+  // Forward guard: a draft step past the first incomplete one is not
+  // reachable by URL. Wallet and billing govern themselves.
+  if (
+    step &&
+    (DRAFT_STEPS as readonly string[]).includes(step) &&
+    stepIndex(step) > stepIndex(first)
+  ) {
+    return <Navigate to={`/onboarding/${first}`} replace />;
+  }
+
+  const stepLabel = (s: string) => t(`onboarding.steps.${s}`);
+  const reachable = (s: string) =>
+    (DRAFT_STEPS as readonly string[]).includes(s) &&
+    stepIndex(s as DraftStep) <= stepIndex(first);
 
   return (
-    <div className="min-h-screen flex flex-col items-center gap-10 bg-white text-navy px-6 py-16">
-      {/* A staff account typically has no Business of its own, so it never
-          reaches the dashboard — the only other place the admin link lives.
-          Without this the catalog editor is unreachable except by URL. */}
-      {user?.is_staff && (
-        <div className="w-full max-w-lg rounded-xl bg-gold/10 border border-gold/30 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-          <span className="text-sm font-body text-navy">{t("admin.staffHere")}</span>
-          <Link to="/admin" className="text-sm font-medium text-navy underline hover:no-underline">
-            {t("admin.openAdmin")}
-          </Link>
-        </div>
-      )}
+    <div className="min-h-screen bg-background text-ink">
+      <a
+        href="#onboarding-step"
+        className={cn(
+          "sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2 focus:text-sm focus:font-semibold",
+          focusRing,
+        )}
+      >
+        {t("landing.nav.skipToContent")}
+      </a>
 
-      <div className="flex items-center gap-3">
-        {STEPS.map((s, i) => (
-          <div key={s} className="flex items-center gap-3">
-            <div
-              className={
-                "h-8 w-8 rounded-full flex items-center justify-center text-sm font-mono " +
-                (s === step
-                  ? "bg-navy text-white"
-                  : STEPS.indexOf(step) > i
-                    ? "bg-navy/20 text-navy"
-                    : "bg-navy/5 text-slate")
-              }
-            >
-              {i + 1}
-            </div>
-            <span className="text-sm font-body text-slate hidden sm:inline">
-              {t(`onboarding.steps.${s}`)}
-            </span>
-            {i < STEPS.length - 1 && (
-              <div className="w-8 h-px bg-navy/15" />
+      <header className="mx-auto flex h-16 w-full max-w-md items-center justify-between px-4 sm:max-w-lg sm:px-0">
+        <Link to="/" className={cn("inline-flex min-h-[44px] items-center rounded-lg", focusRing)}>
+          <img src={logo} alt={t("app.name")} className="h-7 w-auto" />
+        </Link>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => i18n.changeLanguage(i18n.resolvedLanguage === "he" ? "en" : "he")}
+            className={cn(
+              "inline-flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium text-ink-muted transition-colors hover:text-ink",
+              focusRing,
             )}
+          >
+            {t("language.switch")}
+          </button>
+          {!isAuthenticated && (
+            <Link
+              to="/login"
+              className={cn(
+                "inline-flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium text-ink-muted transition-colors hover:text-ink",
+                focusRing,
+              )}
+            >
+              {t("landing.nav.signIn")}
+            </Link>
+          )}
+        </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-md px-3 pb-16 sm:max-w-lg sm:px-0">
+        {/* A staff account usually has no Business of its own, so it never
+            reaches the dashboard — the only other place the admin link lives. */}
+        {user?.is_staff && (
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3">
+            <span className="text-sm">{t("admin.staffHere")}</span>
+            <Link to="/admin" className={cn("text-sm font-semibold underline hover:no-underline", focusRing)}>
+              {t("admin.openAdmin")}
+            </Link>
           </div>
-        ))}
-      </div>
+        )}
 
-      {step === "business" && (
-        <BusinessStep
-          onCreated={(b, tpl) => {
-            setBusiness(b);
-            setTemplate(tpl);
-            setStep("design");
-          }}
-        />
-      )}
+        <section className="overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
+          {/* The phone, cropped: you are looking at the top of a phone with
+              the pass on it, not at a picture of one. */}
+          <div className="h-[280px] overflow-hidden bg-background/60 pt-5 sm:h-[320px]">
+            <PhoneFrame
+              backgroundColor={preview.backgroundColor}
+              accentColor={preview.labelColor}
+              wake={wake}
+            >
+              {platform === "apple" ? (
+                <AppleCardPreview {...preview} />
+              ) : (
+                <GoogleCardPreview {...preview} />
+              )}
+            </PhoneFrame>
+          </div>
+          <p className="sr-only" aria-live="polite">
+            {spoken}
+          </p>
 
-      {step === "design" && business && template && (
-        <DesignStep
-          business={business}
-          template={template}
-          onSaved={(tpl) => {
-            setTemplate(tpl);
-            setStep("finish");
-          }}
-          onBack={() => setStep("business")}
-        />
-      )}
+          <div className="px-5 pb-7 pt-3 sm:px-8">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+              <p className="min-w-0 truncate text-sm text-ink-subtle">
+                {t("onboarding.preview.caption", {
+                  count: preview.stampsRequired,
+                  reward: preview.rewardDescription,
+                })}
+              </p>
+              <div
+                role="group"
+                aria-label={t("onboarding.preview.wallets")}
+                className="inline-flex shrink-0 rounded-lg border border-border bg-surface p-0.5"
+              >
+                {PLATFORMS.map((key) => (
+                  <button
+                    key={key}
+                    type="button"
+                    aria-pressed={platform === key}
+                    onClick={() => setPlatform(key)}
+                    className={cn(
+                      "min-h-[32px] rounded-md px-2.5 text-xs font-semibold transition-colors",
+                      platform === key ? "bg-navy-deep text-white" : "text-ink-muted hover:text-ink",
+                      focusRing,
+                    )}
+                  >
+                    {t(`studio.preview.${key}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-      {step === "finish" && business && template && (
-        <FinishStep business={business} template={template} />
-      )}
+            <StepProgress
+              className="mt-2"
+              steps={ALL_STEPS}
+              current={step ?? "business"}
+              reachable={reachable}
+              hrefFor={(s) => `/onboarding/${s}`}
+              labelFor={stepLabel}
+            />
+
+            <div id="onboarding-step" className="mt-3">
+              <Outlet />
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

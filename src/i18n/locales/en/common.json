@@ -168,89 +168,256 @@
                               }
                },
     "onboarding":  {
-                       "steps":  {
-                                     "business":  "Your business",
-                                     "design":  "Design your card",
-                                     "finish":  "Try it yourself"
-                                 },
-                       "business":  {
-                                        "title":  "Tell us about your business",
-                                        "nameLabel":  "Business name",
-                                        "nicheLabel":  "What kind of business is this?",
-                                        "phoneLabel":  "Phone (optional)",
-                                        "autofillTitle":  "Details auto-filled from Google",
-                                        "autofillBody":  "We filled in what we could find. You can edit anything.",
-                                        "autofillClear":  "Clear",
-                                        "niches":  {
-                                                       "barber":  "Barber",
-                                                       "cafe":  "Café",
-                                                       "trainer":  "Personal trainer",
-                                                       "therapist":  "Therapist",
-                                                       "other":  "Other"
-                                                   }
-                                    },
-                       "design":  {
-                                      "title":  "Design your card",
-                                      "templateNameLabel":  "Card name",
-                                      "stampsRequiredLabel":  "Stamps required for a reward",
-                                      "stampsRequiredHint":  "Customers earn a reward after {{count}} stamps.",
-                                      "rewardLabel":  "Reward description",
-                                      "stampIconLabel":  "Stamp icon",
-                                      "stampIcons":  {
-                                                         "star":  "Star",
-                                                         "coffee":  "Coffee",
-                                                         "coffeeBean":  "Coffee bean",
-                                                         "coffeePot":  "Coffee pot",
-                                                         "coffeeToGo":  "Coffee to go",
-                                                         "heart":  "Heart",
-                                                         "gift":  "Gift",
-                                                         "dog":  "Dog",
-                                                         "beer":  "Beer",
-                                                         "book":  "Book",
-                                                         "car":  "Car",
-                                                         "cat":  "Cat",
-                                                         "wine":  "Wine",
-                                                         "burger":  "Burger",
-                                                         "food":  "Food",
-                                                         "iceCream":  "Ice cream",
-                                                         "fruit":  "Fruit",
-                                                         "vegetables":  "Vegetables",
-                                                         "candy":  "Candy",
-                                                         "bone":  "Bone",
-                                                         "flower":  "Flower",
-                                                         "paw":  "Paw",
-                                                         "code":  "Code",
-                                                         "meat":  "Meat"
-                                                     },
-                                      "heroBackgroundLabel":  "Hero background",
-                                      "heroBackgroundHint":  "Optional — adds a themed background behind your stamps",
-                                      "heroBackgroundNone":  "None",
-                                      "heroBackgroundUpload":  "Upload",
-                                      "heroBackgrounds":  {
-                                                              "coffee":  "Coffee",
-                                                              "restaurant":  "Restaurant",
-                                                              "beauty":  "Beauty",
-                                                              "retail":  "Retail",
-                                                              "fitness":  "Fitness",
-                                                              "abstract":  "Abstract"
-                                                          },
-                                      "showAdvancedColors":  "Customize colors",
-                                      "hideAdvancedColors":  "Hide color options",
-                                      "colorsTitle":  "Colors",
-                                      "backgroundColorLabel":  "Background color",
-                                      "foregroundColorLabel":  "Stamp \u0026 text color",
-                                      "labelColorLabel":  "Label color",
-                                      "logoLabel":  "Logo",
-                                      "logoUpload":  "Upload an image",
-                                      "logoUrlLabel":  "Or paste an image URL",
-                                      "logoUploadError":  "Couldn\u0027t upload that logo — paste a URL instead"
-                                  },
-                       "finish":  {
-                                      "title":  "Add your card to your own wallet",
-                                      "body":  "Test it yourself, right now, for free — exactly what your customers will see.",
-                                      "cta":  "Go to dashboard"
-                                  }
-                   },
+        "steps": {
+            "business": "Your business",
+            "color": "Card colour",
+            "accent": "Stamp colour",
+            "stamp": "Stamp",
+            "reward": "Reward",
+            "account": "Account",
+            "wallet": "Your wallet",
+            "billing": "Go live"
+        },
+        "progress": "Step {{n}} of {{total}}",
+        "preview": {
+            "ariaLabel": "Preview of your card",
+            "caption_one": "{{count}} stamp · {{reward}}",
+            "caption_other": "{{count}} stamps · {{reward}}",
+            "summary": "{{name}} — {{count}} stamps to a reward. Reward: {{reward}}.",
+            "wallets": "Preview wallet"
+        },
+        "business": {
+            "title": "What's your business called?",
+            "subtitle": "It goes at the top of the card.",
+            "nameLabel": "Business name",
+            "namePlaceholder": "e.g. Danny's Barbershop",
+            "nicheLabel": "What kind of place is it?",
+            "autofillTitle": "Details auto-filled from Google",
+            "autofillBody": "We filled in what we could find. You can edit anything.",
+            "autofillClear": "Clear",
+            "niches": {
+                "barber": "Barber",
+                "cafe": "Café",
+                "trainer": "Personal trainer",
+                "therapist": "Therapist",
+                "other": "Other"
+            }
+        },
+        "color": {
+            "title": "Pick your card colour",
+            "subtitle": "The whole pass takes this colour.",
+            "gridLabel": "Card colour",
+            "custom": "Custom colour",
+            "customLabel": "Card colour",
+            "names": {
+                "midnight": "Midnight",
+                "slate": "Slate",
+                "espresso": "Espresso",
+                "forest": "Forest",
+                "ocean": "Ocean",
+                "indigo": "Indigo",
+                "wine": "Wine",
+                "terracotta": "Terracotta",
+                "blush": "Blush",
+                "cream": "Cream",
+                "custom": "Custom colour {{hex}}"
+            }
+        },
+        "accent": {
+            "title": "Now the stamp colour",
+            "subtitle": "Each of these sits well on the card colour you chose.",
+            "gridLabel": "Stamp colour",
+            "swatchLabel": "Stamp colour {{n}}: {{hex}}",
+            "advanced": "Advanced",
+            "textColorLabel": "Text colour",
+            "textAuto": "Automatic",
+            "textWhite": "White",
+            "textBlack": "Black",
+            "textCustom": "Custom",
+            "customAccent": "Custom stamp colour"
+        },
+        "stamp": {
+            "title": "Choose your stamp",
+            "subtitle": "An icon, an emoji or your own picture — punched on every visit.",
+            "tabs": {
+                "icons": "Icons",
+                "emoji": "Emoji",
+                "image": "Your picture"
+            },
+            "gridLabel": "Stamp icon",
+            "emojiGridLabel": "Emoji stamp",
+            "emojiInputLabel": "Or type any emoji",
+            "emojiHint": "Saved as a picture, drawn the way your device draws it.",
+            "emojiInvalid": "One emoji at a time.",
+            "uploadCta": "Choose a picture",
+            "uploadReplace": "Choose a different picture",
+            "uploadHint": "Square works best — it's cropped into a circle on the card.",
+            "uploadTooLarge": "That picture is too big — keep it under 8 MB.",
+            "uploadUnreadable": "Couldn't read that picture — try a JPG or PNG.",
+            "artMissing": "Your picture didn't survive the reload — please add it again.",
+            "artMemoryOnly": "Storage is full, so this picture only lasts until you close the tab.",
+            "glyphs": {
+                "check": "Check",
+                "heart": "Heart",
+                "star": "Star",
+                "coffee": "Coffee",
+                "scissors": "Scissors",
+                "dumbbell": "Dumbbell",
+                "gift": "Gift",
+                "leaf": "Leaf",
+                "paw-print": "Paw",
+                "pizza": "Pizza",
+                "flower": "Flower",
+                "sparkles": "Sparkles",
+                "cake": "Cake",
+                "sun": "Sun",
+                "crown": "Crown",
+                "smile": "Smile"
+            }
+        },
+        "reward": {
+            "title": "How many stamps, and what's the reward?",
+            "subtitle": "One stamp a visit; the last one earns the reward.",
+            "stampsLabel": "Stamps to a reward",
+            "stampsValue_one": "{{count}} stamp",
+            "stampsValue_other": "{{count}} stamps",
+            "rewardLabel": "The reward",
+            "rewardPlaceholder": "e.g. 10th haircut free"
+        },
+        "account": {
+            "title": "Save your card",
+            "subtitle": "An account keeps it yours. Free — no card details.",
+            "signedInAs": "Signed in as {{email}}",
+            "saveCta": "Save my card",
+            "createCta": "Create my account",
+            "saving": "Saving your card…",
+            "alreadyRegistered": "That email already has an account — sign in instead.",
+            "throttled": "Too many attempts — try again in a minute.",
+            "existingTitle": "You already have a card",
+            "existingBody": "This account already has a loyalty card. Replace its design with the one you just made, or keep the current one?",
+            "replace": "Replace with my new design",
+            "keep": "Keep my current card",
+            "switchAccount": "Use a different account"
+        },
+        "wallet": {
+            "title": "Add it to your own wallet",
+            "subtitle": "Try it exactly as your customers will.",
+            "preparing": "Preparing your card…",
+            "preparingHint": "We're building the pass for Apple Wallet and Google Wallet. This takes about a minute.",
+            "issuing": "Almost there — issuing your pass…",
+            "ready": "Your card is ready.",
+            "scanHint": "On a computer? Scan this with your phone to add the card there.",
+            "slow": "This is taking longer than usual. Your card is still being prepared — you can continue and add it from the dashboard later.",
+            "checkAgain": "Check again",
+            "failed": "Something went wrong preparing your card.",
+            "retry": "Try again",
+            "continue": "Continue",
+            "skip": "Skip for now"
+        },
+        "billing": {
+            "title": "Go live when you're ready",
+            "subtitle": "Your card and dashboard are free. Pay only when real customers can join.",
+            "priceNote": "a month, cancel any time",
+            "bullets": [
+                "Your QR code and a printable stand for the counter",
+                "Real customers can add the card and collect stamps",
+                "Cancel any time from the dashboard"
+            ],
+            "freeNote": "Not ready? Everything you've made stays free — activate whenever you like.",
+            "activateCta": "Activate for ₪59/month",
+            "notNow": "Not now — take me to my dashboard"
+        },
+        "card": {
+            "templateName": {
+                "barber": "Haircut card",
+                "cafe": "Coffee card",
+                "trainer": "Training card",
+                "therapist": "Treatment card",
+                "other": "Loyalty card"
+            },
+            "fields": {
+                "name": {
+                    "barber": "Customer",
+                    "cafe": "Customer",
+                    "trainer": "Trainee",
+                    "therapist": "Client",
+                    "other": "Customer"
+                },
+                "points": {
+                    "barber": "Haircuts",
+                    "cafe": "Coffees",
+                    "trainer": "Sessions",
+                    "therapist": "Treatments",
+                    "other": "Visits"
+                },
+                "pointsChange": "Your visits were updated: %@",
+                "info": "Info"
+            },
+            "reward": {
+                "barber": "10th haircut free",
+                "cafe": "Free coffee on your 8th visit",
+                "trainer": "1 free training session",
+                "therapist": "Free treatment on your 6th visit",
+                "other": "Free reward after 10 visits"
+            }
+        },
+        "design": {
+            "title": "Design your card",
+            "templateNameLabel": "Card name",
+            "stampsRequiredLabel": "Stamps required for a reward",
+            "stampsRequiredHint": "Customers earn a reward after {{count}} stamps.",
+            "rewardLabel": "Reward description",
+            "stampIconLabel": "Stamp icon",
+            "stampIcons": {
+                "star": "Star",
+                "coffee": "Coffee",
+                "coffeeBean": "Coffee bean",
+                "coffeePot": "Coffee pot",
+                "coffeeToGo": "Coffee to go",
+                "heart": "Heart",
+                "gift": "Gift",
+                "dog": "Dog",
+                "beer": "Beer",
+                "book": "Book",
+                "car": "Car",
+                "cat": "Cat",
+                "wine": "Wine",
+                "burger": "Burger",
+                "food": "Food",
+                "iceCream": "Ice cream",
+                "fruit": "Fruit",
+                "vegetables": "Vegetables",
+                "candy": "Candy",
+                "bone": "Bone",
+                "flower": "Flower",
+                "paw": "Paw",
+                "code": "Code",
+                "meat": "Meat"
+            },
+            "heroBackgroundLabel": "Hero background",
+            "heroBackgroundHint": "Optional — adds a themed background behind your stamps",
+            "heroBackgroundNone": "None",
+            "heroBackgroundUpload": "Upload",
+            "heroBackgrounds": {
+                "coffee": "Coffee",
+                "restaurant": "Restaurant",
+                "beauty": "Beauty",
+                "retail": "Retail",
+                "fitness": "Fitness",
+                "abstract": "Abstract"
+            },
+            "showAdvancedColors": "Customize colors",
+            "hideAdvancedColors": "Hide color options",
+            "colorsTitle": "Colors",
+            "backgroundColorLabel": "Background color",
+            "foregroundColorLabel": "Stamp & text color",
+            "labelColorLabel": "Label color",
+            "logoLabel": "Logo",
+            "logoUpload": "Upload an image",
+            "logoUrlLabel": "Or paste an image URL",
+            "logoUploadError": "Couldn't upload that logo — paste a URL instead"
+        }
+    },
     "enroll":  {
                    "title":  "Join {{businessName}}\u0027s loyalty card",
                    "genericTitle":  "Join this loyalty card",

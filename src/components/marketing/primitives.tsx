@@ -5,8 +5,9 @@ import { cn } from "../../lib/cn";
  *
  * Deliberately local to this directory rather than added to
  * `components/ui`: the app's Button is pill-shaped and navy-filled, which is
- * right for the dashboard and wrong here. Nothing in this file is imported
- * by an app route. */
+ * right for the dashboard and wrong here. The onboarding wizard inherits the
+ * landing's language and so imports `ctaClasses`/`focusRing` from here; the
+ * dashboard does not. */
 
 export function Container({
   className,

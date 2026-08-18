@@ -168,89 +168,260 @@
                               }
                },
     "onboarding":  {
-                       "steps":  {
-                                     "business":  "העסק שלכם",
-                                     "design":  "עיצוב הכרטיסייה",
-                                     "finish":  "נסו בעצמכם"
-                                 },
-                       "business":  {
-                                        "title":  "ספרו לנו על העסק שלכם",
-                                        "nameLabel":  "שם העסק",
-                                        "nicheLabel":  "איזה סוג עסק זה?",
-                                        "phoneLabel":  "טלפון (לא חובה)",
-                                        "autofillTitle":  "פרטים מולאו אוטומטית מגוגל",
-                                        "autofillBody":  "מילאנו מה שמצאנו. אפשר לערוך הכול.",
-                                        "autofillClear":  "איפוס",
-                                        "niches":  {
-                                                       "barber":  "מספרה",
-                                                       "cafe":  "בית קפה",
-                                                       "trainer":  "מאמן/ת אישי/ת",
-                                                       "therapist":  "מטפל/ת",
-                                                       "other":  "אחר"
-                                                   }
-                                    },
-                       "design":  {
-                                      "title":  "עיצוב הכרטיסייה",
-                                      "templateNameLabel":  "שם הכרטיסייה",
-                                      "stampsRequiredLabel":  "כמות ניקובים לפרס",
-                                      "stampsRequiredHint":  "הלקוחות מקבלים פרס אחרי {{count}} ניקובים.",
-                                      "rewardLabel":  "תיאור הפרס",
-                                      "stampIconLabel":  "סמל הניקוב",
-                                      "stampIcons":  {
-                                                         "star":  "כוכב",
-                                                         "coffee":  "קפה",
-                                                         "coffeeBean":  "פולי קפה",
-                                                         "coffeePot":  "קנקן קפה",
-                                                         "coffeeToGo":  "קפה לקחת",
-                                                         "heart":  "לב",
-                                                         "gift":  "מתנה",
-                                                         "dog":  "כלב",
-                                                         "beer":  "בירה",
-                                                         "book":  "ספר",
-                                                         "car":  "מכונית",
-                                                         "cat":  "חתול",
-                                                         "wine":  "יין",
-                                                         "burger":  "המבורגר",
-                                                         "food":  "אוכל",
-                                                         "iceCream":  "גלידה",
-                                                         "fruit":  "פרי",
-                                                         "vegetables":  "ירקות",
-                                                         "candy":  "ממתק",
-                                                         "bone":  "עצם",
-                                                         "flower":  "פרח",
-                                                         "paw":  "כף רגל",
-                                                         "code":  "קוד",
-                                                         "meat":  "בשר"
-                                                     },
-                                      "heroBackgroundLabel":  "רקע לכרטיסייה",
-                                      "heroBackgroundHint":  "לא חובה — מוסיף רקע מעוצב מאחורי הניקובים",
-                                      "heroBackgroundNone":  "ללא",
-                                      "heroBackgroundUpload":  "העלאה",
-                                      "heroBackgrounds":  {
-                                                              "coffee":  "קפה",
-                                                              "restaurant":  "מסעדה",
-                                                              "beauty":  "יופי",
-                                                              "retail":  "קמעונאות",
-                                                              "fitness":  "כושר",
-                                                              "abstract":  "מופשט"
-                                                          },
-                                      "showAdvancedColors":  "התאמה אישית של צבעים",
-                                      "hideAdvancedColors":  "הסתרת אפשרויות הצבע",
-                                      "colorsTitle":  "צבעים",
-                                      "backgroundColorLabel":  "צבע רקע",
-                                      "foregroundColorLabel":  "צבע ניקובים וטקסט",
-                                      "labelColorLabel":  "צבע כיתוב",
-                                      "logoLabel":  "לוגו",
-                                      "logoUpload":  "העלאת תמונה",
-                                      "logoUrlLabel":  "או הדביקו קישור לתמונה",
-                                      "logoUploadError":  "העלאת הלוגו נכשלה — הדביקו קישור במקום"
-                                  },
-                       "finish":  {
-                                      "title":  "הוסיפו את הכרטיסייה לארנק שלכם",
-                                      "body":  "נסו בעצמכם, עכשיו, בחינם — בדיוק מה שהלקוחות שלכם יראו.",
-                                      "cta":  "מעבר ללוח הבקרה"
-                                  }
-                   },
+        "steps": {
+            "business": "העסק שלכם",
+            "color": "צבע הכרטיסייה",
+            "accent": "צבע החותמת",
+            "stamp": "החותמת",
+            "reward": "ההטבה",
+            "account": "חשבון",
+            "wallet": "הארנק שלכם",
+            "billing": "יוצאים לדרך"
+        },
+        "progress": "שלב {{n}} מתוך {{total}}",
+        "preview": {
+            "ariaLabel": "תצוגה מקדימה של הכרטיסייה שלכם",
+            "caption_one": "חותמת אחת · {{reward}}",
+            "caption_two": "שתי חותמות · {{reward}}",
+            "caption_many": "{{count}} חותמות · {{reward}}",
+            "caption_other": "{{count}} חותמות · {{reward}}",
+            "summary": "{{name}} — {{count}} חותמות עד להטבה. ההטבה: {{reward}}.",
+            "wallets": "ארנק לתצוגה מקדימה"
+        },
+        "business": {
+            "title": "איך קוראים לעסק?",
+            "subtitle": "השם מופיע בראש הכרטיסייה.",
+            "nameLabel": "שם העסק",
+            "namePlaceholder": "למשל: המספרה של דני",
+            "nicheLabel": "איזה סוג עסק זה?",
+            "autofillTitle": "הפרטים מולאו אוטומטית מגוגל",
+            "autofillBody": "מילאנו מה שמצאנו. אפשר לערוך הכול.",
+            "autofillClear": "ניקוי",
+            "niches": {
+                "barber": "מספרה",
+                "cafe": "בית קפה",
+                "trainer": "מאמן/ת אישי/ת",
+                "therapist": "מטפל/ת",
+                "other": "אחר"
+            }
+        },
+        "color": {
+            "title": "בחרו את צבע הכרטיסייה",
+            "subtitle": "כל הכרטיסייה נצבעת בצבע הזה.",
+            "gridLabel": "צבע הכרטיסייה",
+            "custom": "צבע מותאם אישית",
+            "customLabel": "צבע הכרטיסייה",
+            "names": {
+                "midnight": "חצות",
+                "slate": "צפחה",
+                "espresso": "אספרסו",
+                "forest": "יער",
+                "ocean": "אוקיינוס",
+                "indigo": "אינדיגו",
+                "wine": "יין",
+                "terracotta": "טרקוטה",
+                "blush": "סומק",
+                "cream": "שמנת",
+                "custom": "צבע מותאם אישית {{hex}}"
+            }
+        },
+        "accent": {
+            "title": "ועכשיו צבע החותמת",
+            "subtitle": "כל אחד מהצבעים האלה יושב טוב על צבע הכרטיסייה שבחרתם.",
+            "gridLabel": "צבע החותמת",
+            "swatchLabel": "צבע חותמת {{n}}: {{hex}}",
+            "advanced": "מתקדם",
+            "textColorLabel": "צבע הטקסט",
+            "textAuto": "אוטומטי",
+            "textWhite": "לבן",
+            "textBlack": "שחור",
+            "textCustom": "מותאם אישית",
+            "customAccent": "צבע חותמת מותאם אישית"
+        },
+        "stamp": {
+            "title": "בחרו את החותמת",
+            "subtitle": "אייקון, אימוג'י או תמונה משלכם — נחתמת בכל ביקור.",
+            "tabs": {
+                "icons": "אייקונים",
+                "emoji": "אימוג'י",
+                "image": "תמונה שלכם"
+            },
+            "gridLabel": "אייקון החותמת",
+            "emojiGridLabel": "חותמת אימוג'י",
+            "emojiInputLabel": "או הקלידו כל אימוג'י",
+            "emojiHint": "נשמר כתמונה, כפי שהמכשיר שלכם מצייר אותו.",
+            "emojiInvalid": "אימוג'י אחד בכל פעם.",
+            "uploadCta": "בחירת תמונה",
+            "uploadReplace": "בחירת תמונה אחרת",
+            "uploadHint": "תמונה מרובעת עובדת הכי טוב — היא נחתכת לעיגול על הכרטיסייה.",
+            "uploadTooLarge": "התמונה גדולה מדי — עד 8MB.",
+            "uploadUnreadable": "לא הצלחנו לקרוא את התמונה — נסו JPG או PNG.",
+            "artMissing": "התמונה לא שרדה את הרענון — הוסיפו אותה שוב.",
+            "artMemoryOnly": "האחסון מלא, אז התמונה תישמר רק עד סגירת הלשונית.",
+            "glyphs": {
+                "check": "וי",
+                "heart": "לב",
+                "star": "כוכב",
+                "coffee": "קפה",
+                "scissors": "מספריים",
+                "dumbbell": "משקולת",
+                "gift": "מתנה",
+                "leaf": "עלה",
+                "paw-print": "כף רגל",
+                "pizza": "פיצה",
+                "flower": "פרח",
+                "sparkles": "ניצוצות",
+                "cake": "עוגה",
+                "sun": "שמש",
+                "crown": "כתר",
+                "smile": "חיוך"
+            }
+        },
+        "reward": {
+            "title": "כמה חותמות, ומה ההטבה?",
+            "subtitle": "חותמת אחת בכל ביקור; האחרונה מזכה בהטבה.",
+            "stampsLabel": "חותמות עד להטבה",
+            "stampsValue_one": "חותמת אחת",
+            "stampsValue_two": "שתי חותמות",
+            "stampsValue_many": "{{count}} חותמות",
+            "stampsValue_other": "{{count}} חותמות",
+            "rewardLabel": "ההטבה",
+            "rewardPlaceholder": "למשל: התספורת העשירית חינם"
+        },
+        "account": {
+            "title": "שמרו את הכרטיסייה",
+            "subtitle": "חשבון שומר אותה שלכם. חינם — בלי פרטי אשראי.",
+            "signedInAs": "מחוברים כ-{{email}}",
+            "saveCta": "שמירת הכרטיסייה",
+            "createCta": "יצירת החשבון שלי",
+            "saving": "שומרים את הכרטיסייה…",
+            "alreadyRegistered": "לאימייל הזה כבר יש חשבון — התחברו במקום.",
+            "throttled": "יותר מדי ניסיונות — נסו שוב בעוד דקה.",
+            "existingTitle": "כבר יש לכם כרטיסייה",
+            "existingBody": "לחשבון הזה כבר יש כרטיסיית מועדון. להחליף את העיצוב שלה בזה שיצרתם עכשיו, או לשמור על הנוכחי?",
+            "replace": "להחליף בעיצוב החדש",
+            "keep": "לשמור על הכרטיסייה הנוכחית",
+            "switchAccount": "להתחבר עם חשבון אחר"
+        },
+        "wallet": {
+            "title": "הוסיפו אותה לארנק שלכם",
+            "subtitle": "נסו בדיוק כמו שהלקוחות שלכם יראו.",
+            "preparing": "מכינים את הכרטיסייה…",
+            "preparingHint": "אנחנו בונים את הכרטיס ל-Apple Wallet ול-Google Wallet. זה לוקח בערך דקה.",
+            "issuing": "כמעט שם — מנפיקים את הכרטיס…",
+            "ready": "הכרטיסייה מוכנה.",
+            "scanHint": "במחשב? סרקו עם הטלפון כדי להוסיף את הכרטיסייה שם.",
+            "slow": "זה לוקח יותר זמן מהרגיל. הכרטיסייה עדיין בהכנה — אפשר להמשיך ולהוסיף אותה מלוח הבקרה אחר כך.",
+            "checkAgain": "לבדוק שוב",
+            "failed": "משהו השתבש בהכנת הכרטיסייה.",
+            "retry": "לנסות שוב",
+            "continue": "המשך",
+            "skip": "לדלג בינתיים"
+        },
+        "billing": {
+            "title": "יוצאים לדרך כשתהיו מוכנים",
+            "subtitle": "הכרטיסייה ולוח הבקרה חינם. משלמים רק כשלקוחות אמיתיים יכולים להצטרף.",
+            "priceNote": "לחודש, ביטול בכל עת",
+            "bullets": [
+                "קוד QR ומעמד להדפסה לדלפק",
+                "לקוחות אמיתיים יכולים להוסיף את הכרטיסייה ולאסוף חותמות",
+                "ביטול בכל עת מלוח הבקרה"
+            ],
+            "freeNote": "לא מוכנים? כל מה שיצרתם נשאר חינם — הפעילו מתי שתרצו.",
+            "activateCta": "הפעלה ב-₪59 לחודש",
+            "notNow": "לא עכשיו — קחו אותי ללוח הבקרה"
+        },
+        "card": {
+            "templateName": {
+                "barber": "כרטיסיית תספורות",
+                "cafe": "כרטיסיית קפה",
+                "trainer": "כרטיסיית אימונים",
+                "therapist": "כרטיסיית טיפולים",
+                "other": "כרטיסיית מועדון"
+            },
+            "fields": {
+                "name": {
+                    "barber": "שם לקוח/ה",
+                    "cafe": "שם לקוח/ה",
+                    "trainer": "שם מתאמן/ת",
+                    "therapist": "שם מטופל/ת",
+                    "other": "שם לקוח/ה"
+                },
+                "points": {
+                    "barber": "תספורות",
+                    "cafe": "כוסות קפה",
+                    "trainer": "אימונים",
+                    "therapist": "טיפולים",
+                    "other": "ביקורים"
+                },
+                "pointsChange": "עודכנו הביקורים שלך: %@",
+                "info": "מידע"
+            },
+            "reward": {
+                "barber": "התספורת העשירית חינם",
+                "cafe": "קפה שמיני חינם",
+                "trainer": "אימון חינם אחרי 10 אימונים",
+                "therapist": "טיפול שישי חינם",
+                "other": "הטבה חינם אחרי 10 ביקורים"
+            }
+        },
+        "design": {
+            "title": "עיצוב הכרטיסייה",
+            "templateNameLabel": "שם הכרטיסייה",
+            "stampsRequiredLabel": "כמות ניקובים לפרס",
+            "stampsRequiredHint": "הלקוחות מקבלים פרס אחרי {{count}} ניקובים.",
+            "rewardLabel": "תיאור הפרס",
+            "stampIconLabel": "סמל הניקוב",
+            "stampIcons": {
+                "star": "כוכב",
+                "coffee": "קפה",
+                "coffeeBean": "פולי קפה",
+                "coffeePot": "קנקן קפה",
+                "coffeeToGo": "קפה לקחת",
+                "heart": "לב",
+                "gift": "מתנה",
+                "dog": "כלב",
+                "beer": "בירה",
+                "book": "ספר",
+                "car": "מכונית",
+                "cat": "חתול",
+                "wine": "יין",
+                "burger": "המבורגר",
+                "food": "אוכל",
+                "iceCream": "גלידה",
+                "fruit": "פרי",
+                "vegetables": "ירקות",
+                "candy": "ממתק",
+                "bone": "עצם",
+                "flower": "פרח",
+                "paw": "כף רגל",
+                "code": "קוד",
+                "meat": "בשר"
+            },
+            "heroBackgroundLabel": "רקע לכרטיסייה",
+            "heroBackgroundHint": "לא חובה — מוסיף רקע מעוצב מאחורי הניקובים",
+            "heroBackgroundNone": "ללא",
+            "heroBackgroundUpload": "העלאה",
+            "heroBackgrounds": {
+                "coffee": "קפה",
+                "restaurant": "מסעדה",
+                "beauty": "יופי",
+                "retail": "קמעונאות",
+                "fitness": "כושר",
+                "abstract": "מופשט"
+            },
+            "showAdvancedColors": "התאמה אישית של צבעים",
+            "hideAdvancedColors": "הסתרת אפשרויות הצבע",
+            "colorsTitle": "צבעים",
+            "backgroundColorLabel": "צבע רקע",
+            "foregroundColorLabel": "צבע ניקובים וטקסט",
+            "labelColorLabel": "צבע כיתוב",
+            "logoLabel": "לוגו",
+            "logoUpload": "העלאת תמונה",
+            "logoUrlLabel": "או הדביקו קישור לתמונה",
+            "logoUploadError": "העלאת הלוגו נכשלה — הדביקו קישור במקום"
+        }
+    },
     "enroll":  {
                    "title":  "הצטרפות לכרטיסיית הנאמנות של {{businessName}}",
                    "genericTitle":  "הצטרפות לכרטיסיית הנאמנות",
