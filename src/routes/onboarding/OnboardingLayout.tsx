@@ -139,7 +139,17 @@ function Shell() {
         <section className="overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
           {/* The phone, cropped: you are looking at the top of a phone with
               the pass on it, not at a picture of one. */}
-          <div className="h-[300px] overflow-hidden bg-background/60 pt-3 sm:h-[340px] sm:pt-5">
+          {/* The phone is cropped; the pass never is. Google stacks its
+              stamps *below* the barcode where Apple puts them above, so a
+              crop that spared Apple's cut Google's off entirely.
+
+              Fixed rather than content-height on purpose: the reward step's
+              slider changes the stamp count, a second row of stamps would
+              change the height, and the control you are dragging would slide
+              out from under your finger. So this is the two-row worst case
+              for either wallet, with a little wallpaper left below it. Remeasure
+              if the pass layout changes. */}
+          <div className="h-[424px] overflow-hidden bg-background/60 pt-3 sm:h-[452px] sm:pt-5">
             <PhoneFrame
               backgroundColor={preview.backgroundColor}
               accentColor={preview.labelColor}
