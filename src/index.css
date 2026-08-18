@@ -20,40 +20,46 @@ h4 {
    headings untouched, and a Tailwind utility can still override any of
    these because @layer components sits before @layer utilities.
 
-   The negative tracking at large sizes is most of the effect here — the
-   sizes alone don't read as expensive without it. */
+   Rubik at 700 is the display voice — it is the same geometric, round-bowled
+   construction as the logo wordmark, and it wants to be set heavy and tight
+   rather than large and light.
+
+   Every one of these carries an RTL override further down. Hebrew has no
+   ascender/descender rhythm to tighten into and no capitals to track out, so
+   the negative tracking that makes the Latin read as signage just smears it.
+   Judge these in Hebrew first. */
 @layer components {
   .t-h1 {
     font-family: theme("fontFamily.heading");
     font-size: clamp(2.75rem, 6vw, 4.5rem);
     line-height: 1.02;
-    letter-spacing: -0.03em;
-    font-weight: 600;
+    letter-spacing: -0.035em;
+    font-weight: 700;
   }
 
   .t-h2 {
     font-family: theme("fontFamily.heading");
-    font-size: clamp(2rem, 4vw, 3rem);
-    line-height: 1;
-    letter-spacing: -0.025em;
-    font-weight: 600;
+    font-size: clamp(1.875rem, 3.6vw, 2.75rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-weight: 700;
   }
 
   .t-h3 {
     font-family: theme("fontFamily.heading");
-    font-size: 1.875rem;
-    line-height: 1.2;
+    font-size: 1.75rem;
+    line-height: 1.15;
     letter-spacing: -0.025em;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   /* Card titles: an <h3> semantically, but a step down visually. */
   .t-card-title {
     font-family: theme("fontFamily.heading");
-    font-size: 1.25rem;
+    font-size: 1.1875rem;
     line-height: 1.3;
     letter-spacing: -0.015em;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .t-lead {
@@ -62,22 +68,76 @@ h4 {
     font-weight: 400;
   }
 
+  /* Small caps-ish label. Hebrew has no case, so `uppercase` is a no-op
+     there and the wide tracking is dialled back below instead. */
   .t-eyebrow {
+    font-family: theme("fontFamily.body");
     font-size: 0.75rem;
     line-height: 1.4;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .t-stat {
     font-family: theme("fontFamily.heading");
-    font-size: clamp(2.5rem, 5vw, 3.75rem);
-    line-height: 1;
-    letter-spacing: -0.03em;
-    font-weight: 600;
+    font-size: clamp(2.75rem, 5.5vw, 4rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    font-weight: 700;
     /* Keeps a counting number from reflowing its neighbours mid-animation. */
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Money. Mono, aligned, and bidi-isolated so a "₪600" inside a Hebrew row
+     renders as its own left-to-right run instead of reordering against the
+     label beside it. Digits are Latin in both languages, which is what makes
+     a face with no Hebrew safe to use here. */
+  .t-figure {
+    font-family: theme("fontFamily.mono");
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    unicode-bidi: isolate;
+  }
+
+  [dir="rtl"] .t-h1,
+  [dir="rtl"] .t-h2,
+  [dir="rtl"] .t-h3,
+  [dir="rtl"] .t-card-title,
+  [dir="rtl"] .t-stat {
+    letter-spacing: 0;
+  }
+
+  [dir="rtl"] .t-h1 {
+    line-height: 1.12;
+  }
+
+  [dir="rtl"] .t-h2 {
+    line-height: 1.18;
+  }
+
+  /* Hebrew sits lower and needs the room; the Latin leading is too tight. */
+  [dir="rtl"] .t-lead {
+    line-height: 1.7;
+  }
+
+  [dir="rtl"] .t-eyebrow {
+    letter-spacing: 0.04em;
+  }
+}
+
+/* ── The receipt ────────────────────────────────────────────────────────
+   The calculator's results are set as a till tally, because that is the
+   document this audience already reads and trusts. Structure only — no torn
+   edge, no paper texture, no thermal-print costume. A leader rule carries the
+   eye from label to figure the way a printed receipt's dot leaders do. */
+@layer components {
+  .receipt-leader {
+    flex: 1 1 auto;
+    align-self: center;
+    height: 0;
+    border-bottom: 1px dotted theme("colors.border-strong");
+    min-width: 1rem;
   }
 }
 
@@ -222,12 +282,11 @@ h4 {
 
 @media (prefers-reduced-motion: reduce) {
   .animate-float,
-  .animate-float-slow,
-  .animate-marquee,
   .animate-fade-up,
   .animate-fade-in,
   .animate-scale-in,
-  .animate-pop-in {
+  .animate-pop-in,
+  .animate-stamp-in {
     animation: none !important;
   }
 }

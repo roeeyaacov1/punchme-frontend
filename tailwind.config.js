@@ -12,35 +12,53 @@ export default {
           light: "#ffd875",
           dark: "#c88a11",
         },
-        // ── Marketing landing-page tokens ──────────────────────────────
-        // The public page is light: navy is text plus two deliberate dark
-        // moments, gold is the single accent. Added rather than replacing
-        // the names above so the dashboard and card designer are untouched.
-        background: "#f1f5f9",
+        // ── Marketing landing-page tokens ──────────────────────
+        // The public page is card stock: a warm oat ground with white paper
+        // objects on it, navy for text plus one dark band, gold as the single
+        // accent. Added rather than replacing the names above so the dashboard
+        // and card designer are untouched.
+        //
+        // Every ratio below is measured against BOTH grounds — white
+        // (`surface`) and oat (`background`) — because the same token is used
+        // on both. The oat figure is always the tighter of the two.
+        background: "#efe9dc",
         surface: "#ffffff",
         ink: {
+          // 15.5:1 on oat, 17.6:1 on white.
           DEFAULT: "#0e1120",
-          muted: "#5c6478",
-          // #a7adc9 (the `lavender` above) is only 2.2:1 on white — fine on
-          // navy, unreadable on a light band. This is the light-band tone,
-          // measured at 4.98:1 on white and 4.55:1 on the slate background.
-          subtle: "#6b6f81",
+          // Warm mid-grey. The old cool #5c6478 read broken against oat.
+          // 5.89:1 on oat, 7.12:1 on white.
+          muted: "#5e5750",
+          // Captions, eyebrows, citations. The old #6b6f81 measures only
+          // 4.11:1 on oat and fails AA outright — this is its warm
+          // replacement at 4.83:1 on oat, 5.85:1 on white.
+          subtle: "#6b6459",
         },
         primary: {
           // Fill colour only, and it always carries navy text: white on this
-          // gold is 2.96:1 and fails AA, navy on it is 6.34:1.
+          // gold is 2.96:1 and fails AA, navy on it is 6.30:1.
           DEFAULT: "#c88a11",
           hover: "#b87f10",
-          // Gold as *text* on a light band. 4.95:1 on white, 4.52:1 on the
-          // slate background. Never use `primary` itself for text on light.
-          text: "#96670d",
+          // Gold as *text* on a light band. The old #96670d is 4.09:1 on oat
+          // and fails; this is 4.80:1 on oat, 5.80:1 on white. Never use
+          // `primary` itself for text on light.
+          text: "#8a5d0b",
         },
-        border: "#e2e8f0",
+        // Hairline. Warm, so it belongs to the oat ground rather than
+        // sitting on it — the old slate #e2e8f0 read as a seam.
+        border: "#ded5c2",
+        // A second, heavier rule for receipt totals and section edges.
+        "border-strong": "#c8bca3",
         "navy-deep": "#0e1120",
       },
+      // Rubik and Assistant both ship Hebrew and Latin in one family at
+      // matching weights, which is the point: the Hebrew site is set rather
+      // than falling back to an OS face. Rubik's geometric, round-bowled
+      // Latin is also the closest webfont match to the logo wordmark.
+      // `mono` is digits and pass field labels only — it has no Hebrew.
       fontFamily: {
-        heading: ['"Plus Jakarta Sans"', "sans-serif"],
-        body: ['"Inter"', "sans-serif"],
+        heading: ['"Rubik"', "system-ui", "sans-serif"],
+        body: ['"Assistant"', "system-ui", "sans-serif"],
         mono: ['"IBM Plex Mono"', "monospace"],
       },
       keyframes: {
@@ -60,13 +78,12 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
         },
-        "float-slow": {
-          "0%, 100%": { transform: "translateY(-8px)" },
-          "50%": { transform: "translateY(8px)" },
-        },
-        marquee: {
-          "0%": { transform: "translateX(0)" },
-          "100%": { transform: "translateX(-50%)" },
+        // A stamp landing on the card: overshoot and settle, like ink
+        // pressed down and lifted. Fires once, never loops.
+        "stamp-in": {
+          "0%": { opacity: "0", transform: "scale(1.7)" },
+          "60%": { opacity: "1", transform: "scale(0.94)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
         },
         // Popovers: quick enough not to sit between the click and the panel.
         "pop-in": {
@@ -79,9 +96,8 @@ export default {
         "fade-in": "fade-in 0.7s ease-out both",
         "scale-in": "scale-in 0.8s cubic-bezier(0.16,1,0.3,1) both",
         float: "float 5s ease-in-out infinite",
-        "float-slow": "float-slow 6s ease-in-out infinite",
-        marquee: "marquee 30s linear infinite",
         "pop-in": "pop-in 0.16s cubic-bezier(0.16,1,0.3,1) both",
+        "stamp-in": "stamp-in 0.34s cubic-bezier(0.34,1.4,0.64,1) both",
       },
       boxShadow: {
         // Two levels only. Cards pair the resting shadow with a hairline
