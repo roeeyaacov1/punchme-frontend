@@ -1,136 +1,85 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {
-  signInWithGoogle,
-  signInWithPassword,
-  signUpWithPassword,
-  type TokenPair,
-} from "../../api/auth";
-import { ApiError } from "../../api/errors";
+import { ArrowRight } from "lucide-react";
+import type { TokenPair } from "../../api/auth";
 import { useAuth } from "../../auth/useAuth";
-import { GoogleAuthButton } from "../../auth/providers/GoogleAuthButton";
-import { Input } from "../../components/ui/Input";
-import { Button } from "../../components/ui/Button";
-import logo from "../../assets/logo.png";
+import { AuthAlternatives, AuthFields } from "../../components/auth/AuthFormParts";
+import { useEmailPasswordAuth } from "../../components/auth/useEmailPasswordAuth";
+import { StepShell } from "../../components/onboarding/StepShell";
+import { TopBar } from "../../components/onboarding/TopBar";
+import { focusRing } from "../../components/marketing/primitives";
+import { cn } from "../../lib/cn";
 
+/**
+ * Sign in — the returning owner's door. Same paper panel, same form and
+ * same top bar as the wizard, because it is the same product; the only
+ * difference is what happens after: this page goes back to wherever the
+ * owner was headed (or into onboarding), the wizard saves the card. New
+ * owners are pointed at the wizard, where the account comes last.
+ */
 export function LoginPage() {
   const { t } = useTranslation();
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function completeSignIn(tokens: TokenPair) {
-    login(tokens);
-    const from =
-      (location.state as { from?: { pathname: string } } | null)?.from
-        ?.pathname ?? "/onboarding";
-    navigate(from, { replace: true });
-  }
-
-  async function handleGoogleSuccess(idToken: string) {
-    setError(null);
-    try {
-      completeSignIn(await signInWithGoogle(idToken));
-    } catch (err) {
-      console.error("Google sign-in failed:", err);
-      setError(err instanceof ApiError ? err.message : t("auth.error"));
-    }
-  }
-
-  async function handlePasswordSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-    try {
-      const tokens =
-        mode === "signup"
-          ? await signUpWithPassword(email, password)
-          : await signInWithPassword(email, password);
-      completeSignIn(tokens);
-    } catch (err) {
-      console.error(`Password ${mode} failed:`, err);
-      setError(err instanceof ApiError ? err.message : t("auth.error"));
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
+  const auth = useEmailPasswordAuth({
+    initialMode: "signin",
+    onAuthenticated: (tokens: TokenPair) => {
+      login(tokens);
+      const from =
+        (location.state as { from?: { pathname: string } } | null)?.from?.pathname ??
+        "/onboarding";
+      navigate(from, { replace: true });
+    },
+  });
+  const signup = auth.mode === "signup";
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-8 bg-white text-navy px-6">
-      <Link to="/">
-        <img src={logo} alt={t("app.name")} className="w-40" />
-      </Link>
-      <div className="w-full max-w-sm flex flex-col gap-6">
-        <h1 className="text-2xl text-center">{t("auth.title")}</h1>
-
-        <form
-          onSubmit={handlePasswordSubmit}
-          className="flex flex-col gap-4"
-          noValidate
-        >
-          <Input
-            type="email"
-            label={t("auth.emailLabel")}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-            required
-          />
-          <Input
-            type="password"
-            label={t("auth.passwordLabel")}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete={
-              mode === "signup" ? "new-password" : "current-password"
+    <div className="min-h-screen bg-background text-ink">
+      <TopBar />
+      <main className="mx-auto w-full max-w-md px-3 pb-16 sm:max-w-lg sm:px-0">
+        <section className="rounded-2xl border border-border bg-surface px-5 py-7 shadow-card sm:px-8">
+          <StepShell
+            title={signup ? t("auth.signUpTitle") : t("auth.signInTitle")}
+            subtitle={signup ? t("auth.signUpSubtitle") : t("auth.signInSubtitle")}
+            onNext={() => auth.submitPassword()}
+            nextLabel={signup ? t("auth.signUpCta") : t("auth.signInCta")}
+            nextBusy={auth.submitting}
+            nextDisabled={!auth.canSubmit}
+            error={auth.error}
+            footer={
+              <>
+                <AuthAlternatives
+                  mode={auth.mode}
+                  onToggleMode={auth.toggleMode}
+                  onGoogle={auth.submitGoogle}
+                  onGoogleError={() => auth.setError(t("auth.error"))}
+                />
+                <Link
+                  to="/onboarding"
+                  className={cn(
+                    "mt-2 inline-flex min-h-[44px] items-center justify-center gap-1.5 self-center rounded-lg px-3 text-sm font-semibold text-primary-text hover:underline",
+                    focusRing,
+                  )}
+                >
+                  {t("auth.newHere")}
+                  <ArrowRight size={16} aria-hidden="true" className="rtl:-scale-x-100" />
+                </Link>
+              </>
             }
-            required
-          />
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting
-              ? t("auth.submitting")
-              : mode === "signup"
-                ? t("auth.signUpCta")
-                : t("auth.signInCta")}
-          </Button>
-          <button
-            type="button"
-            onClick={() => {
-              setError(null);
-              setMode(mode === "signup" ? "signin" : "signup");
-            }}
-            className="text-sm text-navy/70 hover:text-navy underline underline-offset-2"
           >
-            {mode === "signup"
-              ? t("auth.toggleToSignIn")
-              : t("auth.toggleToSignUp")}
-          </button>
-        </form>
-
-        <div className="flex items-center gap-3 text-slate text-sm">
-          <span className="h-px flex-1 bg-navy/10" />
-          {t("auth.orDivider")}
-          <span className="h-px flex-1 bg-navy/10" />
-        </div>
-
-        <div className="flex justify-center">
-          <GoogleAuthButton
-            onSuccess={handleGoogleSuccess}
-            onError={() => setError(t("auth.error"))}
-          />
-        </div>
-
-        {error && (
-          <p className="text-red-600 text-sm text-center">{error}</p>
-        )}
-      </div>
+            <AuthFields
+              idPrefix="login"
+              mode={auth.mode}
+              email={auth.email}
+              password={auth.password}
+              onEmail={auth.setEmail}
+              onPassword={auth.setPassword}
+            />
+          </StepShell>
+        </section>
+      </main>
     </div>
   );
 }

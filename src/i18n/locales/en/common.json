@@ -47,7 +47,7 @@
                      "subtitle":  "Tailwind, fonts, tokens, and RTL wired up"
                  },
     "auth":  {
-                 "title":  "Sign in or sign up to start designing your card",
+
                  "error":  "Something went wrong signing in. Please try again.",
                  "missingClientId":  "Missing Google Client ID (VITE_GOOGLE_CLIENT_ID)",
                  "loadingSession":  "Loading...",
@@ -58,7 +58,12 @@
                  "submitting":  "Please wait…",
                  "orDivider":  "or",
                  "toggleToSignUp":  "Don\u0027t have an account? Sign up",
-                 "toggleToSignIn":  "Already have an account? Sign in"
+                 "toggleToSignIn":  "Already have an account? Sign in",
+                 "signInTitle":  "Welcome back",
+                 "signInSubtitle":  "Sign in to your dashboard.",
+                 "signUpTitle":  "Create your account",
+                 "signUpSubtitle":  "Then design your card — free.",
+                 "newHere":  "New here? Design your card first — it's free"
              },
     "onboardingPlaceholder":  {
                                   "title":  "Signed in successfully",

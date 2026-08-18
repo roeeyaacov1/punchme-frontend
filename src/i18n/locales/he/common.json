@@ -47,7 +47,7 @@
                      "subtitle":  "טיילווינד, פונטים, טוקנים ו-RTL מחוברים"
                  },
     "auth":  {
-                 "title":  "כניסה או הרשמה כדי להתחיל לעצב את הכרטיסייה שלכם",
+
                  "error":  "משהו השתבש בכניסה. נסו שוב.",
                  "missingClientId":  "חסר מזהה Google Client (VITE_GOOGLE_CLIENT_ID)",
                  "loadingSession":  "טוען...",
@@ -58,7 +58,12 @@
                  "submitting":  "רגע…",
                  "orDivider":  "או",
                  "toggleToSignUp":  "אין לכם חשבון? הרשמה",
-                 "toggleToSignIn":  "כבר יש לכם חשבון? כניסה"
+                 "toggleToSignIn":  "כבר יש לכם חשבון? כניסה",
+                 "signInTitle":  "ברוכים השבים",
+                 "signInSubtitle":  "היכנסו ללוח הבקרה שלכם.",
+                 "signUpTitle":  "יצירת חשבון",
+                 "signUpSubtitle":  "ואז מעצבים כרטיסייה — בחינם.",
+                 "newHere":  "חדשים כאן? עצבו קודם את הכרטיסייה — בחינם"
              },
     "onboardingPlaceholder":  {
                                   "title":  "מחוברים בהצלחה",
