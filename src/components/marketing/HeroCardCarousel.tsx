@@ -89,7 +89,13 @@ export function HeroCardCarousel() {
 
   return (
     <div
-      className="flex w-full flex-col items-center"
+      // A definite width, not `w-full`. This sits in a flex item that is
+      // sized by its content, so with an intrinsic width the widest child —
+      // the caption — decided how wide the device was, and the café's longer
+      // line made its phone visibly bigger than the barber's on every
+      // rotation. Pinning the column fixes the device, the bloom's centre and
+      // the floating chips' distance from the phone in one go.
+      className="flex w-[19rem] max-w-full flex-col items-center"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -101,8 +107,9 @@ export function HeroCardCarousel() {
         wake={wake}
         // A whole device, sized so the pass inside lands near life size.
         // It used to be pulled up and cropped by the section; now it stands
-        // in the hero's light instead of cutting it off.
-        className="w-full max-w-[19rem]"
+        // in the hero's light instead of cutting it off. The 19rem lives on
+        // the column above, so this just fills it.
+        className="w-full"
       >
         <div className="relative">
           {HERO_TEMPLATES.map((template, i) => {
@@ -171,8 +178,10 @@ export function HeroCardCarousel() {
       </div>
 
       {/* What the card actually gives you — the pass itself never shows the
-          reward, so this line is the only place it appears. */}
-      <p className="mt-1 min-h-[1.5rem] text-center text-sm text-ink-muted">
+          reward, so this line is the only place it appears. Two lines are
+          reserved: at a fixed column width the longer captions wrap, and
+          letting the block grow would jog the page on every rotation. */}
+      <p className="mt-1 min-h-[2.5rem] text-center text-sm text-ink-muted">
         {t(`landing.templates.items.${current.key}.caption`)}
       </p>
     </div>
