@@ -58,7 +58,6 @@ export function AccentStep() {
   return (
     <StepShell
       title={t("onboarding.accent.title")}
-      subtitle={t("onboarding.accent.subtitle")}
       onBack={() => navigate("/onboarding/color")}
       onNext={() => {
         update({ accent: current });

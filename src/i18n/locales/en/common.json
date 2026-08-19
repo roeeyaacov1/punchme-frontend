@@ -187,14 +187,11 @@
     "progress": "Step {{n}} of {{total}}",
     "preview": {
       "ariaLabel": "Preview of your card",
-      "caption_one": "{{count}} stamp · {{reward}}",
-      "caption_other": "{{count}} stamps · {{reward}}",
       "summary": "{{name}} — {{count}} stamps to a reward. Reward: {{reward}}.",
       "wallets": "Preview wallet"
     },
     "business": {
       "title": "What's your business called?",
-      "subtitle": "It goes at the top of the card.",
       "nameLabel": "Business name",
       "namePlaceholder": "e.g. Danny's Barbershop",
       "nicheLabel": "What kind of place is it?",
@@ -211,7 +208,6 @@
     },
     "color": {
       "title": "Pick your card colour",
-      "subtitle": "The whole pass takes this colour.",
       "gridLabel": "Card colour",
       "custom": "Custom colour",
       "customLabel": "Card colour",
@@ -231,7 +227,6 @@
     },
     "accent": {
       "title": "Now the stamp colour",
-      "subtitle": "Each of these sits well on the card colour you chose.",
       "gridLabel": "Stamp colour",
       "swatchLabel": "Stamp colour {{n}}: {{hex}}",
       "advanced": "Advanced",
@@ -244,7 +239,6 @@
     },
     "stamp": {
       "title": "Choose your stamp",
-      "subtitle": "An icon or your own picture — punched on every visit. Add a texture behind them if you like.",
       "tabs": {
         "icons": "Icons",
         "image": "Your picture"
@@ -279,7 +273,6 @@
     },
     "reward": {
       "title": "How many stamps, and what's the reward?",
-      "subtitle": "One stamp a visit; the last one earns the reward.",
       "stampsLabel": "Stamps to a reward",
       "stampsValue_one": "{{count}} stamp",
       "stampsValue_other": "{{count}} stamps",

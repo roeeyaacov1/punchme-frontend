@@ -136,7 +136,7 @@ function Shell() {
           </div>
         )}
 
-        <section className="overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
+        <section className="onboarding-stage overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
           {/* The phone, cropped: you are looking at the top of a phone with
               the pass on it, not at a picture of one. */}
           {/* The phone is cropped; the pass never is. Google stacks its
@@ -148,45 +148,53 @@ function Shell() {
               change the height, and the control you are dragging would slide
               out from under your finger. So this is the two-row worst case
               for either wallet, with a little wallpaper left below it. Remeasure
-              if the pass layout changes. */}
-          <div className="h-[424px] overflow-hidden bg-background/60 pt-3 sm:h-[452px] sm:pt-5">
-            <PhoneFrame
-              backgroundColor={preview.backgroundColor}
-              accentColor={preview.labelColor}
-              wake={wake}
-              island={
-                <IslandSwitch
-                  label={t("onboarding.preview.wallets")}
-                  value={platform}
-                  onChange={setPlatform}
-                  options={PLATFORMS.map((key) => ({
-                    value: key,
-                    label: t(`studio.preview.${key}`),
-                  }))}
-                />
-              }
-            >
-              {platform === "apple" ? (
-                <AppleCardPreview {...preview} />
-              ) : (
-                <GoogleCardPreview {...preview} />
-              )}
-            </PhoneFrame>
+              if the pass layout changes.
+
+              `--phone-scale` (index.css) shrinks the frame and this crop by the
+              same factor on a short screen, so the crop lands in exactly the
+              same place on the pass — it is a smaller phone, not a deeper cut.
+
+              The `sm` number is not a free choice either: the frame sits 16px
+              lower there (`sm:pt-5` here, `sm:pt-6` inside the frame), so
+              424 + 16 is the same cut through the pass as on a phone. */}
+          <div
+            className="overflow-hidden bg-background/60 pt-3 [--phone-crop:424px] sm:pt-5 sm:[--phone-crop:440px]"
+            style={{ height: "calc(var(--phone-crop) * var(--phone-scale))" }}
+          >
+            <div className="origin-top" style={{ transform: "scale(var(--phone-scale))" }}>
+              <PhoneFrame
+                backgroundColor={preview.backgroundColor}
+                accentColor={preview.labelColor}
+                wake={wake}
+                island={
+                  <IslandSwitch
+                    label={t("onboarding.preview.wallets")}
+                    value={platform}
+                    onChange={setPlatform}
+                    options={PLATFORMS.map((key) => ({
+                      value: key,
+                      label: t(`studio.preview.${key}`),
+                    }))}
+                  />
+                }
+              >
+                {platform === "apple" ? (
+                  <AppleCardPreview {...preview} />
+                ) : (
+                  <GoogleCardPreview {...preview} />
+                )}
+              </PhoneFrame>
+            </div>
           </div>
           <p className="sr-only" aria-live="polite">
             {spoken}
           </p>
 
-          <div className="px-5 pb-7 pt-3 sm:px-8">
-            <p className="text-pretty text-sm text-ink-subtle">
-              {t("onboarding.preview.caption", {
-                count: preview.stampsRequired,
-                reward: preview.rewardDescription,
-              })}
-            </p>
-
+          {/* No caption under the phone: it read out the stamp count and the
+              reward, which is what the pass above it already says, and the
+              `aria-live` summary says the same for anyone who can't see it. */}
+          <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-3">
             <StepProgress
-              className="mt-2"
               steps={ALL_STEPS}
               current={step ?? "business"}
               reachable={reachable}
@@ -194,7 +202,7 @@ function Shell() {
               labelFor={stepLabel}
             />
 
-            <div id="onboarding-step" className="mt-3">
+            <div id="onboarding-step" className="mt-2 sm:mt-3">
               <Outlet />
             </div>
           </div>

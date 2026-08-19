@@ -33,12 +33,15 @@ export function BusinessStep() {
   return (
     <StepShell
       title={t("onboarding.business.title")}
-      subtitle={t("onboarding.business.subtitle")}
       onNext={() => navigate("/onboarding/color")}
       nextDisabled={!canContinue}
     >
+      {/* The heading is the label — "What's your business called?" over a
+          field marked "Business name" was the same question asked twice. It
+          stays in the accessibility tree, where the heading isn't a label. */}
       <PlacesAutocomplete
         label={t("onboarding.business.nameLabel")}
+        labelHidden
         value={draft.name}
         onQueryChange={(value) => update({ name: value })}
         onSelect={handlePlaceSelect}

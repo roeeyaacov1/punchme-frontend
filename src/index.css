@@ -57,6 +57,56 @@
   --c-surface: 255 255 255; /* white panel */
 }
 
+/* ── The wizard's phone ────────────────────────────────────────
+   The pass is the promise, but the step underneath it is the work, and on a
+   short screen the phone was pushing Next off the fold. So the stage gives up
+   height as the screen gets shorter: one scale, applied to the frame and to
+   its crop together, so the pass shrinks whole rather than being cut further
+   down — Google's second row of stamps is only just inside the 424px crop.
+
+   Steps rather than a fluid ratio because CSS cannot divide one length by
+   another, and because a media query does not re-run when a mobile URL bar
+   slides away: the phone stays put while you scroll instead of breathing.
+
+   The numbers are measured, not chosen. Everything the first step needs below
+   the phone — the bar, the punch row, the question, the two fields and the
+   button — costs about 426px, so the phone may have (viewport - 426) and each
+   band is set from the *short* end of itself, where the squeeze is worst.
+
+   0.55 is the floor, and it is the wallet switch that sets it: the island's
+   buttons are 44px, they shrink with everything else, and 44 x 0.55 = 24.2px
+   is the smallest target still allowed to be one. A viewport short enough to
+   want less than that (an SE with the URL bar showing) cannot fit the step
+   anyway — no phone that small buys it — so below 700 it stops shrinking and
+   the page scrolls instead. */
+.onboarding-stage {
+  --phone-scale: 1;
+}
+
+@media (max-height: 860px) {
+  .onboarding-stage {
+    --phone-scale: 0.86;
+  }
+}
+
+@media (max-height: 800px) {
+  .onboarding-stage {
+    --phone-scale: 0.74;
+  }
+}
+
+@media (max-height: 750px) {
+  .onboarding-stage {
+    --phone-scale: 0.62;
+  }
+}
+
+@media (max-height: 700px) {
+  .onboarding-stage {
+    --phone-scale: 0.55;
+  }
+}
+
 body {
   font-family: theme("fontFamily.body");
 }

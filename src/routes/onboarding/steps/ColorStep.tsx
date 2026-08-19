@@ -40,7 +40,6 @@ export function ColorStep() {
   return (
     <StepShell
       title={t("onboarding.color.title")}
-      subtitle={t("onboarding.color.subtitle")}
       onBack={() => navigate("/onboarding/business")}
       onNext={() => {
         // Write the resolved value down, so what the owner saw is what is kept.

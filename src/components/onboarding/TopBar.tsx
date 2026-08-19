@@ -10,7 +10,7 @@ import logo from "../../assets/logo.png";
 export function TopBar({ showSignIn = false }: { showSignIn?: boolean }) {
   const { t, i18n } = useTranslation();
   return (
-    <header className="mx-auto flex h-16 w-full max-w-md items-center justify-between px-4 sm:max-w-lg sm:px-0">
+    <header className="mx-auto flex h-14 w-full max-w-md items-center justify-between px-4 sm:h-16 sm:max-w-lg sm:px-0">
       <Link to="/" className={cn("inline-flex min-h-[44px] items-center rounded-lg", focusRing)}>
         <img src={logo} alt={t("app.name")} className="h-7 w-auto" />
       </Link>

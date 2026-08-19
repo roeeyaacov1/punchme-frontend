@@ -9,6 +9,12 @@ import { ctaClasses, focusRing } from "../marketing/primitives";
  * The title takes focus when the step mounts — the layout around it does not
  * change between steps, so without this a keyboard or screen-reader user is
  * left wherever the last click was.
+ *
+ * Back sits in the same block as the title rather than in a row of its own:
+ * the phone above already spends most of a small screen, and every row
+ * between the question and Next is a row the owner has to scroll past.
+ * `subtitle` is for what the screen cannot show by itself — most steps don't
+ * pass one, because the control underneath already answers the question.
  */
 export function StepShell({
   title,
@@ -51,24 +57,21 @@ export function StepShell({
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-      {onBack && (
-        <div className="flex items-center">
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4 sm:gap-5">
+      <div className={cn(!onBack && "pt-1")}>
+        {onBack && (
           <button
             type="button"
             onClick={onBack}
             className={cn(
-              "-ms-2 inline-flex min-h-[44px] items-center gap-1 rounded-lg px-2 text-sm font-medium text-ink-muted hover:text-ink",
+              "-ms-2 -mt-1 inline-flex min-h-[44px] items-center gap-1 rounded-lg px-2 text-sm font-medium text-ink-muted hover:text-ink",
               focusRing,
             )}
           >
             <ArrowLeft size={16} aria-hidden="true" className="rtl:-scale-x-100" />
             {t("common.back")}
           </button>
-        </div>
-      )}
-
-      <div className={cn(!onBack && "pt-2")}>
+        )}
         <h1
           ref={heading}
           tabIndex={-1}

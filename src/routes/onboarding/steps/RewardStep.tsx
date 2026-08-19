@@ -26,7 +26,6 @@ export function RewardStep() {
   return (
     <StepShell
       title={t("onboarding.reward.title")}
-      subtitle={t("onboarding.reward.subtitle")}
       onBack={() => navigate("/onboarding/stamp")}
       onNext={() => {
         update({ stampsRequired: stamps, reward: resolved.reward.trim() });

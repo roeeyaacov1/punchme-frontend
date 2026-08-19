@@ -18,6 +18,8 @@ interface Suggestion {
 
 interface PlacesAutocompleteProps {
   label?: string;
+  /** Keep the label for screen readers but let a heading carry it visually. */
+  labelHidden?: boolean;
   value: string;
   onQueryChange: (value: string) => void;
   onSelect: (place: PlaceResult) => void;
@@ -31,6 +33,7 @@ interface PlacesAutocompleteProps {
  * usable without it. */
 export function PlacesAutocomplete({
   label,
+  labelHidden = false,
   value,
   onQueryChange,
   onSelect,
@@ -133,7 +136,13 @@ export function PlacesAutocomplete({
   return (
     <div className="relative flex flex-col gap-1.5 text-start">
       {label && (
-        <label htmlFor={inputId} className="text-sm font-medium text-navy font-body">
+        <label
+          htmlFor={inputId}
+          className={cn(
+            "text-sm font-medium text-navy font-body",
+            labelHidden && "sr-only",
+          )}
+        >
           {label}
         </label>
       )}

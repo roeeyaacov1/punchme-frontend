@@ -116,7 +116,6 @@ export function StampStep() {
   return (
     <StepShell
       title={t("onboarding.stamp.title")}
-      subtitle={t("onboarding.stamp.subtitle")}
       onBack={() => navigate("/onboarding/accent")}
       onNext={() => {
         update({ stamp, pattern: resolved.pattern });
