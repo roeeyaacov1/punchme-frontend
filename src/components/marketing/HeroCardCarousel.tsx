@@ -95,7 +95,12 @@ export function HeroCardCarousel() {
       // line made its phone visibly bigger than the barber's on every
       // rotation. Pinning the column fixes the device, the bloom's centre and
       // the floating chips' distance from the phone in one go.
-      className="flex w-[19rem] max-w-full flex-col items-center"
+      //
+      // 17rem, not more: it puts the device at roughly 1:1.9, which reads as
+      // a phone. Much below this and the widest strip runs out of room — ten
+      // stamps at the renderer's fixed 30px tile need 182px, which is all but
+      // 5px of the strip here, so this is close to the floor.
+      className="flex w-[17rem] max-w-full flex-col items-center"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -180,8 +185,10 @@ export function HeroCardCarousel() {
       {/* What the card actually gives you — the pass itself never shows the
           reward, so this line is the only place it appears. Two lines are
           reserved: at a fixed column width the longer captions wrap, and
-          letting the block grow would jog the page on every rotation. */}
-      <p className="mt-1 min-h-[2.5rem] text-center text-sm text-ink-muted">
+          letting the block grow would jog the page on every rotation.
+          Balanced so the second line is half a sentence rather than the one
+          orphaned word the café's line ends on otherwise. */}
+      <p className="mt-1 min-h-[2.5rem] text-balance text-center text-sm text-ink-muted">
         {t(`landing.templates.items.${current.key}.caption`)}
       </p>
     </div>
