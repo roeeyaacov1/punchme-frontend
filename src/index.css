@@ -57,6 +57,123 @@
   --c-surface: 255 255 255; /* white panel */
 }
 
+/* ── The dashboard after dark ───────────────────────────────────────────
+   Not a new palette: the landing page already draws the owner's dashboard as
+   a near-black phone screen (`AppShowcase`), down to the ground, the card
+   surface and the violet it plots data in. Those three values are lifted from
+   it unchanged, so the product an owner was sold at night is the product they
+   sign in to.
+
+   Applied to <html> rather than a wrapper, because the ground has to survive
+   overscroll and because `color-scheme` below is what makes the native
+   selects, scrollbars and focus rings agree with it.
+
+   Ratios are measured against both of this theme's grounds — the page
+   (#0f0f23) and a panel (#1d1d35) — and the tighter of the two is quoted. */
+.theme-purple.theme-night,
+.theme-purple.theme-raised.theme-night {
+  --c-background: 15 15 35; /* night #0f0f23 */
+  --c-surface: 29 29 53; /* panel #1d1d35 */
+  --c-ink: 242 241 251; /* 16.85:1 on night, 14.66:1 on panel */
+  --c-ink-muted: 185 183 212; /* 9.69:1 / 8.43:1 */
+  --c-ink-subtle: 154 152 186; /* 6.81:1 / 5.92:1 */
+  --c-primary: 109 77 242; /* violet fill; carries white 5.26:1 */
+  --c-primary-hover: 122 92 244; /* white 4.50:1 — the floor, and it holds */
+  --c-primary-text: 167 139 250; /* 6.93:1 / 6.03:1 — the landing's own plot violet */
+  --c-primary-on: 255 255 255;
+  --c-primary-shadow: 74 47 208; /* the seated edge under a CTA; carries no text */
+  --c-border: 44 44 72;
+  --c-border-strong: 61 61 97;
+  --c-navy-deep: 8 8 26; /* one step under the ground, for inset wells */
+}
+
+/* ── Notices ────────────────────────────────────────────────────────────
+   Three states the dashboard has to say out loud — saved, careful, failed —
+   and until now each one was a hand-picked Tailwind pair (`bg-amber-50
+   text-amber-800`) that goes invisible the moment the ground turns dark.
+   Tokens instead, measured on their own fill in both themes. */
+:root {
+  --c-ok: 4 120 87; /* 5.21:1 on its own fill, 5.48:1 on white */
+  --c-ok-bg: 236 253 245;
+  --c-warn: 146 64 14; /* 6.84:1 on fill, 7.09:1 on white */
+  --c-warn-bg: 255 251 235;
+  --c-danger: 185 28 28; /* 5.91:1 on fill, 6.47:1 on white */
+  --c-danger-bg: 254 242 242;
+
+  /* A panel's depth. Navy-tinted and shallow, because on a light ground the
+     hairline border does most of the work and the shadow only seats it. */
+  --shadow-panel: 0 1px 2px rgb(14 17 32 / 0.04), 0 1px 3px rgb(14 17 32 / 0.06);
+  --shadow-panel-lift: 0 8px 24px rgb(14 17 32 / 0.08);
+}
+
+.theme-purple.theme-night,
+.theme-purple.theme-raised.theme-night {
+  --c-ok: 110 231 183; /* 10.44:1 on its own fill */
+  --c-ok-bg: 16 38 31;
+  --c-warn: 252 211 77; /* 10.95:1 */
+  --c-warn-bg: 43 33 19;
+  --c-danger: 252 165 165; /* 9.10:1 */
+  --c-danger-bg: 43 20 24;
+
+  /* A tinted shadow is invisible on a near-black ground, so the dark theme
+     spends real black and casts it further — the panel is lifted off the
+     page rather than drawn on it. */
+  --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.5), 0 2px 8px rgb(0 0 0 / 0.35);
+  --shadow-panel-lift: 0 12px 32px rgb(0 0 0 / 0.5);
+}
+
+/* The ground has to be on <html>, or a short page shows white under the
+   bounce on iOS and behind a dark panel on desktop overscroll. */
+html.theme-purple {
+  background-color: rgb(var(--c-background));
+}
+
+html.theme-night {
+  color-scheme: dark;
+}
+
+/* The wordmark is transparent line art drawn in navy, so on the night ground
+   it disappears rather than inverts. Knocked out to white here instead of
+   shipping a second file — it is one colour either way. */
+html.theme-night .logo-mark {
+  filter: brightness(0) invert(1);
+}
+
+/* ── Things that stay lit ───────────────────────────────────────────────
+   Some of what the dashboard shows is not a screen at all. A QR code has to
+   be dark-on-light to scan. The standee is paper, and paper does not have a
+   dark mode. The pass and the Card Studio are a spec match to what Apple and
+   Google actually render, drawn on white by both.
+
+   So the rule is physical: what the owner *reads* turns dark, and what the
+   owner *hands to someone* stays lit — staged on the dark page as an object
+   under a lamp rather than repainted. `theme-lit` restores the light values
+   for any subtree, which is what lets a token-built frame sit around a
+   component this redesign is not allowed to touch. */
+.theme-lit {
+  --c-background: 255 255 255;
+  --c-surface: 245 246 254;
+  --c-ink: 17 17 17;
+  --c-ink-muted: 65 65 65;
+  --c-ink-subtle: 85 85 95;
+  --c-primary: 91 65 230;
+  --c-primary-hover: 79 56 209;
+  --c-primary-text: 104 61 232;
+  --c-primary-on: 255 255 255;
+  --c-primary-shadow: 63 45 165;
+  --c-border: 226 227 246;
+  --c-border-strong: 202 204 238;
+  --c-ok: 4 120 87;
+  --c-ok-bg: 236 253 245;
+  --c-warn: 146 64 14;
+  --c-warn-bg: 255 251 235;
+  --c-danger: 185 28 28;
+  --c-danger-bg: 254 242 242;
+  --shadow-panel: 0 1px 2px rgb(14 17 32 / 0.04), 0 1px 3px rgb(14 17 32 / 0.06);
+  --shadow-panel-lift: 0 8px 24px rgb(14 17 32 / 0.08);
+  color-scheme: light;
+}
+
 /* ── The wizard's phone ────────────────────────────────────────
    The pass is the promise, but the step underneath it is the work, and on a
    short screen the phone was pushing Next off the fold. So the stage gives up
@@ -391,6 +508,7 @@ h4 {
   .animate-fade-in,
   .animate-scale-in,
   .animate-pop-in,
+  .animate-sheet-up,
   .animate-stamp-in {
     animation: none !important;
   }

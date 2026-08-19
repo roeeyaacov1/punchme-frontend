@@ -49,6 +49,23 @@ export default {
         "border-strong": "rgb(var(--c-border-strong) / <alpha-value>)",
         "navy-deep": "rgb(var(--c-navy-deep) / <alpha-value>)",
 
+        // The three things the dashboard has to say out loud. Each is a
+        // text colour and the fill it is measured on, in both themes — see
+        // the ratios in src/index.css. Hand-picked Tailwind pairs like
+        // `bg-amber-50 text-amber-800` cannot survive a dark ground.
+        ok: {
+          DEFAULT: "rgb(var(--c-ok) / <alpha-value>)",
+          bg: "rgb(var(--c-ok-bg) / <alpha-value>)",
+        },
+        warn: {
+          DEFAULT: "rgb(var(--c-warn) / <alpha-value>)",
+          bg: "rgb(var(--c-warn-bg) / <alpha-value>)",
+        },
+        danger: {
+          DEFAULT: "rgb(var(--c-danger) / <alpha-value>)",
+          bg: "rgb(var(--c-danger-bg) / <alpha-value>)",
+        },
+
         // ── Landing redesign, fixed values ─────────────────────
         // Sampled from the Figma frame, then corrected where the drawing
         // failed AA (noted per token). These only ever appear inside
@@ -120,6 +137,13 @@ export default {
           "60%": { opacity: "1", transform: "scale(0.94)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
+        // A bottom sheet coming up under the thumb. Its own keyframe rather
+        // than `fade-up`, which is a scroll reveal at 0.7s — three times too
+        // slow for a control the owner just tapped.
+        "sheet-up": {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
         // Popovers: quick enough not to sit between the click and the panel.
         "pop-in": {
           "0%": { opacity: "0", transform: "translateY(-4px) scale(0.96)" },
@@ -131,6 +155,7 @@ export default {
         "fade-in": "fade-in 0.7s ease-out both",
         "scale-in": "scale-in 0.8s cubic-bezier(0.16,1,0.3,1) both",
         float: "float 5s ease-in-out infinite",
+        "sheet-up": "sheet-up 0.22s cubic-bezier(0.16,1,0.3,1) both",
         "pop-in": "pop-in 0.16s cubic-bezier(0.16,1,0.3,1) both",
         "stamp-in": "stamp-in 0.34s cubic-bezier(0.34,1.4,0.64,1) both",
       },
@@ -139,6 +164,11 @@ export default {
         // border; `lift` is the hover/elevated state.
         card: "0 1px 2px rgb(14 17 32 / 0.04), 0 1px 3px rgb(14 17 32 / 0.06)",
         lift: "0 8px 24px rgb(14 17 32 / 0.08)",
+        // The dashboard's panel, as a variable: a navy-tinted shadow reads
+        // as depth on a light page and as nothing at all on a dark one, so
+        // the dark theme swaps it for a real black and leans on the border.
+        panel: "var(--shadow-panel)",
+        "panel-lift": "var(--shadow-panel-lift)",
       },
     },
   },

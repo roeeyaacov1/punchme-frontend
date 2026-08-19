@@ -19,6 +19,29 @@
       rel="stylesheet"
     />
     <title>PunchMe — Digital Loyalty Cards</title>
+    <!-- The dashboard can be dark, and React cannot mount fast enough to stop
+         a white page flashing first on a hard load. So the ground is decided
+         here, before the first paint, from the same key and the same class
+         names src/theme/useDashboardTheme.ts uses — keep the two in step.
+         Every other route is light and gets nothing. -->
+    <script>
+      (function () {
+        if (!/^\/dashboard(\/|$)/.test(location.pathname)) return;
+        var mode;
+        try {
+          mode = localStorage.getItem("punchme.theme");
+        } catch (e) {
+          /* storage disabled — follow the device */
+        }
+        var dark =
+          mode === "dark" ||
+          (mode !== "light" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        var root = document.documentElement;
+        root.classList.add("theme-purple", "theme-raised");
+        if (dark) root.classList.add("theme-night");
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
