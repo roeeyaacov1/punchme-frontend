@@ -465,7 +465,9 @@
       "activity": "Activity",
       "standee": "Standee",
       "billing": "Billing",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "label": "Dashboard sections",
+      "more": "More"
     },
     "plan": {
       "free": "Free",
@@ -543,11 +545,47 @@
     "activity": {
       "title": "Activity",
       "emptyFree": "Activate to start enrolling real customers",
-      "emptyPro": "Activity will show up here once customers start collecting stamps"
+      "emptyPro": "Activity will show up here once customers start collecting stamps",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "by": "by {{who}}",
+      "cardSerial": "Card serial",
+      "removed_one": "1 removed",
+      "removed_other": "{{count}} removed"
     },
     "standee": {
       "title": "Print your standee",
       "print": "Print"
+    },
+    "groups": {
+      "counter": "Counter",
+      "setup": "Setup",
+      "account": "Account"
+    },
+    "theme": {
+      "label": "Appearance",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "close": "Close",
+    "week": {
+      "title": "This week",
+      "stamps_one": "stamp",
+      "stamps_other": "stamps"
+    },
+    "near": {
+      "title": "Close to a reward",
+      "empty": "Nobody's close yet — this fills up as people collect.",
+      "all": "All customers",
+      "toGo_one": "1 to go",
+      "toGo_other": "{{count}} to go"
+    },
+    "start": {
+      "title": "Get your first customer",
+      "designed": "Your card is designed. Change anything, any time.",
+      "print": "Print a standee so people at the counter can scan it.",
+      "activate": "Activate to let real customers join and start collecting."
     }
   },
   "billing": {
@@ -565,6 +603,12 @@
       "title": "Checkout cancelled",
       "body": "No charge was made.",
       "backCta": "Back to billing"
+    },
+    "plan": {
+      "freeTitle": "You're on the free plan",
+      "freeBody": "Designing your card, previewing it on your own phone and using this dashboard are free. Activating is what lets real customers join.",
+      "proTitle": "Your card is live",
+      "proBody": "Real customers can join and collect. Manage or cancel your subscription any time."
     }
   },
   "landing": {

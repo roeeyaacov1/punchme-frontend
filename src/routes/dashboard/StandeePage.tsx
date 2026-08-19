@@ -3,12 +3,14 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
-import { Button } from "../../components/ui";
+import { ctaClasses, focusRing } from "../../components/marketing/primitives";
+import { LitStage, Notice } from "../../components/dashboard/primitives";
 import { useBusiness } from "../../business/useBusiness";
 import { canEnrollRealCustomers } from "../../business/gating";
 import { listTemplates, type CardTemplate } from "../../api/businesses";
 import { getTemplateDesign } from "../../api/designs";
 import { buildEnrollUrl } from "../../lib/enrollUrl";
+import { cn } from "../../lib/cn";
 
 type PrintFormat = "a4" | "a5" | "tent";
 
@@ -37,7 +39,7 @@ export function StandeePage() {
   });
 
   if (!template) {
-    return <p className="text-slate font-mono text-sm">{t("common.loading")}</p>;
+    return <p className="font-mono text-sm text-ink-subtle">{t("common.loading")}</p>;
   }
 
   const images = (design?.images ?? {}) as Record<string, unknown>;
@@ -45,56 +47,77 @@ export function StandeePage() {
     typeof images.logo === "string" ? (images.logo as string) : undefined;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 sm:gap-5">
       <style>{printCss(format)}</style>
 
-      <div className="print:hidden flex flex-wrap items-center gap-3">
-        <h1 className="text-xl font-heading text-navy flex-1">
-          {t("standee.title")}
-        </h1>
-        <div className="flex gap-1 rounded-full border border-slate/25 p-1">
+      <div className="flex flex-wrap items-center gap-3 print:hidden">
+        <h1 className="t-h3 flex-1 text-ink">{t("standee.title")}</h1>
+        {/* Paper sizes, so the control is set in the same mono the pass sets
+            its field labels in — this is a spec, not a preference. */}
+        <div
+          role="group"
+          aria-label={t("standee.title")}
+          className="flex gap-1 rounded-xl border border-border bg-surface p-1"
+        >
           {(["a4", "a5", "tent"] as PrintFormat[]).map((key) => (
             <button
               key={key}
               type="button"
+              aria-pressed={format === key}
               onClick={() => setFormat(key)}
-              className={
+              className={cn(
+                "inline-flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium transition-colors",
                 format === key
-                  ? "rounded-full bg-navy text-white px-3 py-1 text-sm"
-                  : "rounded-full px-3 py-1 text-sm text-navy hover:bg-navy/5"
-              }
+                  ? "bg-primary text-primary-on"
+                  : "text-ink-muted hover:text-ink",
+                focusRing,
+              )}
             >
               {t(`standee.formats.${key}`)}
             </button>
           ))}
         </div>
-        <Button onClick={() => window.print()}>{t("standee.print")}</Button>
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className={ctaClasses("primary", "sm")}
+        >
+          {t("standee.print")}
+        </button>
       </div>
 
       {!canEnroll && (
-        <p className="print:hidden rounded-xl bg-amber-50 text-amber-800 px-4 py-3 text-sm font-body">
+        <Notice tone="warn" className="print:hidden">
           {t("standee.activateFirst")}{" "}
-          <Link to="/dashboard/billing" className="underline">
+          <Link
+            to="/dashboard/billing"
+            className={cn("font-semibold underline hover:no-underline", focusRing)}
+          >
             {t("dashboard.qr.activateCta")}
           </Link>
-        </p>
+        </Notice>
       )}
-      <p className="print:hidden text-sm text-slate font-body">
+      <p className="text-sm text-ink-muted print:hidden">
         {t("standee.downloadHint")}
       </p>
 
-      <div id="standee-sheet" className="mx-auto w-full">
-        <StandeePanel template={template} businessName={business?.name ?? ""} logoUrl={logoUrl} />
-        {format === "tent" && (
-          <div className="tent-flip">
-            <StandeePanel
-              template={template}
-              businessName={business?.name ?? ""}
-              logoUrl={logoUrl}
-            />
-          </div>
-        )}
-      </div>
+      {/* Paper does not have a dark mode. On a dark page the sheet is staged
+          on a lit surface rather than repainted — and in print the staging
+          disappears entirely, because there is nothing behind a sheet of A4. */}
+      <LitStage className="mx-auto w-full print:bg-transparent print:p-0 print:shadow-none print:ring-0">
+        <div id="standee-sheet" className="mx-auto w-full">
+          <StandeePanel template={template} businessName={business?.name ?? ""} logoUrl={logoUrl} />
+          {format === "tent" && (
+            <div className="tent-flip">
+              <StandeePanel
+                template={template}
+                businessName={business?.name ?? ""}
+                logoUrl={logoUrl}
+              />
+            </div>
+          )}
+        </div>
+      </LitStage>
     </div>
   );
 }
@@ -152,7 +175,9 @@ function printCss(format: PrintFormat): string {
 @page { size: ${page}; margin: 12mm; }
 @media print {
   body { background: white !important; }
-  header, nav { display: none !important; }
+  /* The desktop rail is an aside, which the redesign added — without it
+     here the nav column prints down the side of the sheet. */
+  header, nav, aside { display: none !important; }
   main { padding: 0 !important; }
   #standee-sheet { width: 100%; max-width: none; }
   .standee-panel { border-radius: 0; min-height: ${format === "tent" ? "auto" : "80vh"}; justify-content: center; page-break-inside: avoid; }

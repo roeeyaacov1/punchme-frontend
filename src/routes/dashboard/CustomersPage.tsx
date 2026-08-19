@@ -3,8 +3,17 @@ import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Download, Search } from "lucide-react";
-import { Badge, Button, Input } from "../../components/ui";
 import { StampAdjuster } from "../../components/customers/StampAdjuster";
+import { ctaClasses, focusRing } from "../../components/marketing/primitives";
+import { CardPunches } from "../../components/dashboard/CardPunches";
+import {
+  Figure,
+  Notice,
+  Panel,
+  Tag,
+  fieldClasses,
+  type Tone,
+} from "../../components/dashboard/primitives";
 import { useBusiness } from "../../business/useBusiness";
 import { canEnrollRealCustomers } from "../../business/gating";
 import {
@@ -20,6 +29,9 @@ import { cn } from "../../lib/cn";
 
 const PAGE_SIZE = 20;
 const RECENT_WINDOW_DAYS = 30;
+/** A card longer than this is a progress bar; a shorter one is drawn as the
+ * row of punches it actually is. */
+const PUNCHABLE_CARD = 10;
 
 /** `void` is read from the API's `status`, because a dead card is dead
  * whatever its counters say and no arithmetic on the stamps can express that.
@@ -34,9 +46,9 @@ type Sort = "progress" | "recent" | "name";
 const FILTERS: Filter[] = ["all", "ready", "progress", "new", "void"];
 const SORTS: Sort[] = ["progress", "recent", "name"];
 
-const BUCKET_TONES: Record<Bucket, "neutral" | "warning" | "gold"> = {
-  void: "warning",
-  ready: "gold",
+const BUCKET_TONES: Record<Bucket, Tone> = {
+  void: "warn",
+  ready: "accent",
   progress: "neutral",
   new: "neutral",
 };
@@ -58,9 +70,6 @@ function bucketOf(c: CustomerListItem): Bucket {
 function progressOf(c: CustomerListItem): number {
   return c.stamps_required > 0 ? c.stamp_count / c.stamps_required : 0;
 }
-
-const SELECT_CLASSES =
-  "rounded-xl border border-navy/15 bg-white px-3 py-2.5 text-sm text-navy font-body focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy/40";
 
 export function CustomersPage() {
   const { t, i18n } = useTranslation();
@@ -199,54 +208,90 @@ export function CustomersPage() {
     ? undefined
     : t("dashboard.customers.stamps.pendingBackend");
 
+  /** A card's adjuster, with the reasons it might be refused. */
+  function adjusterFor(c: CustomerListItem) {
+    const bucket = bucketOf(c);
+    const pending = adjust.isPending && adjust.variables?.cardId === c.card_id;
+    // A voided card is refused server-side whatever the counts look like, so
+    // offering live buttons here only promises something the next request
+    // will take away.
+    const unavailable =
+      stampsUnavailable ??
+      (bucket === "void" ? t("dashboard.customers.stamps.voided") : undefined);
+    return (
+      <StampAdjuster
+        stampCount={c.stamp_count}
+        stampsRequired={c.stamps_required}
+        pending={pending}
+        unavailableReason={unavailable}
+        onAdjust={(delta) =>
+          adjust.mutate({
+            cardId: c.card_id,
+            delta,
+            expected: c.stamp_count,
+          })
+        }
+      />
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-heading">{t("dashboard.customers.title")}</h1>
+    <div className="flex flex-col gap-4 sm:gap-5">
+      <h1 className="t-h3 text-ink">{t("dashboard.customers.title")}</h1>
 
       {isLoading ? (
-        <p className="text-slate font-mono text-sm">{t("common.loading")}</p>
+        <p className="font-mono text-sm text-ink-subtle">{t("common.loading")}</p>
       ) : all.length === 0 ? (
-        <p className="text-slate font-body">
+        <Panel className="p-5 sm:p-6">
           {canEnroll ? (
-            t("dashboard.customers.emptyPro")
+            <p className="text-ink-muted">{t("dashboard.customers.emptyPro")}</p>
           ) : (
-            <Link to="/dashboard/billing" className="underline">
+            <Link
+              to="/dashboard/billing"
+              className={cn(
+                "inline-flex min-h-[44px] items-center font-semibold text-primary-text underline hover:no-underline",
+                focusRing,
+              )}
+            >
               {t("dashboard.customers.emptyFree")}
             </Link>
           )}
-        </p>
+        </Panel>
       ) : (
         <>
-          <div className="flex flex-wrap gap-3">
+          {/* Three counts, and only the one that means "go and do something"
+              is coloured. */}
+          <dl className="grid grid-cols-3 gap-3">
             {(["total", "ready", "recent"] as const).map((key) => (
-              <div
-                key={key}
-                className={cn(
-                  "min-w-[9rem] flex-1 rounded-2xl border px-4 py-3",
-                  key === "ready" && stats.ready > 0
-                    ? "border-gold/40 bg-gold/10"
-                    : "border-navy/10 bg-white",
-                )}
-              >
-                <p className="font-heading text-2xl tabular-nums">{stats[key]}</p>
-                <p className="text-xs text-slate font-body">
+              <Panel key={key} className="px-4 py-3">
+                <dd
+                  className={cn(
+                    "font-heading text-2xl font-bold tabular-nums",
+                    key === "ready" && stats.ready > 0
+                      ? "text-primary-text"
+                      : "text-ink",
+                  )}
+                >
+                  {stats[key]}
+                </dd>
+                <dt className="mt-0.5 text-xs text-ink-subtle">
                   {t(`dashboard.customers.stats.${key}`, {
                     days: RECENT_WINDOW_DAYS,
                   })}
-                </p>
-              </div>
+                </dt>
+              </Panel>
             ))}
-          </div>
+          </dl>
 
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="relative min-w-[16rem] flex-1">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative min-w-[14rem] flex-1">
               <Search
-                className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 text-slate/60 start-3.5"
+                className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-subtle"
                 aria-hidden
               />
-              <Input
+              <input
                 type="search"
-                className="ps-10"
+                className={cn(fieldClasses, "ps-10")}
                 value={search}
                 aria-label={t("dashboard.customers.searchLabel")}
                 placeholder={t("dashboard.customers.searchPlaceholder")}
@@ -255,12 +300,10 @@ export function CustomersPage() {
             </div>
 
             <select
-              className={SELECT_CLASSES}
+              className={cn(fieldClasses, "w-auto")}
               value={filter}
               aria-label={t("dashboard.customers.filter.label")}
-              onChange={(e) =>
-                resetTo(() => setFilter(e.target.value as Filter))
-              }
+              onChange={(e) => resetTo(() => setFilter(e.target.value as Filter))}
             >
               {FILTERS.map((key) => (
                 <option key={key} value={key}>
@@ -270,7 +313,7 @@ export function CustomersPage() {
             </select>
 
             <select
-              className={SELECT_CLASSES}
+              className={cn(fieldClasses, "w-auto")}
               value={sort}
               aria-label={t("dashboard.customers.sort.label")}
               onChange={(e) => resetTo(() => setSort(e.target.value as Sort))}
@@ -282,153 +325,137 @@ export function CustomersPage() {
               ))}
             </select>
 
-            <Button
-              variant="secondary"
-              size="sm"
+            <button
+              type="button"
               disabled={visible.length === 0}
               onClick={handleExport}
+              className={ctaClasses("secondary", "sm")}
             >
               <Download className="h-4 w-4" aria-hidden />
               {t("dashboard.customers.export.cta")}
-            </Button>
+            </button>
           </div>
 
           {data?.truncated && (
-            <p className="rounded-xl bg-amber-50 px-4 py-2 text-xs text-amber-800 font-body">
+            <Notice tone="warn">
               {/* `shown`, not `count` — i18next reserves `count` for plurals. */}
               {t("dashboard.customers.truncated", { shown: all.length })}
-            </p>
+            </Notice>
           )}
 
           {adjust.isError &&
             (isStampConflict(adjust.error) ? (
               // Not the owner's mistake, and already self-corrected by the
-              // refetch in onError — amber and reassuring, not red and alarming.
-              <p className="rounded-xl bg-amber-50 px-4 py-2 text-xs text-amber-800 font-body">
+              // refetch in onError — reassuring, not alarming.
+              <Notice tone="warn">
                 {t("dashboard.customers.stamps.conflict")}
-              </p>
+              </Notice>
             ) : (
-              <p className="rounded-xl bg-red-50 px-4 py-2 text-xs text-red-700 font-body">
+              <Notice tone="danger">
                 {t("dashboard.customers.stamps.failed", {
                   reason: adjust.error.message,
                 })}
-              </p>
+              </Notice>
             ))}
 
           {visible.length === 0 ? (
-            <div className="flex flex-col items-start gap-3 py-6">
-              <p className="text-slate font-body">
+            <Panel className="flex flex-col items-start gap-3 p-5 sm:p-6">
+              <p className="text-ink-muted">
                 {t("dashboard.customers.noMatches")}
               </p>
-              <Button
-                variant="secondary"
-                size="sm"
+              <button
+                type="button"
                 onClick={() =>
                   resetTo(() => {
                     setSearch("");
                     setFilter("all");
                   })
                 }
+                className={ctaClasses("secondary", "sm")}
               >
                 {t("dashboard.customers.clearFilters")}
-              </Button>
-            </div>
+              </button>
+            </Panel>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-start text-sm font-body">
-                <thead>
-                  <tr className="border-b border-navy/10 text-slate">
-                    <th className="py-2 pe-4 text-start">
-                      {t("dashboard.customers.columns.name")}
-                    </th>
-                    <th className="py-2 pe-4 text-start">
-                      {t("dashboard.customers.columns.phone")}
-                    </th>
-                    <th className="py-2 pe-4 text-start">
-                      {t("dashboard.customers.columns.progress")}
-                    </th>
-                    <th className="py-2 pe-4 text-start">
-                      {t("dashboard.customers.columns.status")}
-                    </th>
-                    <th className="py-2 pe-4 text-start">
-                      {t("dashboard.customers.columns.card")}
-                    </th>
-                    <th className="py-2 pe-4 text-start">
-                      {t("dashboard.customers.columns.stamps")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pageRows.map((c) => {
-                    const bucket = bucketOf(c);
-                    const pending =
-                      adjust.isPending && adjust.variables?.cardId === c.card_id;
-                    // A voided card is refused server-side whatever the counts
-                    // look like, so offering live buttons here only promises
-                    // something the next request will take away.
-                    const unavailable =
-                      stampsUnavailable ??
-                      (bucket === "void"
-                        ? t("dashboard.customers.stamps.voided")
-                        : undefined);
-                    return (
-                      <tr key={c.card_id} className="border-b border-navy/5">
-                        <td className="py-2 pe-4">
+            <>
+              {/* A six-column table is unreadable on a 375px phone, and this
+                  is a page an owner opens at the counter. Same rows, two
+                  shapes: a card each below `lg`, the table above it. */}
+              <ul className="flex flex-col gap-3 lg:hidden">
+                {pageRows.map((c) => (
+                  <Panel key={c.card_id} className="flex flex-col gap-3 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-ink">
+                          {c.customer_display_name || "—"}
+                        </p>
+                        <p
+                          dir="ltr"
+                          className="truncate font-mono text-xs text-ink-subtle rtl:text-end"
+                        >
+                          {c.customer_phone || "—"}
+                        </p>
+                      </div>
+                      <Tag tone={BUCKET_TONES[bucketOf(c)]}>
+                        {t(`dashboard.customers.status.${bucketOf(c)}`)}
+                      </Tag>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <CardPunches filled={c.stamp_count} total={c.stamps_required} maxMarks={PUNCHABLE_CARD} />
+                      {adjusterFor(c)}
+                    </div>
+                  </Panel>
+                ))}
+              </ul>
+
+              <Panel className="hidden overflow-x-auto p-1 lg:block">
+                <table className="w-full text-start text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-ink-subtle">
+                      {(
+                        ["name", "phone", "progress", "status", "card", "stamps"] as const
+                      ).map((key) => (
+                        <th key={key} className="px-3 py-2.5 text-start font-medium">
+                          {t(`dashboard.customers.columns.${key}`)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageRows.map((c) => (
+                      <tr
+                        key={c.card_id}
+                        className="border-b border-border last:border-0 transition-colors hover:bg-ink/[0.03]"
+                      >
+                        <td className="px-3 py-2.5 text-ink">
                           {c.customer_display_name || "—"}
                         </td>
-                        <td className="py-2 pe-4" dir="ltr">
+                        <td className="px-3 py-2.5 text-ink-muted" dir="ltr">
                           {c.customer_phone || "—"}
                         </td>
-                        <td className="py-2 pe-4">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs tabular-nums">
-                              {c.stamp_count} / {c.stamps_required}
-                            </span>
-                            <span className="h-1.5 w-16 overflow-hidden rounded-full bg-navy/10">
-                              <span
-                                className={cn(
-                                  "block h-full rounded-full",
-                                  bucket === "ready" ? "bg-gold" : "bg-navy/40",
-                                )}
-                                style={{
-                                  width: `${Math.min(1, progressOf(c)) * 100}%`,
-                                }}
-                              />
-                            </span>
-                          </div>
+                        <td className="px-3 py-2.5">
+                          <CardPunches filled={c.stamp_count} total={c.stamps_required} maxMarks={PUNCHABLE_CARD} />
                         </td>
-                        <td className="py-2 pe-4">
-                          <Badge tone={BUCKET_TONES[bucket]}>
-                            {t(`dashboard.customers.status.${bucket}`)}
-                          </Badge>
+                        <td className="px-3 py-2.5">
+                          <Tag tone={BUCKET_TONES[bucketOf(c)]}>
+                            {t(`dashboard.customers.status.${bucketOf(c)}`)}
+                          </Tag>
                         </td>
-                        <td className="py-2 pe-4">{c.template_name}</td>
-                        <td className="py-2 pe-4">
-                          <StampAdjuster
-                            stampCount={c.stamp_count}
-                            stampsRequired={c.stamps_required}
-                            pending={pending}
-                            unavailableReason={unavailable}
-                            onAdjust={(delta) =>
-                              adjust.mutate({
-                                cardId: c.card_id,
-                                delta,
-                                expected: c.stamp_count,
-                              })
-                            }
-                          />
+                        <td className="px-3 py-2.5 text-ink-muted">
+                          {c.template_name}
                         </td>
+                        <td className="px-3 py-2.5">{adjusterFor(c)}</td>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                    ))}
+                  </tbody>
+                </table>
+              </Panel>
+            </>
           )}
 
           {visible.length > 0 && (
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-xs text-slate font-mono">
+              <span className="font-mono text-xs text-ink-subtle">
                 {isFiltered
                   ? t("dashboard.customers.showingFiltered", {
                       shown: visible.length,
@@ -438,25 +465,25 @@ export function CustomersPage() {
               </span>
               {totalPages > 1 && (
                 <div className="flex items-center gap-3">
-                  <Button
-                    variant="secondary"
-                    size="sm"
+                  <button
+                    type="button"
                     disabled={currentPage <= 1}
                     onClick={() => setPage(currentPage - 1)}
+                    className={ctaClasses("secondary", "sm")}
                   >
                     {t("common.back")}
-                  </Button>
-                  <span className="text-xs text-slate font-mono tabular-nums">
+                  </button>
+                  <Figure dir="ltr" className="text-xs text-ink-subtle">
                     {currentPage} / {totalPages}
-                  </span>
-                  <Button
-                    variant="secondary"
-                    size="sm"
+                  </Figure>
+                  <button
+                    type="button"
                     disabled={currentPage >= totalPages}
                     onClick={() => setPage(currentPage + 1)}
+                    className={ctaClasses("secondary", "sm")}
                   >
                     {t("common.next")}
-                  </Button>
+                  </button>
                 </div>
               )}
             </div>

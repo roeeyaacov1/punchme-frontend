@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button } from "../../components/ui";
 import {
   CardStudio,
   type CardStudioValue,
 } from "../../components/card-studio/CardStudio";
+import { ctaClasses } from "../../components/marketing/primitives";
+import { LitStage, Notice, Tag } from "../../components/dashboard/primitives";
 import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
 import { useBusiness } from "../../business/useBusiness";
 import { listTemplates, patchTemplate, type CardTemplate } from "../../api/businesses";
@@ -104,7 +105,7 @@ export function DesignPage() {
   const ownerPass = useWalletPass(ownerCard);
 
   if (!business || !template || !draft) {
-    return <p className="text-slate font-mono text-sm">{t("common.loading")}</p>;
+    return <p className="font-mono text-sm text-ink-subtle">{t("common.loading")}</p>;
   }
 
   async function handleSave() {
@@ -139,49 +140,59 @@ export function DesignPage() {
   const syncError = designQuery.data?.sync?.error;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-heading text-navy">{t("studio.title")}</h1>
-        <div className="flex items-center gap-3">
-          {saved && (
-            <span className="text-sm text-emerald-700 font-body">{t("studio.saved")}</span>
-          )}
-          <WalletAddButtons
-            passUrl={ownerPass.passUrl}
-            pending={ownerPass.pending}
-            slow={ownerPass.slow}
-            onRetry={ownerPass.retry}
-          />
-
-          <Button onClick={handleSave} disabled={saving || !dirty}>
+    <div className="flex flex-col gap-4 sm:gap-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="t-h3 text-ink">{t("studio.title")}</h1>
+          <p className="mt-2 max-w-2xl text-ink-muted">{t("studio.subtitle")}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          {saved && <Tag tone="ok">{t("studio.saved")}</Tag>}
+          {/* The wallet button is the app's navy pill, shared with the public
+              join flow and not this phase's to repaint — so on the night
+              ground it gets an edge to sit against instead. */}
+          <span className="inline-flex rounded-full ring-1 ring-border">
+            <WalletAddButtons
+              passUrl={ownerPass.passUrl}
+              pending={ownerPass.pending}
+              slow={ownerPass.slow}
+              onRetry={ownerPass.retry}
+            />
+          </span>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving || !dirty}
+            className={ctaClasses("primary", "sm")}
+          >
             {saving ? t("common.loading") : t("studio.save")}
-          </Button>
+          </button>
         </div>
       </div>
 
-      <p className="text-sm text-slate font-body max-w-2xl">{t("studio.subtitle")}</p>
+      {syncError && <Notice tone="warn">{t("studio.syncError")}</Notice>}
+      {saveError && <Notice tone="danger">{saveError}</Notice>}
 
-      {syncError && (
-        <p className="text-sm text-red-700 bg-red-50 rounded-lg px-3 py-2 font-body">
-          {t("studio.syncError")}
-        </p>
-      )}
-      {saveError && <p className="text-sm text-red-600 font-body">{saveError}</p>}
-
-      <CardStudio
-        value={draft}
-        onChange={(value) => {
-          setDraft(value);
-          setDirty(true);
-        }}
-        businessName={business.name}
-        images={urls}
-        onUpload={handleUpload}
-        lint={lint}
-        // While edits are unsaved the published PNGs are stale — the preview
-        // falls back to the live approximation rather than lying with old art.
-        unsaved={dirty}
-      />
+      {/* The studio is a spec match to what the two wallets actually draw —
+          white, by their definition, not ours — so at night it is staged
+          rather than repainted: the worktop stays lit and the page around it
+          goes dark. See `LitStage`. */}
+      <LitStage className="p-3 sm:p-5">
+        <CardStudio
+          value={draft}
+          onChange={(value) => {
+            setDraft(value);
+            setDirty(true);
+          }}
+          businessName={business.name}
+          images={urls}
+          onUpload={handleUpload}
+          lint={lint}
+          // While edits are unsaved the published PNGs are stale — the preview
+          // falls back to the live approximation rather than lying with old art.
+          unsaved={dirty}
+        />
+      </LitStage>
     </div>
   );
 }

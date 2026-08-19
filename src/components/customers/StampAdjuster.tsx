@@ -12,8 +12,12 @@ interface StampAdjusterProps {
   onAdjust: (delta: number) => void;
 }
 
+/** Full 44px where a thumb is doing the tapping, and 36 in the desktop table
+ * where a pointer is — at 44 the pair is wider than its column. The phone
+ * never sees the table: below `lg` each customer is a card with these two as
+ * the only controls in the row. */
 const BUTTON_CLASSES =
-  "inline-flex h-7 w-7 items-center justify-center rounded-full border border-navy/15 text-navy transition-colors hover:bg-navy/5 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed";
+  "inline-flex h-11 w-11 lg:h-9 lg:w-9 items-center justify-center rounded-full border border-border text-ink-muted transition-colors hover:border-border-strong hover:bg-ink/[0.06] hover:text-ink disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
 
 export function StampAdjuster({
   stampCount,
@@ -46,7 +50,7 @@ export function StampAdjuster({
         aria-label={t("dashboard.customers.stamps.remove")}
         onClick={() => onAdjust(-1)}
       >
-        <Minus className="h-3.5 w-3.5" aria-hidden />
+        <Minus className="h-4 w-4" aria-hidden />
       </button>
       <button
         type="button"
@@ -56,7 +60,7 @@ export function StampAdjuster({
         aria-label={t("dashboard.customers.stamps.add")}
         onClick={() => onAdjust(1)}
       >
-        <Plus className="h-3.5 w-3.5" aria-hidden />
+        <Plus className="h-4 w-4" aria-hidden />
       </button>
     </div>
   );
