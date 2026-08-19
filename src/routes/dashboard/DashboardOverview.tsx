@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowRight, Copy } from "lucide-react";
+import { ArrowRight, Copy, Send } from "lucide-react";
 import { CardPreview } from "../../components/card-studio/CardPreviews";
 import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
 import { PunchMark } from "../../components/marketing/PunchMark";
@@ -28,6 +28,7 @@ import {
   type CustomerListItem,
   type EnrollOut,
 } from "../../api/loyalty";
+import { getMessagingSummary, listAutomations } from "../../api/messaging";
 import { buildEnrollUrl } from "../../lib/enrollUrl";
 import { useWalletPass } from "../../hooks/useWalletPass";
 import { cn } from "../../lib/cn";
@@ -112,7 +113,11 @@ export function DashboardOverview() {
     const cutoff = Date.now() - WEEK_DAYS * 24 * 60 * 60 * 1000;
     const inWindow = items.filter((e) => Date.parse(e.created_at) >= cutoff);
     return {
-      stamps: inWindow.reduce((sum, e) => sum + e.stamps, 0),
+      // A stamp gifted by a messaging rule is not a visit — keep it out of
+      // the week, which is the owner's read on how busy the shop was.
+      stamps: inWindow
+        .filter((e) => e.source !== "automation")
+        .reduce((sum, e) => sum + e.stamps, 0),
       // Every row we asked for came back and the oldest of them is still
       // inside the week, so there is more we did not see.
       capped: items.length >= WEEK_SAMPLE && inWindow.length === items.length,
@@ -120,6 +125,26 @@ export function DashboardOverview() {
   }, [recent]);
 
   const all = useMemo(() => customers?.items ?? [], [customers]);
+
+  // The owner's messaging rules + the month's sent count, for the one-line
+  // state on the panel below (same keys the Messages page uses, so these are
+  // cache reads after it). The count comes from the summary — the rules list
+  // alone would miss broadcasts and disagree with the Messages page.
+  const automationsQuery = useQuery({
+    queryKey: ["automations", business?.id],
+    queryFn: () => listAutomations(business!.id!),
+    enabled: !!business?.id && canEnroll,
+    staleTime: 30_000,
+  });
+  const { data: messagingSummary } = useQuery({
+    queryKey: ["messaging", "summary", business?.id],
+    queryFn: () => getMessagingSummary(business!.id!),
+    enabled: !!business?.id && canEnroll,
+    staleTime: 30_000,
+  });
+  const automations = automationsQuery.data;
+  const activeRules = (automations ?? []).filter((a) => a.is_active).length;
+  const sentThisMonth = messagingSummary?.sent_this_month ?? 0;
 
   const readyCount = useMemo(
     () =>
@@ -252,6 +277,41 @@ export function DashboardOverview() {
                 })}
               </ul>
             )}
+          </Panel>
+
+          {/* Messages to customers: the one line of state and the two
+              things you'd come here to do — send everyone a message on a
+              slow day, or go and change the rules. One tap from the phone's
+              first screen, which the More sheet is not. */}
+          <Panel className="p-5 sm:p-6">
+            <PanelHeader
+              title={t("messaging.overview.title")}
+              action={
+                <Link
+                  to="/dashboard/messages"
+                  className={cn(
+                    "inline-flex min-h-[44px] items-center gap-1 rounded-lg text-sm font-semibold text-primary-text hover:underline",
+                    focusRing,
+                  )}
+                >
+                  {t("messaging.overview.all")}
+                  <ArrowRight size={15} aria-hidden className="rtl:-scale-x-100" />
+                </Link>
+              }
+            />
+            <p className="mt-3 text-sm text-ink-muted">
+              {automationsQuery.isPending
+                ? t("common.loading")
+                : automationsQuery.isError || activeRules === 0
+                  ? t("messaging.overview.none")
+                  : `${t("messaging.overview.active", { count: activeRules })} · ${t("messaging.overview.sentMonth", { count: sentThisMonth })}`}
+            </p>
+            <div className="mt-4">
+              <Link to="/dashboard/messages/new" className={ctaClasses("secondary", "sm")}>
+                <Send size={15} aria-hidden className="rtl:-scale-x-100" />
+                {t("messaging.broadcast.cta")}
+              </Link>
+            </div>
           </Panel>
         </>
       ) : (

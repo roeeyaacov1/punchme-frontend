@@ -182,7 +182,13 @@ export interface paths {
         get: operations["apps_businesses_api_get_business"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete Business
+         * @description Deletes the business, its card designs, every customer card issued
+         *     from them, and the wallet passes behind those cards. 409 while a Stripe
+         *     subscription is still live.
+         */
+        delete: operations["apps_businesses_api_delete_business"];
         options?: never;
         head?: never;
         /** Patch Business */
@@ -234,7 +240,13 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete Template
+         * @description Deletes the card design plus every card issued from it — there is no
+         *     soft-delete here, since the point is to stop paying for the wallet
+         *     passes. Use PATCH is_active=false to just take a card out of service.
+         */
+        delete: operations["apps_businesses_api_delete_template"];
         options?: never;
         head?: never;
         /** Patch Template */
@@ -447,6 +459,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/businesses/{business_id}/customers/{card_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Customer
+         * @description Removes a customer from the roster: their card, its history, and the
+         *     wallet pass it issued.
+         */
+        delete: operations["apps_loyalty_api_delete_customer"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/businesses/{business_id}/customers": {
         parameters: {
             query?: never;
@@ -524,6 +557,225 @@ export interface paths {
         };
         /** Subscription Status */
         get: operations["apps_billing_api_subscription_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/messaging/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Messaging Summary */
+        get: operations["apps_messaging_api_messaging_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/messaging/recipes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Messaging Recipes */
+        get: operations["apps_messaging_api_messaging_recipes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/messaging/audience": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Messaging Audience
+         * @description The live "will reach ~N customers" number while the owner edits a
+         *     rule.
+         */
+        get: operations["apps_messaging_api_messaging_audience"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/automations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Automations */
+        get: operations["apps_messaging_api_list_automations"];
+        put?: never;
+        /** Create Automation */
+        post: operations["apps_messaging_api_create_automation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/automations/{automation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Automation */
+        get: operations["apps_messaging_api_get_automation"];
+        put?: never;
+        post?: never;
+        /** Delete Automation */
+        delete: operations["apps_messaging_api_delete_automation"];
+        options?: never;
+        head?: never;
+        /** Patch Automation */
+        patch: operations["apps_messaging_api_patch_automation"];
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/automations/{automation_id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Activate Automation */
+        post: operations["apps_messaging_api_activate_automation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/automations/{automation_id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pause Automation */
+        post: operations["apps_messaging_api_pause_automation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/automations/{automation_id}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Test Automation
+         * @description Send this rule's text (with its gift) to the owner's own preview
+         *     card, rendered for a sample customer.
+         */
+        post: operations["apps_messaging_api_test_automation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/messaging/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Test Message
+         * @description Ad-hoc test-send for text the owner is still composing.
+         */
+        post: operations["apps_messaging_api_test_message"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/broadcasts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Broadcasts */
+        get: operations["apps_messaging_api_list_broadcasts"];
+        put?: never;
+        /** Create Broadcast */
+        post: operations["apps_messaging_api_create_broadcast"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/broadcasts/{broadcast_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Broadcast */
+        get: operations["apps_messaging_api_get_broadcast"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/messaging/deliveries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Deliveries */
+        get: operations["apps_messaging_api_list_deliveries"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1175,6 +1427,8 @@ export interface components {
             card_serial: string;
             /** Stamps */
             stamps: number;
+            /** Source */
+            source: string;
             /**
              * Created At
              * Format: date-time
@@ -1218,6 +1472,376 @@ export interface components {
             plan: string;
             /** Current Period End */
             current_period_end: string | null;
+        };
+        /** MessagingSummaryOut */
+        MessagingSummaryOut: {
+            /** Can Send */
+            can_send: boolean;
+            /** Is Pro */
+            is_pro: boolean;
+            /** Customers With Card */
+            customers_with_card: number;
+            /** Customers With Birthday */
+            customers_with_birthday: number;
+            /** Inactive Counts */
+            inactive_counts: {
+                [key: string]: number;
+            };
+            /** Reward Waiting Count */
+            reward_waiting_count: number;
+            /** Birthdays This Month */
+            birthdays_this_month: number;
+            /** Sent This Month */
+            sent_this_month: number;
+            /** Broadcasts Used 7D */
+            broadcasts_used_7d: number;
+            /** Broadcasts Limit 7D */
+            broadcasts_limit_7d: number;
+            /** Next Broadcast Allowed At */
+            next_broadcast_allowed_at: string | null;
+            /** Scheduler Last Tick At */
+            scheduler_last_tick_at: string | null;
+            /** Dispatch Enabled */
+            dispatch_enabled: boolean;
+        };
+        /** RecipeOut */
+        RecipeOut: {
+            /** Key */
+            key: string;
+            /** Kind */
+            kind: string;
+            /** Language */
+            language: string;
+            /** Name */
+            name: string;
+            /** Summary */
+            summary: string;
+            /** Title */
+            title: string;
+            /** Body With Gift */
+            body_with_gift: string;
+            /** Body Without Gift */
+            body_without_gift: string;
+            /** Gift Stamps */
+            gift_stamps: number;
+            /** Gift Complete Card */
+            gift_complete_card: boolean;
+            /** Inactive Days */
+            inactive_days: number | null;
+            /** Repeat Days */
+            repeat_days: number | null;
+            /** Birthday Days Before */
+            birthday_days_before: number;
+            /** Reward Waiting Days */
+            reward_waiting_days: number | null;
+            /** Send Hour Local */
+            send_hour_local: number;
+        };
+        /** AudienceOut */
+        AudienceOut: {
+            /** Count */
+            count: number;
+        };
+        /** AutomationOut */
+        AutomationOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Kind */
+            kind: string;
+            /** Status */
+            status: string;
+            /** Is Active */
+            is_active: boolean;
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /** Gift Stamps */
+            gift_stamps: number;
+            /** Gift Complete Card */
+            gift_complete_card: boolean;
+            /** Inactive Days */
+            inactive_days: number | null;
+            /** Repeat Days */
+            repeat_days: number | null;
+            /** Birthday Days Before */
+            birthday_days_before: number;
+            /** Reward Waiting Days */
+            reward_waiting_days: number | null;
+            /** Send Hour Local */
+            send_hour_local: number;
+            /** Opt In Only */
+            opt_in_only: boolean;
+            /** Template Id */
+            template_id: string | null;
+            /** Next Run At */
+            next_run_at: string | null;
+            /** Last Run Local Date */
+            last_run_local_date: string | null;
+            /** Audience Count */
+            audience_count: number;
+            /** Sent Total */
+            sent_total: number;
+            /** Failed Total */
+            failed_total: number;
+            /** Reached Total */
+            reached_total: number;
+            /** Sent This Month */
+            sent_this_month: number;
+            /** Last Sent At */
+            last_sent_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * AutomationIn
+         * @description Create. Ranges/placeholders are validated in services so the error
+         *     carries a field-level slug (`automation_invalid`).
+         */
+        AutomationIn: {
+            /** Name */
+            name: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "inactive" | "birthday" | "reward_waiting";
+            /**
+             * Title
+             * @default
+             */
+            title: string;
+            /** Body */
+            body: string;
+            /**
+             * Gift Stamps
+             * @default 0
+             */
+            gift_stamps: number;
+            /**
+             * Gift Complete Card
+             * @default false
+             */
+            gift_complete_card: boolean;
+            /** Inactive Days */
+            inactive_days?: number | null;
+            /** Repeat Days */
+            repeat_days?: number | null;
+            /**
+             * Birthday Days Before
+             * @default 0
+             */
+            birthday_days_before: number;
+            /** Reward Waiting Days */
+            reward_waiting_days?: number | null;
+            /**
+             * Send Hour Local
+             * @default 10
+             */
+            send_hour_local: number;
+            /**
+             * Opt In Only
+             * @default false
+             */
+            opt_in_only: boolean;
+            /** Template Id */
+            template_id?: string | null;
+            /**
+             * Is Active
+             * @default false
+             */
+            is_active: boolean;
+        };
+        /**
+         * AutomationPatchIn
+         * @description Partial update: only fields present in the body change.
+         */
+        AutomationPatchIn: {
+            /** Name */
+            name?: string | null;
+            /** Title */
+            title?: string | null;
+            /** Body */
+            body?: string | null;
+            /** Gift Stamps */
+            gift_stamps?: number | null;
+            /** Gift Complete Card */
+            gift_complete_card?: boolean | null;
+            /** Inactive Days */
+            inactive_days?: number | null;
+            /** Repeat Days */
+            repeat_days?: number | null;
+            /** Birthday Days Before */
+            birthday_days_before?: number | null;
+            /** Reward Waiting Days */
+            reward_waiting_days?: number | null;
+            /** Send Hour Local */
+            send_hour_local?: number | null;
+            /** Opt In Only */
+            opt_in_only?: boolean | null;
+            /** Template Id */
+            template_id?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /** TestSendOut */
+        TestSendOut: {
+            /** Pass Url */
+            pass_url: string | null;
+            /** Gift Granted */
+            gift_granted: number;
+            /** Title Rendered */
+            title_rendered: string;
+            /** Body Rendered */
+            body_rendered: string;
+        };
+        /** TestSendIn */
+        TestSendIn: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "inactive" | "birthday" | "reward_waiting" | "broadcast";
+            /**
+             * Title
+             * @default
+             */
+            title: string;
+            /** Body */
+            body: string;
+            /**
+             * Gift Stamps
+             * @default 0
+             */
+            gift_stamps: number;
+            /**
+             * Gift Complete Card
+             * @default false
+             */
+            gift_complete_card: boolean;
+            /** Inactive Days */
+            inactive_days?: number | null;
+            /** Reward Waiting Days */
+            reward_waiting_days?: number | null;
+            /** Template Id */
+            template_id?: string | null;
+        };
+        /** BroadcastOut */
+        BroadcastOut: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /** Status */
+            status: string;
+            /** Gift Stamps */
+            gift_stamps: number;
+            /** Gift Complete Card */
+            gift_complete_card: boolean;
+            /** Opt In Only */
+            opt_in_only: boolean;
+            /** Template Id */
+            template_id: string | null;
+            /** Audience Count */
+            audience_count: number;
+            /** Sent Count */
+            sent_count: number;
+            /** Failed Count */
+            failed_count: number;
+            /** Skipped Count */
+            skipped_count: number;
+            /** Pending Count */
+            pending_count: number;
+            /** Reached Count */
+            reached_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Sent At */
+            sent_at: string | null;
+        };
+        /** BroadcastIn */
+        BroadcastIn: {
+            /**
+             * Title
+             * @default
+             */
+            title: string;
+            /** Body */
+            body: string;
+            /**
+             * Gift Stamps
+             * @default 0
+             */
+            gift_stamps: number;
+            /**
+             * Gift Complete Card
+             * @default false
+             */
+            gift_complete_card: boolean;
+            /**
+             * Opt In Only
+             * @default false
+             */
+            opt_in_only: boolean;
+            /** Template Id */
+            template_id?: string | null;
+        };
+        /** PagedBroadcastOut */
+        PagedBroadcastOut: {
+            /** Items */
+            items: components["schemas"]["BroadcastOut"][];
+            /** Count */
+            count: number;
+        };
+        /** DeliveryOut */
+        DeliveryOut: {
+            /** Id */
+            id: number;
+            /** Automation Id */
+            automation_id: string;
+            /** Kind */
+            kind: string;
+            /** Customer Display Name */
+            customer_display_name: string;
+            /** Status */
+            status: string;
+            /** Skip Reason */
+            skip_reason: string;
+            /** Gift Granted */
+            gift_granted: number;
+            /** Title Rendered */
+            title_rendered: string;
+            /** Body Rendered */
+            body_rendered: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Sent At */
+            sent_at: string | null;
+        };
+        /** PagedDeliveryOut */
+        PagedDeliveryOut: {
+            /** Items */
+            items: components["schemas"]["DeliveryOut"][];
+            /** Count */
+            count: number;
         };
         /** CatalogTemplateOut */
         CatalogTemplateOut: {
@@ -1624,6 +2248,26 @@ export interface operations {
             };
         };
     };
+    apps_businesses_api_delete_business: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     apps_businesses_api_patch_business: {
         parameters: {
             query?: never;
@@ -1721,6 +2365,27 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["CardTemplateOut"];
                 };
+            };
+        };
+    };
+    apps_businesses_api_delete_template: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -2028,6 +2693,27 @@ export interface operations {
             };
         };
     };
+    apps_loyalty_api_delete_customer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                card_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     apps_loyalty_api_list_customers: {
         parameters: {
             query?: {
@@ -2145,6 +2831,395 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SubscriptionOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_messaging_summary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessagingSummaryOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_messaging_recipes: {
+        parameters: {
+            query?: {
+                language?: string;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecipeOut"][];
+                };
+            };
+        };
+    };
+    apps_messaging_api_messaging_audience: {
+        parameters: {
+            query: {
+                kind: string;
+                inactive_days?: number | null;
+                reward_waiting_days?: number | null;
+                birthday_days_before?: number;
+                opt_in_only?: boolean;
+                template_id?: string | null;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AudienceOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_list_automations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutomationOut"][];
+                };
+            };
+        };
+    };
+    apps_messaging_api_create_automation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AutomationIn"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutomationOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_get_automation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                automation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutomationOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_delete_automation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                automation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    apps_messaging_api_patch_automation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                automation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AutomationPatchIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutomationOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_activate_automation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                automation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutomationOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_pause_automation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                automation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutomationOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_test_automation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                automation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestSendOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_test_message: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestSendIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestSendOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_list_broadcasts: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number | null;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedBroadcastOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_create_broadcast: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BroadcastIn"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BroadcastOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_get_broadcast: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                broadcast_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BroadcastOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_list_deliveries: {
+        parameters: {
+            query?: {
+                automation_id?: string | null;
+                page?: number;
+                page_size?: number | null;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedDeliveryOut"];
                 };
             };
         };

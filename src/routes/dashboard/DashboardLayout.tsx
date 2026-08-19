@@ -11,7 +11,7 @@ import { CardChip } from "../../components/dashboard/CardChip";
 import {
   BottomBar,
   MoreSheet,
-  SETUP_PATHS,
+  isMorePath,
   SidebarNav,
   SetupRows,
 } from "../../components/dashboard/DashboardNav";
@@ -57,7 +57,7 @@ export function DashboardLayout() {
     setMoreOpen(false);
   }, [location.pathname]);
 
-  const onSetupRoute = SETUP_PATHS.includes(location.pathname);
+  const onSetupRoute = isMorePath(location.pathname);
   const name = business?.name ?? "";
 
   const identity = (

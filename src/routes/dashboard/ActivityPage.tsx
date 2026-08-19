@@ -143,12 +143,18 @@ export function ActivityPage() {
                         <Figure dir="ltr" className="text-ink-subtle">
                           {event.card_serial}
                         </Figure>
-                        {event.business_user_email && (
-                          <span className="ms-2">
-                            {t("dashboard.activity.by", {
-                              who: event.business_user_email,
-                            })}
-                          </span>
+                        {event.source === "automation" ? (
+                          <Tag tone="accent" className="ms-2 align-middle">
+                            {t("messaging.activity.gift")}
+                          </Tag>
+                        ) : (
+                          event.business_user_email && (
+                            <span className="ms-2">
+                              {t("dashboard.activity.by", {
+                                who: event.business_user_email,
+                              })}
+                            </span>
+                          )
                         )}
                       </span>
 

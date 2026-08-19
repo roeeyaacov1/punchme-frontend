@@ -421,7 +421,7 @@
     "phoneRequiredLabel": "Mobile phone number",
     "birthdayLabel": "Birthday (optional)",
     "birthdayHint": "Used only for a birthday treat. You can join without it.",
-    "marketingOptIn": "I agree to receive marketing messages and updates from this business, including club benefits, by SMS. You can withdraw consent at any time.",
+    "marketingOptIn": "I agree to receive marketing messages and updates from this business, including club benefits, by SMS and as alerts on my wallet card. You can withdraw consent at any time.",
     "privacySummary": "How is my data handled? (privacy notice)",
     "privacyNotice": "Providing your details is not required by law and is entirely voluntary; without them we cannot enroll you in the club and issue your loyalty card. The details you provide (name, mobile number, and birthday — if you chose to share it) are stored in this business's customer database (the data controller) and processed on its behalf by PunchMe, the digital loyalty-card service, for managing the club, awarding stamps and rewards, and issuing a card to your digital wallet (Apple Wallet / Google Wallet) via wallet infrastructure providers. Your data is not shared with other third parties except as required by law.\n\nYou have the right to access data about you, to request correction or deletion of data that is inaccurate, incomplete, or outdated (sections 13–14 of the Israeli Privacy Protection Law, 1981), and to demand in writing deletion from the direct-mailing database (section 17F).",
     "sendCodeCta": "Send SMS verification code",
@@ -467,7 +467,8 @@
       "billing": "Billing",
       "signOut": "Sign out",
       "label": "Dashboard sections",
-      "more": "More"
+      "more": "More",
+      "messages": "Customer messages"
     },
     "plan": {
       "free": "Free",
@@ -560,7 +561,8 @@
     "groups": {
       "counter": "Counter",
       "setup": "Setup",
-      "account": "Account"
+      "account": "Account",
+      "marketing": "Marketing"
     },
     "theme": {
       "label": "Appearance",
@@ -963,6 +965,184 @@
       "body": "Join the business owners already earning more with PunchMe.",
       "cta": "Create your customer club — free",
       "note": "No credit card. No commitment."
+    }
+  },
+  "messaging": {
+    "title": "Customer messages",
+    "lead": "A message that pops up in the customer's wallet — no app, no SMS. Set a rule once and it runs on its own.",
+    "nav": "Customer messages",
+    "guard": {
+      "pro": "Messaging real customers is a Pro feature. You can write rules and send yourself a sample right now.",
+      "proLink": "Go Pro",
+      "notEnabled": "Messaging isn't open for your business yet — we're rolling it out gradually.",
+      "schedulerStale": "The rules haven't run in the last hour. If this keeps up, write to us.",
+      "dispatchOff": "Sending is paused on our side for a moment. Rules pick up where they stopped."
+    },
+    "summary": {
+      "withCard": "Customers with a card",
+      "inactive30": "No visit in 30 days",
+      "rewardWaiting": "Reward waiting",
+      "sentMonth": "Messages this month"
+    },
+    "broadcast": {
+      "title": "Message everyone",
+      "hint": "A slow day? A special? One message to all your customers, now.",
+      "cta": "Message everyone",
+      "left_one": "{{count}} send left this week",
+      "left_other": "{{count}} sends left this week",
+      "nextAllowed": "Next send possible at {{when}}",
+      "composerTitle": "Message all customers",
+      "composerLead": "Goes out now to every customer with a card. You can add a gift stamp.",
+      "send_one": "Send to {{count}} customer",
+      "send_other": "Send to {{count}} customers",
+      "sendZero": "Nobody to send to right now",
+      "confirmTitle": "Send now?",
+      "confirmBody_one": "The message goes out now to {{count}} customer and cannot be undone.",
+      "confirmBody_other": "The message goes out now to {{count}} customers and cannot be undone.",
+      "confirmYes": "Yes, send now",
+      "sent": "Your message is on its way. Progress shows below.",
+      "quota": "To keep from flooding customers you can send up to {{max}} broadcasts a week. {{next}}"
+    },
+    "automations": {
+      "title": "Automatic rules",
+      "hint": "Set once, they run on their own — every day at the hour you pick.",
+      "new": "New rule",
+      "empty": "No rules yet. Start from a ready one:",
+      "pickRecipe": "Which rule to add?",
+      "start": "Start",
+      "sentMonth_one": "Sent to {{count}} customer this month",
+      "sentMonth_other": "Sent to {{count}} customers this month",
+      "nextRun": "Next: {{when}}",
+      "off": "Off",
+      "on": "On",
+      "switchLabel": "Rule is on",
+      "deleted": "Rule removed."
+    },
+    "kinds": {
+      "inactive": "Win-back",
+      "birthday": "Birthday",
+      "reward_waiting": "Reward waiting",
+      "broadcast": "Message everyone"
+    },
+    "describe": {
+      "birthdayToday": "On the birthday",
+      "gift_one": "{{count}} gift stamp",
+      "gift_other": "{{count}} gift stamps",
+      "giftFull": "Full card as a gift",
+      "at": "at {{hour}}",
+      "optIn": "opted-in customers only",
+      "inactive": "Customer away {{days}}",
+      "repeat": "and again every {{days}}",
+      "birthdayBefore": "{{days}} before the birthday",
+      "rewardWaiting": "Reward waiting {{days}}"
+    },
+    "editor": {
+      "newTitle": "New rule",
+      "editTitle": "Edit rule",
+      "name": "Rule name",
+      "namePlaceholder": "e.g. Win back customers who drifted away",
+      "when": "When",
+      "inactiveDays": "Customers who haven't visited in",
+      "customDays": "Other",
+      "customDaysLabel": "Number of days",
+      "repeat": "Remind again every few days while they stay away",
+      "repeatEvery": "Every how many days",
+      "birthdayWhen": "When to send",
+      "onTheDay": "On the birthday",
+      "rewardWaitingDays": "Days after the card filled up",
+      "sendHour": "Send at",
+      "what": "What to say",
+      "titleLabel": "Title (optional)",
+      "titlePlaceholder": "Default: your business name",
+      "body": "Message",
+      "bodyPlaceholder": "Write your message here…",
+      "chars": "{{used}}/{{max}}",
+      "insert": "Insert:",
+      "chip": {
+        "name": "Customer name",
+        "business": "Business name",
+        "reward": "The reward",
+        "days": "Number of days"
+      },
+      "unknownPlaceholder": "Unknown keyword: {{token}}",
+      "previewLabel": "Roughly how it looks on the lock screen",
+      "previewNow": "now",
+      "languageHint": "The message is sent in the card's language ({{language}}).",
+      "languageHE": "Hebrew",
+      "languageEN": "English",
+      "gift": "Gift",
+      "giftToggle": "Add gift stamps",
+      "giftCount": "How many stamps",
+      "giftFull": "Fill the card (reward ready to redeem)",
+      "giftExplain": "The gift lands on the card together with the message. A full card waiting to be redeemed gets no more, and a gift doesn't count as a visit.",
+      "giftMismatch": "The text promises a gift, but the gift is off.",
+      "who": "Who",
+      "audience_one": "Will reach {{count}} customer",
+      "audience_other": "Will reach about {{count}} customers",
+      "audienceZero": "No customer matches right now — it sends when someone does.",
+      "audienceToday": "Matching right now: {{matching}}",
+      "audienceNote": "Sent to every customer with an active card.",
+      "optInOnly": "Only customers who agreed to receive messages",
+      "scopeAll": "All cards",
+      "scopeLabel": "Which card",
+      "test": "Send me a sample",
+      "tested": "Sent to your own card. If it isn't on your phone yet, add it from the Overview page.",
+      "saveOn": "Save and turn on",
+      "saveChanges": "Save changes",
+      "saveOff": "Save as off",
+      "delete": "Remove rule",
+      "deleteConfirm": "Remove this rule? Its history is kept.",
+      "deleteYes": "Yes, remove",
+      "cancel": "Cancel",
+      "back": "Back to messages",
+      "saved": "Rule saved.",
+      "daysBefore": "{{days}} before",
+      "audienceZeroNow": "No customers with a card to send to right now."
+    },
+    "history": {
+      "title": "Messages sent to everyone",
+      "empty": "Nothing sent yet. A quiet day at the shop is a good moment for the first one.",
+      "sentOf": "{{sent}} of {{total}}",
+      "failed_one": "{{count}} failed",
+      "failed_other": "{{count}} failed",
+      "status": {
+        "sending": "Sending…",
+        "sent": "Sent"
+      }
+    },
+    "errors": {
+      "name_required": "Give the rule a name.",
+      "name_too_long": "The name is too long (60 characters max).",
+      "title_too_long": "The title is too long ({{max}} characters max).",
+      "body_required": "Write the message.",
+      "body_too_long": "The message is too long ({{max}} characters max).",
+      "gift_range": "That number of gift stamps isn't allowed.",
+      "inactive_days_range": "Days must be between 7 and 365.",
+      "repeat_days_range": "The repeat must be between 7 and 365 days.",
+      "send_hour_range": "Send time must be between 8:00 and 21:00.",
+      "birthday_days_before_range": "You can send up to 14 days before the birthday.",
+      "reward_waiting_days_range": "Days must be between 1 and 90.",
+      "missing_param": "A number of days is missing.",
+      "too_many_automations": "You've reached the maximum number of rules. Remove an old one to add another.",
+      "unknown_placeholder": "Unknown keyword: {{token}}",
+      "previewMissing": "We couldn't prepare your own card just now — try again in a moment.",
+      "unavailable": "Sending isn't available right now, try again in a few minutes.",
+      "quota": "You've reached this week's broadcast limit. {{next}}",
+      "upgrade": "Turning rules on and messaging real customers is a Pro feature.",
+      "notEnabled": "Messaging isn't open for your business yet.",
+      "generic": "Something went wrong. Try again."
+    },
+    "overview": {
+      "title": "Customer messages",
+      "none": "No automatic rules yet.",
+      "active_one": "{{count}} rule on",
+      "active_other": "{{count}} rules on",
+      "sentMonth_one": "{{count}} message this month",
+      "sentMonth_other": "{{count}} messages this month",
+      "all": "All messages"
+    },
+    "activity": {
+      "gift": "gift"
     }
   }
 }

@@ -34,6 +34,9 @@ import { CustomersPage } from "./routes/dashboard/CustomersPage";
 import { ActivityPage } from "./routes/dashboard/ActivityPage";
 import { StandeePage } from "./routes/dashboard/StandeePage";
 import { BillingSettingsPage } from "./routes/dashboard/BillingSettingsPage";
+import { MessagesPage } from "./routes/dashboard/MessagesPage";
+import { AutomationEditorPage } from "./routes/dashboard/AutomationEditorPage";
+import { BroadcastComposerPage } from "./routes/dashboard/BroadcastComposerPage";
 import { BillingSuccessPage } from "./routes/billing/BillingSuccessPage";
 import { BillingCancelPage } from "./routes/billing/BillingCancelPage";
 import { RequireStaff } from "./auth/RequireStaff";
@@ -115,6 +118,16 @@ const router = createBrowserRouter([
                       { path: "design", element: <DesignPage /> },
                       { path: "customers", element: <CustomersPage /> },
                       { path: "activity", element: <ActivityPage /> },
+                      { path: "messages", element: <MessagesPage /> },
+                      { path: "messages/new", element: <BroadcastComposerPage /> },
+                      {
+                        path: "messages/automations/new",
+                        element: <AutomationEditorPage />,
+                      },
+                      {
+                        path: "messages/automations/:automationId",
+                        element: <AutomationEditorPage />,
+                      },
                       { path: "standee", element: <StandeePage /> },
                       { path: "billing", element: <BillingSettingsPage /> },
                     ],

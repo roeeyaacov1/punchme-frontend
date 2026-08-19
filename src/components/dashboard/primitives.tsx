@@ -194,3 +194,118 @@ export function Figure({
 }: HTMLAttributes<HTMLSpanElement>) {
   return <span className={cn("t-figure", className)} {...props} />;
 }
+
+/**
+ * On or off, said once. A real switch (role, aria-checked, space/enter) so a
+ * screen reader calls it what it is, 44px tall so a thumb can hit it, and the
+ * label is part of the control — tapping the words flips it too.
+ */
+export function Toggle({
+  checked,
+  onChange,
+  label,
+  description,
+  disabled,
+  className,
+}: {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  label: string;
+  description?: string;
+  disabled?: boolean;
+  className?: string;
+}) {
+  return (
+    <label
+      className={cn(
+        "flex min-h-[44px] cursor-pointer items-start gap-3 rounded-xl",
+        disabled && "cursor-not-allowed opacity-60",
+        className,
+      )}
+    >
+      <span className="relative mt-2.5 inline-flex shrink-0">
+        <input
+          type="checkbox"
+          role="switch"
+          aria-checked={checked}
+          checked={checked}
+          disabled={disabled}
+          onChange={(e) => onChange(e.target.checked)}
+          className="peer sr-only"
+        />
+        <span
+          aria-hidden
+          className={cn(
+            "block h-6 w-11 rounded-full border border-transparent transition-colors",
+            "peer-focus-visible:ring-2 peer-focus-visible:ring-primary-text peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background",
+            checked ? "bg-primary" : "bg-ink/20",
+          )}
+        />
+        <span
+          aria-hidden
+          className={cn(
+            "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform",
+            // Logical start edge; the knob slides toward the end edge in
+            // either writing direction.
+            "start-0.5",
+            checked && "ltr:translate-x-5 rtl:-translate-x-5",
+          )}
+        />
+      </span>
+      <span className="min-w-0 py-2.5">
+        <span className="block text-sm font-medium text-ink">{label}</span>
+        {description && (
+          <span className="mt-0.5 block text-sm text-ink-muted">{description}</span>
+        )}
+      </span>
+    </label>
+  );
+}
+
+/**
+ * A few mutually exclusive choices in one row — the theme picker's shape,
+ * generalised. `aria-pressed` per option, one group label for the lot.
+ */
+export function SegmentedControl<T extends string | number>({
+  value,
+  options,
+  onChange,
+  label,
+  className,
+}: {
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (value: T) => void;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label={label}
+      className={cn(
+        "inline-flex max-w-full flex-wrap rounded-xl border border-border bg-background p-1",
+        className,
+      )}
+    >
+      {options.map((option) => {
+        const active = option.value === value;
+        return (
+          <button
+            key={String(option.value)}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onChange(option.value)}
+            className={cn(
+              "inline-flex min-h-[44px] flex-1 items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors",
+              active ? "bg-primary text-primary-on" : "text-ink-muted hover:text-ink",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            )}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}

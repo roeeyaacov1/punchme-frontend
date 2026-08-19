@@ -6,6 +6,7 @@ import {
   Ellipsis,
   Palette,
   Printer,
+  Send,
   Stamp,
   Store,
   Users,
@@ -16,16 +17,17 @@ import { cn } from "../../lib/cn";
 import { GroupLabel } from "./primitives";
 
 /**
- * Six destinations, in the two groups they actually fall into.
+ * Seven destinations, in the three groups they actually fall into.
  *
- * The old header listed all six in one row of pills, which said they were
- * six equal things to keep an eye on. They are not: three of them are the
- * counter — what an owner reads between customers, possibly daily — and
- * three are setup, which is done once and then revisited when something
- * changes. Saying so is the difference between a dashboard you can scan and
- * a menu you have to read.
+ * The old header listed them in one row of pills, which said they were
+ * equal things to keep an eye on. They are not: three of them are the
+ * counter — what an owner reads between customers, possibly daily — one is
+ * marketing (messages to customers: set a rule once, send a broadcast on a
+ * slow day), and three are setup, which is done once and then revisited when
+ * something changes. Saying so is the difference between a dashboard you can
+ * scan and a menu you have to read.
  *
- * `to` and `end` are exactly as they were. Nothing here changes a route.
+ * Only the first group gets a tab on the phone; the rest live behind "More".
  */
 export const NAV_GROUPS = [
   {
@@ -37,6 +39,10 @@ export const NAV_GROUPS = [
     ],
   },
   {
+    key: "marketing",
+    items: [{ to: "/dashboard/messages", end: false, key: "messages", Icon: Send }],
+  },
+  {
     key: "setup",
     items: [
       { to: "/dashboard/design", end: false, key: "design", Icon: Palette },
@@ -46,9 +52,16 @@ export const NAV_GROUPS = [
   },
 ] as const;
 
-export const SETUP_PATHS: readonly string[] = NAV_GROUPS[1].items.map(
-  (item) => item.to,
+/** Every route that lives behind the phone's "More" tab — all groups but
+ * the first. Sub-routes (`/dashboard/messages/new`) count as their parent,
+ * so the tab lights up on them too. */
+export const MORE_PATHS: readonly string[] = NAV_GROUPS.slice(1).flatMap((group) =>
+  group.items.map((item) => item.to),
 );
+
+export function isMorePath(pathname: string): boolean {
+  return MORE_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
 
 const ROW_BASE =
   "inline-flex w-full min-h-[44px] items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors";
@@ -280,23 +293,28 @@ export function MoreSheet({
   );
 }
 
-/** The setup group, laid out for the sheet. */
+/** The groups behind "More" (everything but the counter), laid out for the
+ * sheet. */
 export function SetupRows({ onNavigate }: { onNavigate: () => void }) {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col gap-1">
-      <GroupLabel className="px-3 pb-1">
-        {t("dashboard.groups.setup")}
-      </GroupLabel>
-      {NAV_GROUPS[1].items.map((item) => (
-        <NavRow
-          key={item.key}
-          to={item.to}
-          end={item.end}
-          Icon={item.Icon}
-          label={t(`dashboard.nav.${item.key}`)}
-          onClick={onNavigate}
-        />
+    <div className="flex flex-col gap-4">
+      {NAV_GROUPS.slice(1).map((group) => (
+        <div key={group.key} className="flex flex-col gap-1">
+          <GroupLabel className="px-3 pb-1">
+            {t(`dashboard.groups.${group.key}`)}
+          </GroupLabel>
+          {group.items.map((item) => (
+            <NavRow
+              key={item.key}
+              to={item.to}
+              end={item.end}
+              Icon={item.Icon}
+              label={t(`dashboard.nav.${item.key}`)}
+              onClick={onNavigate}
+            />
+          ))}
+        </div>
       ))}
     </div>
   );
