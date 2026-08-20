@@ -11,6 +11,7 @@ import {
 import { NotificationPreview } from "./NotificationPreview";
 import {
   findUnknownPlaceholders,
+  findUnsupportedPlaceholders,
   insertAtCaret,
   mentionsGift,
   placeholdersFor,
@@ -96,6 +97,14 @@ export function MessageForm({
     ...findUnknownPlaceholders(value.title, kind),
     ...findUnknownPlaceholders(value.body, kind),
   ];
+  // Known tokens this kind can't carry — `{שם}` in a broadcast. The send
+  // refuses them, so say so here rather than after the owner presses send.
+  const unsupported = Array.from(
+    new Set([
+      ...findUnsupportedPlaceholders(value.title, kind),
+      ...findUnsupportedPlaceholders(value.body, kind),
+    ]),
+  );
   const hasGift = value.gift_stamps > 0 || value.gift_complete_card;
   const giftMismatch = !hasGift && mentionsGift(value.body);
 
@@ -222,6 +231,11 @@ export function MessageForm({
             {unknown.length > 0 && (
               <Notice tone="warn">
                 {t("messaging.editor.unknownPlaceholder", { token: unknown.join(" ") })}
+              </Notice>
+            )}
+            {unsupported.length > 0 && (
+              <Notice tone="warn">
+                {t("messaging.editor.unsupportedPlaceholder", { token: unsupported.join(" ") })}
               </Notice>
             )}
             <p className="text-xs text-ink-subtle">

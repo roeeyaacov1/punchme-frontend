@@ -68,7 +68,19 @@ export function messagingErrorMessage(error: unknown, t: TFunction, lang: string
         });
       }
       if (detail.startsWith("missing_param:")) return t("messaging.errors.missing_param");
+      // What the wallet provider cannot address. A message is published to a
+      // whole card design, so anything promising a narrower or personalised
+      // audience is refused — name which, instead of falling through to
+      // "something went wrong" and reading like an outage.
+      if (detail.startsWith("placeholder_unsupported:")) {
+        return t("messaging.errors.placeholder_unsupported", {
+          token: t(`messaging.editor.chip.${detail.slice("placeholder_unsupported:".length)}`),
+        });
+      }
+      if (detail.startsWith("kind_unsupported:")) return t("messaging.errors.kind_unsupported");
       const known = [
+        "opt_in_only_unsupported",
+        "test_send_would_reach_customers",
         "name_required",
         "name_too_long",
         "title_too_long",

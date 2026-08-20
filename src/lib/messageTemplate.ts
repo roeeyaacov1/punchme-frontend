@@ -40,10 +40,29 @@ const DAYS_KINDS: MessageKind[] = ["inactive", "reward_waiting"];
 
 export const SAMPLE_NAMES: Record<MessageLanguage, string> = { HE: "דנה", EN: "Dana" };
 
-export function placeholdersFor(kind: MessageKind, language: MessageLanguage): Placeholder[] {
-  const keys: PlaceholderKey[] = ["name", "business", "reward"];
+/**
+ * The placeholders a kind may carry — mirrors `allowed_keys` in
+ * apps/messaging/rendering.py, which is what the send enforces.
+ *
+ * `{days}` needs a day count, which only the lapsed / reward-waiting rules
+ * have. `{name}` needs per-customer delivery: a broadcast is published to a
+ * whole CARD DESIGN, so one message cannot say two different names. The API
+ * refuses it, and offering the chip only walked owners into that refusal
+ * after they had written the whole message.
+ */
+export function allowedPlaceholderKeys(kind: MessageKind): PlaceholderKey[] {
+  const keys: PlaceholderKey[] = [];
+  if (kind !== "broadcast") keys.push("name");
+  keys.push("business", "reward");
   if (DAYS_KINDS.includes(kind)) keys.push("days");
-  return keys.map((key) => ({ key, token: `{${SPELLINGS[key][language]}}` }));
+  return keys;
+}
+
+export function placeholdersFor(kind: MessageKind, language: MessageLanguage): Placeholder[] {
+  return allowedPlaceholderKeys(kind).map((key) => ({
+    key,
+    token: `{${SPELLINGS[key][language]}}`,
+  }));
 }
 
 export function placeholderToken(key: PlaceholderKey, language: MessageLanguage): string {
@@ -63,6 +82,21 @@ export function findUnknownPlaceholders(text: string, kind: MessageKind): string
     }
   }
   return Array.from(new Set(unknown));
+}
+
+/** Placeholders the renderer knows but this kind may not use — today just
+ * `{שם}` in a broadcast, which the send refuses with
+ * `placeholder_unsupported:name`. Warned while typing so nobody discovers
+ * it only after pressing send. `{days}` stays with the unknown tokens,
+ * which is how the API reports it. */
+export function findUnsupportedPlaceholders(text: string, kind: MessageKind): string[] {
+  const allowed = new Set(allowedPlaceholderKeys(kind));
+  const found: string[] = [];
+  for (const match of text.matchAll(TOKEN_RE)) {
+    const key = SPELLING_TO_KEY.get(match[1].trim());
+    if (key !== undefined && key !== "days" && !allowed.has(key)) found.push(match[0]);
+  }
+  return Array.from(new Set(found));
 }
 
 /** Hebrew counts 2–10 with the plural noun and 11+ with the singular

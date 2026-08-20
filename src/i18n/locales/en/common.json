@@ -1065,6 +1065,7 @@
         "days": "Number of days"
       },
       "unknownPlaceholder": "Unknown keyword: {{token}}",
+      "unsupportedPlaceholder": "{{token}} can't be used in a message to everyone. One message goes out to every customer holding this card, so it can't greet each of them by name — remove it to send.",
       "previewLabel": "Roughly how it looks on the lock screen",
       "previewNow": "now",
       "languageHint": "The message is sent in the card's language ({{language}}).",
@@ -1125,6 +1126,10 @@
       "missing_param": "A number of days is missing.",
       "too_many_automations": "You've reached the maximum number of rules. Remove an old one to add another.",
       "unknown_placeholder": "Unknown keyword: {{token}}",
+      "placeholder_unsupported": "\"{{token}}\" can't be used in a message to everyone. The same message goes to every customer holding this card, so it can't greet each of them by name — remove it and send again.",
+      "kind_unsupported": "Rules that message one customer at a time can't be switched on yet. Your wallet provider sends a message to everyone holding a card design at once, so a personal nudge isn't possible until per-customer sending is added. You can keep writing and saving rules in the meantime.",
+      "opt_in_only_unsupported": "A message goes to every customer holding this card, so it can't be limited to those who opted in. Turn that off to send.",
+      "test_send_would_reach_customers": "A test would reach every customer holding this card, not just you — so it's only available while nobody else has it.",
       "previewMissing": "We couldn't prepare your own card just now — try again in a moment.",
       "unavailable": "Sending isn't available right now, try again in a few minutes.",
       "quota": "You've reached this week's broadcast limit. {{next}}",

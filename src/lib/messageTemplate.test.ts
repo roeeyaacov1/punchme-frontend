@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   daysPhrase,
   findUnknownPlaceholders,
+  findUnsupportedPlaceholders,
   insertAtCaret,
   mentionsGift,
   placeholdersFor,
@@ -60,7 +61,7 @@ describe("daysPhrase + sampleContext", () => {
 
 describe("placeholdersFor", () => {
   it("offers days only where it means something, in the card's language", () => {
-    expect(placeholdersFor("broadcast", "HE").map((p) => p.token)).toEqual([
+    expect(placeholdersFor("birthday", "HE").map((p) => p.token)).toEqual([
       "{שם}",
       "{עסק}",
       "{פרס}",
@@ -71,6 +72,34 @@ describe("placeholdersFor", () => {
       "{reward}",
       "{days}",
     ]);
+  });
+
+  it("never offers the customer's name on a broadcast", () => {
+    // One message is published to a whole card design, so it cannot greet
+    // each holder by name. The API refuses it, and the chip used to walk
+    // owners straight into that refusal after they'd written the message.
+    expect(placeholdersFor("broadcast", "HE").map((p) => p.token)).toEqual(["{עסק}", "{פרס}"]);
+    expect(placeholdersFor("broadcast", "EN").map((p) => p.token)).toEqual([
+      "{business}",
+      "{reward}",
+    ]);
+  });
+});
+
+describe("findUnsupportedPlaceholders", () => {
+  it("flags the customer's name in a broadcast, in either spelling", () => {
+    expect(findUnsupportedPlaceholders("היי {שם}, יש מבצע", "broadcast")).toEqual(["{שם}"]);
+    expect(findUnsupportedPlaceholders("Hi {name}", "broadcast")).toEqual(["{name}"]);
+  });
+
+  it("leaves what the kind may use alone", () => {
+    expect(findUnsupportedPlaceholders("{עסק} {פרס}", "broadcast")).toEqual([]);
+    expect(findUnsupportedPlaceholders("היי {שם}", "inactive")).toEqual([]);
+  });
+
+  it("leaves days to findUnknownPlaceholders, which is how the API reports it", () => {
+    expect(findUnsupportedPlaceholders("{ימים}", "broadcast")).toEqual([]);
+    expect(findUnknownPlaceholders("{ימים}", "broadcast")).toEqual(["{ימים}"]);
   });
 });
 
