@@ -607,10 +607,8 @@
       "yesterday": "Yesterday",
       "by": "by {{who}}",
       "cardSerial": "Card",
-      "body": "Stamps per day over the last two weeks. Every stamp is listed below.",
+      "body": "Pick a day on the chart, or filter below, to find an event.",
       "chartTitle": "Stamps per day",
-      "inDays_one": "in 1 day",
-      "inDays_other": "in {{count}} days",
       "columns": {
         "date": "Date",
         "customer": "Customer",
@@ -625,7 +623,25 @@
         "removed_one": "Removed",
         "removed_other": "{{count}} removed",
         "import": "Import"
-      }
+      },
+      "chartTitleRemoved": "Stamps removed per day",
+      "chartHint": "Tap a day to show only its events.",
+      "period": {
+        "label": "Period",
+        "days_one": "1 day",
+        "days_other": "{{count}} days"
+      },
+      "searchLabel": "Search activity",
+      "searchPlaceholder": "Customer, card or staff",
+      "allActions": "Any action",
+      "allPeople": "Anyone",
+      "automatic": "Automatic",
+      "clearDay": "Clear the {{day}} filter",
+      "noMatches": "No events match these filters",
+      "emptyPeriod_one": "Nothing was stamped today",
+      "emptyPeriod_other": "Nothing was stamped in the last {{count}} days",
+      "showing": "Showing {{shown}} of {{total}}",
+      "truncated": "Showing the {{shown}} most recent events — the period holds more than this page can load."
     },
     "scan": {
       "title": "Scan a card",

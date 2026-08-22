@@ -611,12 +611,8 @@
       "yesterday": "אתמול",
       "by": "על ידי {{who}}",
       "cardSerial": "כרטיס",
-      "body": "ניקובים ליום בשבועיים האחרונים. כל הניקובים מפורטים מתחת.",
+      "body": "בחרו יום בגרף, או סננו למטה, כדי למצוא אירוע.",
       "chartTitle": "ניקובים ליום",
-      "inDays_one": "ביום אחד",
-      "inDays_two": "ב-{{count}} ימים",
-      "inDays_many": "ב-{{count}} ימים",
-      "inDays_other": "ב-{{count}} ימים",
       "columns": {
         "date": "תאריך",
         "customer": "לקוח",
@@ -635,7 +631,29 @@
         "removed_many": "{{count}} ניקובים הוסרו",
         "removed_other": "{{count}} ניקובים הוסרו",
         "import": "ייבוא"
-      }
+      },
+      "chartTitleRemoved": "ניקובים שהוסרו ליום",
+      "chartHint": "הקישו על יום כדי לראות רק את האירועים שלו.",
+      "period": {
+        "label": "תקופה",
+        "days_one": "יום",
+        "days_two": "{{count}} ימים",
+        "days_many": "{{count}} ימים",
+        "days_other": "{{count}} ימים"
+      },
+      "searchLabel": "חיפוש בפעילות",
+      "searchPlaceholder": "לקוח, כרטיס או עובד",
+      "allActions": "כל הפעולות",
+      "allPeople": "כולם",
+      "automatic": "אוטומטי",
+      "clearDay": "ביטול הסינון של {{day}}",
+      "noMatches": "אין אירועים שמתאימים לסינון",
+      "emptyPeriod_one": "לא נרשם ניקוב היום",
+      "emptyPeriod_two": "לא נרשמו ניקובים ב-{{count}} הימים האחרונים",
+      "emptyPeriod_many": "לא נרשמו ניקובים ב-{{count}} הימים האחרונים",
+      "emptyPeriod_other": "לא נרשמו ניקובים ב-{{count}} הימים האחרונים",
+      "showing": "מוצגים {{shown}} מתוך {{total}}",
+      "truncated": "מוצגים {{shown}} האירועים האחרונים — בתקופה הזו יש יותר ממה שאפשר לטעון בבת אחת."
     },
     "scan": {
       "title": "סריקת כרטיסייה",
