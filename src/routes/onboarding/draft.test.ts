@@ -7,6 +7,7 @@ import {
   emptyDraft,
   fingerprint,
   firstIncompleteStep,
+  hasDraftInProgress,
   parseDraft,
   resolveDraft,
   sampleStamps,
@@ -118,6 +119,41 @@ describe("firstIncompleteStep", () => {
     expect(firstIncompleteStep(d)).toBe("reward");
     d.stampsRequired = 13;
     expect(firstIncompleteStep(d)).toBe("reward");
+  });
+});
+
+describe("hasDraftInProgress", () => {
+  it("is false for nothing, and for a draft that only picked a trade", () => {
+    expect(hasDraftInProgress(null)).toBe(false);
+    expect(hasDraftInProgress(emptyDraft())).toBe(false);
+    const d = emptyDraft();
+    d.niche = "barber";
+    expect(hasDraftInProgress(d)).toBe(false);
+  });
+  it("is true once the owner has named the business or picked a colour", () => {
+    const named = emptyDraft();
+    named.name = "Danny's";
+    expect(hasDraftInProgress(named)).toBe(true);
+    const coloured = emptyDraft();
+    coloured.background = "#1F2937";
+    expect(hasDraftInProgress(coloured)).toBe(true);
+  });
+  it("stays true for a committed draft with nothing else left in it", () => {
+    const d = emptyDraft();
+    d.committed = {
+      businessId: "b1",
+      templateId: "t1",
+      fingerprint: "x",
+      artHash: null,
+      syncBaseline: null,
+      errorBaseline: "",
+    };
+    expect(hasDraftInProgress(d)).toBe(true);
+  });
+  it("ignores whitespace in the name", () => {
+    const d = emptyDraft();
+    d.name = "   ";
+    expect(hasDraftInProgress(d)).toBe(false);
   });
 });
 

@@ -188,6 +188,18 @@ export function firstIncompleteStep(
   return "account";
 }
 
+/** Is there a card half-designed on this device? True once the owner has
+ * named the business, picked a colour, or already committed — anything
+ * less is an untouched wizard, and nobody needs sending back to that.
+ *
+ * Not the same question as `firstIncompleteStep`: a draft with only the
+ * trade chosen still answers "business" there, but there is nothing in it
+ * worth returning for. */
+export function hasDraftInProgress(draft: OnboardingDraft | null): boolean {
+  if (!draft) return false;
+  return draft.committed !== null || draft.name.trim() !== "" || draft.background !== null;
+}
+
 /* ── Defaults per trade ──────────────────────────────────────────────── */
 
 /** The glyph a trade starts with. Every one is in the server registry. */

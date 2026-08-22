@@ -3,7 +3,7 @@ import { useAuth } from "../../auth/useAuth";
 import { BusinessProvider } from "../../business/BusinessProvider";
 import { useBusiness } from "../../business/useBusiness";
 import { useOnboardingDraft } from "./useOnboardingDraft";
-import { firstIncompleteStep } from "./draft";
+import { firstIncompleteStep, hasDraftInProgress } from "./draft";
 
 /**
  * `/onboarding` itself decides where the owner belongs:
@@ -42,7 +42,6 @@ function SignedInIndex() {
   if (!hasBusiness) return <Navigate to={`/onboarding/${first}`} replace />;
   if (draft.committed?.templateId) return <Navigate to="/onboarding/wallet" replace />;
 
-  const inProgress = draft.committed !== null || draft.name.trim() !== "" || draft.background !== null;
-  if (inProgress) return <Navigate to={`/onboarding/${first}`} replace />;
+  if (hasDraftInProgress(draft)) return <Navigate to={`/onboarding/${first}`} replace />;
   return <Navigate to="/dashboard" replace />;
 }
