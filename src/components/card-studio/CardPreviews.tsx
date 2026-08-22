@@ -95,6 +95,20 @@ function programName(value: CardPreviewValue): string {
   return card || business || "—";
 }
 
+/** The face Apple Wallet sets a pass in: the device's own system face, which
+ * IS SF on the phone and the Mac the owner is designing on. Nothing to load
+ * and nothing to substitute — asking for `system-ui` is asking for exactly
+ * what the pass will be set in, Hebrew included. */
+const APPLE_WALLET_FONT =
+  '-apple-system, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif';
+
+/** Apple sizes the barcode plate by symbology: a square for the square
+ * codes, a wide one for the linear pair. Measured off Apple's own store card
+ * and coupon (150x150 and 263x82 on a 343-wide pass). */
+function squareBarcode(format: string): boolean {
+  return format !== "PDF417" && format !== "CODE128";
+}
+
 /** The face Google Wallet sets a pass in, copied from its own renderer.
  * Google Sans is not public, so Roboto — loaded in index.html for exactly
  * this — carries the Latin. Hebrew falls through to the system face on
@@ -144,55 +158,103 @@ function StripArt({
   );
 }
 
-/** Apple Wallet storeCard layout: logo row up top, the strip (stamp grid)
- * in the middle, secondary fields, barcode at the bottom. */
+/**
+ * Apple Wallet's storeCard, measured off Apple's own render of one — the
+ * `wallet-passes-types-store-card` artwork in the Wallet HIG, which is the
+ * same pass style, the same field sections and the same barcode our
+ * `passkit_template` asks for.
+ *
+ * What that render says, and this now does:
+ *
+ * - A pass is a fixed card: 343x503 at Apple's own scale, whatever it holds.
+ *   All four styles Apple publishes measure exactly that, so the barcode is
+ *   pinned to the bottom and an empty pass simply has empty space — which is
+ *   what the owner's card really looks like with two fields on it.
+ * - The system face throughout, labels UPPERCASE in the label colour at
+ *   ~11px with a little tracking, values a good deal larger (18px) in the
+ *   text colour. Apple honours `labelColor`; Google has nowhere to put one.
+ * - The strip full-bleed at 2.604:1 directly under the logo row, no insets.
+ * - A white plate under the barcode — square for a square code — inset from
+ *   the bottom edge rather than floated in the middle of the card.
+ *
+ * Sizes are Apple's own, scaled by 300/343 — the width every surface but one
+ * stages the pass at. The exception is the wizard's phone mock, which is a
+ * 280px phone and hands the card 248; the aspect ratio still holds there, so
+ * it reads as the same card, slightly large in the type.
+ *
+ * `logoText` is empty on our passes: the wide logo PNG the server generates
+ * carries the business name, which is why the fallback here prints it rather
+ * than inventing a second line.
+ */
 export function AppleCardPreview(value: CardPreviewValue) {
   const { t } = useTranslation();
+  const format = barcodeFormat(value.design);
+  const square = squareBarcode(format);
   return (
     <div
-      className="rounded-[18px] overflow-hidden shadow-[0_16px_40px_rgba(14,17,32,0.28)]"
-      style={{ backgroundColor: value.backgroundColor, color: value.foregroundColor }}
+      className="flex flex-col rounded-[18px] overflow-hidden shadow-[0_16px_40px_rgba(14,17,32,0.28)]"
+      style={{
+        backgroundColor: value.backgroundColor,
+        color: value.foregroundColor,
+        fontFamily: APPLE_WALLET_FONT,
+        aspectRatio: "343 / 503",
+      }}
     >
-      <div className="flex items-center gap-2.5 px-4 pt-4 pb-3">
+      <div className="flex h-[57px] shrink-0 items-start px-[14px] pt-[11px]">
         {value.appleLogoUrl ? (
-          <img src={value.appleLogoUrl} alt="" className="h-8 max-w-[160px] object-contain" />
+          <img
+            src={value.appleLogoUrl}
+            alt=""
+            className="max-h-[26px] max-w-[140px] object-contain"
+          />
         ) : (
-          <span className="text-sm font-heading font-semibold truncate">
+          <span className="truncate text-[15px] font-semibold">
             {value.businessName || "—"}
           </span>
         )}
       </div>
 
-      {/* Apple renders the strip full-bleed at a fixed 375x144 — no insets,
-          no rounding. */}
+      {/* Apple renders the strip full-bleed at 2.604:1 — no insets, no
+          rounding. */}
       <StripArt value={value} states={value.stripStates} />
 
-      <div className="flex justify-between gap-3 px-4 pt-3 pb-2">
+      <div className="flex justify-between gap-3 px-[14px] pt-[8px]">
         <div className="min-w-0">
           <p
-            className="text-[9px] font-mono uppercase tracking-wide"
+            className="truncate text-[11px] font-medium uppercase leading-tight tracking-[0.06em]"
             style={{ color: value.labelColor }}
           >
             {fieldLabel(value, "person.displayName", t("studio.preview.nameLabel"))}
           </p>
-          <p className="text-sm truncate">{value.holderName || SAMPLE_NAME}</p>
+          <p className="truncate text-[18px] leading-tight">
+            {value.holderName || SAMPLE_NAME}
+          </p>
         </div>
-        <div className="text-end shrink-0">
+        <div className="min-w-0 text-end">
           <p
-            className="text-[9px] font-mono uppercase tracking-wide"
+            className="truncate text-[11px] font-medium uppercase leading-tight tracking-[0.06em]"
             style={{ color: value.labelColor }}
           >
             {fieldLabel(value, "members.member.points", t("studio.preview.pointsLabel"))}
           </p>
-          <p className="text-sm">{value.currentStamps}</p>
+          <p className="truncate text-[18px] leading-tight">{value.currentStamps}</p>
         </div>
       </div>
 
-      <div className="bg-white mx-4 mb-4 mt-2 rounded-lg p-2 flex items-center justify-center h-[72px]">
-        <PassBarcode
-          format={barcodeFormat(value.design)}
-          payload={resolveBarcodePayload(value.design, value.serial)}
-        />
+      {/* `mt-auto` is what makes the card a card: the plate sits on the
+          bottom edge of a fixed height rather than under the last field. */}
+      <div className="mt-auto flex justify-center pb-[13px] pt-4">
+        <div
+          className={cn(
+            "rounded-[5px] bg-white",
+            square ? "h-[131px] w-[131px] p-[11px]" : "h-[72px] w-[230px] p-[13px]",
+          )}
+        >
+          <PassBarcode
+            format={format}
+            payload={resolveBarcodePayload(value.design, value.serial)}
+          />
+        </div>
       </div>
     </div>
   );
