@@ -103,6 +103,15 @@
   --c-warn-bg: 255 251 235;
   --c-danger: 185 28 28; /* 5.91:1 on fill, 6.47:1 on white */
   --c-danger-bg: 254 242 242;
+  /* A fourth, and the only one that is not a state of the software: the
+     reward. Gold is the product's own colour for it — the thing the customer
+     is collecting towards, on the landing page and on the card — and it was
+     the one meaning the dashboard said in violet, the same colour it uses for
+     the plan badge. `gold` #f0b429 itself is 2.96:1 on white and can only ever
+     be a fill, so gold-as-text gets its own darker value here, the way
+     `primary.text` does. */
+  --c-reward: 132 82 9; /* 6.58:1 on white, 6.30:1 on fill, 5.27:1 on its own 15% wash */
+  --c-reward-bg: 254 250 236;
 
   /* A panel's depth. Navy-tinted and shallow, because on a light ground the
      hairline border does most of the work and the shadow only seats it. */
@@ -118,6 +127,8 @@
   --c-warn-bg: 43 33 19;
   --c-danger: 252 165 165; /* 9.10:1 */
   --c-danger-bg: 43 20 24;
+  --c-reward: 255 216 117; /* 11.98:1 on the panel, 11.17:1 on fill, 8.21:1 on its own 15% wash */
+  --c-reward-bg: 45 36 18;
 
   /* A tinted shadow is invisible on a near-black ground, so the dark theme
      spends real black and casts it further — the panel is lifted off the
@@ -186,6 +197,8 @@ html.theme-night .logo-mark {
   --c-warn-bg: 255 251 235;
   --c-danger: 185 28 28;
   --c-danger-bg: 254 242 242;
+  --c-reward: 132 82 9;
+  --c-reward-bg: 254 250 236;
   --shadow-panel: 0 1px 2px rgb(14 17 32 / 0.04), 0 1px 3px rgb(14 17 32 / 0.06);
   --shadow-panel-lift: 0 8px 24px rgb(14 17 32 / 0.08);
   color-scheme: light;
@@ -576,6 +589,29 @@ h4 {
 
   [dir="rtl"] .grad-magenta {
     background-image: linear-gradient(to right, #7f3ae9, #ce2f82);
+  }
+
+  /* The same run, for the real dashboard's brief band — and eight tenths of
+     the way to black, which is the whole difference between the two.
+     `grad-magenta` is an illustration inside a phone on a marketing page: the
+     only text on it is white and 3xl. The band carries a type hierarchy, and
+     on the drawn run its quietest level measured 2.82:1 — white at 65% on
+     #ce2f82. Rather than give up the hierarchy, the ground moved.
+
+     Measured against both stops, which is what a gradient demands:
+       #ffffff  7.88:1 / 6.82:1  — the figures, the values, the delta pill
+       #e3ddfb  6.00:1 / 5.20:1  — `brand.on-band`, the eyebrow and labels
+     and the pill's own grounds:
+       white on white/20   4.99:1 / 4.62:1   (at /25 it drops to 4.15 — don't)
+       #e3ddfb on black/15 7.31:1 / 6.47:1
+     Nothing on the band is set in white-with-an-alpha: alpha composites
+     differently at each end of a gradient, so it cannot be measured once. */
+  .grad-brief {
+    background-image: linear-gradient(to left, #662eba, #a52668);
+  }
+
+  [dir="rtl"] .grad-brief {
+    background-image: linear-gradient(to right, #662eba, #a52668);
   }
 
   /* The pricing band's ground: royal blue drifting a few degrees warmer

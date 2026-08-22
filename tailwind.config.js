@@ -74,6 +74,14 @@ export default {
           DEFAULT: "rgb(var(--c-danger) / <alpha-value>)",
           bg: "rgb(var(--c-danger-bg) / <alpha-value>)",
         },
+        // Not a state of the software — the thing being collected towards.
+        // Gold, because that is what a reward is on the landing page and on
+        // the card, and because the dashboard was saying it in the same
+        // violet it uses for the plan badge. Ratios in src/index.css.
+        reward: {
+          DEFAULT: "rgb(var(--c-reward) / <alpha-value>)",
+          bg: "rgb(var(--c-reward-bg) / <alpha-value>)",
+        },
 
         // ── Landing redesign, fixed values ─────────────────────
         // Sampled from the Figma frame, then corrected where the drawing

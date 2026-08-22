@@ -222,3 +222,23 @@ describe("customers", () => {
     expect(b.customers).toBe(1);
   });
 });
+
+describe("days — the band's ground", () => {
+  it("always spans the whole window, quiet days included", () => {
+    const b = brief([event({ created_at: at(3) })]);
+    expect(b.days).toHaveLength(BRIEF_DAYS);
+    expect(b.days[BRIEF_DAYS - 1].date.getTime()).toBeGreaterThan(
+      b.days[0].date.getTime(),
+    );
+    expect(b.days.filter((d) => d.visits > 0)).toHaveLength(1);
+  });
+
+  it("counts people per day, not stamps", () => {
+    const b = brief([
+      event({ card_serial: "a", created_at: at(2), stamps: 4 }),
+      event({ card_serial: "a", created_at: at(2) }),
+      event({ card_serial: "b", created_at: at(2) }),
+    ]);
+    expect(b.days.find((d) => d.visits > 0)?.visits).toBe(2);
+  });
+});

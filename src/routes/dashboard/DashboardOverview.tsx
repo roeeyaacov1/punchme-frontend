@@ -16,7 +16,7 @@ import {
   PanelHeader,
   Tag,
 } from "../../components/dashboard/primitives";
-import { BriefPanel, WorthDoing, type TodoRow } from "../../components/dashboard/Brief";
+import { BriefBand, WorthDoing, type TodoRow } from "../../components/dashboard/Brief";
 import { CardPunches } from "../../components/dashboard/CardPunches";
 import { InstallApp } from "../../components/dashboard/InstallApp";
 import { WeekLedger } from "../../components/dashboard/WeekLedger";
@@ -246,8 +246,8 @@ export function DashboardOverview() {
     if (brief.quietDays !== null && brief.quietDays >= QUIET_DAYS && all.length > 0) {
       rows.push({
         key: "quiet",
-        tone: "warn",
-        icon: <ScanLine size={16} />,
+        tone: "quiet",
+        icon: <ScanLine size={17} />,
         body: t("dashboard.today.quiet", { count: brief.quietDays }),
         to: "/dashboard/scan",
         cta: t("dashboard.today.quietCta"),
@@ -258,7 +258,8 @@ export function DashboardOverview() {
     if (manages && inactive > 0) {
       rows.push({
         key: "inactive",
-        icon: <UserRoundX size={16} />,
+        tone: "winback",
+        icon: <UserRoundX size={17} />,
         body: t("dashboard.today.inactive", {
           count: inactive,
           days: Number(INACTIVE_BUCKET),
@@ -274,7 +275,8 @@ export function DashboardOverview() {
     if (manages && birthdays > 0) {
       rows.push({
         key: "birthday",
-        icon: <Cake size={16} />,
+        tone: "birthday",
+        icon: <Cake size={17} />,
         body: t("dashboard.today.birthday", { count: birthdays }),
         to: "/dashboard/messages/automations/new?recipe=birthday",
         cta: t("dashboard.today.birthdayCta"),
@@ -308,29 +310,33 @@ export function DashboardOverview() {
               a tenth-visit regular the same, and the thing this product was
               sold on — and the thing `calculator.ts` prices a year of it in —
               is people coming back. */}
-          <BriefPanel
+          <BriefBand
             days={BRIEF_DAYS}
             returned={brief.returned}
             delta={brief.returnedDelta}
             capped={brief.capped}
-            stats={[
+            series={brief.days}
+            readouts={[
               {
                 label: t("dashboard.customers.stats.total"),
                 value: brief.customers,
+                hue: "roster",
               },
               {
                 label: t("dashboard.brief.stats.joined"),
                 value: brief.joined,
+                hue: "growth",
               },
               {
                 label: t("dashboard.brief.stats.visits"),
                 value: brief.visits,
+                hue: "activity",
                 capped: brief.capped,
               },
               {
                 label: t("dashboard.customers.stats.ready"),
                 value: brief.ready,
-                accent: true,
+                hue: "reward",
               },
             ]}
           />
@@ -398,7 +404,7 @@ export function DashboardOverview() {
                           maxMarks={PUNCHABLE_CARD}
                         />
 
-                        <Tag tone={left === 0 ? "accent" : "neutral"}>
+                        <Tag tone={left === 0 ? "reward" : "neutral"}>
                           {left === 0
                             ? t("dashboard.customers.status.ready")
                             : t("dashboard.near.toGo", { count: left })}

@@ -70,11 +70,15 @@ export function GroupLabel({
   );
 }
 
-export type Tone = "neutral" | "accent" | "ok" | "warn" | "danger";
+export type Tone = "neutral" | "accent" | "reward" | "ok" | "warn" | "danger";
 
 const TAG_TONES: Record<Tone, string> = {
   neutral: "bg-ink/[0.07] text-ink-muted",
+  // `accent` is the brand — a plan badge, a thing that is switched on.
+  // `reward` is the free coffee, and the two were the same violet until the
+  // brief band started saying the reward in gold. One meaning, one colour.
   accent: "bg-primary-text/15 text-primary-text",
+  reward: "bg-reward/15 text-reward",
   ok: "bg-ok/15 text-ok",
   warn: "bg-warn/15 text-warn",
   danger: "bg-danger/15 text-danger",

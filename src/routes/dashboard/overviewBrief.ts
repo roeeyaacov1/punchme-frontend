@@ -49,6 +49,10 @@ export interface Brief {
   returnedDelta: number | null;
   /** Distinct people seen at all in the window. */
   people: number;
+  /** One entry per day of the window, oldest first — how many people were
+   * in that day. This is the shape the brief is drawn *on*: the hero band's
+   * ground is the shop's own month, so no two owners see the same one. */
+  days: { date: Date; visits: number }[];
   /** Visits in the window — one per person per day, so a gift of three
    * stamps is not three people through the door. */
   visits: number;
@@ -149,10 +153,18 @@ export function buildBrief({
   const cardDays = daysPerCard(inWindow);
   let visits = 0;
   let returned = 0;
+  // People per day, not stamps per day: two people once each is a busier
+  // Tuesday than one person twice, and the band is a picture of the room.
+  const perDay = new Map<number, number>();
   for (const days of cardDays.values()) {
     visits += days.size;
     if (days.size >= 2) returned += 1;
+    for (const day of days) perDay.set(day, (perDay.get(day) ?? 0) + 1);
   }
+  const series = Array.from({ length: BRIEF_DAYS }, (_, i) => {
+    const at = start + i * DAY_MS;
+    return { date: new Date(at), visits: perDay.get(at) ?? 0 };
+  });
 
   const prevReturned = countReturned(inPrev);
 
@@ -185,6 +197,7 @@ export function buildBrief({
     // what we fetched.
     returnedDelta: delta(returned, prevReturned, !truncated),
     people: cardDays.size,
+    days: series,
     visits,
     customers: live,
     joined,

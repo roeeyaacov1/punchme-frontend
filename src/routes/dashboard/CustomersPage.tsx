@@ -48,7 +48,9 @@ const SORTS: Sort[] = ["progress", "recent", "name"];
 
 const BUCKET_TONES: Record<Bucket, Tone> = {
   void: "warn",
-  ready: "accent",
+  // Gold, not the brand violet — see `TAG_TONES`. A full card is the reward,
+  // not a plan.
+  ready: "reward",
   progress: "neutral",
   new: "neutral",
 };
