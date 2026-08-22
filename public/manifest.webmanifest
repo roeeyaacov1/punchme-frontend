@@ -1,0 +1,28 @@
+{
+  "id": "/",
+  "name": "PunchMe",
+  "short_name": "PunchMe",
+  "description": "Your loyalty card, your customers, and the scanner for the counter.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#5b41e6",
+  "theme_color": "#5b41e6",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan a card",
+      "short_name": "Scan",
+      "description": "Open the scanner and punch a customer's card",
+      "url": "/dashboard/scan",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

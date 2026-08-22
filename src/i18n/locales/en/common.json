@@ -625,6 +625,18 @@
       "title": "Print your standee",
       "print": "Print"
     },
+    "install": {
+      "title": "Put PunchMe on your phone",
+      "body": "A home-screen icon that opens straight to your counter — full screen, no browser bars.",
+      "cta": "Install",
+      "iosCta": "Show me how",
+      "notNow": "Not now",
+      "collapsed": "Put PunchMe on your phone",
+      "step1": "Tap the Share button in Safari's toolbar",
+      "step2": "Choose “Add to Home Screen”",
+      "step3": "Tap Add — the icon lands on your home screen",
+      "iosCaveat": "Two things iPhone does that we can't change: you will sign in once more inside the app, and the scanner may ask for the camera again each time you open it."
+    },
     "groups": {
       "counter": "Counter",
       "setup": "Setup",

@@ -68,8 +68,29 @@ export function useDashboardTheme(): DashboardTheme {
     const root = document.documentElement;
     root.classList.add(...THEME_CLASSES);
     root.classList.toggle(NIGHT_CLASS, isDark);
+
+    // Installed on a phone, the dashboard owns the status bar behind it, and
+    // index.html's `theme-color` metas can only answer to the *system*
+    // scheme — they cannot see an explicit choice stored here. So a meta of
+    // our own is appended last (later wins) while this is mounted, and taken
+    // away again on unmount so the landing page goes back to following the
+    // device. The colour is read off the ground that was just applied rather
+    // than restated, so it cannot drift from the palette.
+    let meta = document.querySelector<HTMLMetaElement>(
+      'meta[name="theme-color"][data-dashboard]',
+    );
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "theme-color";
+      meta.dataset.dashboard = "";
+      document.head.appendChild(meta);
+    }
+    const ground = getComputedStyle(root).getPropertyValue("--c-background").trim();
+    if (ground) meta.content = `rgb(${ground})`;
+
     return () => {
       root.classList.remove(...THEME_CLASSES, NIGHT_CLASS);
+      meta?.remove();
     };
   }, [isDark]);
 

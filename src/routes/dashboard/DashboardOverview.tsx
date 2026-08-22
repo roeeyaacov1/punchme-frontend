@@ -17,6 +17,7 @@ import {
   Tag,
 } from "../../components/dashboard/primitives";
 import { CardPunches } from "../../components/dashboard/CardPunches";
+import { InstallApp } from "../../components/dashboard/InstallApp";
 import { WeekLedger } from "../../components/dashboard/WeekLedger";
 import { useBusiness } from "../../business/useBusiness";
 import { canEnrollRealCustomers } from "../../business/gating";
@@ -412,6 +413,10 @@ export function DashboardOverview() {
           enough to bury whatever follows it. */}
       <GroupLabel className="mt-2">{t("dashboard.groups.setup")}</GroupLabel>
 
+      {/* Putting the app on the phone is setup by the nav's own definition:
+          done once, then never thought about again. It renders nothing at
+          all where it cannot be done, so it costs a desktop owner no room. */}
+      <InstallApp />
 
       <div className="grid items-start gap-4 sm:gap-5 lg:grid-cols-2">
         <Panel className="flex min-w-0 flex-col gap-4 p-5 sm:p-6">

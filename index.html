@@ -19,6 +19,47 @@
       rel="stylesheet"
     />
     <title>PunchMe — Digital Loyalty Cards</title>
+
+    <!-- ── Installable ────────────────────────────────────────────────────
+         Chrome only offers an install if a manifest and a service worker
+         with a fetch handler are both present; iOS reads the manifest too
+         since 16.4, and from iOS 26 treats anything added to the Home
+         Screen as a web app regardless. See src/pwa/. -->
+    <link rel="manifest" href="/manifest.webmanifest" id="app-manifest" />
+    <!-- iOS composites this on black and rounds the corners itself, so it
+         is opaque and full-bleed rather than transparent line art. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="PunchMe" />
+    <!--
+      Deliberately NOT `apple-mobile-web-app-capable`. That meta is the only
+      thing that forces standalone on iOS below 16.4, and standalone is
+      exactly where WebKit's camera bugs live — the permission is not
+      persisted between launches, which would make the scanner ask again
+      every morning. Leaving it out lets those older iPhones open from the
+      Home Screen in Safari, where the camera grant sticks; 16.4 and up read
+      `display` from the manifest and are unaffected either way.
+    -->
+    <!-- The colour of the phone's status bar behind the app. The dashboard
+         is a user choice, not just a system one, so useDashboardTheme
+         overrides this with a meta of its own while it is mounted. -->
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f0f23" />
+    <script>
+      // The manifest is a static file and cannot read i18next, so the
+      // Hebrew build of it is swapped in here — the app's name is a brand
+      // name either way, but the long-press shortcut is real copy.
+      (function () {
+        try {
+          if ((localStorage.getItem("i18nextLng") || "").indexOf("he") === 0) {
+            document
+              .getElementById("app-manifest")
+              .setAttribute("href", "/manifest.he.webmanifest");
+          }
+        } catch (e) {
+          /* storage disabled — the English manifest is a fine default */
+        }
+      })();
+    </script>
     <!-- The dashboard can be dark, and React cannot mount fast enough to stop
          a white page flashing first on a hard load. So the ground is decided
          here, before the first paint, from the same key and the same class
