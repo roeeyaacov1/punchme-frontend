@@ -26,6 +26,9 @@
   --c-border: 222 213 194;
   --c-border-strong: 200 188 163;
   --c-navy-deep: 14 17 32;
+  /* The hairline an untouchable object is edged with — see `rim` in
+     tailwind.config.js. Ink on a light ground; the night theme flips it. */
+  --c-rim: 0 0 0;
 }
 
 /* Every ratio below is measured against both of this theme's grounds —
@@ -85,6 +88,7 @@
   --c-border: 44 44 72;
   --c-border-strong: 61 61 97;
   --c-navy-deep: 8 8 26; /* one step under the ground, for inset wells */
+  --c-rim: 255 255 255;
 }
 
 /* ── Notices ────────────────────────────────────────────────────────────
@@ -141,8 +145,7 @@ html.theme-night .logo-mark {
 
 /* ── Things that stay lit ───────────────────────────────────────────────
    Some of what the dashboard shows is not a screen at all. A QR code has to
-   be dark-on-light to scan. The standee is paper, and paper does not have a
-   dark mode.
+   be dark-on-light to scan, whatever the page around it is doing.
 
    So the rule is physical: what the owner *reads* turns dark, and what the
    owner *hands to someone* stays lit — staged on the dark page as an object
@@ -150,12 +153,19 @@ html.theme-night .logo-mark {
    for any subtree, which is what lets a token-built frame sit around a
    component this redesign is not allowed to touch.
 
-   A pass is not one of those things. It is not handed over on paper, it is a
-   screen — and neither wallet draws it on white: Apple's list is black,
+   Two things are not those things. A pass is not handed over on paper, it is
+   a screen — and neither wallet draws it on white: Apple's list is black,
    Google's follows the system, and a lock screen is whatever the customer's
    wallpaper is. So the Card Studio turns with the page like everything else
    and its card sits in a well; only its *colours* are a spec match, and those
-   are the owner's own, not the theme's. */
+   are the owner's own, not the theme's.
+
+   And a standee is paper, but the desk it is lying on is not. Holding the
+   whole preview out of the night theme lit a white slab the size of an A4 on
+   a near-black page — which read as a panel that had forgotten to switch, not
+   as a lamp. The sheet keeps the owner's colours down to the last hairline;
+   what turns is the panel and the well under it. `--c-rim` is what lets a
+   sheet of any colour keep an edge on either ground. */
 .theme-lit {
   --c-background: 255 255 255;
   --c-surface: 245 246 254;
@@ -169,6 +179,7 @@ html.theme-night .logo-mark {
   --c-primary-shadow: 63 45 165;
   --c-border: 226 227 246;
   --c-border-strong: 202 204 238;
+  --c-rim: 0 0 0;
   --c-ok: 4 120 87;
   --c-ok-bg: 236 253 245;
   --c-warn: 146 64 14;

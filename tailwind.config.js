@@ -49,6 +49,15 @@ export default {
         "border-strong": "rgb(var(--c-border-strong) / <alpha-value>)",
         "navy-deep": "rgb(var(--c-navy-deep) / <alpha-value>)",
 
+        // The edge on an object whose own colours are not ours to touch — a
+        // pass, a printed sheet. Black on a light ground, white on a dark
+        // one, so the same hairline reads whatever the owner painted the
+        // thing: white paper used to vanish into the light panel and a
+        // night-blue poster vanishes into the dark one. Always spent at /10,
+        // which is a real step on Tailwind's opacity scale (/12 compiles to
+        // nothing and leaves the default blue ring showing).
+        rim: "rgb(var(--c-rim) / <alpha-value>)",
+
         // The three things the dashboard has to say out loud. Each is a
         // text colour and the fill it is measured on, in both themes — see
         // the ratios in src/index.css. Hand-picked Tailwind pairs like

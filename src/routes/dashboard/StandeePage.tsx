@@ -7,7 +7,6 @@ import { Printer } from "lucide-react";
 import { ctaClasses, focusRing } from "../../components/marketing/primitives";
 import {
   GroupLabel,
-  LitStage,
   Notice,
   Panel,
   PanelHeader,
@@ -162,7 +161,7 @@ export function StandeePage() {
                         art={art}
                         format={format}
                         single
-                        className="rounded-lg shadow-card ring-1 ring-black/10"
+                        className="rounded-lg shadow-card ring-1 ring-rim/10"
                       />
                     </span>
                     <span className="px-1 pb-1">
@@ -207,16 +206,23 @@ export function StandeePage() {
 
         <div className="flex flex-col gap-3 lg:sticky lg:top-8">
           <GroupLabel>{t("standee.previewTitle")}</GroupLabel>
-          {/* Paper does not have a dark mode. On a dark page the sheet is not
-              repainted, it is staged: an object set down under a lamp. */}
-          <LitStage className="mx-auto w-full p-3 sm:p-4">
-            <StandeeSheet
-              design={design}
-              art={art}
-              format={format}
-              className="mx-auto max-w-[27rem] rounded-lg shadow-panel-lift ring-1 ring-black/10"
-            />
-          </LitStage>
+          {/* Paper does not have a dark mode and the sheet is not repainted —
+              its colours are the owner's, and they are the same ones the
+              printer will lay down. The desk it is lying on is ours, though,
+              and a white slab the size of an A4 held out of the night theme
+              read as a panel that had forgotten to switch rather than as a
+              lamp. So it is staged the way the studio stages a pass: a panel
+              like the two beside it, with the sheet in a well cut into it. */}
+          <Panel className="p-3 sm:p-4">
+            <div className="rounded-xl bg-background p-4 sm:p-6">
+              <StandeeSheet
+                design={design}
+                art={art}
+                format={format}
+                className="mx-auto max-w-[27rem] rounded-lg shadow-panel-lift ring-1 ring-rim/10"
+              />
+            </div>
+          </Panel>
           <p className="text-sm text-ink-subtle">{t("standee.previewNote")}</p>
         </div>
       </div>
