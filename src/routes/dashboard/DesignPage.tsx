@@ -6,7 +6,7 @@ import {
   type CardStudioValue,
 } from "../../components/card-studio/CardStudio";
 import { ctaClasses } from "../../components/marketing/primitives";
-import { LitStage, Notice, Tag } from "../../components/dashboard/primitives";
+import { Notice, Tag } from "../../components/dashboard/primitives";
 import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
 import { useBusiness } from "../../business/useBusiness";
 import { listTemplates, patchTemplate, type CardTemplate } from "../../api/businesses";
@@ -173,26 +173,25 @@ export function DesignPage() {
       {syncError && <Notice tone="warn">{t("studio.syncError")}</Notice>}
       {saveError && <Notice tone="danger">{saveError}</Notice>}
 
-      {/* The studio is a spec match to what the two wallets actually draw —
-          white, by their definition, not ours — so at night it is staged
-          rather than repainted: the worktop stays lit and the page around it
-          goes dark. See `LitStage`. */}
-      <LitStage className="p-3 sm:p-5">
-        <CardStudio
-          value={draft}
-          onChange={(value) => {
-            setDraft(value);
-            setDirty(true);
-          }}
-          businessName={business.name}
-          images={urls}
-          onUpload={handleUpload}
-          lint={lint}
-          // While edits are unsaved the published PNGs are stale — the preview
-          // falls back to the live approximation rather than lying with old art.
-          unsaved={dirty}
-        />
-      </LitStage>
+      {/* The pass is a spec match to what the two wallets actually draw —
+          white, by their definition, not ours — so it keeps its lit stage.
+          The controls beside it are ours, and they turn dark with the rest of
+          the dashboard; the studio stages its own lamp now, which is why
+          there is no `LitStage` around the whole thing any more. */}
+      <CardStudio
+        value={draft}
+        onChange={(value) => {
+          setDraft(value);
+          setDirty(true);
+        }}
+        businessName={business.name}
+        images={urls}
+        onUpload={handleUpload}
+        lint={lint}
+        // While edits are unsaved the published PNGs are stale — the preview
+        // falls back to the live approximation rather than lying with old art.
+        unsaved={dirty}
+      />
     </div>
   );
 }

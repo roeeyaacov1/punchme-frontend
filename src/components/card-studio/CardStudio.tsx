@@ -1,14 +1,27 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ChevronDown, CircleCheck, Info } from "lucide-react";
 import type { DesignDoc, ImageUse } from "../../api/designs";
-import { CARD_PALETTES } from "../../lib/cardPalettes";
+import { ChoiceGrid } from "../onboarding/ChoiceGrid";
+import { CARD_PALETTES, type CardPalette } from "../../lib/cardPalettes";
 import { CARD_PATTERNS, patternStyle, type CardPattern } from "../../lib/cardPatterns";
 import { STAMP_GLYPHS, STAMP_GLYPH_NAMES } from "../../lib/stampGlyphs";
+import { useDebounce } from "../../hooks/useDebounce";
 import { cn } from "../../lib/cn";
-import { ColorField, Input, Slider } from "../ui";
 import { CardPreview } from "./CardPreviews";
+import { ColorWell } from "./ColorWell";
 import { FieldsEditor } from "./FieldsEditor";
 import { LabelsEditor } from "./LabelsEditor";
+import {
+  PunchStrip,
+  StudioDisclosure,
+  StudioGroupLabel,
+  StudioPanel,
+  StudioSelect,
+  StudioSlider,
+  StudioText,
+  UploadButton,
+} from "./studio-primitives";
 
 /** Everything the designer edits — the template's flat fields plus the
  * canonical design doc. Mirrors what PATCH .../templates/{id} accepts. */
@@ -56,10 +69,17 @@ export interface CardStudioProps {
 const MIN_STAMPS = 2;
 const MAX_STAMPS = 12;
 
-/** The Card Studio designer: simple controls up front, colors/labels and
- * the wallet plumbing behind an Advanced disclosure, and a live preview
- * that switches between the real Apple and Google layouts. Pure controlled
- * component — persistence (save/upload) belongs to the parent. */
+/**
+ * The Card Studio: a bench with a lamp on it.
+ *
+ * The controls are the dashboard — token-built panels that turn dark with the
+ * rest of the page. The pass is not: both wallets draw it on white by their
+ * own definition, so it keeps the lit stage it has always had and the desk
+ * around it goes dark. Only the object under the lamp is a spec match; the
+ * tools beside it belong to us.
+ *
+ * Pure controlled component — persistence (save/upload) belongs to the parent.
+ */
 export function CardStudio({
   value,
   onChange,
@@ -83,6 +103,13 @@ export function CardStudio({
   const stampColor = design.stamp?.color || value.foreground_color;
   const glyph = design.stamp?.glyph || "check";
   const pattern = (design.pattern as CardPattern) || "none";
+  const GlyphIcon = STAMP_GLYPHS[glyph] ?? STAMP_GLYPHS.check;
+
+  // Dragging either strip must not read out every tick.
+  const stampsText = t("studio.stampsHint", { count: value.stamps_required });
+  const spokenStamps = useDebounce(stampsText, 500);
+  const sampleText = t("studio.sampleStampsHint", { count: sampleStamps });
+  const spokenSample = useDebounce(sampleText, 500);
 
   function update(patch: Partial<CardStudioValue>) {
     onChange({ ...value, ...patch });
@@ -90,6 +117,11 @@ export function CardStudio({
 
   function updateDesign(patch: Partial<DesignDoc>) {
     update({ design: { ...design, ...patch } });
+  }
+
+  function setStampsRequired(count: number) {
+    update({ stamps_required: count });
+    setSampleStamps((current) => Math.min(current, count));
   }
 
   async function handleUpload(use: ImageUse, file: File) {
@@ -105,332 +137,154 @@ export function CardStudio({
     }
   }
 
-  function fileButton(use: ImageUse, label: string) {
+  function uploadButton(use: ImageUse, label: string, preview?: string) {
     if (!onUpload) return null;
     return (
-      <label
+      <UploadButton
         key={use}
-        className="text-sm font-body text-navy underline hover:no-underline cursor-pointer w-fit"
-      >
-        {uploading === use ? t("common.loading") : label}
-        <input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) void handleUpload(use, file);
-            e.target.value = "";
-          }}
-        />
-      </label>
+        label={uploading === use ? t("common.loading") : label}
+        busy={uploading === use}
+        preview={preview}
+        onFile={(file) => void handleUpload(use, file)}
+      />
     );
   }
 
-  return (
-    <div className="flex flex-col xl:flex-row gap-10 w-full items-start">
-      <div className="flex flex-col gap-6 w-full max-w-md">
-        <Input
-          label={t("studio.nameLabel")}
-          value={value.name}
-          onChange={(e) => update({ name: e.target.value })}
-          required
+  const paletteChoices = CARD_PALETTES.map((palette: CardPalette) => ({
+    value: palette.key,
+    label: t(`studio.palettes.${palette.key}`),
+    // The chip is a scrap of the card itself, drawn with the stamp the owner
+    // has actually chosen — so picking a glyph changes every palette, and the
+    // row reads as "here is mine, in six colourways" rather than as six
+    // abstract pinwheels.
+    render: (selected: boolean) => (
+      <span
+        className={cn(
+          "flex h-11 w-11 flex-col items-center justify-center gap-1 rounded-xl ring-offset-2 ring-offset-surface transition-shadow",
+          selected ? "ring-2 ring-ink" : "ring-1 ring-border-strong/70",
+        )}
+        style={{ backgroundColor: palette.background }}
+      >
+        <GlyphIcon size={16} strokeWidth={2.4} color={palette.stamp} aria-hidden="true" />
+        <span
+          className="h-[2px] w-5 rounded-full"
+          style={{ backgroundColor: palette.label }}
         />
+      </span>
+    ),
+  }));
 
-        <Slider
-          label={t("studio.stampsLabel")}
-          hint={t("studio.stampsHint", { count: value.stamps_required })}
-          min={MIN_STAMPS}
-          max={MAX_STAMPS}
-          value={value.stamps_required}
-          onChange={(count) => {
-            update({ stamps_required: count });
-            setSampleStamps((current) => Math.min(current, count));
-          }}
-        />
-
-        <Input
-          label={t("studio.rewardLabel")}
-          value={value.reward_description}
-          onChange={(e) => update({ reward_description: e.target.value })}
-          required
-        />
-
-        {/* Stamp glyph — 1:1 with the server-side renderer's registry */}
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-navy font-body">
-            {t("studio.glyphLabel")}
-          </span>
-          <div className="grid grid-cols-8 gap-1.5">
-            {STAMP_GLYPH_NAMES.map((name) => {
-              const Icon = STAMP_GLYPHS[name];
-              const selected = glyph === name && !images.stamp_art;
-              return (
-                <button
-                  key={name}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => updateDesign({ stamp: { ...design.stamp, glyph: name } })}
-                  className={cn(
-                    "h-9 rounded-lg border flex items-center justify-center transition-colors",
-                    selected
-                      ? "border-navy bg-navy text-white"
-                      : "border-slate/25 text-navy hover:border-navy/50",
-                  )}
-                >
-                  <Icon size={16} strokeWidth={2.2} />
-                </button>
-              );
-            })}
-          </div>
-          {fileButton("stamp_art", t("studio.uploadStampArt"))}
-        </div>
-
-        {/* Palettes + colors */}
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-navy font-body">
-            {t("studio.paletteLabel")}
-          </span>
-          <div className="flex gap-2 flex-wrap">
-            {CARD_PALETTES.map((palette) => (
-              <button
-                key={palette.key}
-                type="button"
-                title={palette.key}
-                onClick={() =>
-                  onChange({
-                    ...value,
-                    background_color: palette.background,
-                    foreground_color: palette.text,
-                    label_color: palette.label,
-                    design: {
-                      ...design,
-                      stamp: { ...design.stamp, color: palette.stamp },
-                    },
-                  })
-                }
-                className="h-9 w-9 rounded-full border border-slate/25 overflow-hidden flex flex-wrap rotate-45 hover:scale-110 transition-transform"
-              >
-                <span className="h-1/2 w-1/2" style={{ backgroundColor: palette.background }} />
-                <span className="h-1/2 w-1/2" style={{ backgroundColor: palette.stamp }} />
-                <span className="h-1/2 w-1/2" style={{ backgroundColor: palette.label }} />
-                <span className="h-1/2 w-1/2" style={{ backgroundColor: palette.text }} />
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Background pattern */}
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-navy font-body">
-            {t("studio.patternLabel")}
-          </span>
-          <div className="flex gap-2">
-            {CARD_PATTERNS.map((kind) => (
-              <button
-                key={kind}
-                type="button"
-                aria-pressed={pattern === kind}
-                onClick={() => updateDesign({ pattern: kind })}
-                className={cn(
-                  "h-10 w-14 rounded-lg border-2 overflow-hidden",
-                  pattern === kind ? "border-navy" : "border-slate/25",
-                )}
-                style={{
-                  backgroundColor: value.background_color,
-                  ...patternStyle(kind, stampColor),
-                }}
-                title={t(`studio.patterns.${kind}`)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Logo */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-navy font-body">
-            {t("studio.logoLabel")}
-          </span>
-          <p className="text-xs text-slate font-body">{t("studio.logoHint")}</p>
-          <div className="flex items-center gap-3">
-            {images.logo && (
-              <img
-                src={images.logo}
-                alt=""
-                className="h-10 max-w-[120px] object-contain rounded bg-slate/10 p-1"
-              />
-            )}
-            {fileButton("logo", t("studio.uploadLogo"))}
-          </div>
-        </div>
-
-        {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
-
-        {/* Advanced */}
-        <div className="flex flex-col gap-4 border-t border-slate/15 pt-4">
-          <button
-            type="button"
-            onClick={() => setShowAdvanced((v) => !v)}
-            className="text-sm font-medium text-navy font-body text-start underline hover:no-underline w-fit"
-          >
-            {showAdvanced ? t("studio.hideAdvanced") : t("studio.showAdvanced")}
-          </button>
-
-          {showAdvanced && (
-            <div className="flex flex-col gap-5">
-              <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-navy font-body">
-                  {t("studio.colorsLabel")}
-                </span>
-                {/* One column below `sm`: the picker panel is wider than a
-                    half-width cell and would run off a phone screen. */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <ColorField
-                    label={t("studio.backgroundColor")}
-                    value={value.background_color}
-                    onChange={(color) => update({ background_color: color })}
-                  />
-                  <ColorField
-                    label={t("studio.stampColor")}
-                    value={stampColor}
-                    onChange={(color) =>
-                      updateDesign({ stamp: { ...design.stamp, color } })
-                    }
-                  />
-                  <ColorField
-                    label={t("studio.textColor")}
-                    value={value.foreground_color}
-                    onChange={(color) => update({ foreground_color: color })}
-                  />
-                  <ColorField
-                    label={t("studio.labelColor")}
-                    value={value.label_color}
-                    onChange={(color) => update({ label_color: color })}
-                  />
-                </div>
-              </div>
-
-              <LabelsEditor
-                fields={design.fields ?? []}
-                onChange={(fields) => updateDesign({ fields })}
-              />
-
-              {!simpleOnly && (
-                <>
-                  <div className="flex gap-3">
-                    <label className="flex flex-col gap-1 text-sm font-medium text-navy font-body flex-1">
-                      {t("studio.languageLabel")}
-                      <select
-                        className="rounded-lg border border-slate/30 bg-white px-2 py-2 text-sm font-body"
-                        value={design.default_language ?? "HE"}
-                        onChange={(e) =>
-                          updateDesign({ default_language: e.target.value as "HE" | "EN" })
-                        }
-                      >
-                        <option value="HE">{t("studio.languages.HE")}</option>
-                        <option value="EN">{t("studio.languages.EN")}</option>
-                      </select>
-                    </label>
-                    <label className="flex flex-col gap-1 text-sm font-medium text-navy font-body flex-1">
-                      {t("studio.barcodeLabel")}
-                      <select
-                        className="rounded-lg border border-slate/30 bg-white px-2 py-2 text-sm font-body"
-                        value={design.barcode?.format ?? "QR"}
-                        onChange={(e) =>
-                          updateDesign({
-                            barcode: {
-                              ...design.barcode,
-                              format: e.target.value as NonNullable<
-                                DesignDoc["barcode"]
-                              >["format"],
-                            },
-                          })
-                        }
-                      >
-                        {["QR", "PDF417", "AZTEC", "CODE128"].map((format) => (
-                          <option key={format} value={format}>
-                            {format}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-
-                  <Input
-                    label={t("studio.orgNameLabel")}
-                    hint={t("studio.orgNameHint")}
-                    value={design.organization_name ?? ""}
-                    onChange={(e) => updateDesign({ organization_name: e.target.value })}
-                  />
-
-                  {onUpload && (
-                    <div className="flex flex-col gap-2">
-                      <span className="text-sm font-medium text-navy font-body">
-                        {t("studio.artworkLabel")}
-                      </span>
-                      <p className="text-xs text-slate font-body">{t("studio.artworkHint")}</p>
-                      {fileButton("strip_base", t("studio.uploadStripBase"))}
-                      {fileButton("stamped_art", t("studio.uploadStampedArt"))}
-                      {fileButton("unstamped_art", t("studio.uploadUnstampedArt"))}
-                    </div>
-                  )}
-
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-navy font-body">
-                      {t("studio.fieldsLabel")}
-                    </span>
-                    <FieldsEditor
-                      fields={design.fields ?? []}
-                      onChange={(fields) => updateDesign({ fields })}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
+  const glyphChoices = STAMP_GLYPH_NAMES.map((name) => {
+    const Icon = STAMP_GLYPHS[name];
+    return {
+      value: name,
+      label: t(`onboarding.stamp.glyphs.${name}`),
+      render: (selected: boolean) => (
+        <span
+          className={cn(
+            "flex h-11 w-11 items-center justify-center rounded-full ring-offset-2 ring-offset-surface transition-colors",
+            selected
+              ? "bg-navy-deep text-white ring-2 ring-ink"
+              : "bg-background text-ink ring-1 ring-border-strong/70",
           )}
-        </div>
-      </div>
+        >
+          <Icon size={20} strokeWidth={2.2} aria-hidden="true" />
+        </span>
+      ),
+    };
+  });
 
-      {/* Live preview */}
-      <div className="flex flex-col gap-4 w-full xl:sticky xl:top-8">
-        <CardPreview
-          businessName={businessName}
-          stampsRequired={value.stamps_required}
-          currentStamps={sampleStamps}
-          rewardDescription={value.reward_description}
-          backgroundColor={value.background_color}
-          foregroundColor={value.foreground_color}
-          labelColor={value.label_color}
-          design={design}
-          logoUrl={images.logo}
-          appleLogoUrl={images.apple_logo}
-          stampArtUrl={images.stamp_art}
-          stripBaseUrl={images.strip_base}
-          stripStates={images.strip_states}
-          heroStates={images.hero_states}
-          unsaved={unsaved}
-        />
-        <div className="max-w-xs mx-auto w-full">
-          <Slider
-            label={t("studio.sampleStampsLabel")}
-            hint={t("studio.sampleStampsHint", { count: sampleStamps })}
-            min={0}
-            max={value.stamps_required}
-            value={sampleStamps}
-            onChange={setSampleStamps}
+  // Each texture tile is a piece of the strip: the card colour with the
+  // pattern in the stamp colour, exactly as the renderer bakes it.
+  const patternChoices = CARD_PATTERNS.map((kind: CardPattern) => ({
+    value: kind,
+    label: t(`studio.patterns.${kind}`),
+    render: (selected: boolean) => (
+      <span
+        className={cn(
+          "flex h-12 w-full items-center justify-center rounded-xl ring-offset-2 ring-offset-surface transition-shadow",
+          selected ? "ring-2 ring-ink" : "ring-1 ring-border-strong/70",
+        )}
+        style={{
+          backgroundColor: value.background_color,
+          ...patternStyle(kind, stampColor),
+        }}
+      >
+        <span
+          className={cn(
+            "rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
+            selected ? "bg-surface text-ink" : "bg-surface/85 text-ink-muted",
+          )}
+        >
+          {t(`studio.patterns.${kind}`)}
+        </span>
+      </span>
+    ),
+  }));
+
+  return (
+    <div className="grid items-start gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      {/* ── The lamp ──────────────────────────────────────────────────
+          First on a phone, because the whole point is watching the card
+          change; second column and sticky from `xl`, where it can sit beside
+          the controls instead of above them. */}
+      <div className="order-1 flex flex-col gap-4 xl:order-2 xl:sticky xl:top-6">
+        <div className="theme-lit rounded-2xl bg-background p-4 text-ink shadow-panel-lift ring-1 ring-black/5 sm:p-5">
+          <CardPreview
+            businessName={businessName}
+            stampsRequired={value.stamps_required}
+            currentStamps={sampleStamps}
+            rewardDescription={value.reward_description}
+            backgroundColor={value.background_color}
+            foregroundColor={value.foreground_color}
+            labelColor={value.label_color}
+            design={design}
+            logoUrl={images.logo}
+            appleLogoUrl={images.apple_logo}
+            stampArtUrl={images.stamp_art}
+            stripBaseUrl={images.strip_base}
+            stripStates={images.strip_states}
+            heroStates={images.hero_states}
+            unsaved={unsaved}
           />
+
+          {/* Try it: punch the sample card and watch the pass above follow. */}
+          <div className="mt-5 flex flex-col gap-2.5 border-t border-border pt-4">
+            <StudioSlider
+              label={t("studio.sampleStampsLabel")}
+              min={0}
+              max={value.stamps_required}
+              value={sampleStamps}
+              onChange={setSampleStamps}
+              valueText={sampleText}
+              spoken={spokenSample}
+            />
+            <PunchStrip
+              count={value.stamps_required}
+              filled={sampleStamps}
+              // Clicking the last punched dot lifts it again, so the empty
+              // card is one click away rather than a drag back to zero.
+              onPick={(picked) => setSampleStamps(picked === sampleStamps ? picked - 1 : picked)}
+              glyph={GlyphIcon}
+              stampArtUrl={images.stamp_art}
+              stampColor={stampColor}
+              cardColor={value.background_color}
+            />
+          </div>
         </div>
 
-        {lint !== undefined && (
-          <div className="max-w-md mx-auto w-full">
-            {lint.length === 0 ? (
-              <p className="text-sm text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2 font-body">
-                {t("studio.lintClean")}
-              </p>
-            ) : (
-              <div className="text-sm text-amber-800 bg-amber-50 rounded-lg px-3 py-2 font-body">
-                <p className="font-medium mb-1">{t("studio.lintTitle")}</p>
-                <ul className="list-disc ms-5 space-y-0.5">
+        {lint !== undefined &&
+          (lint.length === 0 ? (
+            <p className="flex items-start gap-2.5 rounded-xl bg-ok-bg px-4 py-3 text-sm text-ok">
+              <CircleCheck size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+              <span className="min-w-0">{t("studio.lintClean")}</span>
+            </p>
+          ) : (
+            <div className="flex items-start gap-2.5 rounded-xl bg-warn-bg px-4 py-3 text-sm text-warn">
+              <Info size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+              <div className="min-w-0">
+                <p className="font-medium">{t("studio.lintTitle")}</p>
+                <ul className="mt-1 list-disc space-y-0.5 ms-5">
                   {lint.map((problem) => (
                     <li key={problem} dir="ltr" className="text-start">
                       {problem}
@@ -438,9 +292,234 @@ export function CardStudio({
                   ))}
                 </ul>
               </div>
-            )}
+            </div>
+          ))}
+      </div>
+
+      {/* ── The bench ─────────────────────────────────────────────────── */}
+      <div className="order-2 flex flex-col gap-4 xl:order-1">
+        <StudioPanel title={t("studio.groups.card")}>
+          {/* Two short answers, side by side once there is room — a card name
+              does not need 700px of field to be typed into. */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <StudioText
+              label={t("studio.nameLabel")}
+              value={value.name}
+              onChange={(e) => update({ name: e.target.value })}
+              required
+            />
+
+            <StudioText
+              label={t("studio.rewardLabel")}
+              value={value.reward_description}
+              onChange={(e) => update({ reward_description: e.target.value })}
+              required
+            />
           </div>
+
+          <div className="flex flex-col gap-2.5">
+            <StudioSlider
+              label={t("studio.stampsLabel")}
+              min={MIN_STAMPS}
+              max={MAX_STAMPS}
+              value={value.stamps_required}
+              onChange={setStampsRequired}
+              valueText={stampsText}
+              spoken={spokenStamps}
+            />
+            {/* The strip drawn at full length, so the choice is "how long is
+                my card" rather than a number on a rail. The first dot is
+                below the minimum and clamps up to it — a one-stamp loyalty
+                card is not a thing the renderer will draw. */}
+            <PunchStrip
+              count={MAX_STAMPS}
+              filled={value.stamps_required}
+              onPick={(picked) => setStampsRequired(Math.max(MIN_STAMPS, picked))}
+              glyph={GlyphIcon}
+              stampArtUrl={images.stamp_art}
+              stampColor={stampColor}
+              cardColor={value.background_color}
+            />
+          </div>
+        </StudioPanel>
+
+        <StudioPanel title={t("studio.groups.stamp")}>
+          <div className="flex flex-col gap-3">
+            <ChoiceGrid
+              name="studio-glyph"
+              legend={t("studio.glyphLabel")}
+              choices={glyphChoices}
+              // Uploaded art wins over any glyph in the doc — the renderer
+              // uses the picture, so no icon here is the selected one.
+              value={images.stamp_art ? null : glyph}
+              onChange={(name) => updateDesign({ stamp: { ...design.stamp, glyph: name } })}
+              columns={4}
+              smColumns={8}
+            />
+            {uploadButton("stamp_art", t("studio.uploadStampArt"), images.stamp_art)}
+          </div>
+        </StudioPanel>
+
+        <StudioPanel title={t("studio.groups.look")}>
+          <ChoiceGrid
+            name="studio-palette"
+            legend={t("studio.paletteLabel")}
+            choices={paletteChoices}
+            // A palette is a shortcut that writes four colours at once, not a
+            // stored choice — an owner who then nudges one colour has left it,
+            // and nothing should still look picked.
+            value={
+              CARD_PALETTES.find(
+                (p) =>
+                  p.background === value.background_color &&
+                  p.text === value.foreground_color &&
+                  p.label === value.label_color &&
+                  p.stamp === stampColor,
+              )?.key ?? null
+            }
+            onChange={(key) => {
+              const palette = CARD_PALETTES.find((p) => p.key === key);
+              if (!palette) return;
+              onChange({
+                ...value,
+                background_color: palette.background,
+                foreground_color: palette.text,
+                label_color: palette.label,
+                design: { ...design, stamp: { ...design.stamp, color: palette.stamp } },
+              });
+            }}
+            columns={6}
+          />
+
+          <div className="flex flex-col gap-2">
+            <StudioGroupLabel>{t("studio.colorsLabel")}</StudioGroupLabel>
+            {/* One column below `sm`: the picker panel is wider than a
+                half-width cell and would run off a phone screen. */}
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              <ColorWell
+                label={t("studio.backgroundColor")}
+                value={value.background_color}
+                onChange={(color) => update({ background_color: color })}
+              />
+              <ColorWell
+                label={t("studio.stampColor")}
+                value={stampColor}
+                onChange={(color) => updateDesign({ stamp: { ...design.stamp, color } })}
+              />
+              <ColorWell
+                label={t("studio.textColor")}
+                value={value.foreground_color}
+                onChange={(color) => update({ foreground_color: color })}
+              />
+              <ColorWell
+                label={t("studio.labelColor")}
+                value={value.label_color}
+                onChange={(color) => update({ label_color: color })}
+              />
+            </div>
+          </div>
+
+          <ChoiceGrid
+            name="studio-pattern"
+            legend={t("studio.patternLabel")}
+            choices={patternChoices}
+            value={pattern}
+            onChange={(kind) => updateDesign({ pattern: kind })}
+            columns={4}
+            cellClassName="[&>span]:w-full"
+          />
+        </StudioPanel>
+
+        {onUpload && (
+          <StudioPanel title={t("studio.groups.logo")} hint={t("studio.logoHint")}>
+            {uploadButton("logo", t("studio.uploadLogo"), images.logo)}
+          </StudioPanel>
         )}
+
+        {uploadError && (
+          <p role="alert" className="rounded-xl bg-danger-bg px-4 py-3 text-sm text-danger">
+            {uploadError}
+          </p>
+        )}
+
+        <StudioDisclosure
+          open={showAdvanced}
+          onToggle={() => setShowAdvanced((v) => !v)}
+          label={t("studio.groups.advanced")}
+          hint={t("studio.groups.advancedHint")}
+          icon={<ChevronDown size={18} />}
+        >
+          <LabelsEditor
+            fields={design.fields ?? []}
+            onChange={(fields) => updateDesign({ fields })}
+          />
+
+          {!simpleOnly && (
+            <>
+              <div className="flex flex-wrap gap-3">
+                <StudioSelect
+                  label={t("studio.languageLabel")}
+                  value={design.default_language ?? "HE"}
+                  onChange={(e) =>
+                    updateDesign({ default_language: e.target.value as "HE" | "EN" })
+                  }
+                >
+                  <option value="HE">{t("studio.languages.HE")}</option>
+                  <option value="EN">{t("studio.languages.EN")}</option>
+                </StudioSelect>
+                <StudioSelect
+                  label={t("studio.barcodeLabel")}
+                  value={design.barcode?.format ?? "QR"}
+                  onChange={(e) =>
+                    updateDesign({
+                      barcode: {
+                        ...design.barcode,
+                        format: e.target.value as NonNullable<DesignDoc["barcode"]>["format"],
+                      },
+                    })
+                  }
+                >
+                  {["QR", "PDF417", "AZTEC", "CODE128"].map((format) => (
+                    <option key={format} value={format}>
+                      {format}
+                    </option>
+                  ))}
+                </StudioSelect>
+              </div>
+
+              <StudioText
+                label={t("studio.orgNameLabel")}
+                hint={t("studio.orgNameHint")}
+                value={design.organization_name ?? ""}
+                onChange={(e) => updateDesign({ organization_name: e.target.value })}
+              />
+
+              {onUpload && (
+                <div className="flex flex-col gap-2">
+                  <StudioGroupLabel>{t("studio.artworkLabel")}</StudioGroupLabel>
+                  <p className="text-xs text-ink-subtle">{t("studio.artworkHint")}</p>
+                  <div className="mt-1 flex flex-col gap-2">
+                    {uploadButton("strip_base", t("studio.uploadStripBase"), images.strip_base)}
+                    {uploadButton("stamped_art", t("studio.uploadStampedArt"), images.stamped_art)}
+                    {uploadButton(
+                      "unstamped_art",
+                      t("studio.uploadUnstampedArt"),
+                      images.unstamped_art,
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2">
+                <StudioGroupLabel>{t("studio.fieldsLabel")}</StudioGroupLabel>
+                <FieldsEditor
+                  fields={design.fields ?? []}
+                  onChange={(fields) => updateDesign({ fields })}
+                />
+              </div>
+            </>
+          )}
+        </StudioDisclosure>
       </div>
     </div>
   );
