@@ -123,10 +123,17 @@ export function MessagesPage() {
 
   const rules = useMemo(() => automations.data ?? [], [automations.data]);
   const canSend = summary.data?.can_send ?? false;
+  // Every rule on this page names one customer, and the wallet publishes to
+  // a whole card design — so once a second customer holds the design none of
+  // them can run. Unknown reads as fine: a summary that hasn't loaded must
+  // not put the page into its narrowest state.
+  const personalOk = summary.data?.can_reach_one_customer ?? true;
   const activeRules = rules.filter((a) => a.is_active).length;
   const lastTick = summary.data?.scheduler_last_tick_at;
   const schedulerStale =
-    activeRules > 0 && (!lastTick || Date.now() - new Date(lastTick).getTime() > STALE_TICK_MS);
+    activeRules > 0 &&
+    personalOk &&
+    (!lastTick || Date.now() - new Date(lastTick).getTime() > STALE_TICK_MS);
   const broadcastsLeft = summary.data
     ? Math.max(0, summary.data.broadcasts_limit_7d - summary.data.broadcasts_used_7d)
     : null;
@@ -161,6 +168,9 @@ export function MessagesPage() {
       )}
       {summary.data && canSend && schedulerStale && (
         <Notice tone="warn">{t("messaging.guard.schedulerStale")}</Notice>
+      )}
+      {summary.data && !personalOk && (
+        <Notice tone="warn">{t("messaging.guard.personalOnHold")}</Notice>
       )}
 
       {/* Four figures, small: context for the two panels below. */}
@@ -241,6 +251,7 @@ export function MessagesPage() {
                     key={a.id}
                     automation={a}
                     lang={lang}
+                    onHold={!personalOk}
                     pending={toggle.isPending && toggle.variables?.automation.id === a.id}
                     onToggle={(on) => toggle.mutate({ automation: a, on })}
                   />
@@ -325,16 +336,22 @@ export function MessagesPage() {
 function AutomationRow({
   automation: a,
   lang,
+  onHold,
   pending,
   onToggle,
 }: {
   automation: AutomationOut;
   lang: string;
+  onHold: boolean;
   pending: boolean;
   onToggle: (on: boolean) => void;
 }) {
   const { t } = useTranslation();
   const Icon = KIND_ICONS[a.kind as keyof typeof KIND_ICONS] ?? Send;
+  // Switched on but the design outgrew it: the rule will not send, so it
+  // must not read as running — a next-run time it will never keep is worse
+  // than saying nothing.
+  const held = a.is_active && onHold;
   return (
     <li className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4">
       <div className="flex min-w-0 flex-1 items-start gap-3">
@@ -342,7 +359,9 @@ function AutomationRow({
           aria-hidden
           className={cn(
             "mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
-            a.is_active ? "bg-primary/10 text-primary-text" : "bg-ink/[0.06] text-ink-subtle",
+            a.is_active && !held
+              ? "bg-primary/10 text-primary-text"
+              : "bg-ink/[0.06] text-ink-subtle",
           )}
         >
           <Icon size={17} />
@@ -355,8 +374,14 @@ function AutomationRow({
             >
               {a.name}
             </Link>
-            <Tag tone={a.is_active ? "ok" : "neutral"}>
-              {t(a.is_active ? "messaging.automations.on" : "messaging.automations.off")}
+            <Tag tone={held ? "warn" : a.is_active ? "ok" : "neutral"}>
+              {t(
+                held
+                  ? "messaging.automations.onHold"
+                  : a.is_active
+                    ? "messaging.automations.on"
+                    : "messaging.automations.off",
+              )}
             </Tag>
           </div>
           <p className="mt-0.5 text-sm text-ink-muted">
@@ -364,16 +389,27 @@ function AutomationRow({
           </p>
           <p className="mt-0.5 text-xs text-ink-subtle">
             {t("messaging.automations.sentMonth", { count: a.sent_this_month })}
-            {a.is_active && a.next_run_at && (
-              <> · {t("messaging.automations.nextRun", { when: formatWhen(a.next_run_at, lang) })}</>
+            {held ? (
+              <> · {t("messaging.automations.onHoldWhy")}</>
+            ) : (
+              a.is_active &&
+              a.next_run_at && (
+                <>
+                  {" · "}
+                  {t("messaging.automations.nextRun", { when: formatWhen(a.next_run_at, lang) })}
+                </>
+              )
             )}
           </p>
         </div>
       </div>
       <div className="flex items-center justify-between gap-3 sm:justify-end">
+        {/* Switching OFF is never gated — the owner must always be able to
+            stop a rule. Switching ON while the design is crowded only earns
+            a 422, so the switch says so instead of offering it. */}
         <Toggle
           checked={a.is_active}
-          disabled={pending}
+          disabled={pending || (onHold && !a.is_active)}
           label={t("messaging.automations.switchLabel")}
           onChange={onToggle}
         />

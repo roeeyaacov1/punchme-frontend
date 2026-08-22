@@ -1740,6 +1740,8 @@ export interface components {
             birthdays_this_month: number;
             /** Sent This Month */
             sent_this_month: number;
+            /** Can Reach One Customer */
+            can_reach_one_customer: boolean;
             /** Broadcasts Used 7D */
             broadcasts_used_7d: number;
             /** Broadcasts Limit 7D */

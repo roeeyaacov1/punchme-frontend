@@ -196,6 +196,11 @@ export function AutomationEditorPage() {
     staleTime: 10_000,
   });
   const canSend = summary.data?.can_send ?? false;
+  // Every kind this editor writes names one customer, and the wallet
+  // publishes to a whole card design — so a second holder puts all of them
+  // out of reach. Said here, before the rule is written, rather than as a
+  // 422 after it. Unknown reads as fine, the way canSend does.
+  const personalOk = summary.data?.can_reach_one_customer ?? true;
 
   // Seed from the recipe (new) or the saved rule (edit). The card-language
   // query may resolve after the first paint and swap the recipe copy — but
@@ -397,12 +402,20 @@ export function AutomationEditorPage() {
         </div>
         {!isNew && existing.data && (
           <div className="flex items-center gap-3">
-            <Tag tone={isActive ? "ok" : "neutral"}>
-              {t(isActive ? "messaging.automations.on" : "messaging.automations.off")}
+            <Tag tone={isActive && !personalOk ? "warn" : isActive ? "ok" : "neutral"}>
+              {t(
+                isActive && !personalOk
+                  ? "messaging.automations.onHold"
+                  : isActive
+                    ? "messaging.automations.on"
+                    : "messaging.automations.off",
+              )}
             </Tag>
+            {/* Off is never gated; on, while the design is crowded, only
+                earns a 422 — so the switch says no rather than offering it. */}
             <Toggle
               checked={isActive}
-              disabled={toggleExisting.isPending}
+              disabled={toggleExisting.isPending || (!personalOk && !isActive)}
               label={t("messaging.automations.switchLabel")}
               onChange={(on) => toggleExisting.mutate(on)}
             />
@@ -422,6 +435,10 @@ export function AutomationEditorPage() {
             </Link>
           )}
         </Notice>
+      )}
+
+      {summary.data && !personalOk && (
+        <Notice tone="warn">{t("messaging.guard.personalOnHold")}</Notice>
       )}
 
       {/* WHEN */}
@@ -636,7 +653,7 @@ export function AutomationEditorPage() {
             </button>
           ) : (
             <>
-              {(canSend || !summary.data) && (
+              {(canSend || !summary.data) && personalOk && (
                 <button
                   type="button"
                   disabled={!ready || busy}
@@ -650,7 +667,10 @@ export function AutomationEditorPage() {
                 type="button"
                 disabled={!ready || busy}
                 onClick={() => save.mutate({ activate: false })}
-                className={ctaClasses(canSend || !summary.data ? "secondary" : "primary", "sm")}
+                className={ctaClasses(
+                  (canSend || !summary.data) && personalOk ? "secondary" : "primary",
+                  "sm",
+                )}
               >
                 {t("messaging.editor.saveOff")}
               </button>
