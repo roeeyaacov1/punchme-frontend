@@ -161,7 +161,6 @@ describe("buildTemplateInput", () => {
       background_color: "#4B2E1E",
       foreground_color: "#FFFFFF",
       logo_url: "",
-      stamp_strategy: "tierSwap",
     });
     expect(input.label_color).toMatch(/^#[0-9A-F]{6}$/);
     const design = input.design as {

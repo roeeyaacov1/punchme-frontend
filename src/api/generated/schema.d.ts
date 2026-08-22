@@ -309,6 +309,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/businesses/{business_id}/team": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Team */
+        get: operations["apps_businesses_api_get_team"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/team/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Invitation
+         * @description Mints the link. The response carries `accept_path` — the owner copies
+         *     it and sends it themselves, which is the whole delivery mechanism: there
+         *     is no mail in this product, and WhatsApp is where this market already
+         *     talks to the person they just hired.
+         */
+        post: operations["apps_businesses_api_create_invitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/team/invitations/{invitation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Revoke Invitation */
+        delete: operations["apps_businesses_api_revoke_invitation"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/team/members/{membership_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Member
+         * @description Takes someone off the team. The owner's own row has no id to address
+         *     here (see team.list_members), so this can't be the endpoint that leaves
+         *     a business with nobody in charge.
+         */
+        delete: operations["apps_businesses_api_remove_member"];
+        options?: never;
+        head?: never;
+        /** Change Member Role */
+        patch: operations["apps_businesses_api_change_member_role"];
+        trace?: never;
+    };
     "/api/presets": {
         parameters: {
             query?: never;
@@ -338,7 +418,14 @@ export interface paths {
         /**
          * Request Join Otp
          * @description Step 1 of the public join flow: send an SMS verification code.
-         *     Always 204 (no user enumeration); rate-limit hits surface as 429.
+         *     Always 204 (no user enumeration); rate-limit hits surface as 429, and a
+         *     business that can't take the resulting enrollment 403s here instead of
+         *     paying for an SMS the customer can't use.
+         *
+         *     advisory=True: the headroom check can't see who is asking (that would
+         *     make this an enumeration oracle), and a returning customer is never
+         *     subject to the cap at enroll — so it only refuses when the business
+         *     holds no cards for anyone to be returning to. See the helper.
          */
         post: operations["apps_loyalty_api_request_join_otp"];
         delete?: never;
@@ -396,6 +483,33 @@ export interface paths {
         };
         /** Get Card */
         get: operations["apps_loyalty_api_get_card"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cards/{serial}/art/{slot}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Card Art
+         * @description The strip/hero PNG this card's pass is made of — same renderer, so
+         *     the public join and status pages show the card the business designed
+         *     instead of a client-side approximation of it. See wallet/card_art.py.
+         *
+         *     `state` is explicit rather than read off the card so the URL is a pure
+         *     function of its bytes and can be cached hard; `v` is the design version
+         *     and is only ever compared by caches, never by us. Both are produced by
+         *     CardPublicOut, which is the one thing that builds these URLs.
+         */
+        get: operations["apps_loyalty_api_get_card_art"];
         put?: never;
         post?: never;
         delete?: never;
@@ -784,6 +898,55 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/invitations/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview Invitation
+         * @description Public on purpose, and the deviation from "the join flow and auth are
+         *     the only anonymous endpoints" is deliberate: the invitee arrives from a
+         *     chat message, before they have an account. Making them sign up first
+         *     means creating an account to discover the link was revoked last week.
+         *
+         *     The token IS the credential, so this answers only what makes the link
+         *     worth acting on — which business, which role, still good or not — and
+         *     masks the invited address rather than printing it.
+         */
+        get: operations["apps_businesses_api_preview_invitation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invitations/{token}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept Invitation
+         * @description Spends the link. Authenticated — this is the point where the invitee
+         *     has to be a real account, and which account they are is what the
+         *     membership records.
+         */
+        post: operations["apps_businesses_api_accept_invitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/catalog": {
         parameters: {
             query?: never;
@@ -939,6 +1102,8 @@ export interface components {
         };
         /** BusinessOut */
         BusinessOut: {
+            /** Viewer Role */
+            viewer_role?: string | null;
             /** Id */
             id?: string | null;
             /** Name */
@@ -1077,11 +1242,6 @@ export interface components {
              */
             logo_url: string;
             /**
-             * Stamp Strategy
-             * @default tierSwap
-             */
-            stamp_strategy: string;
-            /**
              * Design
              * @default {}
              */
@@ -1114,8 +1274,6 @@ export interface components {
             logo_url?: string | null;
             /** Is Active */
             is_active?: boolean | null;
-            /** Stamp Strategy */
-            stamp_strategy?: string | null;
             /** Design */
             design?: {
                 [key: string]: unknown;
@@ -1201,6 +1359,83 @@ export interface components {
             image_id: string;
             /** Url */
             url: string;
+        };
+        /**
+         * InvitationOut
+         * @description An outstanding link, as its owner sees it.
+         *
+         *     `accept_path` is a path, not a URL: the backend has no business knowing
+         *     which origin the dashboard is served from (there is no FRONTEND_URL
+         *     setting, and inventing one means a wrong value ships a link nobody can
+         *     open). The frontend joins it to its own origin, which is by definition
+         *     the one the owner is looking at.
+         */
+        InvitationOut: {
+            /** Id */
+            id: string;
+            /** Role */
+            role: string;
+            /** Email */
+            email: string;
+            /** Status */
+            status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Accept Path */
+            accept_path: string;
+        };
+        /**
+         * MemberOut
+         * @description One row of the roster. `id` is None for the owner -- they have no
+         *     Membership row, and that None is also what tells the dashboard this is
+         *     the one row with no remove button.
+         */
+        MemberOut: {
+            /** Id */
+            id: string | null;
+            /** User Id */
+            user_id: number;
+            /** Email */
+            email: string;
+            /** Role */
+            role: string;
+            /**
+             * Joined At
+             * Format: date-time
+             */
+            joined_at: string;
+            /** Is Owner */
+            is_owner: boolean;
+        };
+        /** TeamOut */
+        TeamOut: {
+            /** Members */
+            members: components["schemas"]["MemberOut"][];
+            /** Invitations */
+            invitations: components["schemas"]["InvitationOut"][];
+        };
+        /** InvitationCreateIn */
+        InvitationCreateIn: {
+            /** Role */
+            role: string;
+            /**
+             * Email
+             * @default
+             */
+            email: string;
+        };
+        /** MemberRoleIn */
+        MemberRoleIn: {
+            /** Role */
+            role: string;
         };
         /** PresetOut */
         PresetOut: {
@@ -1318,6 +1553,16 @@ export interface components {
             label_color: string;
             /** Logo Url */
             logo_url: string | null;
+            /** Apple Logo Url */
+            apple_logo_url: string | null;
+            /** Design */
+            design: {
+                [key: string]: unknown;
+            };
+            /** Strip Url */
+            strip_url: string | null;
+            /** Hero Url */
+            hero_url: string | null;
             /** Wallet Pass Url */
             wallet_pass_url: string | null;
             /** Wallet Issue Pending */
@@ -1504,6 +1749,17 @@ export interface components {
             /** Dispatch Enabled */
             dispatch_enabled: boolean;
         };
+        /**
+         * PlaceholderOut
+         * @description A variable the composer may offer for this kind, already spelled for
+         *     the card's language — `token` is what gets inserted verbatim.
+         */
+        PlaceholderOut: {
+            /** Key */
+            key: string;
+            /** Token */
+            token: string;
+        };
         /** RecipeOut */
         RecipeOut: {
             /** Key */
@@ -1536,6 +1792,8 @@ export interface components {
             reward_waiting_days: number | null;
             /** Send Hour Local */
             send_hour_local: number;
+            /** Placeholders */
+            placeholders: components["schemas"]["PlaceholderOut"][];
         };
         /** AudienceOut */
         AudienceOut: {
@@ -1842,6 +2100,31 @@ export interface components {
             items: components["schemas"]["DeliveryOut"][];
             /** Count */
             count: number;
+        };
+        /**
+         * InvitationPreviewOut
+         * @description What the person holding the link is shown before they sign in.
+         *
+         *     Public (the token is the credential), so it carries the least that still
+         *     makes the link trustworthy enough to act on: which business, what they
+         *     are being asked to be, and whether it is still good. The invited address
+         *     is masked -- it is there so the invitee knows which account to sign in
+         *     with, not to be readable by whoever a forwarded link reaches.
+         */
+        InvitationPreviewOut: {
+            /** Business Name */
+            business_name: string;
+            /** Role */
+            role: string;
+            /** Status */
+            status: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Masked Email */
+            masked_email: string;
         };
         /** CatalogTemplateOut */
         CatalogTemplateOut: {
@@ -2503,6 +2786,123 @@ export interface operations {
             };
         };
     };
+    apps_businesses_api_get_team: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_create_invitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvitationCreateIn"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_revoke_invitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                invitation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    apps_businesses_api_remove_member: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                membership_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    apps_businesses_api_change_member_role: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                membership_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberRoleIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"];
+                };
+            };
+        };
+    };
     apps_businesses_api_get_presets: {
         parameters: {
             query?: {
@@ -2617,6 +3017,30 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["CardPublicOut"];
                 };
+            };
+        };
+    };
+    apps_loyalty_api_get_card_art: {
+        parameters: {
+            query?: {
+                state?: number | null;
+                v?: string;
+            };
+            header?: never;
+            path: {
+                serial: string;
+                slot: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -3220,6 +3644,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PagedDeliveryOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_preview_invitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationPreviewOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_accept_invitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"];
                 };
             };
         };

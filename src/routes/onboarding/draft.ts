@@ -312,7 +312,12 @@ export function buildTemplateInput(
     foreground_color: resolved.foreground,
     label_color: resolved.label,
     logo_url: "",
-    stamp_strategy: "tierSwap",
+    // No stamp_strategy. The backend dropped it from CardTemplateIn on
+    // purpose — "native" means a template drawn by hand in the PassKit
+    // portal, which nothing in this API can create, and flipping a
+    // provisioned template to it freezes the design for good. New templates
+    // take the model default (tierSwap) either way, so sending it was
+    // already a no-op the server ignored.
     design: buildDesignDoc(resolved, lang, t),
   };
 }
