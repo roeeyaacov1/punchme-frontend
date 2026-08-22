@@ -18,8 +18,8 @@ import { cn } from "../../lib/cn";
  * the public join flow and the wizard — none of which this phase may
  * repaint. Everything here is expressed in tokens instead, so one studio
  * reads as paper inside the catalog editor and as a panel on the dashboard's
- * night ground, and the lit stage around the pass gets the light values back
- * for free.
+ * night ground — the stage around the pass included, since it is a panel like
+ * any other now.
  */
 
 /** A group of controls that answer one question. */

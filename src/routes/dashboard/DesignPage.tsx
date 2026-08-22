@@ -173,11 +173,10 @@ export function DesignPage() {
       {syncError && <Notice tone="warn">{t("studio.syncError")}</Notice>}
       {saveError && <Notice tone="danger">{saveError}</Notice>}
 
-      {/* The pass is a spec match to what the two wallets actually draw —
-          white, by their definition, not ours — so it keeps its lit stage.
-          The controls beside it are ours, and they turn dark with the rest of
-          the dashboard; the studio stages its own lamp now, which is why
-          there is no `LitStage` around the whole thing any more. */}
+      {/* The studio stages itself — panel, and a well for the pass — so the
+          whole of it turns with the page and there is no `LitStage` here.
+          What stays a spec match is the card inside that well: its layout and
+          its colours are the wallets', not ours, and nothing repaints them. */}
       <CardStudio
         value={draft}
         onChange={(value) => {

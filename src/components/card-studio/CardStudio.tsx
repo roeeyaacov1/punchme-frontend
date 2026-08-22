@@ -70,13 +70,21 @@ const MIN_STAMPS = 2;
 const MAX_STAMPS = 12;
 
 /**
- * The Card Studio: a bench with a lamp on it.
+ * The Card Studio: a bench, and the card on a screen at the end of it.
  *
- * The controls are the dashboard — token-built panels that turn dark with the
- * rest of the page. The pass is not: both wallets draw it on white by their
- * own definition, so it keeps the lit stage it has always had and the desk
- * around it goes dark. Only the object under the lamp is a spec match; the
- * tools beside it belong to us.
+ * The stage used to be lit — a white slab held out of the dark page on the
+ * grounds that the wallets draw a pass on white. They don't: Apple's list is
+ * black, Google's follows the system, and the lock screen is whatever the
+ * customer's wallpaper is. Nor was it ever true of the card itself, which is
+ * whatever colour the owner painted it. So the stage is a panel like the ones
+ * on the bench, with the pass in a well cut into it, and the whole studio
+ * turns with the page. What separates card from ground after dark is not the
+ * card's own shadow — a dark shadow on a dark well does nothing — but the
+ * hairline rim `CardPreview` traces around the slot.
+ *
+ * What is a spec match is the card, and it is untouched: its layout, its
+ * colours and the white quiet zone under the barcode all belong to the two
+ * wallets. The frame around it belongs to us.
  *
  * Pure controlled component — persistence (save/upload) belongs to the parent.
  */
@@ -224,32 +232,40 @@ export function CardStudio({
 
   return (
     <div className="grid items-start gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
-      {/* ── The lamp ──────────────────────────────────────────────────
+      {/* ── The stage ─────────────────────────────────────────────────
           First on a phone, because the whole point is watching the card
           change; second column and sticky from `xl`, where it can sit beside
           the controls instead of above them. */}
       <div className="order-1 flex flex-col gap-4 xl:order-2 xl:sticky xl:top-6">
-        <div className="theme-lit rounded-2xl bg-background p-4 text-ink shadow-panel-lift ring-1 ring-black/5 sm:p-5">
-          <CardPreview
-            businessName={businessName}
-            stampsRequired={value.stamps_required}
-            currentStamps={sampleStamps}
-            rewardDescription={value.reward_description}
-            backgroundColor={value.background_color}
-            foregroundColor={value.foreground_color}
-            labelColor={value.label_color}
-            design={design}
-            logoUrl={images.logo}
-            appleLogoUrl={images.apple_logo}
-            stampArtUrl={images.stamp_art}
-            stripBaseUrl={images.strip_base}
-            stripStates={images.strip_states}
-            heroStates={images.hero_states}
-            unsaved={unsaved}
-          />
+        {/* A panel, built like the ones on the bench, so the two columns read
+            as one app rather than as a page with a window cut in it. */}
+        <div className="rounded-2xl border border-border bg-surface p-4 text-ink shadow-panel sm:p-5">
+          {/* The well the card sits in: one step under the panel in both
+              themes, so the pass reads as an object set down on a screen
+              rather than printed on the panel. */}
+          <div className="-mx-1 rounded-xl bg-background px-1 py-5 sm:px-2">
+            <CardPreview
+              businessName={businessName}
+              stampsRequired={value.stamps_required}
+              currentStamps={sampleStamps}
+              rewardDescription={value.reward_description}
+              backgroundColor={value.background_color}
+              foregroundColor={value.foreground_color}
+              labelColor={value.label_color}
+              design={design}
+              logoUrl={images.logo}
+              appleLogoUrl={images.apple_logo}
+              stampArtUrl={images.stamp_art}
+              stripBaseUrl={images.strip_base}
+              stripStates={images.strip_states}
+              heroStates={images.hero_states}
+              unsaved={unsaved}
+            />
+          </div>
 
-          {/* Try it: punch the sample card and watch the pass above follow. */}
-          <div className="mt-5 flex flex-col gap-2.5 border-t border-border pt-4">
+          {/* Try it: punch the sample card and watch the pass above follow.
+              No rule above it — the well's own edge is the division now. */}
+          <div className="mt-4 flex flex-col gap-2.5">
             <StudioSlider
               label={t("studio.sampleStampsLabel")}
               min={0}

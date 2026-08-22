@@ -142,14 +142,20 @@ html.theme-night .logo-mark {
 /* ── Things that stay lit ───────────────────────────────────────────────
    Some of what the dashboard shows is not a screen at all. A QR code has to
    be dark-on-light to scan. The standee is paper, and paper does not have a
-   dark mode. The pass and the Card Studio are a spec match to what Apple and
-   Google actually render, drawn on white by both.
+   dark mode.
 
    So the rule is physical: what the owner *reads* turns dark, and what the
    owner *hands to someone* stays lit — staged on the dark page as an object
    under a lamp rather than repainted. `theme-lit` restores the light values
    for any subtree, which is what lets a token-built frame sit around a
-   component this redesign is not allowed to touch. */
+   component this redesign is not allowed to touch.
+
+   A pass is not one of those things. It is not handed over on paper, it is a
+   screen — and neither wallet draws it on white: Apple's list is black,
+   Google's follows the system, and a lock screen is whatever the customer's
+   wallpaper is. So the Card Studio turns with the page like everything else
+   and its card sits in a well; only its *colours* are a spec match, and those
+   are the owner's own, not the theme's. */
 .theme-lit {
   --c-background: 255 255 255;
   --c-surface: 245 246 254;

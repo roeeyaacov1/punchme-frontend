@@ -241,7 +241,10 @@ export function CardPreview(props: CardPreviewValue) {
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
-      <div className="inline-flex rounded-full border border-slate/25 bg-white p-1">
+      {/* The switch is ours, not the wallets' — so unlike the card below it,
+          it is token-built and follows whatever ground it is dropped on: the
+          light values inside a `LitStage`, the dark ones in the studio. */}
+      <div className="inline-flex rounded-full border border-border bg-surface p-1">
         {PLATFORMS.map((key) => (
           <button
             key={key}
@@ -251,8 +254,8 @@ export function CardPreview(props: CardPreviewValue) {
             className={cn(
               "px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wide transition-colors",
               platform === key
-                ? "bg-navy text-white"
-                : "text-slate hover:text-navy",
+                ? "bg-ink text-background"
+                : "text-ink-muted hover:text-ink",
             )}
           >
             {t(`studio.preview.${key}`)}
@@ -260,7 +263,19 @@ export function CardPreview(props: CardPreviewValue) {
         ))}
       </div>
 
-      <div className="w-[300px] shrink-0">
+      {/* A hairline rim, traced on the card's own radius rather than painted
+          into it — the colours inside belong to the owner and stay untouched.
+          A pass is a discrete object and needs an edge at every colour: the
+          near-black palette on a dark ground would otherwise dissolve into
+          it, exactly as a white card did on white. iOS draws the same
+          highlight for the same reason, and the landing page's phone frame
+          already wears this one.
+
+          Outset, not inset — the card fills this box and would paint its own
+          background over anything drawn inside it. `/10` because that is a
+          real step on Tailwind's opacity scale; `/12` compiles to nothing at
+          all and leaves the default blue ring showing. */}
+      <div className="w-[300px] shrink-0 rounded-[18px] ring-1 ring-white/10">
         {platform === "apple" ? (
           <AppleCardPreview {...props} />
         ) : (
