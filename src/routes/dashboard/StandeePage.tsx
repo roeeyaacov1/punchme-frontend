@@ -1,28 +1,50 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { QRCodeSVG } from "qrcode.react";
+import { Printer } from "lucide-react";
 import { ctaClasses, focusRing } from "../../components/marketing/primitives";
-import { LitStage, Notice } from "../../components/dashboard/primitives";
+import {
+  GroupLabel,
+  LitStage,
+  Notice,
+  Panel,
+  PanelHeader,
+  SegmentedControl,
+} from "../../components/dashboard/primitives";
+import {
+  PRINT_FORMATS,
+  SHEET_SPECS,
+  STANDEE_DESIGNS,
+  StandeeSheet,
+  type PrintFormat,
+  type StandeeArt,
+  type StandeeDesign,
+} from "../../components/dashboard/Standee";
 import { useBusiness } from "../../business/useBusiness";
 import { canEnrollRealCustomers } from "../../business/gating";
-import { listTemplates, type CardTemplate } from "../../api/businesses";
-import { getTemplateDesign } from "../../api/designs";
+import { listTemplates } from "../../api/businesses";
+import { getTemplateDesign, type DesignDoc } from "../../api/designs";
 import { buildEnrollUrl } from "../../lib/enrollUrl";
 import { cn } from "../../lib/cn";
 
-type PrintFormat = "a4" | "a5" | "tent";
-
-/** A real printable carrying the business's own design: card colors +
- * logo, the reward line, Hebrew join instructions, and the QR to
- * /join/{templateId}. Print via the browser (Ctrl+P → save as PDF is the
- * downloadable file); @page CSS sets the paper size per format, and the
- * table-tent format prints two mirrored halves to fold. */
+/**
+ * The one page whose output is not a screen.
+ *
+ * Two choices, in the order an owner makes them: which sign, then what paper.
+ * Both are shown rather than described — the four design cards are the real
+ * sheet at thumbnail size, carrying the owner's own colours and their own
+ * live code, so nothing here is a mock of what will print.
+ *
+ * The sheet itself and everything the printer does with it live in
+ * `components/dashboard/Standee`; this page is the chooser around them.
+ */
 export function StandeePage() {
   const { t } = useTranslation();
   const { business } = useBusiness();
   const canEnroll = canEnrollRealCustomers(business);
+  const [design, setDesign] = useState<StandeeDesign>("poster");
   const [format, setFormat] = useState<PrintFormat>("a4");
 
   const { data: templates } = useQuery({
@@ -32,62 +54,67 @@ export function StandeePage() {
   });
   const template = templates?.[0];
 
-  const { data: design } = useQuery({
+  const { data: design_ } = useQuery({
     queryKey: ["design", template?.id],
     queryFn: () => getTemplateDesign(business!.id!, template!.id!),
     enabled: !!business?.id && !!template?.id,
   });
 
+  // The print stylesheet hides every child of <body> that is not the sheet,
+  // which is only safe while a sheet exists — so the flag that turns it on
+  // lives and dies with this page. See `index.css`.
+  const ready = !!template;
+  useEffect(() => {
+    if (!ready) return;
+    const root = document.documentElement;
+    root.classList.add("standee-print-mode");
+    return () => root.classList.remove("standee-print-mode");
+  }, [ready]);
+
   if (!template) {
     return <p className="font-mono text-sm text-ink-subtle">{t("common.loading")}</p>;
   }
 
-  const images = (design?.images ?? {}) as Record<string, unknown>;
-  const logoUrl =
-    typeof images.logo === "string" ? (images.logo as string) : undefined;
+  const images = (design_?.images ?? {}) as Record<string, unknown>;
+  const doc = (design_?.design ?? {}) as DesignDoc;
+
+  const art: StandeeArt = {
+    businessName: business?.name ?? "",
+    reward: template.reward_description,
+    stampsRequired: template.stamps_required,
+    background: template.background_color ?? "#FFFFFF",
+    foreground: template.foreground_color ?? "#000000",
+    label: template.label_color ?? template.foreground_color ?? "#000000",
+    glyph: typeof doc.stamp?.glyph === "string" ? doc.stamp.glyph : undefined,
+    logoUrl: typeof images.logo === "string" ? (images.logo as string) : undefined,
+    enrollUrl: buildEnrollUrl(template.id!),
+  };
+
+  const spec = SHEET_SPECS[format];
 
   return (
     <div className="flex flex-col gap-4 sm:gap-5">
-      <style>{printCss(format)}</style>
+      {/* The only thing about the paper that cannot be a class: the page box
+          changes with the format, and `@page` takes no variables. */}
+      <style>{`@page { size: ${spec.page}; margin: 0; }`}</style>
 
-      <div className="flex flex-wrap items-center gap-3 print:hidden">
-        <h1 className="t-h3 flex-1 text-ink">{t("standee.title")}</h1>
-        {/* Paper sizes, so the control is set in the same mono the pass sets
-            its field labels in — this is a spec, not a preference. */}
-        <div
-          role="group"
-          aria-label={t("standee.title")}
-          className="flex gap-1 rounded-xl border border-border bg-surface p-1"
-        >
-          {(["a4", "a5", "tent"] as PrintFormat[]).map((key) => (
-            <button
-              key={key}
-              type="button"
-              aria-pressed={format === key}
-              onClick={() => setFormat(key)}
-              className={cn(
-                "inline-flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium transition-colors",
-                format === key
-                  ? "bg-primary text-primary-on"
-                  : "text-ink-muted hover:text-ink",
-                focusRing,
-              )}
-            >
-              {t(`standee.formats.${key}`)}
-            </button>
-          ))}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="t-h3 text-ink">{t("standee.title")}</h1>
+          <p className="mt-2 max-w-2xl text-ink-muted">{t("standee.subtitle")}</p>
         </div>
         <button
           type="button"
           onClick={() => window.print()}
           className={ctaClasses("primary", "sm")}
         >
+          <Printer size={16} aria-hidden />
           {t("standee.print")}
         </button>
       </div>
 
       {!canEnroll && (
-        <Notice tone="warn" className="print:hidden">
+        <Notice tone="warn">
           {t("standee.activateFirst")}{" "}
           <Link
             to="/dashboard/billing"
@@ -97,95 +124,117 @@ export function StandeePage() {
           </Link>
         </Notice>
       )}
-      <p className="text-sm text-ink-muted print:hidden">
-        {t("standee.downloadHint")}
-      </p>
 
-      {/* Paper does not have a dark mode. On a dark page the sheet is staged
-          on a lit surface rather than repainted — and in print the staging
-          disappears entirely, because there is nothing behind a sheet of A4. */}
-      <LitStage className="mx-auto w-full print:bg-transparent print:p-0 print:shadow-none print:ring-0">
-        <div id="standee-sheet" className="mx-auto w-full">
-          <StandeePanel template={template} businessName={business?.name ?? ""} logoUrl={logoUrl} />
-          {format === "tent" && (
-            <div className="tent-flip">
-              <StandeePanel
-                template={template}
-                businessName={business?.name ?? ""}
-                logoUrl={logoUrl}
-              />
+      <div className="grid items-start gap-4 sm:gap-5 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
+        <div className="flex flex-col gap-4 sm:gap-5">
+          <Panel className="p-5 sm:p-6">
+            <PanelHeader
+              title={t("standee.designLabel")}
+              hint={t("standee.designHint")}
+            />
+            <div
+              role="group"
+              aria-label={t("standee.designLabel")}
+              className="mt-4 grid grid-cols-2 gap-3"
+            >
+              {STANDEE_DESIGNS.map((key) => {
+                const active = key === design;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setDesign(key)}
+                    className={cn(
+                      "group flex flex-col gap-2 rounded-xl border p-2 text-start transition-colors",
+                      active
+                        ? "border-primary bg-primary-text/10"
+                        : "border-border hover:border-border-strong",
+                      focusRing,
+                    )}
+                  >
+                    {/* The chooser shows the thing itself, at 1/12 scale —
+                        and hides it from the accessibility tree, or the
+                        button announces the whole poster before its name. */}
+                    <span aria-hidden="true" className="block w-full">
+                      <StandeeSheet
+                        design={key}
+                        art={art}
+                        format={format}
+                        single
+                        className="rounded-lg shadow-card ring-1 ring-black/10"
+                      />
+                    </span>
+                    <span className="px-1 pb-1">
+                      <span
+                        className={cn(
+                          "block text-sm font-semibold",
+                          active ? "text-primary-text" : "text-ink",
+                        )}
+                      >
+                        {t(`standee.designs.${key}.name`)}
+                      </span>
+                      <span className="mt-0.5 block text-xs leading-snug text-ink-muted">
+                        {t(`standee.designs.${key}.hint`)}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-          )}
+          </Panel>
+
+          <Panel className="p-5 sm:p-6">
+            <PanelHeader title={t("standee.paperLabel")} />
+            <SegmentedControl
+              className="mt-4 flex w-full"
+              label={t("standee.paperLabel")}
+              value={format}
+              onChange={setFormat}
+              options={PRINT_FORMATS.map((key) => ({
+                value: key,
+                label: t(`standee.formats.${key}`),
+              }))}
+            />
+            <p className="mt-3 text-sm text-ink-muted">
+              {t(`standee.formatHints.${format}`)}
+            </p>
+            <p className="mt-1 text-sm text-ink-subtle">
+              {t("standee.downloadHint")}
+            </p>
+          </Panel>
         </div>
-      </LitStage>
-    </div>
-  );
-}
 
-function StandeePanel({
-  template,
-  businessName,
-  logoUrl,
-}: {
-  template: CardTemplate;
-  businessName: string;
-  logoUrl?: string;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div
-      className="standee-panel flex flex-col items-center text-center gap-6 rounded-3xl px-10 py-12"
-      style={{
-        backgroundColor: template.background_color ?? "#FFFFFF",
-        color: template.foreground_color ?? "#000000",
-      }}
-    >
-      {logoUrl ? (
-        <img src={logoUrl} alt="" className="h-16 max-w-[220px] object-contain" />
-      ) : null}
-      <h2 className="text-3xl font-heading leading-tight">{businessName}</h2>
-      <p className="text-xl font-body" style={{ color: template.label_color ?? undefined }}>
-        {template.reward_description}
-      </p>
-
-      <ol className="text-base font-body leading-relaxed space-y-1">
-        <li>{t("standee.step1")}</li>
-        <li>{t("standee.step2")}</li>
-        <li>{t("standee.step3")}</li>
-      </ol>
-
-      <div dir="ltr" className="bg-white rounded-2xl p-4">
-        <QRCodeSVG value={buildEnrollUrl(template.id!)} size={200} />
+        <div className="flex flex-col gap-3 lg:sticky lg:top-8">
+          <GroupLabel>{t("standee.previewTitle")}</GroupLabel>
+          {/* Paper does not have a dark mode. On a dark page the sheet is not
+              repainted, it is staged: an object set down under a lamp. */}
+          <LitStage className="mx-auto w-full p-3 sm:p-4">
+            <StandeeSheet
+              design={design}
+              art={art}
+              format={format}
+              className="mx-auto max-w-[27rem] rounded-lg shadow-panel-lift ring-1 ring-black/10"
+            />
+          </LitStage>
+          <p className="text-sm text-ink-subtle">{t("standee.previewNote")}</p>
+        </div>
       </div>
 
-      <p className="text-sm font-body opacity-80">{t("standee.scanCta")}</p>
-      <p className="text-[10px] font-mono opacity-60" dir="ltr">
-        powered by PunchMe
-      </p>
+      {/* What the printer gets: the sheet at its real size in millimetres,
+          hoisted to the end of <body> so the app around it can be switched
+          off wholesale rather than hidden class by class. See `index.css`. */}
+      {createPortal(
+        <div className="standee-print" aria-hidden="true">
+          <div
+            className="standee-page"
+            style={{ width: `${spec.width}mm`, height: `${spec.height}mm` }}
+          >
+            <StandeeSheet design={design} art={art} format={format} />
+          </div>
+        </div>,
+        document.body,
+      )}
     </div>
   );
-}
-
-/** Per-format print CSS. The screen shows the same panel scaled; print
- * hides the app chrome (Tailwind print:hidden) and sizes the paper. */
-function printCss(format: PrintFormat): string {
-  const page =
-    format === "a5" ? "A5 portrait" : format === "tent" ? "A4 landscape" : "A4 portrait";
-  return `
-@page { size: ${page}; margin: 12mm; }
-@media print {
-  body { background: white !important; }
-  /* The desktop rail is an aside, which the redesign added — without it
-     here the nav column prints down the side of the sheet. */
-  header, nav, aside { display: none !important; }
-  main { padding: 0 !important; }
-  #standee-sheet { width: 100%; max-width: none; }
-  .standee-panel { border-radius: 0; min-height: ${format === "tent" ? "auto" : "80vh"}; justify-content: center; page-break-inside: avoid; }
-  .tent-flip { transform: rotate(180deg); margin-top: 10mm; }
-}
-@media screen {
-  #standee-sheet { max-width: ${format === "a5" ? "420px" : "560px"}; }
-  .tent-flip { transform: rotate(180deg); margin-top: 16px; }
-}
-`;
 }

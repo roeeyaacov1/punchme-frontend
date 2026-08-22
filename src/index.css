@@ -579,3 +579,104 @@ h4 {
     );
   }
 }
+
+/* ── The standee ────────────────────────────────────────────────────────
+   A sheet of paper, drawn once and used three ways: a thumbnail in the
+   chooser, a preview on the page, and the thing the printer lays down.
+
+   The sheet owns the geometry and the panel just fills it, so nothing inside
+   has to know which of the three it is in. Sizes inside the panel are written
+   in `cqw` against `container-type` here — hundredths of the sheet's own
+   width — which is what lets one component be 140px wide and 210mm wide with
+   one set of numbers.
+
+   Print is a portal at the end of <body>, not a set of `print:hidden` classes
+   on the app around it. Two things forced that. The dashboard's ground lives
+   on <html> and is dark half the time, so a page that only whitens <body>
+   prints a night-blue A4. And print lays out at the paper's width, so at any
+   landscape size the `lg:` rail reappears and prints itself down the side of
+   the sheet. Hoisting the sheet out and switching off its siblings ends both
+   arguments. */
+.standee-sheet {
+  position: relative;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.standee-panel {
+  container-type: inline-size;
+  flex: 1 1 0;
+  min-height: 0;
+  /* A poster whose colour the printer decides not to lay down is not a
+     poster: here the background *is* the design. */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* The fold on a table tent, marked so it is not guessed at. */
+.standee-fold {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px dashed currentColor;
+  opacity: 0.45;
+}
+
+.standee-fold-tag {
+  transform: translateY(-50%);
+  padding-inline: 0.75em;
+  font-size: 1.6cqw;
+  letter-spacing: 0.18em;
+}
+
+/* Off-screen until the printer asks. */
+.standee-print {
+  display: none;
+}
+
+/* Every rule below hangs off `.standee-print-mode`, which the standee page
+   puts on <html> while it is mounted and takes off again on the way out.
+   Unscoped, "hide every child of <body> that is not the sheet" would print a
+   blank page from every other screen in the app. */
+@media print {
+  html.standee-print-mode,
+  html.standee-print-mode body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  html.standee-print-mode body > *:not(.standee-print) {
+    display: none !important;
+  }
+
+  html.standee-print-mode .standee-print {
+    display: block !important;
+  }
+
+  /* On paper the page is a fixed number of millimetres and the panels divide
+     it by flex. An aspect ratio would land a hundredth of a millimetre over
+     and spill a blank second page. */
+  .standee-print .standee-page {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .standee-print .standee-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .standee-print .standee-sheet {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+}

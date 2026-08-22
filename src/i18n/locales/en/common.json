@@ -461,18 +461,54 @@
   },
   "standee": {
     "title": "Print signage",
+    "subtitle": "Pick a design, print it, and put it where people already stand still. The code never changes, so one print lasts.",
     "print": "Print",
+    "designLabel": "Design",
+    "designHint": "Same code, same colours — four ways to say it.",
+    "paperLabel": "Paper",
+    "designs": {
+      "poster": {
+        "name": "Poster",
+        "hint": "Full colour, for a wall or a window"
+      },
+      "counter": {
+        "name": "Counter",
+        "hint": "Code first, read from across the room"
+      },
+      "card": {
+        "name": "The deal",
+        "hint": "Shows what they collect, and for what"
+      },
+      "plain": {
+        "name": "Plain",
+        "hint": "White paper, barely any ink"
+      }
+    },
     "formats": {
       "a4": "A4",
       "a5": "A5",
       "tent": "Table tent"
     },
+    "formatHints": {
+      "a4": "A full page, for a wall or a window.",
+      "a5": "Half a page, for the counter.",
+      "tent": "One page, folded in half — it stands on a table."
+    },
     "activateFirst": "Your card is ready — activate your subscription so customers can join.",
     "downloadHint": "To download a file: Print → Save as PDF.",
-    "step1": "1. Scan the code",
-    "step2": "2. Join in half a minute",
-    "step3": "3. Get a stamp every visit",
-    "scanCta": "Scan to join — no app, straight to your phone's wallet"
+    "previewTitle": "What comes out of the printer",
+    "previewNote": "Printed at actual size, edge to edge. Set your printer to colour and to 100% — not “fit to page”.",
+    "steps": {
+      "scan": "Scan the code",
+      "join": "Join in half a minute",
+      "collect": "Get a stamp every visit"
+    },
+    "scanCta": "Scan to join — no app, straight to your phone's wallet",
+    "scanToJoin": "Scan to join",
+    "noApp": "No app. No sign-up.",
+    "stampsLine_one": "{{count}} stamp",
+    "stampsLine_other": "{{count}} stamps",
+    "fold": "fold"
   },
   "dashboard": {
     "nav": {
