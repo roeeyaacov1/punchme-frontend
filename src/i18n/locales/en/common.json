@@ -90,6 +90,14 @@
   "studio": {
     "title": "Card Studio",
     "subtitle": "Design your loyalty card and watch it update live on both wallets. Saving pushes the new design to every installed pass.",
+    "groups": {
+      "card": "The deal",
+      "look": "Color and texture",
+      "stamp": "The stamp",
+      "logo": "Your logo",
+      "advanced": "Wallet details",
+      "advancedHint": "Field labels, card language, barcode, custom artwork."
+    },
     "save": "Save design",
     "saved": "Saved ✓",
     "syncError": "The last wallet sync failed — your changes are safe and will be retried automatically.",
@@ -101,6 +109,14 @@
     "glyphLabel": "Stamp icon",
     "uploadStampArt": "Upload your own stamp image",
     "paletteLabel": "Color palettes",
+    "palettes": {
+      "espresso": "Espresso",
+      "cream": "Cream",
+      "midnight": "Midnight",
+      "olive": "Olive",
+      "blush": "Blush",
+      "ocean": "Ocean"
+    },
     "colorsLabel": "Colors",
     "labelsLabel": "Field labels",
     "labelsHint": "What the card calls the customer's name and their stamp count. Leave empty for the defaults.",
@@ -118,8 +134,6 @@
     "logoLabel": "Logo",
     "logoHint": "One upload becomes all three wallet assets (wide Apple logo, round Google badge, icon). No logo? We'll render your business name.",
     "uploadLogo": "Upload logo",
-    "showAdvanced": "Show advanced options",
-    "hideAdvanced": "Hide advanced options",
     "languageLabel": "Card language",
     "languages": {
       "HE": "Hebrew",
@@ -145,6 +159,7 @@
       "pointsLabel": "Visits"
     },
     "fields": {
+      "bindingLabel": "Shows",
       "label": "Label",
       "section": "Position (Apple)",
       "alignment": "Alignment",

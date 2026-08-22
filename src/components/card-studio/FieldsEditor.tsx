@@ -1,6 +1,9 @@
 import { useTranslation } from "react-i18next";
+import { Trash2 } from "lucide-react";
 import type { DesignField } from "../../api/designs";
-import { Button, Input } from "../ui";
+import { ctaClasses, focusRing } from "../marketing/primitives";
+import { cn } from "../../lib/cn";
+import { StudioSelect, StudioText } from "./studio-primitives";
 
 /** The fixed binding vocabulary we expose — anything beyond this has no
  * legitimate owner use case (see plan G2). */
@@ -47,19 +50,16 @@ export function FieldsEditor({ fields, onChange }: FieldsEditorProps) {
     ]);
   }
 
-  const selectClasses =
-    "rounded-lg border border-slate/30 bg-white px-2 py-1.5 text-sm font-body text-navy";
-
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {fields.map((field, index) => (
         <div
           key={`${field.binding}-${index}`}
-          className="rounded-xl border border-slate/20 p-3 flex flex-col gap-2.5"
+          className="flex flex-col gap-3 rounded-xl border border-border bg-background p-3"
         >
-          <div className="flex items-center justify-between gap-2">
-            <select
-              className={selectClasses}
+          <div className="flex items-end justify-between gap-2">
+            <StudioSelect
+              label={t("studio.fields.bindingLabel")}
               value={field.binding}
               onChange={(e) => updateField(index, { binding: e.target.value })}
             >
@@ -68,58 +68,58 @@ export function FieldsEditor({ fields, onChange }: FieldsEditorProps) {
                   {t(`studio.fields.binding.${binding}`, binding)}
                 </option>
               ))}
-            </select>
+            </StudioSelect>
             <button
               type="button"
               onClick={() => removeField(index)}
-              className="text-xs text-red-600 underline hover:no-underline"
+              aria-label={t("common.remove")}
+              title={t("common.remove")}
+              className={cn(
+                "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border text-ink-muted",
+                "transition-colors hover:border-danger hover:bg-danger-bg hover:text-danger",
+                focusRing,
+              )}
             >
-              {t("common.remove")}
+              <Trash2 size={16} aria-hidden="true" />
             </button>
           </div>
 
-          <Input
+          <StudioText
             label={t("studio.fields.label")}
             value={field.label ?? ""}
             onChange={(e) => updateField(index, { label: e.target.value })}
           />
 
-          <div className="flex gap-2">
-            <label className="flex flex-col gap-1 text-xs text-slate font-body flex-1">
-              {t("studio.fields.section")}
-              <select
-                className={selectClasses}
-                value={field.section ?? "BACK_FIELDS"}
-                onChange={(e) =>
-                  updateField(index, { section: e.target.value as DesignField["section"] })
-                }
-              >
-                {SECTIONS.map((section) => (
-                  <option key={section} value={section}>
-                    {t(`studio.fields.sections.${section}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 text-xs text-slate font-body flex-1">
-              {t("studio.fields.alignment")}
-              <select
-                className={selectClasses}
-                value={field.alignment ?? "NATURAL"}
-                onChange={(e) =>
-                  updateField(index, { alignment: e.target.value as DesignField["alignment"] })
-                }
-              >
-                {ALIGNMENTS.map((alignment) => (
-                  <option key={alignment} value={alignment}>
-                    {t(`studio.fields.alignments.${alignment}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
+          <div className="flex flex-wrap gap-3">
+            <StudioSelect
+              label={t("studio.fields.section")}
+              value={field.section ?? "BACK_FIELDS"}
+              onChange={(e) =>
+                updateField(index, { section: e.target.value as DesignField["section"] })
+              }
+            >
+              {SECTIONS.map((section) => (
+                <option key={section} value={section}>
+                  {t(`studio.fields.sections.${section}`)}
+                </option>
+              ))}
+            </StudioSelect>
+            <StudioSelect
+              label={t("studio.fields.alignment")}
+              value={field.alignment ?? "NATURAL"}
+              onChange={(e) =>
+                updateField(index, { alignment: e.target.value as DesignField["alignment"] })
+              }
+            >
+              {ALIGNMENTS.map((alignment) => (
+                <option key={alignment} value={alignment}>
+                  {t(`studio.fields.alignments.${alignment}`)}
+                </option>
+              ))}
+            </StudioSelect>
           </div>
 
-          <Input
+          <StudioText
             label={t("studio.fields.changeMessage")}
             hint={t("studio.fields.changeMessageHint")}
             value={field.change_message ?? ""}
@@ -129,9 +129,9 @@ export function FieldsEditor({ fields, onChange }: FieldsEditorProps) {
       ))}
 
       {fields.length < 10 && (
-        <Button type="button" variant="secondary" size="sm" onClick={addField}>
+        <button type="button" onClick={addField} className={ctaClasses("secondary", "sm", "w-fit")}>
           {t("studio.fields.add")}
-        </Button>
+        </button>
       )}
     </div>
   );

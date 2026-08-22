@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { DesignField } from "../../api/designs";
-import { Input } from "../ui";
+import { StudioGroupLabel, StudioText } from "./studio-primitives";
 
 /** The two labels that actually show on the face of the card in both
  * wallets. Anything beyond these lives in the full FieldsEditor. */
@@ -52,14 +52,12 @@ export function LabelsEditor({ fields, onChange }: LabelsEditorProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-navy font-body">
-          {t("studio.labelsLabel")}
-        </span>
-        <p className="text-xs text-slate font-body">{t("studio.labelsHint")}</p>
+        <StudioGroupLabel>{t("studio.labelsLabel")}</StudioGroupLabel>
+        <p className="text-xs text-ink-subtle">{t("studio.labelsHint")}</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {FACE_FIELDS.map(({ binding, fallbackKey, section }) => (
-          <Input
+          <StudioText
             key={binding}
             label={t(`studio.fields.binding.${binding}`)}
             placeholder={t(fallbackKey)}
