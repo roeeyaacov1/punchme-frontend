@@ -153,11 +153,10 @@ function Shell() {
               Remeasured when both cards were rebuilt to the wallets' own
               renderers. Measure them HERE, not in the studio: this frame is
               280px wide and hands the pass 248, where Google's card comes out
-              395px tall and Apple's 364 — the reverse of the studio's 300px
-              slot, because Apple's is a fixed 343x503 card that scales with
-              its width while Google's chrome is a fixed number of pixels.
-              94px of frame above the taller of the two plus 41px of wallpaper
-              below is what 530 is.
+              395px tall and Apple's 330. Google is the one that sets this
+              number — its stamps sit below the barcode, so it is both the
+              taller card and the one with content at the very bottom. 94px of
+              frame above it plus 41px of wallpaper below is what 530 is.
 
               `--phone-scale` (index.css) shrinks the frame and this crop by the
               same factor on a short screen, so the crop lands in exactly the

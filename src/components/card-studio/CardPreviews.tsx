@@ -166,21 +166,25 @@ function StripArt({
  *
  * What that render says, and this now does:
  *
- * - A pass is a fixed card: 343x503 at Apple's own scale, whatever it holds.
- *   All four styles Apple publishes measure exactly that, so the barcode is
- *   pinned to the bottom and an empty pass simply has empty space — which is
- *   what the owner's card really looks like with two fields on it.
  * - The system face throughout, labels UPPERCASE in the label colour at
  *   ~11px with a little tracking, values a good deal larger (18px) in the
  *   text colour. Apple honours `labelColor`; Google has nowhere to put one.
  * - The strip full-bleed at 2.604:1 directly under the logo row, no insets.
- * - A white plate under the barcode — square for a square code — inset from
- *   the bottom edge rather than floated in the middle of the card.
+ * - A white plate under the barcode, square for a square code, at 44% of the
+ *   card — Apple gives the code a lot more room than a thin strip does.
  *
- * Sizes are Apple's own, scaled by 300/343 — the width every surface but one
- * stages the pass at. The exception is the wizard's phone mock, which is a
- * 280px phone and hands the card 248; the aspect ratio still holds there, so
- * it reads as the same card, slightly large in the type.
+ * What it does NOT say, though it looks like it does: that a pass is a fixed
+ * card. All four styles Apple publishes measure exactly 343x503 with a large
+ * gap above the barcode — but so does the boarding pass, which carries three
+ * times the fields. That is a uniform artboard, not a pass height. A real
+ * store card (Loopy Loyalty's own Wallet screenshots) puts the barcode
+ * directly under the last field and ends. So this is content-height, and the
+ * horizontal geometry and type are what the artwork is trusted for.
+ *
+ * Type and insets are Apple's own scaled by 300/343 — the width every surface
+ * but one stages the pass at; the wizard's phone mock is 280px and hands the
+ * card 248, so its type reads a touch large. The plate is a fraction of the
+ * card, so it is right at either.
  *
  * `logoText` is empty on our passes: the wide logo PNG the server generates
  * carries the business name, which is why the fallback here prints it rather
@@ -197,7 +201,6 @@ export function AppleCardPreview(value: CardPreviewValue) {
         backgroundColor: value.backgroundColor,
         color: value.foregroundColor,
         fontFamily: APPLE_WALLET_FONT,
-        aspectRatio: "343 / 503",
       }}
     >
       <div className="flex h-[57px] shrink-0 items-start px-[14px] pt-[11px]">
@@ -241,13 +244,14 @@ export function AppleCardPreview(value: CardPreviewValue) {
         </div>
       </div>
 
-      {/* `mt-auto` is what makes the card a card: the plate sits on the
-          bottom edge of a fixed height rather than under the last field. */}
-      <div className="mt-auto flex justify-center pb-[13px] pt-4">
+      {/* Straight under the fields, the way a real card ends. The plate is a
+          fraction of the card rather than a pixel count, so it holds at the
+          248px the wizard's phone hands it as well as at 300. */}
+      <div className="flex justify-center pb-[14px] pt-[14px]">
         <div
           className={cn(
             "rounded-[5px] bg-white",
-            square ? "h-[131px] w-[131px] p-[11px]" : "h-[72px] w-[230px] p-[13px]",
+            square ? "aspect-square w-[44%] p-[11px]" : "aspect-[263/82] w-[77%] p-[13px]",
           )}
         >
           <PassBarcode
@@ -350,7 +354,10 @@ export function GoogleCardPreview(value: CardPreviewValue) {
           fractions keep that proportion at whatever width the card is
           staged. */}
       <div className="flex justify-center pt-[21px] pb-[15px]">
-        <div className="w-[51%] aspect-square rounded-xl bg-white p-[10%]">
+        {/* px, not %: a percentage padding resolves against the card's width,
+            not the plate's, and gave the code a third less room than Google
+            leaves it (14 on a 138 plate). */}
+        <div className="w-[51%] aspect-square rounded-xl bg-white p-[15px]">
           <PassBarcode
             format={barcodeFormat(value.design)}
             payload={resolveBarcodePayload(value.design, value.serial)}
