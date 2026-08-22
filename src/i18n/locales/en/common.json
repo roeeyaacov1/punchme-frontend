@@ -554,11 +554,25 @@
       "yesterday": "Yesterday",
       "by": "by {{who}}",
       "cardSerial": "Card",
-      "removed_one": "1 removed",
-      "removed_other": "{{count}} removed",
-      "busiest": "Busiest around {{time}}",
-      "body": "Every stamp, newest first. The strip over each day shows the hours they landed in.",
-      "manual": "by hand"
+      "body": "Stamps per day over the last two weeks. Every stamp is listed below.",
+      "chartTitle": "Stamps per day",
+      "inDays_one": "in 1 day",
+      "inDays_other": "in {{count}} days",
+      "columns": {
+        "date": "Date",
+        "customer": "Customer",
+        "action": "Action",
+        "by": "By"
+      },
+      "action": {
+        "stamp_one": "Stamp",
+        "stamp_other": "{{count}} stamps",
+        "gift": "Gift",
+        "manual": "Added by hand",
+        "removed_one": "Removed",
+        "removed_other": "{{count}} removed",
+        "import": "Import"
+      }
     },
     "scan": {
       "title": "Scan a card",

@@ -556,13 +556,31 @@
       "yesterday": "אתמול",
       "by": "על ידי {{who}}",
       "cardSerial": "כרטיס",
-      "removed_one": "ניקוב אחד הוסר",
-      "removed_other": "{{count}} ניקובים הוסרו",
-      "removed_two": "{{count}} ניקובים הוסרו",
-      "removed_many": "{{count}} ניקובים הוסרו",
-      "busiest": "השעה העמוסה ביותר — סביב {{time}}",
-      "body": "כל ניקוב, מהחדש לישן. הרצועה מעל כל יום מראה באילו שעות נרשמו הניקובים.",
-      "manual": "ידנית"
+      "body": "ניקובים ליום בשבועיים האחרונים. כל הניקובים מפורטים מתחת.",
+      "chartTitle": "ניקובים ליום",
+      "inDays_one": "ביום אחד",
+      "inDays_two": "ב-{{count}} ימים",
+      "inDays_many": "ב-{{count}} ימים",
+      "inDays_other": "ב-{{count}} ימים",
+      "columns": {
+        "date": "תאריך",
+        "customer": "לקוח",
+        "action": "פעולה",
+        "by": "בוצע על ידי"
+      },
+      "action": {
+        "stamp_one": "ניקוב",
+        "stamp_two": "{{count}} ניקובים",
+        "stamp_many": "{{count}} ניקובים",
+        "stamp_other": "{{count}} ניקובים",
+        "gift": "מתנה",
+        "manual": "נוסף ידנית",
+        "removed_one": "ניקוב הוסר",
+        "removed_two": "{{count}} ניקובים הוסרו",
+        "removed_many": "{{count}} ניקובים הוסרו",
+        "removed_other": "{{count}} ניקובים הוסרו",
+        "import": "ייבוא"
+      }
     },
     "scan": {
       "title": "סריקת כרטיסייה",
