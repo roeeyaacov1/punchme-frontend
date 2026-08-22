@@ -551,9 +551,11 @@
       "today": "Today",
       "yesterday": "Yesterday",
       "by": "by {{who}}",
-      "cardSerial": "Card serial",
+      "cardSerial": "Card",
       "removed_one": "1 removed",
-      "removed_other": "{{count}} removed"
+      "removed_other": "{{count}} removed",
+      "busiest": "Busiest around {{time}}",
+      "body": "Every stamp, newest first. The strip over each day shows the hours they landed in."
     },
     "scan": {
       "title": "Scan a card",

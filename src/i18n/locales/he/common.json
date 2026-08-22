@@ -553,11 +553,13 @@
       "today": "היום",
       "yesterday": "אתמול",
       "by": "על ידי {{who}}",
-      "cardSerial": "מספר כרטיסייה",
+      "cardSerial": "כרטיס",
       "removed_one": "ניקוב אחד הוסר",
       "removed_other": "{{count}} ניקובים הוסרו",
       "removed_two": "{{count}} ניקובים הוסרו",
-      "removed_many": "{{count}} ניקובים הוסרו"
+      "removed_many": "{{count}} ניקובים הוסרו",
+      "busiest": "השעה העמוסה ביותר — סביב {{time}}",
+      "body": "כל ניקוב, מהחדש לישן. הרצועה מעל כל יום מראה באילו שעות נרשמו הניקובים."
     },
     "scan": {
       "title": "סריקת כרטיסייה",
