@@ -150,15 +150,15 @@ export function DesignPage() {
           {saved && <Tag tone="ok">{t("studio.saved")}</Tag>}
           {/* The wallet button is the app's navy pill, shared with the public
               join flow and not this phase's to repaint — so on the night
-              ground it gets an edge to sit against instead. */}
-          <span className="inline-flex rounded-full ring-1 ring-border">
-            <WalletAddButtons
-              passUrl={ownerPass.passUrl}
-              pending={ownerPass.pending}
-              slow={ownerPass.slow}
-              onRetry={ownerPass.retry}
-            />
-          </span>
+              ground it carries its own edge to sit against. That edge lives
+              on the pill now rather than on a wrapper here, which had also
+              been fencing the waiting notes it renders instead. */}
+          <WalletAddButtons
+            passUrl={ownerPass.passUrl}
+            pending={ownerPass.pending}
+            slow={ownerPass.slow}
+            onRetry={ownerPass.retry}
+          />
           <button
             type="button"
             onClick={handleSave}

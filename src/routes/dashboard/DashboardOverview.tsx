@@ -415,9 +415,10 @@ export function DashboardOverview() {
         </Panel>
       )}
 
-      {/* The counter kit: the objects that leave the screen. All of them stay
-          lit at night — a QR code has to be dark-on-light to scan, and the
-          pass is drawn on white by both wallets.
+      {/* The counter kit: the objects that leave the screen. The QR stays lit
+          at night because it has to be dark-on-light to scan. The pass does
+          not — neither wallet draws it on white, and its colours are the
+          owner's — so it is staged in a well, the way the studio stages it.
 
           Labelled, and after everything above it, because these are not more
           of the same: the panels above are today, these are the things set up
@@ -483,29 +484,34 @@ export function DashboardOverview() {
             title={t("dashboard.preview.title")}
             hint={t("dashboard.preview.body")}
           />
-          {/* The pass is a fixed 300px by the wallets' own spec, and at 375px
-              that leaves no room for a lit border either side — so on a phone
-              the surface runs to the panel's edges instead of the pass being
-              cropped or scaled. */}
           {design && (
-            <LitStage
-              className="px-0 py-5 sm:px-6"
-              innerClassName="flex flex-col items-center"
-            >
-              <CardPreview
-                businessName={business?.name ?? ""}
-                stampsRequired={template.stamps_required}
-                currentStamps={previewResult?.stamp_count ?? 0}
-                rewardDescription={template.reward_description}
-                backgroundColor={template.background_color}
-                foregroundColor={template.foreground_color}
-                labelColor={template.label_color}
-                design={design.design}
-                logoUrl={images.logo ?? template.logo_url ?? undefined}
-                appleLogoUrl={images.apple_logo}
-                stripBaseUrl={images.strip_base}
-              />
-              <div className="mt-5 flex justify-center">
+            <>
+              {/* The well the pass sits in — the studio's, so the same card
+                  is staged the same way on both screens. The pass is a fixed
+                  300px by the wallets' own spec, and at 375px that leaves no
+                  room for a margin either side, so on a phone the well runs
+                  to the panel's edges rather than the pass being cropped or
+                  scaled; it shows above and below instead. */}
+              <div className="flex flex-col items-center rounded-xl bg-background px-0 py-5 sm:px-6">
+                <CardPreview
+                  businessName={business?.name ?? ""}
+                  stampsRequired={template.stamps_required}
+                  currentStamps={previewResult?.stamp_count ?? 0}
+                  rewardDescription={template.reward_description}
+                  backgroundColor={template.background_color}
+                  foregroundColor={template.foreground_color}
+                  labelColor={template.label_color}
+                  design={design.design}
+                  logoUrl={images.logo ?? template.logo_url ?? undefined}
+                  appleLogoUrl={images.apple_logo}
+                  stripBaseUrl={images.strip_base}
+                />
+              </div>
+              {/* Getting the pass onto your own phone is ours to offer, not
+                  part of the card — so it sits on the panel rather than in
+                  the well. The navy pill carries its own edge for the night
+                  ground; see WalletAddButtons. */}
+              <div className="flex justify-center">
                 <WalletAddButtons
                   passUrl={ownerPass.passUrl}
                   pending={ownerPass.pending}
@@ -513,7 +519,7 @@ export function DashboardOverview() {
                   onRetry={ownerPass.retry}
                 />
               </div>
-            </LitStage>
+            </>
           )}
         </Panel>
         )}
