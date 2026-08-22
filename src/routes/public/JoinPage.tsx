@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, Link } from "react-router-dom";
-import { Button, Input } from "../../components/ui";
-import { WalletCardPreview } from "../../components/wallet-card/WalletCardPreview";
+import { Input } from "../../components/ui";
 import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
+import { Eyebrow, ctaClasses, focusRing } from "../../components/marketing/primitives";
+import { cn } from "../../lib/cn";
+import { PassStage } from "./PassStage";
 import {
   enroll,
   getPublicCard,
@@ -150,37 +152,67 @@ export function JoinPage() {
   if (step.kind === "success") {
     const { enrollResult, card } = step;
     return (
-      <div className="min-h-screen flex flex-col items-center gap-8 bg-white text-navy px-6 py-16 text-center">
-        <h1 className="text-2xl">{t("enroll.successTitle")}</h1>
-        <WalletCardPreview
-          businessName={card.business_name}
-          stampsRequired={card.stamps_required}
-          currentStamps={card.stamp_count}
-          rewardDescription={card.reward_description}
-          backgroundColor={card.background_color}
-          foregroundColor={card.foreground_color}
-          labelColor={card.label_color}
-          logoUrl={card.logo_url ?? undefined}
-          // Scannable straight away — a customer who skips "add to wallet"
-          // can still get their first stamp on the spot.
+      <JoinShell>
+        <div className="flex flex-col items-center gap-2 text-center">
+          {/* `Eyebrow`, not a hand-rolled mono line: this is running text
+              carrying a business name, and Plex Mono has no Hebrew.
+              `.t-eyebrow` is the body face and already re-tracks itself in
+              RTL, where the Latin spacing only smears. */}
+          <Eyebrow>
+            {t("enroll.successEyebrow", { businessName: card.business_name })}
+          </Eyebrow>
+          <h1 className="text-2xl font-heading font-bold text-ink">
+            {t("enroll.successTitle")}
+          </h1>
+        </div>
+
+        {/* The card the customer is actually getting — the studio's own
+            renderer, which prefers the published PNG PassKit serves to the
+            phone. The barcode is real too: `/api/scan` matches the serial,
+            so this screen is a working pass for a customer who never taps
+            "add to wallet", or whose wallet push is still in flight. */}
+        <PassStage
+          card={card}
           serial={enrollResult.card_serial}
+          holderName={displayName}
         />
-        <WalletAddButtons
-          passUrl={enrollResult.wallet_pass_url}
-          pending={enrollResult.wallet_issue_pending}
-        />
-        <Link to={`/c/${enrollResult.card_serial}`} className="text-sm text-slate underline">
-          {t("enroll.statusTitle")}
-        </Link>
-      </div>
+
+        <div className="flex w-full flex-col items-center gap-4">
+          <WalletAddButtons
+            passUrl={enrollResult.wallet_pass_url}
+            pending={enrollResult.wallet_issue_pending}
+            linkClassName={ctaClasses("gradient", "lg", "w-full max-w-[300px]")}
+          />
+          {/* Only worth saying while there is no button to press. Once the
+              pass is ready the card above already shows a scannable code. */}
+          {!enrollResult.wallet_pass_url && (
+            <p className="max-w-[300px] text-center text-sm font-body text-ink-muted">
+              {t("enroll.scanMeanwhile")}
+            </p>
+          )}
+          <Link
+            to={`/c/${enrollResult.card_serial}`}
+            className={cn(
+              // min-h-[44px] rather than the bare text link it was: 44px is the
+              // floor for anything a thumb has to find on a phone.
+              "inline-flex min-h-[44px] items-center rounded-lg px-2 text-sm font-body text-ink-subtle underline hover:no-underline",
+              focusRing,
+            )}
+          >
+            {t("enroll.statusTitle")}
+          </Link>
+        </div>
+      </JoinShell>
     );
   }
 
   if (step.kind === "code") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-white text-navy px-6 py-16">
-        <h1 className="text-2xl text-center">{t("enroll.codeTitle")}</h1>
-        <p className="text-sm text-slate font-body text-center max-w-xs">
+      <JoinShell>
+        <h1 className="text-center text-2xl font-heading font-bold text-ink">
+          {t("enroll.codeTitle")}
+        </h1>
+        <p className="max-w-xs text-center text-sm font-body text-ink-muted">
           {t("enroll.codeSentTo", { phone })}
         </p>
         <form
@@ -201,17 +233,24 @@ export function JoinPage() {
             className="text-center tracking-[0.5em] font-mono text-lg"
           />
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <Button type="submit" disabled={busy || code.length !== 6}>
+          <button
+            type="submit"
+            disabled={busy || code.length !== 6}
+            className={ctaClasses("gradient", "lg")}
+          >
             {busy ? t("common.loading") : t("enroll.verifyCta")}
-          </Button>
-          <div className="flex items-center justify-between text-sm">
+          </button>
+          <div className="flex items-center justify-between gap-3 text-sm font-body">
             <button
               type="button"
               onClick={() => {
                 setStep({ kind: "details" });
                 setError(null);
               }}
-              className="text-slate underline hover:no-underline"
+              className={cn(
+                "inline-flex min-h-[44px] items-center rounded-lg px-2 text-ink-subtle underline hover:no-underline",
+                focusRing,
+              )}
             >
               {t("enroll.editPhone")}
             </button>
@@ -219,7 +258,15 @@ export function JoinPage() {
               type="button"
               disabled={resendIn > 0 || busy}
               onClick={() => void submitDetails()}
-              className="text-navy underline hover:no-underline disabled:opacity-40 disabled:no-underline"
+              className={cn(
+                "inline-flex min-h-[44px] items-center rounded-lg px-2 text-primary-text underline hover:no-underline",
+                // The disabled label is a countdown, i.e. the only thing on
+                // screen saying when the next code can be sent — dimming it
+                // to 40% made the one useful sentence the faintest text on
+                // the page. Muted ink instead, at full opacity.
+                "disabled:text-ink-subtle disabled:no-underline disabled:opacity-100",
+                focusRing,
+              )}
             >
               {resendIn > 0
                 ? t("enroll.resendIn", { seconds: resendIn })
@@ -227,13 +274,15 @@ export function JoinPage() {
             </button>
           </div>
         </form>
-      </div>
+      </JoinShell>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-8 bg-white text-navy px-6 py-12">
-      <h1 className="text-2xl text-center">{t("enroll.genericTitle")}</h1>
+    <JoinShell>
+      <h1 className="text-center text-2xl font-heading font-bold text-ink">
+        {t("enroll.genericTitle")}
+      </h1>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -265,7 +314,7 @@ export function JoinPage() {
           dir="ltr"
         />
 
-        <label className="flex items-start gap-2 text-sm font-body text-navy">
+        <label className="flex items-start gap-2 text-sm font-body text-ink">
           <input
             type="checkbox"
             className="mt-1"
@@ -276,28 +325,42 @@ export function JoinPage() {
         </label>
 
         {/* s.11 privacy notice (Amendment 13) — short line + expandable full text */}
-        <details className="text-xs text-slate font-body leading-relaxed">
-          <summary className="cursor-pointer underline hover:no-underline">
+        <details className="font-body text-xs leading-relaxed text-ink-subtle">
+          <summary className={cn("cursor-pointer rounded px-1 py-0.5 underline hover:no-underline", focusRing)}>
             {t("enroll.privacySummary")}
           </summary>
           <p className="mt-2 whitespace-pre-line">{t("enroll.privacyNotice")}</p>
         </details>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <Button type="submit" disabled={busy}>
+        {error && <p className="text-sm font-body text-danger">{error}</p>}
+        <button type="submit" disabled={busy} className={ctaClasses("gradient", "lg")}>
           {busy
             ? t("common.loading")
             : t(env.otpRequired ? "enroll.sendCodeCta" : "enroll.submit")}
-        </Button>
+        </button>
       </form>
+    </JoinShell>
+  );
+}
+
+/** One panel on the wash ground, the way the wizard and the sign-in page
+ * are built — this is the same public product, and the customer's half of
+ * it should not look like a different one. `theme-raised` is what stops the
+ * panel being white on white. */
+function JoinShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="theme-purple theme-raised min-h-screen bg-background px-5 py-10 text-ink sm:py-16">
+      <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-7 rounded-2xl border border-border bg-surface px-5 py-8 shadow-card sm:px-8">
+        {children}
+      </div>
     </div>
   );
 }
 
 function CenteredMessage({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex items-center justify-center text-center px-6 text-navy font-body">
-      {children}
-    </div>
+    <JoinShell>
+      <p className="text-center font-body text-ink">{children}</p>
+    </JoinShell>
   );
 }

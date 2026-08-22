@@ -1,8 +1,34 @@
 import { api } from "./client";
+import type { DesignDoc } from "./designs";
 import type { components } from "./generated/schema";
 
 export type EnrollOut = components["schemas"]["EnrollOut"];
-export type CardPublic = components["schemas"]["CardPublicOut"];
+
+/** The card art `/api/cards/{serial}` serves alongside the colours.
+ *
+ * Optional, and hand-written rather than generated, because they are newer
+ * than `schema.d.ts`: a frontend that ships ahead of the backend gets
+ * `undefined` and falls back to drawing the card from the colours alone,
+ * instead of rendering a broken image. Fold these into the generated type
+ * and delete this block the next time `npm run gen:api` runs against a
+ * deploy that has them.
+ *
+ * None of it is private — every value here is already printed on the pass
+ * in the customer's own wallet. */
+export interface CardPublicArt {
+  /** The wide logo Apple renders. Google circle-crops the square `logo_url`;
+   * they are two assets, not two names for one. */
+  apple_logo_url?: string | null;
+  /** Glyph, pattern, field labels, barcode format — defaults filled in. */
+  design?: DesignDoc;
+  /** The published Apple strip / Google hero PNG for this card's stamp
+   * state: the literal file the phone is showing. Null before the design's
+   * first sync. */
+  strip_url?: string | null;
+  hero_url?: string | null;
+}
+
+export type CardPublic = components["schemas"]["CardPublicOut"] & CardPublicArt;
 export type CustomerListItem = components["schemas"]["CustomerListItemOut"];
 export type ActivityItem = components["schemas"]["ActivityItemOut"];
 export type PagedCustomers = components["schemas"]["PagedCustomerListItemOut"];

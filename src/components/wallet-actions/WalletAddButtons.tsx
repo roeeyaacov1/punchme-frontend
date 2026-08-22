@@ -11,6 +11,10 @@ export interface WalletAddButtonsProps {
   slow?: boolean;
   /** Check again now; rendered with the slow note. */
   onRetry?: () => void;
+  /** Classes for the add link, replacing the app's own button. The public
+   * join and status pages are on the purple theme, where a navy pill is
+   * the wrong object — they pass a `ctaClasses` CTA instead. */
+  linkClassName?: string;
 }
 
 /** One universal button, matching the backend's single wallet_pass_url.
@@ -22,6 +26,7 @@ export function WalletAddButtons({
   pending,
   slow,
   onRetry,
+  linkClassName,
 }: WalletAddButtonsProps) {
   const { t } = useTranslation();
 
@@ -53,7 +58,7 @@ export function WalletAddButtons({
   }
 
   return (
-    <a href={passUrl} className={buttonClasses("primary", "md")}>
+    <a href={passUrl} className={linkClassName ?? buttonClasses("primary", "md")}>
       {t("wallet.addToWallet")}
     </a>
   );

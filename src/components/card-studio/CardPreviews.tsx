@@ -31,6 +31,16 @@ export interface CardPreviewValue {
   /** True while there are unsaved edits: the published PNGs are stale, so the
    * live CSS approximation is the honest thing to show. */
   unsaved?: boolean;
+  /** The card serial. Supplying it turns the barcode from a simulation into
+   * the real thing — `/api/scan` matches a code against `serial` as well as
+   * the PassKit member id an installed pass renders, so a customer whose
+   * pass never made it into their wallet can still be scanned off this
+   * screen. Omit in the studio, where no card exists yet. */
+  serial?: string;
+  /** Whose card this is, printed in the name field. Defaults to the sample
+   * name — right for a design preview, wrong on a page showing someone
+   * their own pass. */
+  holderName?: string;
 }
 
 /** The published artwork for a stamp state, when it is safe to trust it. */
@@ -135,7 +145,7 @@ export function AppleCardPreview(value: CardPreviewValue) {
           >
             {fieldLabel(value, "person.displayName", t("studio.preview.nameLabel"))}
           </p>
-          <p className="text-sm truncate">{SAMPLE_NAME}</p>
+          <p className="text-sm truncate">{value.holderName || SAMPLE_NAME}</p>
         </div>
         <div className="text-end shrink-0">
           <p
@@ -151,7 +161,7 @@ export function AppleCardPreview(value: CardPreviewValue) {
       <div className="bg-white mx-4 mb-4 mt-2 rounded-lg p-2 flex items-center justify-center h-[72px]">
         <PassBarcode
           format={barcodeFormat(value.design)}
-          payload={resolveBarcodePayload(value.design)}
+          payload={resolveBarcodePayload(value.design, value.serial)}
         />
       </div>
     </div>
@@ -195,7 +205,7 @@ export function GoogleCardPreview(value: CardPreviewValue) {
           >
             {fieldLabel(value, "person.displayName", t("studio.preview.nameLabel"))}
           </p>
-          <p className="text-base truncate">{SAMPLE_NAME}</p>
+          <p className="text-base truncate">{value.holderName || SAMPLE_NAME}</p>
         </div>
         <div className="text-end shrink-0">
           <p
@@ -211,7 +221,7 @@ export function GoogleCardPreview(value: CardPreviewValue) {
       <div className="bg-white mx-4 my-3 rounded-lg p-2 flex items-center justify-center h-[64px]">
         <PassBarcode
           format={barcodeFormat(value.design)}
-          payload={resolveBarcodePayload(value.design)}
+          payload={resolveBarcodePayload(value.design, value.serial)}
         />
       </div>
 

@@ -1,10 +1,15 @@
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { WalletCardPreview } from "../../components/wallet-card/WalletCardPreview";
 import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
+import { ctaClasses } from "../../components/marketing/primitives";
 import { getPublicCard } from "../../api/loyalty";
+import { PassStage } from "./PassStage";
 
+/** Where the QR on a lost pass, and the link under the join screen, both
+ * land. Shows the same real card the join page does — this is the page a
+ * customer opens *because* they can't find the pass, so a mock of it is
+ * exactly the wrong thing to hand them. */
 export function CardStatusPage() {
   const { t } = useTranslation();
   const { serial } = useParams<{ serial: string }>();
@@ -15,45 +20,32 @@ export function CardStatusPage() {
     retry: false,
   });
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-slate font-mono text-sm">
-        {t("common.loading")}
-      </div>
-    );
-  }
-
-  if (isError || !card) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-navy font-body px-6 text-center">
-        {t("enroll.notFound")}
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex flex-col items-center gap-8 bg-white text-navy px-6 py-16 text-center">
-      <h1 className="text-2xl">{t("enroll.statusTitle")}</h1>
-      <WalletCardPreview
-        businessName={card.business_name}
-        stampsRequired={card.stamps_required}
-        currentStamps={card.stamp_count}
-        rewardDescription={card.reward_description}
-        backgroundColor={card.background_color}
-        foregroundColor={card.foreground_color}
-        labelColor={card.label_color}
-        logoUrl={card.logo_url ?? undefined}
-        // The installed pass encodes its PassKit member id, but the scan
-        // lookup matches `serial OR passkit_pass_id` — the serial being the
-        // printed-QR path — so a code built from the URL resolves to this
-        // same card even though the two payloads differ.
-        serial={serial}
-      />
-      {/* Lost the pass? The universal link re-adds this same card. */}
-      <WalletAddButtons
-        passUrl={card.wallet_pass_url}
-        pending={card.wallet_issue_pending}
-      />
+    <div className="theme-purple theme-raised min-h-screen bg-background px-5 py-10 text-ink sm:py-16">
+      <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-7 rounded-2xl border border-border bg-surface px-5 py-8 shadow-card sm:px-8">
+        {isLoading ? (
+          <p className="font-mono text-sm text-ink-subtle">{t("common.loading")}</p>
+        ) : isError || !card || !serial ? (
+          <p className="text-center font-body text-ink">{t("enroll.notFound")}</p>
+        ) : (
+          <>
+            <h1 className="text-center text-2xl font-heading font-bold text-ink">
+              {t("enroll.statusTitle")}
+            </h1>
+            {/* The installed pass encodes its PassKit member id, but the scan
+                lookup matches `serial OR passkit_pass_id` — the printed-QR
+                path — so the code drawn here resolves to this same card even
+                though the two payloads differ. */}
+            <PassStage card={card} serial={serial} />
+            {/* Lost the pass? The universal link re-adds this same card. */}
+            <WalletAddButtons
+              passUrl={card.wallet_pass_url}
+              pending={card.wallet_issue_pending}
+              linkClassName={ctaClasses("gradient", "lg", "w-full max-w-[300px]")}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }

@@ -440,6 +440,8 @@
     "notFound": "This loyalty card isn't available anymore",
     "upgradeRequired": "This business isn't accepting new customers right now",
     "successTitle": "Your card is ready! Add it to your wallet",
+    "successEyebrow": "You're in at {{businessName}}",
+    "scanMeanwhile": "No need to wait — staff can scan the code above right now.",
     "statusTitle": "Your card"
   },
   "standee": {
