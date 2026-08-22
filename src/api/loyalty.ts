@@ -6,12 +6,16 @@ export type EnrollOut = components["schemas"]["EnrollOut"];
 
 /** The card art `/api/cards/{serial}` serves alongside the colours.
  *
- * Optional, and hand-written rather than generated, because they are newer
- * than `schema.d.ts`: a frontend that ships ahead of the backend gets
- * `undefined` and falls back to drawing the card from the colours alone,
- * instead of rendering a broken image. Fold these into the generated type
- * and delete this block the next time `npm run gen:api` runs against a
- * deploy that has them.
+ * Overlaid on the generated type rather than replacing it, for two reasons
+ * that outlive any one regeneration of `schema.d.ts`:
+ *
+ * - `design` generates as an untyped record (the backend field is a plain
+ *   dict), and the card renderers need `DesignDoc` to read a glyph or a
+ *   field label off it.
+ * - Optional, so a frontend deployed ahead of a backend that serves them
+ *   gets `undefined` and falls back to drawing the card from the colours
+ *   alone, rather than pointing an <img> at nothing. The intersection keeps
+ *   whichever is narrower, so this stays correct once they are generated.
  *
  * None of it is private — every value here is already printed on the pass
  * in the customer's own wallet. */
@@ -21,9 +25,9 @@ export interface CardPublicArt {
   apple_logo_url?: string | null;
   /** Glyph, pattern, field labels, barcode format — defaults filled in. */
   design?: DesignDoc;
-  /** The published Apple strip / Google hero PNG for this card's stamp
-   * state: the literal file the phone is showing. Null before the design's
-   * first sync. */
+  /** The Apple strip / Google hero for this card's stamp state, rendered by
+   * the server from the same code the wallet provider is fed. Null for a
+   * `native` (portal-drawn) design, which is not ours to draw. */
   strip_url?: string | null;
   hero_url?: string | null;
 }

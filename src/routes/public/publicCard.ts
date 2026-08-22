@@ -10,11 +10,13 @@ import type { CardPreviewValue } from "../../components/card-studio/CardPreviews
  * There are three tiers here and the renderer picks the best available on
  * its own:
  *
- * 1. `strip_url` / `hero_url` — the literal PNG PassKit serves to the
- *    phone. Nothing client-side can disagree with it, because it *is* it.
- * 2. No published art (the design has never synced), but a design doc:
- *    `StampGrid` redraws the strip in CSS from the real glyph, colour and
- *    pattern. Close, and honest about the card's actual design.
+ * 1. `strip_url` / `hero_url` — the artwork the pass is made of, rendered
+ *    by the server from the same code that produces what the wallet
+ *    provider is given. Nothing client-side can disagree with it.
+ * 2. That URL did not load, but there is a design doc: `StampGrid` redraws
+ *    the strip in CSS from the real glyph, colour and pattern. Close, and
+ *    honest about the card's design — but blind to an uploaded stamp photo,
+ *    which is why it is the fallback and not the plan.
  * 3. Neither — a frontend running ahead of the backend that serves them.
  *    The colours and the stamp count still land; the stamps fall back to
  *    the default glyph.
@@ -39,8 +41,6 @@ export function publicCardPreview(
     foregroundColor: card.foreground_color,
     labelColor: card.label_color,
     design: card.design ?? {},
-    logoUrl: card.logo_url ?? undefined,
-    appleLogoUrl: card.apple_logo_url ?? undefined,
     serial,
     holderName: holderName?.trim() || undefined,
   };
@@ -56,19 +56,26 @@ function probe(url: string): Promise<boolean> {
   });
 }
 
+type Slot = "strip" | "hero" | "logo" | "appleLogo";
+
 /**
- * The same value, but the published art is only wired in once it is known
- * to load — the wizard's `usePublishedPreview` rule, for the same reason.
+ * The same value, but every image is wired in only once it is known to
+ * load — the wizard's `usePublishedPreview` rule, for the same reason.
  *
- * An `<img>` pointed at an unreachable CDN (or, in local dev, the fake
- * provider's `fake-wallet.local`) puts a broken-image glyph through the
- * middle of the card, which is a worse thing to hand a customer than the
- * CSS redraw the renderer already falls back to. So the real art is an
- * upgrade applied on success, never an assumption.
+ * An `<img>` at an unreachable URL puts a broken-image glyph through the
+ * card, which is worse than the fallback each slot already has: the
+ * renderer redraws the strip in CSS, prints the business name where Apple's
+ * wide logo goes, and draws an initial where Google's badge goes. Those are
+ * all better than a torn icon, so a URL is an upgrade applied on success,
+ * never an assumption.
  *
- * Both slots are probed independently: the page renders whichever wallet
- * this phone has, and one of the two going missing shouldn't cost the other
- * its artwork.
+ * It matters for the logos in particular. Every slot except the ones we
+ * render is hosted by the wallet provider, and WALLET_PROVIDER is still
+ * "fake" — a business that uploaded its own logo has only a
+ * `fake-wallet.local` link to show for it.
+ *
+ * Slots are probed independently: the page renders whichever wallet this
+ * phone has, and one image going missing shouldn't cost the others theirs.
  */
 export function usePublicCardPreview(
   card: CardPublic,
@@ -77,26 +84,37 @@ export function usePublicCardPreview(
 ): CardPreviewValue {
   const base = publicCardPreview(card, serial, holderName);
   const state = String(card.stamp_count);
-  const strip = card.strip_url || undefined;
-  const hero = card.hero_url || undefined;
-  const [loaded, setLoaded] = useState<{ strip?: string; hero?: string }>({});
+  const urls: Record<Slot, string | undefined> = {
+    strip: card.strip_url || undefined,
+    hero: card.hero_url || undefined,
+    logo: card.logo_url || undefined,
+    appleLogo: card.apple_logo_url || undefined,
+  };
+  const [loaded, setLoaded] = useState<Partial<Record<Slot, string>>>({});
 
+  // Joined rather than passed as an array: the effect must re-run when a URL
+  // changes (a stamp lands, the owner restyles the card) and not on every
+  // render, and a fresh array literal would do the opposite of both.
+  const key = ([...Object.values(urls)] as (string | undefined)[]).join("|");
   useEffect(() => {
     let cancelled = false;
     setLoaded({});
-    if (strip) void probe(strip).then((ok) => {
-      if (ok && !cancelled) setLoaded((v) => ({ ...v, strip }));
-    });
-    if (hero) void probe(hero).then((ok) => {
-      if (ok && !cancelled) setLoaded((v) => ({ ...v, hero }));
-    });
+    for (const [slot, url] of Object.entries(urls) as [Slot, string | undefined][]) {
+      if (!url) continue;
+      void probe(url).then((ok) => {
+        if (ok && !cancelled) setLoaded((v) => ({ ...v, [slot]: url }));
+      });
+    }
     return () => {
       cancelled = true;
     };
-  }, [strip, hero]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 
   return {
     ...base,
+    logoUrl: loaded.logo,
+    appleLogoUrl: loaded.appleLogo,
     stripStates: loaded.strip ? { [state]: loaded.strip } : undefined,
     heroStates: loaded.hero ? { [state]: loaded.hero } : undefined,
   };
