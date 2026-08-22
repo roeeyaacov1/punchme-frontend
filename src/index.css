@@ -509,7 +509,8 @@ h4 {
   .animate-scale-in,
   .animate-pop-in,
   .animate-sheet-up,
-  .animate-stamp-in {
+  .animate-stamp-in,
+  .animate-scan-sweep {
     animation: none !important;
   }
 }

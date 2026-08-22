@@ -144,6 +144,15 @@ export default {
           "0%": { opacity: "0", transform: "translateY(16px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        // The scanner's one moving part: a line travelling down the
+        // reticle. A camera preview of a still counter looks identical to a
+        // frozen one, and the owner has no other way to tell that the page
+        // is still reading — so this is status, not decoration.
+        "scan-sweep": {
+          "0%": { transform: "translateY(0)", opacity: "0" },
+          "12%, 88%": { opacity: "1" },
+          "100%": { transform: "translateY(100%)", opacity: "0" },
+        },
         // Popovers: quick enough not to sit between the click and the panel.
         "pop-in": {
           "0%": { opacity: "0", transform: "translateY(-4px) scale(0.96)" },
@@ -158,6 +167,7 @@ export default {
         "sheet-up": "sheet-up 0.22s cubic-bezier(0.16,1,0.3,1) both",
         "pop-in": "pop-in 0.16s cubic-bezier(0.16,1,0.3,1) both",
         "stamp-in": "stamp-in 0.34s cubic-bezier(0.34,1.4,0.64,1) both",
+        "scan-sweep": "scan-sweep 2.4s cubic-bezier(0.4,0,0.6,1) infinite",
       },
       boxShadow: {
         // Two levels only. Cards pair the resting shadow with a hairline

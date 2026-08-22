@@ -6,6 +6,7 @@ import {
   Ellipsis,
   Palette,
   Printer,
+  ScanLine,
   Send,
   Stamp,
   Store,
@@ -17,15 +18,21 @@ import { cn } from "../../lib/cn";
 import { GroupLabel } from "./primitives";
 
 /**
- * Seven destinations, in the three groups they actually fall into.
+ * Eight destinations, in the three groups they actually fall into.
  *
  * The old header listed them in one row of pills, which said they were
- * equal things to keep an eye on. They are not: three of them are the
- * counter — what an owner reads between customers, possibly daily — one is
- * marketing (messages to customers: set a rule once, send a broadcast on a
- * slow day), and three are setup, which is done once and then revisited when
- * something changes. Saying so is the difference between a dashboard you can
- * scan and a menu you have to read.
+ * equal things to keep an eye on. They are not: four of them are the
+ * counter — what an owner does and reads between customers, possibly daily —
+ * one is marketing (messages to customers: set a rule once, send a broadcast
+ * on a slow day), and three are setup, which is done once and then revisited
+ * when something changes. Saying so is the difference between a dashboard
+ * you can scan and a menu you have to read.
+ *
+ * Scan leads the counter group and is the only entry there that is an
+ * action rather than a reading. That is also why it takes the tab bar to
+ * five, which is as wide as one gets to be: it is the only screen an owner
+ * opens with a customer standing in front of them, and burying the thing
+ * they came to do behind "More" would cost a tap every single visit.
  *
  * Only the first group gets a tab on the phone; the rest live behind "More".
  */
@@ -33,6 +40,7 @@ export const NAV_GROUPS = [
   {
     key: "counter",
     items: [
+      { to: "/dashboard/scan", end: false, key: "scan", Icon: ScanLine },
       { to: "/dashboard", end: true, key: "overview", Icon: Store },
       { to: "/dashboard/customers", end: false, key: "customers", Icon: Users },
       { to: "/dashboard/activity", end: false, key: "activity", Icon: Stamp },
@@ -155,9 +163,10 @@ export function SidebarNav({
 /**
  * The phone's bar, at the bottom where the thumb is.
  *
- * Only the counter three get a tab. Setup lives behind "More" with the
- * account rows, because a tab bar stops being scannable at five and because
- * the three routes behind it are not things you reach for mid-shift.
+ * Only the counter group gets tabs — four of them plus "More", which is the
+ * width a tab bar stops being scannable at, and the reason nothing else may
+ * join it. Setup and messages live behind "More" with the account rows,
+ * because none of those four routes is something you reach for mid-shift.
  */
 export function BottomBar({
   onMore,

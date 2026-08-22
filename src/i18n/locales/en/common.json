@@ -463,6 +463,7 @@
       "design": "Card Studio",
       "customers": "Customers",
       "activity": "Activity",
+      "scan": "Scan",
       "standee": "Standee",
       "billing": "Billing",
       "signOut": "Sign out",
@@ -553,6 +554,72 @@
       "cardSerial": "Card serial",
       "removed_one": "1 removed",
       "removed_other": "{{count}} removed"
+    },
+    "scan": {
+      "title": "Scan a card",
+      "lead": "Hold the customer's pass up to the camera. It punches the moment it reads — there is no button to press.",
+      "aim": "Hold the pass in the frame",
+      "starting": "Opening the camera…",
+      "working": "Reading…",
+      "retry": "Try again",
+      "torch": "Light",
+      "sound": "Sound",
+      "freePlan": "Your card isn't live yet, so there is nobody to scan.",
+      "freePlanCta": "Activate it",
+      "denied": {
+        "title": "The camera is blocked",
+        "body": "Allow camera access for this site in your browser settings, then try again. You can also type a code by hand below."
+      },
+      "noCamera": {
+        "title": "No camera found",
+        "body": "There's no camera here the browser can open. Type the code by hand below, or open this page on your phone."
+      },
+      "unsupported": {
+        "title": "The camera can't open here",
+        "body": "Browsers only hand over the camera on a secure (https) page. Type the code by hand below."
+      },
+      "failed": {
+        "title": "The camera didn't start",
+        "body": "Something else may be using it. Close other camera apps and try again."
+      },
+      "manual": {
+        "toggle": "Type the code instead",
+        "label": "Card code",
+        "submit": "Punch",
+        "hint": "The code on the customer's pass, under the barcode."
+      },
+      "tally": {
+        "punches_one": "1 punch so far",
+        "punches_other": "{{count}} punches so far",
+        "rewards_one": "1 reward given",
+        "rewards_other": "{{count}} rewards given",
+        "seeAll": "See all activity"
+      },
+      "result": {
+        "stamped": "Punched",
+        "toGo_one": "1 more to the reward",
+        "toGo_other": "{{count}} more to the reward",
+        "rewardReady": "Card full!",
+        "alreadyFull": "This card is already full",
+        "redeem": "Reward given",
+        "redeeming": "Saving…",
+        "notNow": "Not now",
+        "redeemed": "Reward given",
+        "redeemedHint": "The card is back to zero, and their pass has already updated.",
+        "tooSoon": "Already punched",
+        "tooSoonHint": "It was punched moments ago, so this scan wasn't counted. Wait a minute if this really is a second visit.",
+        "unknownCard": "Not one of your cards",
+        "unknownCardHint": "This code doesn't belong to a card at this business. Ask them to open their PunchMe pass.",
+        "enrollLink": "That's your sign-up poster",
+        "enrollLinkHint": "That QR is for customers to join with. Scan the pass in their wallet instead.",
+        "foreign": "Not a PunchMe code",
+        "foreignHint": "Nothing was changed. Point the camera at the customer's pass.",
+        "voided": "This card was cancelled",
+        "voidedHint": "It can't take punches any more. They'll need to join again.",
+        "failed": "The punch didn't go through",
+        "offline": "No connection. Check the network and scan again.",
+        "dismiss": "Close"
+      }
     },
     "standee": {
       "title": "Print your standee",

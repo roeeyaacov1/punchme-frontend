@@ -141,3 +141,30 @@ export function listActivity(
     query: { page, page_size: pageSize },
   });
 }
+
+export type ScanOut = components["schemas"]["ScanOut"];
+export type RedeemOut = components["schemas"]["RedeemOut"];
+
+/** JWTAuth, owner-only, and the only endpoint the counter actually needs.
+ *
+ * `code` is whatever the barcode carried. An issued wallet pass renders the
+ * PassKit member id; a QR this frontend draws carries the card serial. The
+ * backend's `_code_lookup` matches either column, so the scanner never has
+ * to know which one it just read.
+ *
+ * Its failures carry a bare status and an English `detail` — no
+ * machine-readable `code`, unlike `adjustCardStamps` — so `src/lib/scan.ts`
+ * reads the status and nothing else. Throttled 60/min per user, on top of
+ * the per-card `STAMP_COOLDOWN_SECONDS` (45) that makes a double-scan a 429
+ * instead of a second punch. */
+export function scanCode(code: string) {
+  return api.post<ScanOut>("/api/scan", { serial: code });
+}
+
+/** JWTAuth, owner-only. Spends a full card: writes the redemption row and
+ * resets the count to zero. Takes the same either-id code as `scanCode`, so
+ * the scanner can redeem the card it just read without a second lookup.
+ * 409 if the card isn't actually full. */
+export function redeemCard(code: string) {
+  return api.post<RedeemOut>(`/api/cards/${encodeURIComponent(code)}/redeem`);
+}
