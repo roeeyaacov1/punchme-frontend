@@ -510,10 +510,18 @@ h4 {
   .animate-pop-in,
   .animate-sheet-up,
   .animate-stamp-in,
-  .animate-scan-sweep {
+  .animate-scan-sweep,
+  .animate-draw-rule,
+  .animate-bloom-drift {
     animation: none !important;
   }
 }
+
+/* Everything the landing page animates with a *transition* rather than a
+   keyframe — a fanned card rotating to its own tilt, a row lifting under the
+   pointer — carries `motion-reduce:transition-none` at the call site, the
+   way `LockScreen` already does. The blanket rule above only reaches
+   keyframes, and a per-element resting transform can't be expressed as one. */
 
 /* ── Landing gradients ──────────────────────────────────────────────────
    Written as classes rather than utilities because each one needs a

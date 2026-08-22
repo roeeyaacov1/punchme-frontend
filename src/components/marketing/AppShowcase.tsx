@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { Tag, User } from "lucide-react";
+import { cn } from "../../lib/cn";
 import { Container } from "./primitives";
+import { useReveal } from "../motion/useReveal";
 
 interface MockCustomer {
   name: string;
@@ -51,6 +53,14 @@ export function AppShowcase() {
 
   const path = SPARK_POINTS.map(([x, y]) => `${x},${y}`).join(" ");
 
+  // This section and `PricingBand` draw their own heading rather than using
+  // `SectionHeader` (both invert onto a saturated band and neither wanted
+  // its margins), so they carry the accent rule's reveal themselves. Same
+  // gesture, same 180ms hold, so the ornament reads as one thing across all
+  // ten of its appearances.
+  const copy = useReveal<HTMLDivElement>();
+  const device = useReveal<HTMLDivElement>(140);
+
   return (
     <section
       id="dashboard"
@@ -58,20 +68,31 @@ export function AppShowcase() {
     >
       <Container>
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
-          <div className="max-w-2xl">
+          <div
+            ref={copy.ref}
+            style={copy.style}
+            className={cn("max-w-2xl", copy.className)}
+          >
             <h2 className="t-h2 text-balance text-white">
               {t("landing.app.title")}
             </h2>
             <div
               aria-hidden="true"
-              className="mt-5 h-1 w-10 rounded-full bg-white/70"
+              className={cn(
+                "mt-5 h-1 w-10 origin-left rounded-full bg-white/70 rtl:origin-right",
+                copy.revealed && "animate-draw-rule [animation-delay:180ms]",
+              )}
             />
             <p className="t-lead mt-6 text-pretty text-brand-on-band">
               {t("landing.app.lead")}
             </p>
           </div>
 
-          <div className="flex justify-center">
+          <div
+            ref={device.ref}
+            style={device.style}
+            className={cn("flex justify-center", device.className)}
+          >
             <div
               aria-hidden="true"
               className="w-full max-w-[19.5rem] rounded-[2.5rem] bg-brand-bezel p-2.5 shadow-[0_30px_60px_-24px_rgb(15_15_35/0.7)]"

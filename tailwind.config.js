@@ -158,6 +158,21 @@ export default {
           "0%": { opacity: "0", transform: "translateY(-4px) scale(0.96)" },
           "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
         },
+        // The accent bar under a section heading, drawing itself in. The
+        // origin is set at the call site (`origin-left rtl:origin-right`) —
+        // there is no logical `transform-origin` utility, and the rule has
+        // to grow away from the first word in both directions.
+        "draw-rule": {
+          "0%": { transform: "scaleX(0)" },
+          "100%": { transform: "scaleX(1)" },
+        },
+        // The hero's light, breathing. Slow enough to read as atmosphere
+        // rather than as a pulse — anything under about ten seconds starts
+        // competing with the pass for attention.
+        "bloom-drift": {
+          "0%, 100%": { transform: "scale(1)", opacity: "0.8" },
+          "50%": { transform: "scale(1.09)", opacity: "1" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.7s cubic-bezier(0.16,1,0.3,1) both",
@@ -168,6 +183,15 @@ export default {
         "pop-in": "pop-in 0.16s cubic-bezier(0.16,1,0.3,1) both",
         "stamp-in": "stamp-in 0.34s cubic-bezier(0.34,1.4,0.64,1) both",
         "scan-sweep": "scan-sweep 2.4s cubic-bezier(0.4,0,0.6,1) infinite",
+        // Two curves carry the whole landing page, and which one an element
+        // gets is a statement about what it is. Words *rise*:
+        // (0.16,1,0.3,1), a long decelerating settle with no overshoot —
+        // that is `fade-up` and `draw-rule`. Objects *land*:
+        // (0.34,1.4,0.64,1), which overshoots and comes back, the way a
+        // rubber stamp presses down and lifts — that is `stamp-in`, and it
+        // is the product's one gesture. Nothing on the page uses a third.
+        "draw-rule": "draw-rule 0.55s cubic-bezier(0.16,1,0.3,1) both",
+        "bloom-drift": "bloom-drift 14s ease-in-out infinite",
       },
       boxShadow: {
         // Two levels only. Cards pair the resting shadow with a hairline

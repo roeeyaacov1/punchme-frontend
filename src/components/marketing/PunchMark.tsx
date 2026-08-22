@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 
 /**
@@ -31,19 +31,23 @@ export function PunchMark({
   state = "empty",
   size = 20,
   className,
+  style,
   children,
 }: {
   state?: PunchState;
   /** Rendered size in px. */
   size?: number;
   className?: string;
+  /** Merged over the mark's own box. The hero sets `animationDelay` here to
+   * place each bullet's stamp in the load sequence. */
+  style?: CSSProperties;
   /** A numeral, knocked out of the ink. Only meaningful when `stamped`. */
   children?: ReactNode;
 }) {
   return (
     <span
       className={cn("relative inline-flex shrink-0", className)}
-      style={{ width: size, height: size }}
+      style={{ width: size, height: size, ...style }}
     >
       <svg
         viewBox="0 0 24 24"

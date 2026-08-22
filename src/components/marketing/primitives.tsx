@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "../../lib/cn";
+import { useReveal } from "../motion/useReveal";
 
 /** Shared layout + button primitives for the public landing page.
  *
@@ -90,12 +91,21 @@ export function Eyebrow({
  * edge — `start-0`, not `left-0`, so in Hebrew it sits under the first word
  * rather than trailing off the end of the line. The Figma draws it at the
  * start in some sections and the end in others; the start is the one that
- * agrees with the text. */
+ * agrees with the text.
+ *
+ * Because it repeats eight times down the page, it is also the one thing the
+ * page can afford to make an *event* of: it draws itself from the first word
+ * outward as the heading arrives, and that single half-second is what marks
+ * "a new section has begun" on a phone, where only one section is ever in
+ * view. `origin-left rtl:origin-right` rather than a logical utility because
+ * `transform-origin` has no logical form in Tailwind — the rule has to grow
+ * away from the start edge in both directions, which is the opposite pair. */
 export function SectionHeader({
   title,
   lead,
   align = "start",
   onDark = false,
+  flush = false,
   className,
 }: {
   title: string;
@@ -103,14 +113,28 @@ export function SectionHeader({
   align?: "start" | "center";
   /** Set on the saturated and dark bands, where the copy inverts. */
   onDark?: boolean;
+  /** Drops the bottom margin, for a header that sits in its own column
+   * beside the section's content rather than above it.
+   *
+   * A prop rather than a `mb-0` passed through `className`, which is what
+   * the two-column sections used to do and what never worked: `cn` is plain
+   * `clsx` with no tailwind-merge, so both margins reach the stylesheet and
+   * CSS source order decides. Tailwind emits `mb-0` before `mb-12`, so the
+   * larger one wins no matter which argument it arrived in. */
+  flush?: boolean;
   className?: string;
 }) {
   const centered = align === "center";
+  const rise = useReveal<HTMLDivElement>();
+
   return (
     <div
+      ref={rise.ref}
+      style={rise.style}
       className={cn(
-        "mb-12 sm:mb-16",
+        !flush && "mb-12 sm:mb-16",
         centered ? "mx-auto max-w-2xl text-center" : "max-w-3xl",
+        rise.className,
         className,
       )}
     >
@@ -127,7 +151,10 @@ export function SectionHeader({
         aria-hidden="true"
         className={cn(
           "mt-5 h-1 w-10 rounded-full",
-          centered && "mx-auto",
+          centered ? "mx-auto origin-center" : "origin-left rtl:origin-right",
+          // Held until the heading above has finished rising, so the two
+          // read as one gesture rather than a race.
+          rise.revealed && "animate-draw-rule [animation-delay:180ms]",
           onDark ? "bg-white/70" : "bg-primary",
         )}
       />
@@ -149,6 +176,30 @@ export function SectionHeader({
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+/** Slides a CTA's trailing arrow a hair further along on hover.
+ *
+ * Passed at the landing's call sites rather than folded into `ctaClasses`,
+ * which the wizard and the sign-in page also spend — those are not in this
+ * phase, and a shared primitive should not grow a behaviour on their behalf.
+ *
+ * The movement is toward the *end* of the line in both directions. The arrow
+ * already carries `rtl:-scale-x-100`, and Tailwind composes translate before
+ * scale, so a negative translate in RTL reads as forward on screen. */
+export const ctaArrow =
+  "[&>svg]:transition-transform [&>svg]:duration-200 motion-reduce:[&>svg]:transition-none hover:[&>svg]:translate-x-1 rtl:hover:[&>svg]:-translate-x-1";
+
+/** The pointer language for a resting card: it lifts a hair and its hairline
+ * firms up. One definition, so a testimonial, a step and a plan all answer
+ * the pointer the same way.
+ *
+ * Belongs on the panel *inside* the revealing element, never on the element
+ * `useReveal` is attached to. `animate-fade-up` fills forwards, animations
+ * outrank normal declarations, and its closing `translateY(0)` would win
+ * against this lift for good — the card would fade in and then sit there
+ * refusing to move, with every class it needs present in the markup. */
+export const cardHover =
+  "transition-[transform,box-shadow,border-color] duration-200 motion-reduce:transition-none hover:-translate-y-1 hover:border-border-strong hover:shadow-lift";
 
 /** Accent fill / outline / accent-on-dark, at hero or header size.
  *
