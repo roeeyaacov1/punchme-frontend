@@ -18,7 +18,7 @@ import {
 } from "../../components/dashboard/ActivityChart";
 import { useBusiness } from "../../business/useBusiness";
 import { canEnrollRealCustomers } from "../../business/gating";
-import { listActivity } from "../../api/loyalty";
+import { listActivity, type ActivityItem } from "../../api/loyalty";
 import { useDebounce } from "../../hooks/useDebounce";
 import { cn } from "../../lib/cn";
 import {
@@ -33,7 +33,6 @@ import {
   markDayOpeners,
   matches,
   startOfDay,
-  type ActivityItemWithName,
   type Filters,
   type Kind,
 } from "./activityFilters";
@@ -77,7 +76,7 @@ const KIND_TONES: Record<Kind, string> = {
  * shop's whole history.
  */
 async function fetchActivityWindow(businessId: string, since: number) {
-  const items: ActivityItemWithName[] = [];
+  const items: ActivityItem[] = [];
   let count = 0;
   let truncated = false;
   let page = 1;
@@ -85,7 +84,7 @@ async function fetchActivityWindow(businessId: string, since: number) {
   for (;;) {
     const res = await listActivity(businessId, page, FETCH_PAGE_SIZE);
     count = res.count;
-    items.push(...(res.items as ActivityItemWithName[]));
+    items.push(...res.items);
 
     // Nothing came back, or we hold every row the server says exists.
     // Checked against `count` rather than the page length so a server that

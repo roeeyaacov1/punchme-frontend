@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { ActivityItem } from "../../api/loyalty";
 import {
   AUTOMATIC,
   NO_FILTERS,
@@ -12,12 +13,14 @@ import {
   markDayOpeners,
   matches,
   startOfDay,
-  type ActivityItemWithName,
 } from "./activityFilters";
 
-function event(over: Partial<ActivityItemWithName> = {}): ActivityItemWithName {
+function event(over: Partial<ActivityItem> = {}): ActivityItem {
   return {
     card_serial: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeee1234",
+    // Blank by default: a customer who never gave a name is the case the
+    // card-code fallback exists for, so it is the case most tests want.
+    customer_display_name: "",
     stamps: 1,
     source: "scan",
     created_at: "2026-08-22T09:30:00Z",
@@ -100,7 +103,11 @@ describe("buildRows", () => {
 
   it("treats a blank or missing name as no name at all", () => {
     expect(buildRows([event({ customer_display_name: "   " })])[0].name).toBe("");
-    expect(buildRows([event({ customer_display_name: null })])[0].name).toBe("");
+    // The field absent entirely, which is what a frontend pointed at a deploy
+    // older than the activity-name change actually receives.
+    expect(
+      buildRows([event({ customer_display_name: undefined })])[0].name,
+    ).toBe("");
     expect(buildRows([event()])[0].name).toBe("");
   });
 

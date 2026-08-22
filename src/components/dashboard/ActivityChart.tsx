@@ -32,10 +32,6 @@ const MAX_LABELS = 4;
  * the shape alone and only the chosen day keeps a marker. */
 const MAX_DOTS = 20;
 const DOT_R = 3;
-/** The widest an hour of plot is allowed to get. Let loose in a desk-width
- * panel a fortnight puts its points a hundred pixels apart, which stops being
- * a line and becomes a row of unrelated marks. */
-const MAX_PITCH = 46;
 
 export interface ChartDay {
   /** Local midnight of the day this point counts. */
@@ -152,11 +148,12 @@ export function ActivityChart({
     focusDay(moves[event.key]);
   }
 
+  // The chart is always the full panel, whatever the period. A cap on how far
+  // apart two points were allowed to sit drew the week at a third the width of
+  // the month, so switching period resized the chart instead of redrawing the
+  // same box — and the comparison the control exists for was gone with it.
   return (
-    <div
-      className={cn("flex flex-col", className)}
-      style={{ maxWidth: days.length * MAX_PITCH }}
-    >
+    <div className={cn("flex flex-col", className)}>
       <div ref={box} className="relative w-full" style={{ height: PLOT_H }}>
         {drawable && (
           <>

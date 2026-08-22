@@ -1670,6 +1670,8 @@ export interface components {
         ActivityItemOut: {
             /** Card Serial */
             card_serial: string;
+            /** Customer Display Name */
+            customer_display_name: string;
             /** Stamps */
             stamps: number;
             /** Source */
