@@ -48,6 +48,36 @@ of duplicating. The pure model in `draft.ts` is unit-tested; keep it that way.
 Emoji stamps are rasterised client-side and uploaded as `stamp_art` — the
 wallet renderer knows only the sixteen glyphs in `src/lib/stampGlyphs.ts`.
 
+## Roles
+
+A business is no longer one account. `Business.owner` plus `Membership` rows on
+the backend give three ranked roles, and the API answers 404 to a stranger but
+**403 `insufficient_role`** to a member who is merely ranked too low.
+
+- **staff** — the counter: scan, redeem, look a customer up, read activity.
+- **manager** — also what customers see: the card, the standee, the messages.
+- **owner** — alone with billing, the team, and the deletes that take a
+  business's worth of rows with them.
+
+`GET /businesses/me` carries the caller's own role as `viewer_role`;
+`BusinessProvider` exposes it as `role` and `src/business/gating.ts` holds the
+ranking (`atLeast` / `canManage` / `isOwner`) mirroring
+`businesses/services.py:ROLE_RANK`. A response with **no** role reads as
+`owner` on purpose — that is what was true of everyone before memberships
+existed, so the app can ship ahead of the backend without locking owners out.
+
+Two things must survive any redesign. `NAV_GROUPS` items carry a `min` role and
+the rail is built from `visibleGroups(role)`, so a hire is never shown a door
+that would refuse them. And `RequireRole` wraps the manager and owner route
+groups in `main.tsx`: it *says no out loud* rather than redirecting, because a
+silent bounce is indistinguishable from a broken link. Neither is the security
+boundary — the API is — but adding a dashboard route means deciding which of
+the two groups it belongs in.
+
+Invitations are a link the owner copies and sends themselves (there is no email
+provider in this product). `/invite/:token` is public and signs the invitee in
+on the page, so the invitation is still on screen while they type.
+
 ## Redesign rules
 
 The frontend is being redesigned page group by page group: landing → onboarding →
