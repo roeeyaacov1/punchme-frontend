@@ -20,7 +20,7 @@ import { CardPunches } from "../../components/dashboard/CardPunches";
 import { InstallApp } from "../../components/dashboard/InstallApp";
 import { WeekLedger } from "../../components/dashboard/WeekLedger";
 import { useBusiness } from "../../business/useBusiness";
-import { canEnrollRealCustomers } from "../../business/gating";
+import { canEnrollRealCustomers, canManage, isOwner } from "../../business/gating";
 import { listTemplates } from "../../api/businesses";
 import { designImageUrls, getTemplateDesign } from "../../api/designs";
 import {
@@ -53,8 +53,13 @@ function remainingOf(c: CustomerListItem): number {
 
 export function DashboardOverview() {
   const { t } = useTranslation();
-  const { business } = useBusiness();
+  const { business, role } = useBusiness();
   const canEnroll = canEnrollRealCustomers(business);
+  // A hire sees the counter and nothing else on this page: the week, the two
+  // counts, and who is close to a reward. Everything below that is a setup
+  // job whose endpoint would answer them 403 anyway.
+  const manages = canManage(role);
+  const owns = isOwner(role);
   const [searchParams] = useSearchParams();
   const justActivated = searchParams.get("activated") === "1";
 
@@ -95,10 +100,13 @@ export function DashboardOverview() {
 
   const [previewResult, setPreviewResult] = useState<EnrollOut | null>(null);
   useEffect(() => {
-    if (business?.id && template?.id) {
+    // Manager and up: the preview card is the business's own demo pass, and
+    // minting one is a setup action the API scopes to the people who do
+    // setup.
+    if (business?.id && template?.id && manages) {
       previewCard(business.id, template.id).then(setPreviewResult);
     }
-  }, [business?.id, template?.id]);
+  }, [business?.id, template?.id, manages]);
 
   // Issued asynchronously — poll until the pass URL lands.
   const ownerPass = useWalletPass(previewResult);
@@ -177,13 +185,13 @@ export function DashboardOverview() {
   const automationsQuery = useQuery({
     queryKey: ["automations", business?.id],
     queryFn: () => listAutomations(business!.id!),
-    enabled: !!business?.id && canEnroll,
+    enabled: !!business?.id && canEnroll && manages,
     staleTime: 30_000,
   });
   const { data: messagingSummary } = useQuery({
     queryKey: ["messaging", "summary", business?.id],
     queryFn: () => getMessagingSummary(business!.id!),
-    enabled: !!business?.id && canEnroll,
+    enabled: !!business?.id && canEnroll && manages,
     staleTime: 30_000,
   });
   const automations = automationsQuery.data;
@@ -329,6 +337,7 @@ export function DashboardOverview() {
               things you'd come here to do — send everyone a message on a
               slow day, or go and change the rules. One tap from the phone's
               first screen, which the More sheet is not. */}
+          {manages && (
           <Panel className="p-5 sm:p-6">
             <PanelHeader
               title={t("messaging.overview.title")}
@@ -359,8 +368,9 @@ export function DashboardOverview() {
               </Link>
             </div>
           </Panel>
+          )}
         </>
-      ) : (
+      ) : manages ? (
         <Panel className="p-5 sm:p-6">
           <PanelHeader title={t("dashboard.start.title")} />
           {/* Numbered, because this genuinely is an order: there is nothing
@@ -396,6 +406,13 @@ export function DashboardOverview() {
             ))}
           </ol>
         </Panel>
+      ) : (
+        // A hire on a business that hasn't activated yet: there is nothing
+        // for them to do, and every step of the checklist above is a door
+        // the API would close on them.
+        <Panel className="p-5 sm:p-6">
+          <PanelHeader title={t("dashboard.start.title")} hint={t("team.notReady")} />
+        </Panel>
       )}
 
       {/* The counter kit: the objects that leave the screen. All of them stay
@@ -411,14 +428,25 @@ export function DashboardOverview() {
           somebody standing there, where "try your card yourself" is a thing
           they do once and never again — and on a phone the pass panel is tall
           enough to bury whatever follows it. */}
-      <GroupLabel className="mt-2">{t("dashboard.groups.setup")}</GroupLabel>
+      {/* A hire is not setting anything up — the QR below is the only thing
+          in this section they can use, so the heading would name a group
+          that, for them, does not exist. */}
+      {manages && (
+        <GroupLabel className="mt-2">{t("dashboard.groups.setup")}</GroupLabel>
+      )}
 
       {/* Putting the app on the phone is setup by the nav's own definition:
           done once, then never thought about again. It renders nothing at
           all where it cannot be done, so it costs a desktop owner no room. */}
       <InstallApp />
 
-      <div className="grid items-start gap-4 sm:gap-5 lg:grid-cols-2">
+      <div
+        className={cn(
+          "grid items-start gap-4 sm:gap-5",
+          // Two columns only when there is a second panel to put in one.
+          manages ? "lg:grid-cols-2" : "lg:max-w-md",
+        )}
+      >
         <Panel className="flex min-w-0 flex-col gap-4 p-5 sm:p-6">
           <PanelHeader title={t("dashboard.qr.title")} />
           {canEnroll ? (
@@ -438,15 +466,18 @@ export function DashboardOverview() {
               </button>
             </>
           ) : (
-            <Link
-              to="/dashboard/billing"
-              className={ctaClasses("primary", "sm", "self-start")}
-            >
-              {t("dashboard.qr.activateCta")}
-            </Link>
+            owns && (
+              <Link
+                to="/dashboard/billing"
+                className={ctaClasses("primary", "sm", "self-start")}
+              >
+                {t("dashboard.qr.activateCta")}
+              </Link>
+            )
           )}
         </Panel>
 
+        {manages && (
         <Panel className="flex min-w-0 flex-col gap-4 p-4 sm:p-6">
           <PanelHeader
             title={t("dashboard.preview.title")}
@@ -485,6 +516,7 @@ export function DashboardOverview() {
             </LitStage>
           )}
         </Panel>
+        )}
       </div>
     </div>
   );

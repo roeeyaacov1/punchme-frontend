@@ -10,21 +10,25 @@ import {
   Send,
   Stamp,
   Store,
+  UserPlus,
   Users,
   X,
 } from "lucide-react";
+import type { Role } from "../../api/team";
+import { atLeast } from "../../business/gating";
+import { useBusiness } from "../../business/useBusiness";
 import { focusRing } from "../marketing/primitives";
 import { cn } from "../../lib/cn";
 import { GroupLabel } from "./primitives";
 
 /**
- * Eight destinations, in the three groups they actually fall into.
+ * Nine destinations, in the three groups they actually fall into.
  *
  * The old header listed them in one row of pills, which said they were
  * equal things to keep an eye on. They are not: four of them are the
  * counter — what an owner does and reads between customers, possibly daily —
  * one is marketing (messages to customers: set a rule once, send a broadcast
- * on a slow day), and three are setup, which is done once and then revisited
+ * on a slow day), and four are setup, which is done once and then revisited
  * when something changes. Saying so is the difference between a dashboard
  * you can scan and a menu you have to read.
  *
@@ -35,30 +39,59 @@ import { GroupLabel } from "./primitives";
  * they came to do behind "More" would cost a tap every single visit.
  *
  * Only the first group gets a tab on the phone; the rest live behind "More".
+ *
+ * `min` is the lowest role a destination is worth showing to. It is not the
+ * security boundary — the API is, and it answers 403 either way — it is what
+ * keeps a hire from being shown a Billing tab that refuses them. Note how it
+ * falls out: the counter group is exactly the staff role, which is not a
+ * coincidence but the definition of the job.
  */
 export const NAV_GROUPS = [
   {
     key: "counter",
     items: [
-      { to: "/dashboard/scan", end: false, key: "scan", Icon: ScanLine },
-      { to: "/dashboard", end: true, key: "overview", Icon: Store },
-      { to: "/dashboard/customers", end: false, key: "customers", Icon: Users },
-      { to: "/dashboard/activity", end: false, key: "activity", Icon: Stamp },
+      { to: "/dashboard/scan", end: false, key: "scan", Icon: ScanLine, min: "staff" },
+      { to: "/dashboard", end: true, key: "overview", Icon: Store, min: "staff" },
+      { to: "/dashboard/customers", end: false, key: "customers", Icon: Users, min: "staff" },
+      { to: "/dashboard/activity", end: false, key: "activity", Icon: Stamp, min: "staff" },
     ],
   },
   {
     key: "marketing",
-    items: [{ to: "/dashboard/messages", end: false, key: "messages", Icon: Send }],
+    items: [
+      { to: "/dashboard/messages", end: false, key: "messages", Icon: Send, min: "manager" },
+    ],
   },
   {
     key: "setup",
     items: [
-      { to: "/dashboard/design", end: false, key: "design", Icon: Palette },
-      { to: "/dashboard/standee", end: false, key: "standee", Icon: Printer },
-      { to: "/dashboard/billing", end: false, key: "billing", Icon: CreditCard },
+      { to: "/dashboard/design", end: false, key: "design", Icon: Palette, min: "manager" },
+      { to: "/dashboard/standee", end: false, key: "standee", Icon: Printer, min: "manager" },
+      { to: "/dashboard/team", end: false, key: "team", Icon: UserPlus, min: "owner" },
+      { to: "/dashboard/billing", end: false, key: "billing", Icon: CreditCard, min: "owner" },
     ],
   },
 ] as const;
+
+type NavItem = {
+  to: string;
+  end: boolean;
+  key: string;
+  Icon: typeof Store;
+  min: string;
+};
+
+/** The groups this role has any business seeing, with empty ones dropped —
+ * a staff member gets a rail of four rows and no headings for doors that
+ * aren't there. */
+export function visibleGroups(role: Role | null) {
+  return NAV_GROUPS.map((group) => ({
+    key: group.key,
+    items: (group.items as readonly NavItem[]).filter((item) =>
+      atLeast(role, item.min as Role),
+    ),
+  })).filter((group) => group.items.length > 0);
+}
 
 /** Every route that lives behind the phone's "More" tab — all groups but
  * the first. Sub-routes (`/dashboard/messages/new`) count as their parent,
@@ -132,12 +165,13 @@ export function SidebarNav({
   footer: ReactNode;
 }) {
   const { t } = useTranslation();
+  const { role } = useBusiness();
   return (
     <div className="flex h-full flex-col gap-6 overflow-y-auto border-e border-border bg-surface px-4 py-5">
       {header}
 
       <nav aria-label={t("dashboard.nav.label")} className="flex flex-col gap-5">
-        {NAV_GROUPS.map((group) => (
+        {visibleGroups(role).map((group) => (
           <div key={group.key} className="flex flex-col gap-1">
             <GroupLabel className="px-3 pb-1">
               {t(`dashboard.groups.${group.key}`)}
@@ -306,9 +340,14 @@ export function MoreSheet({
  * sheet. */
 export function SetupRows({ onNavigate }: { onNavigate: () => void }) {
   const { t } = useTranslation();
+  const { role } = useBusiness();
+  // By key rather than by index: for a staff member the counter is the only
+  // group left standing, and "everything after the first one" would be a
+  // quietly different sentence than "everything that is not the counter".
+  const groups = visibleGroups(role).filter((group) => group.key !== "counter");
   return (
     <div className="flex flex-col gap-4">
-      {NAV_GROUPS.slice(1).map((group) => (
+      {groups.map((group) => (
         <div key={group.key} className="flex flex-col gap-1">
           <GroupLabel className="px-3 pb-1">
             {t(`dashboard.groups.${group.key}`)}

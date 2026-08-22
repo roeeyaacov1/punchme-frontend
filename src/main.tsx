@@ -11,6 +11,7 @@ import { AuthProvider } from "./auth/AuthProvider";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
 import { BusinessProvider } from "./business/BusinessProvider";
 import { RequireBusiness } from "./business/RequireBusiness";
+import { RequireRole } from "./business/RequireRole";
 import { RootLayout } from "./routes/root";
 import { StyleGuidePage } from "./routes/style-guide";
 import { LandingPage } from "./routes/marketing/LandingPage";
@@ -28,6 +29,7 @@ import { AccountStep } from "./routes/onboarding/steps/AccountStep";
 import { WalletStep } from "./routes/onboarding/steps/WalletStep";
 import { BillingStep } from "./routes/onboarding/steps/BillingStep";
 import { JoinPage } from "./routes/public/JoinPage";
+import { InvitePage } from "./routes/invite/InvitePage";
 import { CardStatusPage } from "./routes/public/CardStatusPage";
 import { DashboardLayout } from "./routes/dashboard/DashboardLayout";
 import { DashboardOverview } from "./routes/dashboard/DashboardOverview";
@@ -38,6 +40,7 @@ import { ActivityPage } from "./routes/dashboard/ActivityPage";
 import { StandeePage } from "./routes/dashboard/StandeePage";
 import { BillingSettingsPage } from "./routes/dashboard/BillingSettingsPage";
 import { MessagesPage } from "./routes/dashboard/MessagesPage";
+import { TeamPage } from "./routes/dashboard/TeamPage";
 import { AutomationEditorPage } from "./routes/dashboard/AutomationEditorPage";
 import { BroadcastComposerPage } from "./routes/dashboard/BroadcastComposerPage";
 import { BillingSuccessPage } from "./routes/billing/BillingSuccessPage";
@@ -57,6 +60,11 @@ const router = createBrowserRouter([
       { path: "debug/presets", element: <DebugPresetsPage /> },
       { path: "login", element: <LoginPage /> },
       { path: "join/:templateId", element: <JoinPage /> },
+      // Public like the join flow, and for the same reason: it is opened
+      // from a chat message by someone who has no account yet. The page
+      // signs them in itself rather than sending them to /login, so the
+      // invitation is still on screen while they type.
+      { path: "invite/:token", element: <InvitePage /> },
       { path: "c/:serial", element: <CardStatusPage /> },
       {
         // Public: the owner designs the card before there is an account.
@@ -117,23 +125,41 @@ const router = createBrowserRouter([
                     path: "dashboard",
                     element: <DashboardLayout />,
                     children: [
+                      // The counter — everyone on the team, staff included.
                       { index: true, element: <DashboardOverview /> },
                       { path: "scan", element: <ScanPage /> },
-                      { path: "design", element: <DesignPage /> },
                       { path: "customers", element: <CustomersPage /> },
                       { path: "activity", element: <ActivityPage /> },
-                      { path: "messages", element: <MessagesPage /> },
-                      { path: "messages/new", element: <BroadcastComposerPage /> },
                       {
-                        path: "messages/automations/new",
-                        element: <AutomationEditorPage />,
+                        // Anything that changes what customers see. The nav
+                        // already hides these from a hire; this is what
+                        // answers when one types the URL anyway — and it
+                        // says so, rather than bouncing them somewhere and
+                        // looking like a broken link.
+                        element: <RequireRole minimum="manager" />,
+                        children: [
+                          { path: "design", element: <DesignPage /> },
+                          { path: "standee", element: <StandeePage /> },
+                          { path: "messages", element: <MessagesPage /> },
+                          { path: "messages/new", element: <BroadcastComposerPage /> },
+                          {
+                            path: "messages/automations/new",
+                            element: <AutomationEditorPage />,
+                          },
+                          {
+                            path: "messages/automations/:automationId",
+                            element: <AutomationEditorPage />,
+                          },
+                        ],
                       },
                       {
-                        path: "messages/automations/:automationId",
-                        element: <AutomationEditorPage />,
+                        // Money and the team.
+                        element: <RequireRole minimum="owner" />,
+                        children: [
+                          { path: "team", element: <TeamPage /> },
+                          { path: "billing", element: <BillingSettingsPage /> },
+                        ],
                       },
-                      { path: "standee", element: <StandeePage /> },
-                      { path: "billing", element: <BillingSettingsPage /> },
                     ],
                   },
                   { path: "billing/success", element: <BillingSuccessPage /> },

@@ -14,7 +14,8 @@
     "copyLink": "Copy link",
     "copied": "Copied!",
     "remove": "Remove",
-    "edit": "Edit"
+    "edit": "Edit",
+    "cancel": "Cancel"
   },
   "admin": {
     "title": "PunchMe Admin",
@@ -518,6 +519,7 @@
       "activity": "Activity",
       "scan": "Scan",
       "standee": "Standee",
+      "team": "Team",
       "billing": "Billing",
       "signOut": "Sign out",
       "label": "Dashboard sections",
@@ -1302,6 +1304,79 @@
     },
     "activity": {
       "gift": "gift"
+    }
+  },
+  "team": {
+    "title": "Team",
+    "notReady": "Nothing to set up here yet — the owner activates the card.",
+    "role": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "staff": "Staff"
+    },
+    "roleBody": {
+      "manager": "Scans cards and looks customers up, and can change the card, the poster and the messages that go out. Not billing, and not the team.",
+      "staff": "Scans cards, hands over rewards, and looks customers up. Nothing else changes."
+    },
+    "invite": {
+      "title": "Invite someone",
+      "body": "Make a link and send it however you already talk to them. No email involved.",
+      "roleLabel": "What they can do",
+      "emailLabel": "Their email (optional)",
+      "emailPlaceholder": "dana@example.com",
+      "emailNamed": "Only this address can use the link, so forwarding it does nothing.",
+      "emailBlank": "Anyone who opens this link can join. Add an address to tie it to one person.",
+      "cta": "Create invite link"
+    },
+    "members": {
+      "title": "On your team",
+      "roleFor": "Role for {{email}}",
+      "remove": "Remove {{email}}",
+      "confirmRemove": "Remove"
+    },
+    "pending": {
+      "title": "Open invites",
+      "body": "Each link works once and expires after two weeks.",
+      "anyone": "Anyone with the link",
+      "expires": "Expires {{date}}",
+      "expired": "Expired",
+      "copy": "Copy link",
+      "revoke": "Cancel this invite"
+    },
+    "denied": {
+      "title": "This page isn't yours to open",
+      "manager": "Only a manager or the owner can change the card, the poster and the messages.",
+      "owner": "Only the owner can open billing and the team.",
+      "back": "Back to the dashboard"
+    },
+    "error": {
+      "alreadyMember": "That person is already on your team.",
+      "capReached": "That's as many people as one business can hold.",
+      "notOwner": "Only the owner can manage the team.",
+      "badEmail": "That email doesn't look right.",
+      "generic": "That didn't go through. Try again."
+    }
+  },
+  "invite": {
+    "title": "{{business}} wants you on the team",
+    "asRole": "As {{role}}.",
+    "asRoleSignIn": "As {{role}}. Sign in, or make an account, to join.",
+    "signedInAs": "Signed in as {{email}}.",
+    "forAddress": "This invite is for {{email}}.",
+    "joinCta": "Join",
+    "signInCta": "Sign in and join",
+    "signUpCta": "Create account and join",
+    "dead": {
+      "title": "This link doesn't work",
+      "unknown": "We don't recognise it. Ask for a new one.",
+      "revoked": "It was cancelled. Ask for a new one.",
+      "expired": "It expired. Ask for a new one.",
+      "accepted": "It has already been used. If that was you, just sign in."
+    },
+    "error": {
+      "wrongAccount": "This invite was sent to a different email address. Sign in with that one.",
+      "alreadyIn": "You're already on this team.",
+      "generic": "That didn't go through. Try again."
     }
   }
 }
