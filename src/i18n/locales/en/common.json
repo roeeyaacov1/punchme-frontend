@@ -495,7 +495,9 @@
       "a5": "Half a page, for the counter.",
       "tent": "One page, folded in half — it stands on a table."
     },
-    "activateFirst": "Your card is ready — activate your subscription so customers can join.",
+    "activateFirst": "Your card is ready, but the code isn’t live yet — activate your subscription and customers can join.",
+    "inactiveCode": "Code not live yet",
+    "printLocked": "Printing opens when you activate — until then there is no code to print.",
     "downloadHint": "To download a file: Print → Save as PDF.",
     "previewTitle": "What comes out of the printer",
     "previewNote": "Printed at actual size, edge to edge. Set your printer to colour and to 100% — not “fit to page”.",

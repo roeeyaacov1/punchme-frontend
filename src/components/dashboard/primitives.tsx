@@ -123,14 +123,19 @@ export function Notice({
   tone,
   children,
   className,
+  id,
 }: {
   tone: "ok" | "warn" | "danger";
   children: ReactNode;
   className?: string;
+  /** So a control this notice explains can point at it with
+   * `aria-describedby` — a disabled button owes the reason it is disabled. */
+  id?: string;
 }) {
   const Icon = NOTICE_ICONS[tone];
   return (
     <p
+      id={id}
       role={tone === "danger" ? "alert" : undefined}
       className={cn(
         "flex items-start gap-2.5 rounded-xl px-4 py-3 text-sm",

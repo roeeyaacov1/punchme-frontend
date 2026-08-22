@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
+import { Lock } from "lucide-react";
 import { contrastRatio, normalizeHex } from "../../lib/color";
 import { STAMP_GLYPHS } from "../../lib/stampGlyphs";
 import { cn } from "../../lib/cn";
@@ -67,6 +68,17 @@ export interface StandeeArt {
   glyph?: string;
   logoUrl?: string;
   enrollUrl: string;
+  /**
+   * Whether the code is live.
+   *
+   * Free plan enrols nobody — `FREE_CUSTOMER_CAP` is 0 and the API 403s
+   * `upgrade_required` — so before the owner activates there is no code to
+   * print, only a design to choose. The sheet draws the slot empty and says
+   * so rather than drawing a scannable square that leads to "this business
+   * isn't accepting new customers": a dead code in a shop window is worse
+   * than no code, because the customer blames the shop.
+   */
+  active: boolean;
 }
 
 /* ── Contrast ──────────────────────────────────────────────────────────
@@ -130,19 +142,25 @@ const u = (n: number) => `calc(var(--u) * ${n})`;
 /* ── Blocks ───────────────────────────────────────────────────────────── */
 
 function Qr({
-  url,
+  art,
   size,
   palette,
 }: {
-  url: string;
+  art: StandeeArt;
   size: number;
   palette: StandeePalette;
 }) {
+  const { t } = useTranslation();
   return (
-    // Forced LTR: a QR is a picture of a URL and has no writing direction, and
-    // the quiet zone around it is part of the spec, not padding taste.
+    // The tile is white and the same size either way — it is the footprint
+    // the code will occupy, so activating changes what is in the slot and
+    // not where anything sits.
+    //
+    // Forced LTR only around a real code: a QR is a picture of a URL and has
+    // no writing direction, and the quiet zone around it is part of the spec,
+    // not padding taste. The waiting slot is a sentence and keeps the page's.
     <div
-      dir="ltr"
+      dir={art.active ? "ltr" : undefined}
       style={{
         backgroundColor: "#ffffff",
         padding: u(size * 0.06),
@@ -150,14 +168,42 @@ function Qr({
         boxShadow: palette.lightGround ? "0 0 0 1px rgb(0 0 0 / 0.1)" : undefined,
       }}
     >
-      <QRCodeSVG
-        value={url}
-        // A render resolution, not a printed size: the SVG is scaled by the
-        // box below, and the box is what the paper sees.
-        size={1024}
-        level="M"
-        style={{ display: "block", width: u(size), height: u(size) }}
-      />
+      {art.active ? (
+        <QRCodeSVG
+          value={art.enrollUrl}
+          // A render resolution, not a printed size: the SVG is scaled by the
+          // box below, and the box is what the paper sees.
+          size={1024}
+          level="M"
+          style={{ display: "block", width: u(size), height: u(size) }}
+        />
+      ) : (
+        // An empty slot, drawn as one: a dashed cut-out and the reason. Ink
+        // on white rather than the owner's palette — the tile is always
+        // white, and this has to stay legible whatever they painted the
+        // card. #111 on #fff is 18.9:1; the dashed edge carries no text.
+        <span
+          className="flex flex-col items-center justify-center text-center font-body font-bold"
+          style={{
+            width: u(size),
+            height: u(size),
+            gap: u(size * 0.06),
+            padding: u(size * 0.08),
+            borderRadius: u(size * 0.03),
+            border: `${u(size * 0.012)} dashed rgb(17 17 17 / 0.3)`,
+            color: "#111111",
+            fontSize: u(size * 0.085),
+            lineHeight: 1.25,
+          }}
+        >
+          <Lock
+            aria-hidden
+            style={{ width: u(size * 0.2), height: u(size * 0.2) }}
+            strokeWidth={1.75}
+          />
+          {t("standee.inactiveCode")}
+        </span>
+      )}
     </div>
   );
 }
@@ -386,7 +432,7 @@ function Poster({ art, palette, wide }: Layout) {
         >
           {art.reward}
         </p>
-        <Qr url={art.enrollUrl} size={wide ? 33 : 38} palette={palette} />
+        <Qr art={art} size={wide ? 33 : 38} palette={palette} />
         <p
           className="font-body font-bold"
           style={{
@@ -429,7 +475,7 @@ function Counter({ art, palette, wide }: Layout) {
       </Band>
 
       <Band gap={0}>
-        <Qr url={art.enrollUrl} size={wide ? 42 : 52} palette={palette} />
+        <Qr art={art} size={wide ? 42 : 52} palette={palette} />
       </Band>
 
       <Band gap={wide ? 2 : 3}>
@@ -489,7 +535,7 @@ function CardDeal({ art, palette, wide }: Layout) {
         >
           {art.reward}
         </p>
-        <Qr url={art.enrollUrl} size={wide ? 31 : 38} palette={palette} />
+        <Qr art={art} size={wide ? 31 : 38} palette={palette} />
       </Band>
 
       <Band gap={wide ? 1.6 : 2.2}>
@@ -548,7 +594,7 @@ function Plain({ art, palette, wide }: Layout) {
         >
           {art.reward}
         </p>
-        <Qr url={art.enrollUrl} size={wide ? 30 : 35} palette={palette} />
+        <Qr art={art} size={wide ? 30 : 35} palette={palette} />
         <p
           className="font-body font-bold"
           style={{

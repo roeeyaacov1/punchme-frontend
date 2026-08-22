@@ -86,7 +86,11 @@ export function StandeePage() {
     label: template.label_color ?? template.foreground_color ?? "#000000",
     glyph: typeof doc.stamp?.glyph === "string" ? doc.stamp.glyph : undefined,
     logoUrl: typeof images.logo === "string" ? (images.logo as string) : undefined,
-    enrollUrl: buildEnrollUrl(template.id!),
+    // Not just undrawn — not built. Free plan enrols nobody (the API 403s
+    // `upgrade_required`), so there is no live code to put on screen for
+    // someone to photograph off it, let alone onto paper.
+    enrollUrl: canEnroll ? buildEnrollUrl(template.id!) : "",
+    active: canEnroll,
   };
 
   const spec = SHEET_SPECS[format];
@@ -105,6 +109,11 @@ export function StandeePage() {
         <button
           type="button"
           onClick={() => window.print()}
+          disabled={!canEnroll}
+          // The notice below says why, and it is the next thing after this
+          // button in the reading order — so a screen reader meets the
+          // disabled control and its reason together.
+          aria-describedby={canEnroll ? undefined : "standee-inactive"}
           className={ctaClasses("primary", "sm")}
         >
           <Printer size={16} aria-hidden />
@@ -113,11 +122,18 @@ export function StandeePage() {
       </div>
 
       {!canEnroll && (
-        <Notice tone="warn">
+        <Notice tone="warn" id="standee-inactive">
           {t("standee.activateFirst")}{" "}
           <Link
             to="/dashboard/billing"
-            className={cn("font-semibold underline hover:no-underline", focusRing)}
+            // inline-flex, not inline: a link in running prose is 18px tall,
+            // and with Print off this is the only control on the page that
+            // does anything — the one thumb target that has to be a thumb
+            // target. Same treatment as the scanner's; see ScanPage.
+            className={cn(
+              "inline-flex min-h-[44px] items-center align-middle font-semibold underline hover:no-underline",
+              focusRing,
+            )}
           >
             {t("dashboard.qr.activateCta")}
           </Link>
@@ -199,7 +215,7 @@ export function StandeePage() {
               {t(`standee.formatHints.${format}`)}
             </p>
             <p className="mt-1 text-sm text-ink-subtle">
-              {t("standee.downloadHint")}
+              {canEnroll ? t("standee.downloadHint") : t("standee.printLocked")}
             </p>
           </Panel>
         </div>
