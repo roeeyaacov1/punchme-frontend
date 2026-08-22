@@ -124,8 +124,8 @@ export function OnboardingDraftProvider({ children }: { children: ReactNode }) {
   const artUrl =
     resolved.stamp.kind !== "glyph" && art?.hash === resolved.stamp.hash ? art.dataUrl : undefined;
   const preview = useMemo(
-    () => previewOverride ?? draftPreviewValue(resolved, lang, t, artUrl),
-    [previewOverride, resolved, lang, t, artUrl],
+    () => previewOverride ?? draftPreviewValue(resolved, lang, t, artUrl, templateInput.name),
+    [previewOverride, resolved, lang, t, artUrl, templateInput.name],
   );
 
   const value: DraftContextValue = {

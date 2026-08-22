@@ -25,6 +25,9 @@ export function usePublishedPreview(
   design: DesignOut | undefined,
   business: Business | null,
   artUrl: string | undefined,
+  /** The template's name. `DesignOut` carries the design, not the row it
+   * belongs to, and Google's header prints "{business} - {card}". */
+  cardName?: string,
 ): CardPreviewValue | null {
   const [value, setValue] = useState<CardPreviewValue | null>(null);
 
@@ -38,6 +41,7 @@ export function usePublishedPreview(
     const stamps = sampleStamps(design.stamps_required);
     const base: CardPreviewValue = {
       businessName: business.name,
+      cardName,
       stampsRequired: design.stamps_required,
       currentStamps: stamps,
       rewardDescription: design.reward_description,
@@ -68,7 +72,7 @@ export function usePublishedPreview(
     return () => {
       cancelled = true;
     };
-  }, [design, business, artUrl]);
+  }, [design, business, artUrl, cardName]);
 
   return value;
 }

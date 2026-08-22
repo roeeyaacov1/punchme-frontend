@@ -34,6 +34,7 @@ export function publicCardPreview(
 ): CardPreviewValue {
   return {
     businessName: card.business_name,
+    cardName: card.template_name,
     stampsRequired: card.stamps_required,
     currentStamps: card.stamp_count,
     rewardDescription: card.reward_description,

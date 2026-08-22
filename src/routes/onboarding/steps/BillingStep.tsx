@@ -50,7 +50,12 @@ export function BillingStep() {
     queryFn: () => getTemplateDesign(businessId!, templateId!),
     enabled: !!businessId && !!templateId,
   });
-  const published = usePublishedPreview(designQuery.data, business, artUrl);
+  const published = usePublishedPreview(
+    designQuery.data,
+    business,
+    artUrl,
+    templatesQuery.data?.find((candidate) => candidate.id === templateId)?.name,
+  );
   useEffect(() => {
     if (published) setPreviewOverride(published);
   }, [published, setPreviewOverride]);

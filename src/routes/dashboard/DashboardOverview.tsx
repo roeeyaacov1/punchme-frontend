@@ -573,6 +573,7 @@ export function DashboardOverview() {
               <div className="flex flex-col items-center rounded-xl bg-background px-0 py-5 sm:px-6">
                 <CardPreview
                   businessName={business?.name ?? ""}
+                  cardName={template.name}
                   stampsRequired={template.stamps_required}
                   currentStamps={previewResult?.stamp_count ?? 0}
                   rewardDescription={template.reward_description}

@@ -146,6 +146,7 @@ export function WalletStep() {
     syncedSinceSave(design) ? design : undefined,
     business,
     artUrl,
+    template?.name,
   );
   useEffect(() => {
     if (published) setPreviewOverride(published);

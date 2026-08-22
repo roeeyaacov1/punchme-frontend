@@ -150,6 +150,12 @@ function Shell() {
               for either wallet, with a little wallpaper left below it. Remeasure
               if the pass layout changes.
 
+              Remeasured when the Google card was rebuilt to Google's own
+              renderer: a program-name line and a square barcode plate took it
+              from 290px to 395px, and 94px of frame above it plus 41px of
+              wallpaper below is what 530 is. Apple is still 290 and simply
+              keeps more wallpaper.
+
               `--phone-scale` (index.css) shrinks the frame and this crop by the
               same factor on a short screen, so the crop lands in exactly the
               same place on the pass — it is a smaller phone, not a deeper cut.
@@ -158,7 +164,7 @@ function Shell() {
               lower there (`sm:pt-5` here, `sm:pt-6` inside the frame), so
               424 + 16 is the same cut through the pass as on a phone. */}
           <div
-            className="overflow-hidden bg-background/60 pt-3 [--phone-crop:424px] sm:pt-5 sm:[--phone-crop:440px]"
+            className="overflow-hidden bg-background/60 pt-3 [--phone-crop:530px] sm:pt-5 sm:[--phone-crop:546px]"
             style={{ height: "calc(var(--phone-crop) * var(--phone-scale))" }}
           >
             <div className="origin-top" style={{ transform: "scale(var(--phone-scale))" }}>

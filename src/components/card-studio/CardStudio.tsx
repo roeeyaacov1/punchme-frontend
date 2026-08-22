@@ -246,6 +246,7 @@ export function CardStudio({
           <div className="-mx-1 rounded-xl bg-background px-1 py-5 sm:px-2">
             <CardPreview
               businessName={businessName}
+              cardName={value.name}
               stampsRequired={value.stamps_required}
               currentStamps={sampleStamps}
               rewardDescription={value.reward_description}

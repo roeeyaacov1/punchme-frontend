@@ -353,9 +353,14 @@ export function draftPreviewValue(
   lang: string,
   t: TFunction,
   artUrl: string | undefined,
+  /** The name the card will be created under — `buildTemplateInput`'s, so
+   * the Google header shows the same program name before and after the
+   * template exists. */
+  cardName?: string,
 ): CardPreviewValue {
   return {
     businessName: resolved.name,
+    cardName,
     stampsRequired: resolved.stampsRequired,
     currentStamps: sampleStamps(resolved.stampsRequired),
     rewardDescription: resolved.reward,

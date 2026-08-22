@@ -41,6 +41,11 @@ export interface CardPreviewValue {
    * name — right for a design preview, wrong on a page showing someone
    * their own pass. */
   holderName?: string;
+  /** The template's own name ("Haircut card"). Google prints a *program*
+   * name as the card's title and the backend builds it as
+   * "{business} - {card}", so without this the header can only repeat the
+   * business name twice — which is what the installed pass never does. */
+  cardName?: string;
 }
 
 /** The published artwork for a stamp state, when it is safe to trust it. */
@@ -71,6 +76,31 @@ function fieldLabel(value: CardPreviewValue, binding: string, fallback: string):
   const field = value.design.fields?.find((f) => f.binding === binding);
   return field?.label || fallback;
 }
+
+/** Google's two header lines. They are different things and the card shows
+ * both: the issuer is the business, the program is the card. The backend
+ * derives them the same way every time — `organizationName` from the
+ * business name, `description` as "{business} - {card}" — and only a design
+ * doc that names them itself overrides that. */
+function issuerName(value: CardPreviewValue): string {
+  return value.design.organization_name?.trim() || value.businessName.trim() || "—";
+}
+
+function programName(value: CardPreviewValue): string {
+  const named = value.design.description?.trim();
+  if (named) return named;
+  const business = value.businessName.trim();
+  const card = value.cardName?.trim();
+  if (business && card) return `${business} - ${card}`;
+  return card || business || "—";
+}
+
+/** The face Google Wallet sets a pass in, copied from its own renderer.
+ * Google Sans is not public, so Roboto — loaded in index.html for exactly
+ * this — carries the Latin. Hebrew falls through to the system face on
+ * purpose: Roboto ships no Hebrew, and a pass on a phone is set in that
+ * phone's Hebrew face too, not in ours. */
+const GOOGLE_WALLET_FONT = '"Google Sans", Roboto, "Noto Sans Hebrew", Arial, sans-serif';
 
 const SAMPLE_NAME = "דנה לוי";
 
@@ -168,61 +198,102 @@ export function AppleCardPreview(value: CardPreviewValue) {
   );
 }
 
-/** Google Wallet's FIXED loyalty layout: round logo + program header,
- * member name and points row, barcode, then the hero image (our stamp
- * grid) at the very bottom. Deliberately different from Apple — the
- * layouts will never match, so the switcher shows the real thing. */
+/**
+ * Google Wallet's loyalty layout, measured off Google's own renderer rather
+ * than guessed at: the Loyalty Pass builder at
+ * developers.google.com/wallet/retail/loyalty-cards/resources/pass-builder
+ * draws a card from the same class and object fields PassKit sends, and
+ * every size, weight and inset below is read off it.
+ *
+ * What that renderer does, and this now does:
+ *
+ * - Two different header lines. The *issuer* (the business) sits beside the
+ *   round logo; the *program* — "{business} - {card}" — is a 20px title on
+ *   its own line under a dim rule. They are not the same string, and a card
+ *   in a real wallet never shows the business name twice.
+ * - "Google Sans"/Roboto throughout, at 11px/500 for a field label and
+ *   14px/500 for its value, in the case the owner typed. Google does not
+ *   letter-space or upper-case them, and it has no font of ours.
+ * - One row of two items, points at the start and the holder at the end —
+ *   the order `googlePaySettings.classTemplateInfo` asks for.
+ * - No label colour. Google's LoyaltyClass has nowhere to put one, so the
+ *   studio's label colour reaches Apple only; painting it here would be the
+ *   preview inventing something the phone cannot show.
+ *
+ * Deliberately different from Apple — the layouts will never match, so the
+ * switcher shows the real thing.
+ */
 export function GoogleCardPreview(value: CardPreviewValue) {
   const { t } = useTranslation();
   return (
     <div
       className="rounded-[18px] overflow-hidden shadow-[0_16px_40px_rgba(14,17,32,0.28)]"
-      style={{ backgroundColor: value.backgroundColor, color: value.foregroundColor }}
+      style={{
+        backgroundColor: value.backgroundColor,
+        color: value.foregroundColor,
+        fontFamily: GOOGLE_WALLET_FONT,
+      }}
     >
-      <div className="flex items-center gap-3 px-4 pt-4">
-        <span className="h-10 w-10 rounded-full bg-white/90 overflow-hidden flex items-center justify-center shrink-0">
-          {value.logoUrl ? (
-            <img src={value.logoUrl} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <span className="text-sm font-heading font-bold text-navy">
-              {(value.businessName || "?").slice(0, 1)}
-            </span>
-          )}
+      {/* Title bar: a 24px logo inside a 36px well, then the issuer. */}
+      <div className="flex h-12 items-center">
+        <span className="ms-1.5 my-1.5 flex h-9 w-9 items-center justify-center p-1.5 shrink-0">
+          <span className="h-6 w-6 rounded-full bg-white/[0.87] overflow-hidden flex items-center justify-center">
+            {value.logoUrl ? (
+              <img src={value.logoUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-[11px] font-bold text-navy">
+                {(value.businessName || "?").slice(0, 1)}
+              </span>
+            )}
+          </span>
         </span>
-        <div className="min-w-0">
-          <p className="text-[11px] opacity-80 truncate">{value.businessName || "—"}</p>
-          <p className="text-sm font-medium truncate">
-            {value.design.organization_name || value.businessName || "—"}
-          </p>
-        </div>
+        <span className="me-3 min-w-0 truncate p-1.5 text-[14px] font-medium tracking-[0.21px]">
+          {issuerName(value)}
+        </span>
       </div>
 
-      <div className="flex justify-between gap-3 px-4 pt-4">
-        <div className="min-w-0">
-          <p
-            className="text-[10px] uppercase tracking-wide"
-            style={{ color: value.labelColor }}
-          >
-            {fieldLabel(value, "person.displayName", t("studio.preview.nameLabel"))}
-          </p>
-          <p className="text-base truncate">{value.holderName || SAMPLE_NAME}</p>
-        </div>
-        <div className="text-end shrink-0">
-          <p
-            className="text-[10px] uppercase tracking-wide"
-            style={{ color: value.labelColor }}
-          >
+      {/* Drawn in the card's own text colour rather than Google's flat
+          white, so the rule survives a light card the way it does a dark
+          one. */}
+      <div className="h-px w-full bg-current opacity-[0.08]" />
+
+      <p className="mt-[10px] truncate px-3 py-px text-[20px] leading-[30px]">
+        {programName(value)}
+      </p>
+
+      {/* The card row. Points start, holder end — classTemplateInfo's order,
+          and start/end rather than left/right so a Hebrew card reads the way
+          the phone renders it. */}
+      <div className="flex">
+        <div className="flex min-w-0 flex-1 flex-col text-start">
+          <p className="w-full truncate px-3 pt-1.5 text-[11px] font-medium">
             {fieldLabel(value, "members.member.points", t("studio.preview.pointsLabel"))}
           </p>
-          <p className="text-base font-heading">{value.currentStamps}</p>
+          <p className="w-full truncate px-3 pb-1.5 text-[14px] font-medium">
+            {value.currentStamps}
+          </p>
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col text-end">
+          <p className="w-full truncate px-3 pt-1.5 text-[11px] font-medium">
+            {fieldLabel(value, "person.displayName", t("studio.preview.nameLabel"))}
+          </p>
+          <p className="w-full truncate px-3 pb-1.5 text-[14px] font-medium">
+            {value.holderName || SAMPLE_NAME}
+          </p>
         </div>
       </div>
 
-      <div className="bg-white mx-4 my-3 rounded-lg p-2 flex items-center justify-center h-[64px]">
-        <PassBarcode
-          format={barcodeFormat(value.design)}
-          payload={resolveBarcodePayload(value.design, value.serial)}
-        />
+      {/* A centred square on white, not a full-width strip: Google gives the
+          code about half the card's width and rounds the plate at 12px. The
+          fractions keep that proportion at whatever width the card is
+          staged. */}
+      <div className="flex justify-center pt-[21px] pb-[15px]">
+        <div className="w-[51%] aspect-square rounded-xl bg-white p-[10%]">
+          <PassBarcode
+            format={barcodeFormat(value.design)}
+            payload={resolveBarcodePayload(value.design, value.serial)}
+          />
+        </div>
       </div>
 
       {/* Google's hero is its own render (1032x336), not the Apple strip. */}
