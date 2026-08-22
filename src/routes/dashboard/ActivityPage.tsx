@@ -34,12 +34,19 @@ const TAG_MAX_LENGTH = 8;
  * off, instead of three columns. */
 const MIN_SPAN_HOURS = 6;
 
-type Kind = "stamp" | "gift" | "correction" | "bulk";
+type Kind = "stamp" | "gift" | "manual" | "correction" | "bulk";
 
 function kindOf(event: ActivityItem): Kind {
   if (event.stamps < 0) return "correction";
   if (event.source === "automation") return "gift";
-  return event.stamps > PUNCHABLE_EVENT ? "bulk" : "stamp";
+  if (event.stamps > PUNCHABLE_EVENT) return "bulk";
+  // `scan`, `adjust` and `automation` are the only three the backend writes
+  // (StampEvent.Source in apps/loyalty/models.py). A positive `adjust` is
+  // the owner typing a stamp in from the customers table rather than a
+  // customer presenting a card, and it earns the same word its negative
+  // twin already gets — otherwise a hand-entered stamp is indistinguishable
+  // from a scan that actually happened at the counter.
+  return event.source === "adjust" ? "manual" : "stamp";
 }
 
 function dayKey(iso: string): string {
@@ -275,7 +282,11 @@ export function ActivityPage() {
                     Plex Mono carries no Hebrew, so a noun set in it drops to
                     whatever face the OS picks. */}
                 <p className="text-xs text-ink-subtle">
-                  <Figure>
+                  {/* `dir` and not only `Figure`'s isolation: a trailing "+"
+                      is a neutral, so in a Hebrew line it resolves to the
+                      paragraph's direction and lands in front of the digits,
+                      turning "23 or more" into "plus 23". */}
+                  <Figure dir="ltr">
                     {day.stamps}
                     {day.truncated ? "+" : ""}
                   </Figure>{" "}
@@ -397,13 +408,16 @@ function ActivityRow({
                 ))
               )}
             </span>
-            {kind === "stamp" && (
+            {(kind === "stamp" || kind === "manual") && (
               <span className="sr-only">
                 {size} {t("dashboard.week.stamps", { count: size })}
               </span>
             )}
             {kind === "gift" && (
               <Tag tone="accent">{t("messaging.activity.gift")}</Tag>
+            )}
+            {kind === "manual" && (
+              <Tag tone="neutral">{t("dashboard.activity.manual")}</Tag>
             )}
             {kind === "correction" && (
               <Tag tone="warn">

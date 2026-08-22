@@ -555,7 +555,8 @@
       "removed_one": "1 removed",
       "removed_other": "{{count}} removed",
       "busiest": "Busiest around {{time}}",
-      "body": "Every stamp, newest first. The strip over each day shows the hours they landed in."
+      "body": "Every stamp, newest first. The strip over each day shows the hours they landed in.",
+      "manual": "by hand"
     },
     "scan": {
       "title": "Scan a card",
