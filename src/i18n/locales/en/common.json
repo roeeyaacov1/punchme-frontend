@@ -530,6 +530,36 @@
       "free": "Free",
       "pro": "Pro"
     },
+    "brief": {
+      "title": "The last {{days}} days",
+      "hint": "Someone who came back — stamped on two or more separate days.",
+      "verdict_one": "person came back",
+      "verdict_other": "people came back",
+      "verdictNone": "Nobody came back",
+      "moreThanBefore_one": "1 more than the {{days}} days before",
+      "moreThanBefore_other": "{{count}} more than the {{days}} days before",
+      "fewerThanBefore_one": "1 fewer than the {{days}} days before",
+      "fewerThanBefore_other": "{{count}} fewer than the {{days}} days before",
+      "sameAsBefore": "Same as the {{days}} days before",
+      "capped": "Busier than this page can load, so these are the least it can prove.",
+      "stats": {
+        "joined": "New customers",
+        "visits": "Visits"
+      }
+    },
+    "today": {
+      "title": "Worth doing",
+      "clear": "Nothing needs you right now.",
+      "inactive_one": "1 customer hasn't been back in {{days}} days.",
+      "inactive_other": "{{count}} customers haven't been back in {{days}} days.",
+      "inactiveCta": "Win them back",
+      "birthday_one": "1 birthday this month.",
+      "birthday_other": "{{count}} birthdays this month.",
+      "birthdayCta": "Send a greeting",
+      "quiet_one": "Nothing has been scanned for a day.",
+      "quiet_other": "Nothing has been scanned for {{count}} days.",
+      "quietCta": "Open the scanner"
+    },
     "qr": {
       "title": "Your enrollment QR",
       "activateCta": "Activate to get your QR code"

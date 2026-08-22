@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowRight, Copy, Send } from "lucide-react";
+import { ArrowRight, Cake, Copy, ScanLine, Send, UserRoundX } from "lucide-react";
 import { CardPreview } from "../../components/card-studio/CardPreviews";
 import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
 import { PunchMark } from "../../components/marketing/PunchMark";
@@ -16,6 +16,7 @@ import {
   PanelHeader,
   Tag,
 } from "../../components/dashboard/primitives";
+import { BriefPanel, WorthDoing, type TodoRow } from "../../components/dashboard/Brief";
 import { CardPunches } from "../../components/dashboard/CardPunches";
 import { InstallApp } from "../../components/dashboard/InstallApp";
 import { WeekLedger } from "../../components/dashboard/WeekLedger";
@@ -24,23 +25,27 @@ import { canEnrollRealCustomers, canManage, isOwner } from "../../business/gatin
 import { listTemplates } from "../../api/businesses";
 import { designImageUrls, getTemplateDesign } from "../../api/designs";
 import {
-  listActivity,
   listAllCustomers,
   previewCard,
   type CustomerListItem,
   type EnrollOut,
 } from "../../api/loyalty";
 import { getMessagingSummary, listAutomations } from "../../api/messaging";
+import { fetchActivityWindow } from "./activityWindow";
+import { BRIEF_DAYS, QUIET_DAYS, buildBrief } from "./overviewBrief";
 import { buildEnrollUrl } from "../../lib/enrollUrl";
 import { useWalletPass } from "../../hooks/useWalletPass";
 import { cn } from "../../lib/cn";
 
 const WEEK_DAYS = 7;
 const DAY_MS = 24 * 60 * 60 * 1000;
-/** One request deep enough to cover a week for any shop this product is
- * priced for. If a week's stamps ever fill it, the count is shown with a `+`
- * rather than quietly under-reporting — see `capped` below. */
-const WEEK_SAMPLE = 200;
+/** How far back the page reads. Two brief windows, so the last thirty days
+ * have the thirty before them to be measured against — one walk serves the
+ * verdict, its comparison, and the week ledger underneath it. */
+const WINDOW_DAYS = BRIEF_DAYS * 2;
+/** Which of `inactive_counts`' buckets the "worth doing" row reads. 30 is the
+ * bucket the Messages page surfaces and the win-back rule's own default. */
+const INACTIVE_BUCKET = "30";
 /** How many people the counter panel names. More than this and it stops
  * being "who should I look out for" and becomes the customers table. */
 const NEAR_LIMIT = 5;
@@ -88,12 +93,25 @@ export function DashboardOverview() {
     staleTime: 5_000,
   });
 
-  // Its own key rather than the activity page's `["activity", id, page]`:
-  // same endpoint, different page size, and sharing a cache entry between
-  // the two would hand that page 200 rows and break its paging.
-  const { data: recent } = useQuery({
-    queryKey: ["activity", business?.id, "recent", WEEK_SAMPLE],
-    queryFn: () => listActivity(business!.id!, 1, WEEK_SAMPLE),
+  // Its own key rather than the activity page's `["activity", id, "window",
+  // period]`: same endpoint and the same walk, but a different window, and
+  // sharing a cache entry would hand that page a month it did not ask for.
+  //
+  // This used to be a single 200-row request. `page_size` is silently capped
+  // at 100, so "did I see the whole week" was answered by `100 < 200` — true
+  // for every shop, however busy — and any shop past about seven stamps a
+  // day was shown an under-reported week with no `+` on it and a delta
+  // measured against a previous week that was half missing.
+  const { data: activity } = useQuery({
+    queryKey: ["activity", business?.id, "brief", WINDOW_DAYS],
+    queryFn: () => {
+      const midnight = new Date();
+      midnight.setHours(0, 0, 0, 0);
+      return fetchActivityWindow(
+        business!.id!,
+        midnight.getTime() - (WINDOW_DAYS - 1) * DAY_MS,
+      );
+    },
     enabled: !!business?.id && canEnroll,
     staleTime: 5_000,
   });
@@ -120,7 +138,7 @@ export function DashboardOverview() {
   }
 
   const week = useMemo(() => {
-    const items = recent?.items ?? [];
+    const items = activity?.items ?? [];
     // Calendar days, not a rolling 168 hours: the ledger draws one row per
     // day and the total above it has to be the sum of what it draws. It is
     // also the question an owner actually asks — "was Tuesday quiet?".
@@ -136,11 +154,6 @@ export function DashboardOverview() {
 
     const buckets = new Array<number>(WEEK_DAYS).fill(0);
     let prevWeek = 0;
-    let oldest = Infinity;
-    for (const event of items) {
-      const at = Date.parse(event.created_at);
-      if (at < oldest) oldest = at;
-    }
     for (const event of visits) {
       const at = Date.parse(event.created_at);
       if (at >= windowStart) {
@@ -151,12 +164,12 @@ export function DashboardOverview() {
       }
     }
 
-    // Either every row there is came back, or the sample already reaches
-    // past the edge we care about. Anything else and we do not know, and
-    // saying so beats printing a number we cannot stand behind.
-    const sawEverything = items.length < WEEK_SAMPLE;
-    const capped = !sawEverything && oldest >= windowStart;
-    const prevKnown = sawEverything || oldest < prevStart;
+    // The walk reaches back a whole two brief windows — far past both of
+    // these weeks — unless it hit its page guard. So there is exactly one
+    // question left, and `truncated` is it. Saying so beats printing a
+    // number we cannot stand behind.
+    const capped = activity?.truncated ?? false;
+    const prevKnown = !capped;
 
     const total = buckets.reduce((sum, n) => sum + n, 0);
     return {
@@ -174,7 +187,7 @@ export function DashboardOverview() {
         }))
         .reverse(),
     };
-  }, [recent]);
+  }, [activity]);
 
   const all = useMemo(() => customers?.items ?? [], [customers]);
 
@@ -198,14 +211,6 @@ export function DashboardOverview() {
   const activeRules = (automations ?? []).filter((a) => a.is_active).length;
   const sentThisMonth = messagingSummary?.sent_this_month ?? 0;
 
-  const readyCount = useMemo(
-    () =>
-      all.filter(
-        (c) => c.status !== "void" && c.stamps_required > 0 && remainingOf(c) === 0,
-      ).length,
-    [all],
-  );
-
   const near = useMemo(
     () =>
       all
@@ -214,6 +219,70 @@ export function DashboardOverview() {
         .slice(0, NEAR_LIMIT),
     [all],
   );
+
+  // The verdict and everything under it, off the two reads above. Nothing
+  // here costs a request the page was not already making.
+  const brief = useMemo(
+    () =>
+      buildBrief({
+        activity: activity?.items ?? [],
+        customers: all,
+        now: Date.now(),
+        truncated: activity?.truncated ?? false,
+      }),
+    [activity, all],
+  );
+
+  // What is worth the owner's morning: only rows with something in them, and
+  // only rows this person can act on. A hire gets the quiet-till warning —
+  // they are the one holding the scanner — and neither of the messaging
+  // rows, whose endpoints would answer them 403.
+  const todos = useMemo<TodoRow[]>(() => {
+    const rows: TodoRow[] = [];
+
+    // First, because it is the only row here that is closer to a fault than
+    // to an opportunity — and a shop with no customers yet is not quiet, it
+    // has not started.
+    if (brief.quietDays !== null && brief.quietDays >= QUIET_DAYS && all.length > 0) {
+      rows.push({
+        key: "quiet",
+        tone: "warn",
+        icon: <ScanLine size={16} />,
+        body: t("dashboard.today.quiet", { count: brief.quietDays }),
+        to: "/dashboard/scan",
+        cta: t("dashboard.today.quietCta"),
+      });
+    }
+
+    const inactive = messagingSummary?.inactive_counts?.[INACTIVE_BUCKET] ?? 0;
+    if (manages && inactive > 0) {
+      rows.push({
+        key: "inactive",
+        icon: <UserRoundX size={16} />,
+        body: t("dashboard.today.inactive", {
+          count: inactive,
+          days: Number(INACTIVE_BUCKET),
+        }),
+        // The same slug the Messages page's own recipe cards use, so this
+        // opens the win-back rule already seeded rather than a blank one.
+        to: "/dashboard/messages/automations/new?recipe=winback",
+        cta: t("dashboard.today.inactiveCta"),
+      });
+    }
+
+    const birthdays = messagingSummary?.birthdays_this_month ?? 0;
+    if (manages && birthdays > 0) {
+      rows.push({
+        key: "birthday",
+        icon: <Cake size={16} />,
+        body: t("dashboard.today.birthday", { count: birthdays }),
+        to: "/dashboard/messages/automations/new?recipe=birthday",
+        cta: t("dashboard.today.birthdayCta"),
+      });
+    }
+
+    return rows;
+  }, [brief, all.length, messagingSummary, manages, t]);
 
   const images = designImageUrls(design);
 
@@ -235,6 +304,41 @@ export function DashboardOverview() {
 
       {canEnroll ? (
         <>
+          {/* The verdict first. Not stamps: a stamp counts a first-timer and
+              a tenth-visit regular the same, and the thing this product was
+              sold on — and the thing `calculator.ts` prices a year of it in —
+              is people coming back. */}
+          <BriefPanel
+            days={BRIEF_DAYS}
+            returned={brief.returned}
+            delta={brief.returnedDelta}
+            capped={brief.capped}
+            stats={[
+              {
+                label: t("dashboard.customers.stats.total"),
+                value: brief.customers,
+              },
+              {
+                label: t("dashboard.brief.stats.joined"),
+                value: brief.joined,
+              },
+              {
+                label: t("dashboard.brief.stats.visits"),
+                value: brief.visits,
+                capped: brief.capped,
+              },
+              {
+                label: t("dashboard.customers.stats.ready"),
+                value: brief.ready,
+                accent: true,
+              },
+            ]}
+          />
+
+          <WorthDoing rows={todos} />
+
+          {/* The month says whether it is working; the week says how the
+              shop is running. Both, in that order. */}
           <Panel className="p-5 sm:p-6">
             <PanelHeader title={t("dashboard.week.title")} />
             <div className="mt-4">
@@ -246,32 +350,6 @@ export function DashboardOverview() {
                 cardLength={template.stamps_required}
               />
             </div>
-
-            {/* The two standing counts, kept small: the week above is the
-                thing that changes, and these are the context for it. */}
-            <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-3 border-t border-border pt-4">
-              <div>
-                <dt className="text-xs text-ink-subtle">
-                  {t("dashboard.customers.stats.total")}
-                </dt>
-                <dd className="font-heading text-xl font-bold tabular-nums text-ink">
-                  {all.length}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-xs text-ink-subtle">
-                  {t("dashboard.customers.stats.ready")}
-                </dt>
-                <dd
-                  className={cn(
-                    "font-heading text-xl font-bold tabular-nums",
-                    readyCount > 0 ? "text-primary-text" : "text-ink",
-                  )}
-                >
-                  {readyCount}
-                </dd>
-              </div>
-            </dl>
           </Panel>
 
           <Panel className="p-5 sm:p-6">

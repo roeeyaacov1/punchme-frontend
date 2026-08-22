@@ -534,6 +534,48 @@
       "free": "חינמי",
       "pro": "פרו"
     },
+    "brief": {
+      "title": "{{days}} הימים האחרונים",
+      "hint": "מי שחזר — קיבל חותמת בשני ימים שונים או יותר.",
+      "verdict_one": "לקוח חזר",
+      "verdict_two": "לקוחות חזרו",
+      "verdict_many": "לקוחות חזרו",
+      "verdict_other": "לקוחות חזרו",
+      "verdictNone": "אף אחד לא חזר",
+      "moreThanBefore_one": "אחד יותר מ־{{days}} הימים שלפני",
+      "moreThanBefore_two": "{{count}} יותר מ־{{days}} הימים שלפני",
+      "moreThanBefore_many": "{{count}} יותר מ־{{days}} הימים שלפני",
+      "moreThanBefore_other": "{{count}} יותר מ־{{days}} הימים שלפני",
+      "fewerThanBefore_one": "אחד פחות מ־{{days}} הימים שלפני",
+      "fewerThanBefore_two": "{{count}} פחות מ־{{days}} הימים שלפני",
+      "fewerThanBefore_many": "{{count}} פחות מ־{{days}} הימים שלפני",
+      "fewerThanBefore_other": "{{count}} פחות מ־{{days}} הימים שלפני",
+      "sameAsBefore": "כמו {{days}} הימים שלפני",
+      "capped": "עמוס יותר ממה שהדף יכול לטעון, אז אלה המספרים הנמוכים ביותר שאפשר להוכיח.",
+      "stats": {
+        "joined": "לקוחות חדשים",
+        "visits": "ביקורים"
+      }
+    },
+    "today": {
+      "title": "כדאי לעשות",
+      "clear": "אין כרגע משהו שדורש אותך.",
+      "inactive_one": "לקוח אחד לא חזר כבר {{days}} ימים.",
+      "inactive_two": "{{count}} לקוחות לא חזרו כבר {{days}} ימים.",
+      "inactive_many": "{{count}} לקוחות לא חזרו כבר {{days}} ימים.",
+      "inactive_other": "{{count}} לקוחות לא חזרו כבר {{days}} ימים.",
+      "inactiveCta": "להחזיר אותם",
+      "birthday_one": "יום הולדת אחד החודש.",
+      "birthday_two": "{{count}} ימי הולדת החודש.",
+      "birthday_many": "{{count}} ימי הולדת החודש.",
+      "birthday_other": "{{count}} ימי הולדת החודש.",
+      "birthdayCta": "לשלוח ברכה",
+      "quiet_one": "לא נסרק כלום כבר יום.",
+      "quiet_two": "לא נסרק כלום כבר יומיים.",
+      "quiet_many": "לא נסרק כלום כבר {{count}} ימים.",
+      "quiet_other": "לא נסרק כלום כבר {{count}} ימים.",
+      "quietCta": "לפתוח את הסורק"
+    },
     "qr": {
       "title": "קוד ה-QR להרשמה",
       "activateCta": "הפעילו כדי לקבל קוד QR"
