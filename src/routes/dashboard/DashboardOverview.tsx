@@ -9,6 +9,7 @@ import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButto
 import { PunchMark } from "../../components/marketing/PunchMark";
 import { ctaClasses, focusRing } from "../../components/marketing/primitives";
 import {
+  GroupLabel,
   LitStage,
   Notice,
   Panel,
@@ -16,7 +17,7 @@ import {
   Tag,
 } from "../../components/dashboard/primitives";
 import { CardPunches } from "../../components/dashboard/CardPunches";
-import { WeekPunches } from "../../components/dashboard/WeekPunches";
+import { WeekLedger } from "../../components/dashboard/WeekLedger";
 import { useBusiness } from "../../business/useBusiness";
 import { canEnrollRealCustomers } from "../../business/gating";
 import { listTemplates } from "../../api/businesses";
@@ -34,6 +35,7 @@ import { useWalletPass } from "../../hooks/useWalletPass";
 import { cn } from "../../lib/cn";
 
 const WEEK_DAYS = 7;
+const DAY_MS = 24 * 60 * 60 * 1000;
 /** One request deep enough to cover a week for any shop this product is
  * priced for. If a week's stamps ever fill it, the count is shown with a `+`
  * rather than quietly under-reporting — see `capped` below. */
@@ -110,17 +112,58 @@ export function DashboardOverview() {
 
   const week = useMemo(() => {
     const items = recent?.items ?? [];
-    const cutoff = Date.now() - WEEK_DAYS * 24 * 60 * 60 * 1000;
-    const inWindow = items.filter((e) => Date.parse(e.created_at) >= cutoff);
+    // Calendar days, not a rolling 168 hours: the ledger draws one row per
+    // day and the total above it has to be the sum of what it draws. It is
+    // also the question an owner actually asks — "was Tuesday quiet?".
+    const midnight = new Date();
+    midnight.setHours(0, 0, 0, 0);
+    const startOfToday = midnight.getTime();
+    const windowStart = startOfToday - (WEEK_DAYS - 1) * DAY_MS;
+    const prevStart = windowStart - WEEK_DAYS * DAY_MS;
+
+    // A stamp gifted by a messaging rule is not a visit — keep it out of
+    // the week, which is the owner's read on how busy the shop was.
+    const visits = items.filter((e) => e.source !== "automation");
+
+    const buckets = new Array<number>(WEEK_DAYS).fill(0);
+    let prevWeek = 0;
+    let oldest = Infinity;
+    for (const event of items) {
+      const at = Date.parse(event.created_at);
+      if (at < oldest) oldest = at;
+    }
+    for (const event of visits) {
+      const at = Date.parse(event.created_at);
+      if (at >= windowStart) {
+        const index = Math.floor((at - windowStart) / DAY_MS);
+        if (index < WEEK_DAYS) buckets[index] += event.stamps;
+      } else if (at >= prevStart) {
+        prevWeek += event.stamps;
+      }
+    }
+
+    // Either every row there is came back, or the sample already reaches
+    // past the edge we care about. Anything else and we do not know, and
+    // saying so beats printing a number we cannot stand behind.
+    const sawEverything = items.length < WEEK_SAMPLE;
+    const capped = !sawEverything && oldest >= windowStart;
+    const prevKnown = sawEverything || oldest < prevStart;
+
+    const total = buckets.reduce((sum, n) => sum + n, 0);
     return {
-      // A stamp gifted by a messaging rule is not a visit — keep it out of
-      // the week, which is the owner's read on how busy the shop was.
-      stamps: inWindow
-        .filter((e) => e.source !== "automation")
-        .reduce((sum, e) => sum + e.stamps, 0),
-      // Every row we asked for came back and the oldest of them is still
-      // inside the week, so there is more we did not see.
-      capped: items.length >= WEEK_SAMPLE && inWindow.length === items.length,
+      total,
+      capped,
+      // Nothing this week against nothing last week is not a comparison, it
+      // is a shop that has not started yet — "same as last week" would be
+      // true and useless. The empty rows already say it.
+      delta: prevKnown && (total > 0 || prevWeek > 0) ? total - prevWeek : null,
+      // Newest first: today is the row the owner opened the page for.
+      days: buckets
+        .map((stamps, i) => ({
+          date: new Date(windowStart + i * DAY_MS),
+          stamps,
+        }))
+        .reverse(),
     };
   }, [recent]);
 
@@ -186,9 +229,11 @@ export function DashboardOverview() {
           <Panel className="p-5 sm:p-6">
             <PanelHeader title={t("dashboard.week.title")} />
             <div className="mt-4">
-              <WeekPunches
-                stamps={week.stamps}
+              <WeekLedger
+                days={week.days}
+                total={week.total}
                 capped={week.capped}
+                delta={week.delta}
                 cardLength={template.stamps_required}
               />
             </div>
@@ -352,10 +397,51 @@ export function DashboardOverview() {
         </Panel>
       )}
 
-      {/* The counter kit: the three objects that leave the screen. All of
-          them stay lit at night — a QR code has to be dark-on-light to scan,
-          and the pass is drawn on white by both wallets. */}
+      {/* The counter kit: the objects that leave the screen. All of them stay
+          lit at night — a QR code has to be dark-on-light to scan, and the
+          pass is drawn on white by both wallets.
+
+          Labelled, and after everything above it, because these are not more
+          of the same: the panels above are today, these are the things set up
+          once. The label is the nav's own word for them, so the page and the
+          rail agree on what counts as setup.
+
+          The QR leads. It is the one an owner reaches for at the counter with
+          somebody standing there, where "try your card yourself" is a thing
+          they do once and never again — and on a phone the pass panel is tall
+          enough to bury whatever follows it. */}
+      <GroupLabel className="mt-2">{t("dashboard.groups.setup")}</GroupLabel>
+
+
       <div className="grid items-start gap-4 sm:gap-5 lg:grid-cols-2">
+        <Panel className="flex min-w-0 flex-col gap-4 p-5 sm:p-6">
+          <PanelHeader title={t("dashboard.qr.title")} />
+          {canEnroll ? (
+            <>
+              <LitStage innerClassName="flex justify-center">
+                <div dir="ltr">
+                  <QRCodeSVG value={enrollUrl} size={160} />
+                </div>
+              </LitStage>
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                className={ctaClasses("secondary", "sm", "self-center")}
+              >
+                <Copy size={15} aria-hidden />
+                {copied ? t("common.copied") : t("common.copyLink")}
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/dashboard/billing"
+              className={ctaClasses("primary", "sm", "self-start")}
+            >
+              {t("dashboard.qr.activateCta")}
+            </Link>
+          )}
+        </Panel>
+
         <Panel className="flex min-w-0 flex-col gap-4 p-4 sm:p-6">
           <PanelHeader
             title={t("dashboard.preview.title")}
@@ -392,34 +478,6 @@ export function DashboardOverview() {
                 />
               </div>
             </LitStage>
-          )}
-        </Panel>
-
-        <Panel className="flex min-w-0 flex-col gap-4 p-5 sm:p-6">
-          <PanelHeader title={t("dashboard.qr.title")} />
-          {canEnroll ? (
-            <>
-              <LitStage innerClassName="flex justify-center">
-                <div dir="ltr">
-                  <QRCodeSVG value={enrollUrl} size={160} />
-                </div>
-              </LitStage>
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className={ctaClasses("secondary", "sm", "self-center")}
-              >
-                <Copy size={15} aria-hidden />
-                {copied ? t("common.copied") : t("common.copyLink")}
-              </button>
-            </>
-          ) : (
-            <Link
-              to="/dashboard/billing"
-              className={ctaClasses("primary", "sm", "self-start")}
-            >
-              {t("dashboard.qr.activateCta")}
-            </Link>
           )}
         </Panel>
       </div>

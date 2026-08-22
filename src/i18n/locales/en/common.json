@@ -641,7 +641,12 @@
     "week": {
       "title": "This week",
       "stamps_one": "stamp",
-      "stamps_other": "stamps"
+      "stamps_other": "stamps",
+      "moreThanLast_one": "1 more than last week",
+      "moreThanLast_other": "{{count}} more than last week",
+      "fewerThanLast_one": "1 fewer than last week",
+      "fewerThanLast_other": "{{count}} fewer than last week",
+      "sameAsLast": "Same as last week"
     },
     "near": {
       "title": "Close to a reward",

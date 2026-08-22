@@ -653,7 +653,16 @@
       "stamps_one": "ניקוב",
       "stamps_other": "ניקובים",
       "stamps_two": "ניקובים",
-      "stamps_many": "ניקובים"
+      "stamps_many": "ניקובים",
+      "moreThanLast_one": "אחד יותר משבוע שעבר",
+      "moreThanLast_two": "{{count}} יותר משבוע שעבר",
+      "moreThanLast_many": "{{count}} יותר משבוע שעבר",
+      "moreThanLast_other": "{{count}} יותר משבוע שעבר",
+      "fewerThanLast_one": "אחד פחות משבוע שעבר",
+      "fewerThanLast_two": "{{count}} פחות משבוע שעבר",
+      "fewerThanLast_many": "{{count}} פחות משבוע שעבר",
+      "fewerThanLast_other": "{{count}} פחות משבוע שעבר",
+      "sameAsLast": "כמו שבוע שעבר"
     },
     "near": {
       "title": "קרובים לפרס",
