@@ -31,3 +31,16 @@ export function signInWithPassword(email: string, password: string) {
 export function getCurrentUser() {
   return api.get<User>("/api/auth/me");
 }
+
+/** Blacklists the refresh token server-side.
+ *
+ * `auth: false` because the refresh token in the body *is* the credential —
+ * signing out has to work after the access token has already expired, which
+ * is the common case on a counter device left alone for an hour.
+ *
+ * Without this call, clearing localStorage only hides the credential: the
+ * refresh token stays valid for its full 14 days, so a sign-out on a shared
+ * device doesn't actually end the session. */
+export function revokeRefreshToken(refresh: string) {
+  return api.post<void>("/api/auth/logout", { refresh }, { auth: false });
+}

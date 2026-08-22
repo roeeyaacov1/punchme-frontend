@@ -1,7 +1,12 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { getCurrentUser, type TokenPair, type User } from "../api/auth";
-import { setTokens, clearTokens } from "./tokenStore";
+import {
+  getCurrentUser,
+  revokeRefreshToken,
+  type TokenPair,
+  type User,
+} from "../api/auth";
+import { setTokens, clearTokens, getRefreshToken } from "./tokenStore";
 
 export interface AuthContextValue {
   user: User | null;
@@ -46,9 +51,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   function logout() {
+    // Read it before clearing, and tell the server before the local state
+    // goes — otherwise the token is merely forgotten here and stays usable
+    // for the rest of its fourteen days by anyone who copied it.
+    const refresh = getRefreshToken();
+
     clearTokens();
     setUser(null);
     queryClient.clear();
+
+    // Not awaited: signing out must be instant and must succeed offline. A
+    // token that outlives a failed revoke is the same situation as before
+    // this call existed, so there is nothing to report to the owner.
+    if (refresh) void revokeRefreshToken(refresh).catch(() => {});
   }
 
   return (
