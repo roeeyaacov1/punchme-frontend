@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
+import { getRefreshToken } from "../../auth/tokenStore";
+import { useAuth } from "../../auth/useAuth";
 import { cn } from "../../lib/cn";
+import { AccountMenu } from "./AccountMenu";
 import { Container, ctaClasses, focusRing } from "./primitives";
 import logo from "../../assets/logo.png";
 
@@ -16,6 +19,10 @@ export const NAV_ANCHORS = [
 /**
  * Sticky header: transparent over the hero, solid once the page scrolls.
  *
+ * The right-hand pair depends on the session: sign in and design a card for
+ * a visitor, the dashboard and an account menu for an owner who already has
+ * one. The landing page is the only place in the product that has to ask.
+ *
  * Renders a fragment — an out-of-flow sentinel plus the header itself — so
  * both land as direct children of the (relative, full-height) page root.
  * That's what lets `sticky` span the whole document while the sentinel sits
@@ -23,6 +30,13 @@ export const NAV_ANCHORS = [
  */
 export function SiteHeader() {
   const { t, i18n } = useTranslation();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  // The same rule /login follows: wait for the session only when there is a
+  // refresh token that could produce one. Showing an owner who is signed in
+  // a "Sign in" link and swapping it a beat later is the flicker this
+  // replaces; making a first-time visitor wait on a request that cannot
+  // succeed, with the page's own call to action behind it, would be worse.
+  const resolvingSession = isLoading && getRefreshToken() !== null;
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -113,7 +127,10 @@ export function SiteHeader() {
               ))}
             </nav>
 
-            <div className="flex items-center gap-1 sm:gap-2">
+            {/* self-stretch so the account menu, which drops from the
+                bottom of this box, clears the header's border instead of
+                hanging over it. The controls stay centred on their own. */}
+            <div className="flex items-center gap-1 self-stretch sm:gap-2">
               <button
                 type="button"
                 onClick={toggleLanguage}
@@ -126,26 +143,46 @@ export function SiteHeader() {
                 {t("language.switch")}
               </button>
 
-              <Link
-                to="/login"
-                className={cn(
-                  "hidden min-h-[44px] items-center rounded-lg px-3 text-sm font-medium text-ink-muted transition-colors hover:text-ink sm:inline-flex",
-                  focusRing,
-                )}
-              >
-                {t("landing.nav.signIn")}
-              </Link>
+              {!resolvingSession &&
+                (isAuthenticated ? (
+                  <>
+                    <Link
+                      to="/dashboard"
+                      className={ctaClasses(
+                        "primary",
+                        "sm",
+                        "hidden min-h-[44px] sm:inline-flex",
+                      )}
+                    >
+                      {t("landing.nav.dashboard")}
+                    </Link>
 
-              <Link
-                to="/onboarding"
-                className={ctaClasses(
-                  "primary",
-                  "sm",
-                  "hidden min-h-[44px] sm:inline-flex",
-                )}
-              >
-                {t("landing.nav.designCta")}
-              </Link>
+                    <AccountMenu className="hidden sm:flex" />
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className={cn(
+                        "hidden min-h-[44px] items-center rounded-lg px-3 text-sm font-medium text-ink-muted transition-colors hover:text-ink sm:inline-flex",
+                        focusRing,
+                      )}
+                    >
+                      {t("landing.nav.signIn")}
+                    </Link>
+
+                    <Link
+                      to="/onboarding"
+                      className={ctaClasses(
+                        "primary",
+                        "sm",
+                        "hidden min-h-[44px] sm:inline-flex",
+                      )}
+                    >
+                      {t("landing.nav.designCta")}
+                    </Link>
+                  </>
+                ))}
 
               <button
                 type="button"
@@ -201,21 +238,54 @@ export function SiteHeader() {
                 {t(item.key)}
               </a>
             ))}
-            <Link
-              to="/login"
-              className={cn(
-                "rounded-lg px-4 py-4 text-lg font-semibold text-ink hover:bg-surface",
-                focusRing,
-              )}
-            >
-              {t("landing.nav.signIn")}
-            </Link>
-            <Link
-              to="/onboarding"
-              className={ctaClasses("primary", "lg", "mt-4 w-full")}
-            >
-              {t("landing.hero.cta")}
-            </Link>
+            {!resolvingSession &&
+              (isAuthenticated ? (
+                <>
+                  {user && (
+                    <p className="mt-2 truncate border-t border-border px-4 pb-2 pt-5 text-sm text-ink-muted">
+                      {t("onboarding.account.signedInAs", { email: user.email })}
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      logout();
+                    }}
+                    className={cn(
+                      "flex min-h-[44px] items-center gap-2 rounded-lg px-4 py-4 text-start text-lg font-semibold text-ink hover:bg-surface",
+                      focusRing,
+                    )}
+                  >
+                    <LogOut size={18} aria-hidden="true" className="rtl:-scale-x-100" />
+                    {t("dashboard.nav.signOut")}
+                  </button>
+                  <Link
+                    to="/dashboard"
+                    className={ctaClasses("primary", "lg", "mt-4 w-full")}
+                  >
+                    {t("landing.nav.dashboard")}
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className={cn(
+                      "rounded-lg px-4 py-4 text-lg font-semibold text-ink hover:bg-surface",
+                      focusRing,
+                    )}
+                  >
+                    {t("landing.nav.signIn")}
+                  </Link>
+                  <Link
+                    to="/onboarding"
+                    className={ctaClasses("primary", "lg", "mt-4 w-full")}
+                  >
+                    {t("landing.hero.cta")}
+                  </Link>
+                </>
+              ))}
           </nav>
         </div>
       )}

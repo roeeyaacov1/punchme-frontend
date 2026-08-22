@@ -820,6 +820,7 @@
   "landing": {
     "nav": {
       "signIn": "Sign in",
+      "dashboard": "Dashboard",
       "howItWorks": "How it works",
       "worth": "What regulars are worth",
       "pricing": "Pricing",

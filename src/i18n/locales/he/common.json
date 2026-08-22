@@ -858,6 +858,7 @@
   "landing": {
     "nav": {
       "signIn": "כניסה",
+      "dashboard": "לוח הבקרה",
       "howItWorks": "איך זה עובד",
       "worth": "כמה שווים לקוחות קבועים",
       "pricing": "מחיר",
