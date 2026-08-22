@@ -80,6 +80,7 @@ export function messagingErrorMessage(error: unknown, t: TFunction, lang: string
       if (detail.startsWith("kind_unsupported:")) return t("messaging.errors.kind_unsupported");
       const known = [
         "opt_in_only_unsupported",
+        "gift_unsupported_for_kind",
         "test_send_would_reach_customers",
         "name_required",
         "name_too_long",

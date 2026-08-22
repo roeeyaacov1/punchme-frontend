@@ -61,6 +61,7 @@ export function MessageForm({
   cardColors,
   templates,
   audience,
+  optInAvailable = true,
   disabled,
   bodyRef,
 }: {
@@ -76,6 +77,11 @@ export function MessageForm({
   /** More than one card design → a scope picker appears. */
   templates?: { id: string; name: string }[];
   audience?: AudienceState;
+  /** False while more than one customer holds the card design: the send is
+   * published design-wide, so it cannot narrow to the people who opted in
+   * and refuses the rule outright. Offering the toggle then only buys a
+   * 422 after the message is written. */
+  optInAvailable?: boolean;
   disabled?: boolean;
   bodyRef?: RefObject<HTMLTextAreaElement>;
 }) {
@@ -253,42 +259,47 @@ export function MessageForm({
         </div>
       </section>
 
-      {/* GIFT */}
-      <section className="flex flex-col gap-3">
-        <GroupLabel>{t("messaging.editor.gift")}</GroupLabel>
-        <Toggle
-          checked={hasGift}
-          disabled={disabled}
-          label={t("messaging.editor.giftToggle")}
-          description={t("messaging.editor.giftExplain")}
-          onChange={(on) =>
-            onChange(on ? { gift_stamps: 1 } : { gift_stamps: 0, gift_complete_card: false })
-          }
-        />
-        {hasGift && (
-          <div className="flex flex-col gap-3 ps-14">
-            <SegmentedControl
-              label={t("messaging.editor.giftCount")}
-              value={value.gift_complete_card ? 0 : value.gift_stamps}
-              options={[
-                ...GIFT_CHOICES.map((n) => ({
-                  value: n as number,
-                  label: t("messaging.describe.gift", { count: n }),
-                })),
-                { value: 0, label: t("messaging.editor.giftFull") },
-              ]}
-              onChange={(n) =>
-                onChange(
-                  n === 0
-                    ? { gift_stamps: 0, gift_complete_card: true }
-                    : { gift_stamps: n, gift_complete_card: false },
-                )
-              }
-            />
-          </div>
-        )}
-        {giftMismatch && <Notice tone="warn">{t("messaging.editor.giftMismatch")}</Notice>}
-      </section>
+      {/* GIFT — every kind but the reward reminder, whose audience is the
+          cards that already filled up. A full card takes no more stamps, so
+          a gift here is one the rule could never give: the send would skip
+          every delivery and the reminder would never arrive. */}
+      {kind !== "reward_waiting" && (
+        <section className="flex flex-col gap-3">
+          <GroupLabel>{t("messaging.editor.gift")}</GroupLabel>
+          <Toggle
+            checked={hasGift}
+            disabled={disabled}
+            label={t("messaging.editor.giftToggle")}
+            description={t("messaging.editor.giftExplain")}
+            onChange={(on) =>
+              onChange(on ? { gift_stamps: 1 } : { gift_stamps: 0, gift_complete_card: false })
+            }
+          />
+          {hasGift && (
+            <div className="flex flex-col gap-3 ps-14">
+              <SegmentedControl
+                label={t("messaging.editor.giftCount")}
+                value={value.gift_complete_card ? 0 : value.gift_stamps}
+                options={[
+                  ...GIFT_CHOICES.map((n) => ({
+                    value: n as number,
+                    label: t("messaging.describe.gift", { count: n }),
+                  })),
+                  { value: 0, label: t("messaging.editor.giftFull") },
+                ]}
+                onChange={(n) =>
+                  onChange(
+                    n === 0
+                      ? { gift_stamps: 0, gift_complete_card: true }
+                      : { gift_stamps: n, gift_complete_card: false },
+                  )
+                }
+              />
+            </div>
+          )}
+          {giftMismatch && <Notice tone="warn">{t("messaging.editor.giftMismatch")}</Notice>}
+        </section>
+      )}
 
       {/* WHO */}
       <section className="flex flex-col gap-3">
@@ -312,8 +323,9 @@ export function MessageForm({
         </p>
         <Toggle
           checked={value.opt_in_only}
-          disabled={disabled}
+          disabled={disabled || !optInAvailable}
           label={t("messaging.editor.optInOnly")}
+          description={optInAvailable ? undefined : t("messaging.editor.optInUnavailable")}
           onChange={(on) => onChange({ opt_in_only: on })}
         />
         {templates && templates.length > 1 && (

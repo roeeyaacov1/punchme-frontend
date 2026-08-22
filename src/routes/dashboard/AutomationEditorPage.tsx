@@ -624,6 +624,7 @@ export function AutomationEditorPage() {
             count: audience.data?.count ?? null,
             loading: audience.isFetching && !audience.data,
           }}
+          optInAvailable={personalOk}
           disabled={busy}
           bodyRef={bodyRef}
         />

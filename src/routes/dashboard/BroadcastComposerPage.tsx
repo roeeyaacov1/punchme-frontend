@@ -201,6 +201,7 @@ export function BroadcastComposerPage() {
           }}
           templates={templates?.map((tpl) => ({ id: tpl.id!, name: tpl.name }))}
           audience={{ count, loading: audience.isFetching && !audience.data }}
+          optInAvailable={summary.data?.can_reach_one_customer ?? true}
           disabled={busy}
           bodyRef={bodyRef}
         />
