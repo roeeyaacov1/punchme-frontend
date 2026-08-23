@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Languages, LogOut, Monitor, Moon, Shield, Sun } from "lucide-react";
+import { Compass, Languages, LogOut, Monitor, Moon, Shield, Sun } from "lucide-react";
 import { focusRing } from "../marketing/primitives";
 import { cn } from "../../lib/cn";
 import { THEME_MODES, type ThemeMode } from "../../theme/useDashboardTheme";
@@ -80,6 +80,7 @@ export function AccountControls({
   isStaff,
   onSignOut,
   onNavigate,
+  onShowTour,
 }: {
   mode: ThemeMode;
   onModeChange: (mode: ThemeMode) => void;
@@ -87,6 +88,10 @@ export function AccountControls({
   onSignOut: () => void;
   /** Closes the mobile sheet when a row inside it navigates. */
   onNavigate?: () => void;
+  /** Runs the first-run tour again. A tour you can only ever be shown once
+   * is a tour you have to finish the first time, and the person who skipped
+   * it is exactly the person who later wants it. */
+  onShowTour?: () => void;
 }) {
   const { t, i18n } = useTranslation();
   return (
@@ -105,6 +110,13 @@ export function AccountControls({
         <Languages size={16} aria-hidden />
         {t("language.switch")}
       </button>
+
+      {onShowTour && (
+        <button type="button" onClick={onShowTour} className={cn(ROW, focusRing)}>
+          <Compass size={16} aria-hidden />
+          {t("tour.replay")}
+        </button>
+      )}
 
       {isStaff && (
         <Link to="/admin" onClick={onNavigate} className={cn(ROW, focusRing)}>

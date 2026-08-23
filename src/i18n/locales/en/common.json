@@ -796,6 +796,32 @@
       "activate": "Activate to let real customers join and start collecting."
     }
   },
+  "tour": {
+    "title": "A quick tour",
+    "label": "A quick tour of the dashboard",
+    "skip": "Skip",
+    "done": "Got it",
+    "replay": "Show the tour again",
+    "progress": "Step {{step}} of {{total}}",
+    "steps": {
+      "join": {
+        "title": "How customers join",
+        "body": "Print the standee and stand it on the counter. One scan puts your card in their wallet — no app, no signup."
+      },
+      "customers": {
+        "title": "Your customers",
+        "body": "Who joined, how many stamps each one has, and who is close to a reward. Activity lists every punch, day by day."
+      },
+      "design": {
+        "title": "The card stays yours",
+        "body": "Colour, stamp and reward can change any time. Every pass already in a wallet updates itself — nobody has to reinstall anything."
+      },
+      "activate": {
+        "title": "When you’re ready",
+        "body": "Designing and previewing is free. Real customers can only join once you activate the card."
+      }
+    }
+  },
   "billing": {
     "title": "Billing",
     "activateCta": "Activate",

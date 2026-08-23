@@ -16,6 +16,7 @@ import {
   SetupRows,
 } from "../../components/dashboard/DashboardNav";
 import { Tag } from "../../components/dashboard/primitives";
+import { DashboardTour } from "../../components/tour/DashboardTour";
 import { useDashboardTheme } from "../../theme/useDashboardTheme";
 import { cn } from "../../lib/cn";
 import logo from "../../assets/logo.png";
@@ -40,6 +41,9 @@ export function DashboardLayout() {
   const { mode, setMode } = useDashboardTheme();
   const location = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
+  // Bumped by the account menu's "show the tour again". A counter rather
+  // than a boolean, so asking twice in one session opens it twice.
+  const [tourAsks, setTourAsks] = useState(0);
 
   // The card's real colours for the chip. Same query and same key as the
   // overview, the studio and the standee, so this is a cache read on every
@@ -85,6 +89,10 @@ export function DashboardLayout() {
       isStaff={!!user?.is_staff}
       onSignOut={logout}
       onNavigate={() => setMoreOpen(false)}
+      onShowTour={() => {
+        setMoreOpen(false);
+        setTourAsks((n) => n + 1);
+      }}
     />
   );
 
@@ -144,6 +152,9 @@ export function DashboardLayout() {
           </main>
         </div>
       </div>
+
+      {/* Over everything, and only on a first arrival — see DashboardTour. */}
+      <DashboardTour replay={tourAsks} />
 
       <BottomBar onMore={() => setMoreOpen(true)} moreActive={onSetupRoute} />
 
