@@ -335,7 +335,7 @@ export function CustomersPage() {
       {isLoading ? (
         <p className="font-mono text-sm text-ink-subtle">{t("common.loading")}</p>
       ) : all.length === 0 ? (
-        <Panel className="p-5 sm:p-6">
+        <Panel data-tour="customers-roster" className="p-5 sm:p-6">
           {canEnroll ? (
             <p className="text-ink-muted">{t("dashboard.customers.emptyPro")}</p>
           ) : (
@@ -451,7 +451,7 @@ export function CustomersPage() {
               {/* A table is unreadable on a 375px phone, and this is a page an
                   owner opens at the counter. Same rows, two shapes: a card
                   each below `lg`, the table above it. */}
-              <ul className="flex flex-col gap-3 lg:hidden">
+              <ul data-tour="customers-roster" className="flex flex-col gap-3 lg:hidden">
                 {pageRows.map((c) => (
                   <li key={c.card_id}>
                     <Panel className="relative flex flex-col gap-3 overflow-hidden p-4">
@@ -480,7 +480,7 @@ export function CustomersPage() {
                   `template_name`, which for a shop running one card is the
                   same string on every row. It is still searchable, and still
                   in the export for the shops that run more than one. */}
-              <Panel className="hidden overflow-x-auto p-1 lg:block">
+              <Panel data-tour="customers-roster" className="hidden overflow-x-auto p-1 lg:block">
                 <table className="w-full text-start text-sm">
                   <thead>
                     <tr className="border-b border-border text-ink-subtle">

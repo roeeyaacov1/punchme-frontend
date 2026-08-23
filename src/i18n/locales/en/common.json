@@ -804,21 +804,28 @@
     "replay": "Show the tour again",
     "progress": "Step {{step}} of {{total}}",
     "steps": {
-      "join": {
-        "title": "How customers join",
-        "body": "Print the standee and stand it on the counter. One scan puts your card in their wallet — no app, no signup."
+      "overview": {
+        "title": "Is it working?",
+        "body": "This is the answer, and it is the first thing on the page every morning."
       },
       "customers": {
         "title": "Your customers",
-        "body": "Who joined, how many stamps each one has, and who is close to a reward. Activity lists every punch, day by day."
+        "body": "Everyone who has joined, how far along each one is, and who is a stamp away from a reward."
+      },
+      "join": {
+        "title": "How customers join",
+        "body": "This goes on the counter. One scan and your card is in their wallet — no app, no signup."
       },
       "design": {
         "title": "The card stays yours",
-        "body": "Colour, stamp and reward can change any time. Every pass already in a wallet updates itself — nobody has to reinstall anything."
+        "body": "Colour, stamp and reward change here whenever you like. Every pass already in a wallet updates itself."
       },
       "activate": {
-        "title": "When you’re ready",
-        "body": "Designing and previewing is free. Real customers can only join once you activate the card."
+        "title": "When you're ready",
+        "body": "Designing and previewing is free. This is the button that lets real customers start joining."
+      },
+      "scan": {
+        "act": "Tap it — the camera opens and you are ready for the first customer."
       }
     }
   },

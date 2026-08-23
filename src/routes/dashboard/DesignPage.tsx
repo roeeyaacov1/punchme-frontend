@@ -177,6 +177,9 @@ export function DesignPage() {
           whole of it turns with the page and there is no `LitStage` here.
           What stays a spec match is the card inside that well: its layout and
           its colours are the wallets', not ours, and nothing repaints them. */}
+      {/* Wrapped only so the tour has something to measure. The studio is a
+          spec match to the two wallets and is not edited for anything. */}
+      <div data-tour="design-studio">
       <CardStudio
         value={draft}
         onChange={(value) => {
@@ -191,6 +194,7 @@ export function DesignPage() {
         // falls back to the live approximation rather than lying with old art.
         unsaved={dirty}
       />
+      </div>
     </div>
   );
 }

@@ -91,6 +91,7 @@ export function BillingSettingsPage() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
+            data-tour="billing-activate"
             onClick={isPro ? handleManage : handleActivate}
             disabled={isRedirecting}
             className={ctaClasses("primary", "lg")}
