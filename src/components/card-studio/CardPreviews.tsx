@@ -349,15 +349,27 @@ export function GoogleCardPreview(value: CardPreviewValue) {
         </div>
       </div>
 
-      {/* A centred square on white, not a full-width strip: Google gives the
-          code about half the card's width and rounds the plate at 12px. The
-          fractions keep that proportion at whatever width the card is
-          staged. */}
-      <div className="flex justify-center pt-[21px] pb-[15px]">
-        {/* px, not %: a percentage padding resolves against the card's width,
-            not the plate's, and gave the code a third less room than Google
-            leaves it (14 on a 138 plate). */}
-        <div className="w-[51%] aspect-square rounded-xl bg-white p-[15px]">
+      {/* A centred square on white, not a full-width strip, rounded at 12px
+          the way Google rounds it.
+
+          The ONE number on this card that is ours rather than Google's. Google
+          draws the plate at 138px on its own 270px mock; 34% of the card is
+          smaller than that, and it is what brings this card within ~15px of
+          the Apple one instead of 46 above it.
+
+          They cannot be made equal. Google carries two header lines where
+          Apple carries one, which is 34px of real difference before anything
+          else, and the two art slots are different shapes — so the gap moves
+          with the staged width and with whether the published PNG or the CSS
+          strip is showing. 34% is the value that keeps the worst of those
+          cases small. A switcher that barely moves is worth more than the last
+          30px of code, and the QR is still ~80px at the width the public pages
+          stage it, which is what `/c` and `/join` need it scannable for.
+
+          Padding in px, not %: a percentage padding resolves against the
+          card's width, not the plate's. */}
+      <div className="flex justify-center pt-[14px] pb-[14px]">
+        <div className="w-[34%] aspect-square rounded-xl bg-white p-[11px]">
           <PassBarcode
             format={barcodeFormat(value.design)}
             payload={resolveBarcodePayload(value.design, value.serial)}
