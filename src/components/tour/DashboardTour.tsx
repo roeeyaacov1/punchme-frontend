@@ -47,17 +47,12 @@ import { hasSeenTour, markTourSeen, type TourContext } from "./seen";
 const HALO = 8;
 /** Between the lit element and the card that explains it. */
 const GAP = 12;
-/** Keeps the card off the screen edges, and clear of the phone's tab bar. */
+/** Keeps the card off the screen edges. */
 const MARGIN = 16;
-const BAR = 72;
 const CARD_MAX = 380;
-/** The most of the screen one lit thing may take. A roster is taller than any
- * phone, and lighting all of it lights everything — the dark is what does the
- * pointing, so there has to be some. Past this the top of the thing is lit and
- * the rest runs on under the card, which is what an eye follows anyway. */
-const LIT_MAX = 0.5;
-/** Where the top of an over-long thing is parked, as a share of the screen. */
-const LIT_TOP = 0.14;
+/** Where the top of a thing too long to hold in one screen is parked, as a
+ * share of the screen. Enough dark above it to read as a frame. */
+const LIT_TOP = 0.08;
 /** How long to wait for a stop's element before giving up and just talking.
  * A cold customers page has a request to finish first. */
 const ANCHOR_MS = 5_000;
@@ -215,19 +210,46 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
     // Instantly, not smoothly: a smooth scroll is still travelling when the
     // first measurement lands, and the hole ends up cut around where the
     // element used to be.
-    const first = target.getBoundingClientRect();
-    if (first.height > window.innerHeight * LIT_MAX) {
-      // Too tall to hold in one frame. Park its top near the top of the
-      // screen rather than centring it, so what is lit is the beginning of
-      // the thing — the first rows of a roster, not its middle.
-      target.scrollIntoView({ block: "nearest", inline: "center" });
-      window.scrollBy(
-        0,
-        target.getBoundingClientRect().top - window.innerHeight * LIT_TOP,
-      );
-    } else {
+    // Its own function: every branch below ends the *scrolling*, not the
+    // effect, which still has a measurement and three listeners to set up.
+    const settle = () => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const litHeight = target.getBoundingClientRect().height + HALO * 2;
+      // The card is already laid out — invisible until it is placed, but
+      // measurable — so the scroll can be chosen knowing what has to fit.
+      const cardH = card.current?.offsetHeight ?? 220;
+      const cardW = Math.min(CARD_MAX, vw - MARGIN * 2);
+
+      if (litHeight > vh - MARGIN * 2) {
+        // Longer than the screen. Park its top rather than centring it, so
+        // what shows is the beginning of the thing — the first rows of a
+        // roster, not its middle — with dark above it to frame it.
+        target.scrollIntoView({ block: "start", inline: "center" });
+        window.scrollBy(0, -Math.round(vh * LIT_TOP));
+        return;
+      }
+
       target.scrollIntoView({ block: "center", inline: "center" });
-    }
+
+      // Centred is only right if the card can stand clear of it. Where a
+      // flank is wide enough the card goes beside it and centred is right;
+      // where neither is — a phone, mostly — lift the thing until there is
+      // room underneath. A card sitting on top of what it points at is the
+      // one thing a spotlight must not do.
+      const rect = target.getBoundingClientRect();
+      const beside =
+        Math.max(
+          vw - (rect.right + HALO) - GAP - MARGIN,
+          rect.left - HALO - GAP - MARGIN,
+        ) >= cardW;
+      if (beside) return;
+
+      const room = vh - litHeight - GAP - cardH - MARGIN;
+      const top = rect.top - HALO;
+      if (room >= MARGIN && top > room) window.scrollBy(0, top - room);
+    };
+    settle();
 
     let frame = 0;
     const measure = () => {
@@ -237,23 +259,16 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
         setBox(null);
         return;
       }
-      const vh = window.innerHeight;
-      const top = Math.max(0, r.top - HALO);
-      // Only ever what is actually on screen, and never more of it than the
-      // dark can afford to give up.
-      const height = Math.min(
-        Math.min(vh, r.bottom + HALO) - top,
-        vh * LIT_MAX,
-      );
-      if (height <= 0) {
-        setBox(null);
-        return;
-      }
+      // The element, plus a hair of air, and nothing else. Deliberately not
+      // clipped to the screen: a roster is longer than any phone, and a rim
+      // ruled across the middle of one draws a rectangle the page does not
+      // have. Where the thing runs past the fold its edge is simply off
+      // screen — which is what "it carries on" looks like.
       setBox({
-        top,
-        left: Math.max(0, r.left - HALO),
-        width: Math.min(window.innerWidth, r.width + HALO * 2),
-        height,
+        top: r.top - HALO,
+        left: r.left - HALO,
+        width: r.width + HALO * 2,
+        height: r.height + HALO * 2,
       });
     };
     const schedule = () => {
@@ -293,22 +308,43 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
       return;
     }
 
+    const clampX = (x: number) =>
+      Math.min(Math.max(MARGIN, x), Math.max(MARGIN, vw - width - MARGIN));
+    const clampY = (y: number) =>
+      Math.min(Math.max(MARGIN, y), Math.max(MARGIN, vh - height - MARGIN));
+
+    const middleX = clampX(box.left + box.width / 2 - width / 2);
+    // The middle of however much of it is on screen — a list running off the
+    // bottom must not drag the card off with it.
+    const middleY = clampY(
+      (Math.max(0, box.top) + Math.min(vh, box.top + box.height)) / 2 -
+        height / 2,
+    );
+
     const below = box.top + box.height + GAP;
     const above = box.top - GAP - height;
-    // Below if it fits, above if it fits, otherwise pinned low — with the
-    // phone's tab bar left clear, since that is often the lit thing itself.
-    const top =
-      below + height + MARGIN <= vh
-        ? below
-        : above >= MARGIN
-          ? above
-          : Math.max(MARGIN, vh - height - BAR);
+    const endSide = box.left + box.width + GAP;
+    const startSide = box.left - GAP - width;
+    // Whichever flank has more room, which is the same question in either
+    // writing direction — the geometry is measured, not assumed.
+    const roomEnd = vw - endSide - MARGIN;
+    const roomStart = box.left - GAP - MARGIN;
 
-    const left = Math.min(
-      Math.max(MARGIN, box.left + box.width / 2 - width / 2),
-      vw - width - MARGIN,
-    );
-    setPlace({ top, left });
+    if (below + height + MARGIN <= vh) {
+      setPlace({ top: below, left: middleX });
+    } else if (above >= MARGIN) {
+      setPlace({ top: above, left: middleX });
+    } else if (Math.max(roomEnd, roomStart) >= width) {
+      setPlace({
+        top: middleY,
+        left: roomEnd >= roomStart ? endSide : startSide,
+      });
+    } else {
+      // Nothing fits around it. Sit as low as the screen allows, which covers
+      // the least of it — the page could not be scrolled far enough to open a
+      // gap, so some overlap is the honest outcome rather than a bug.
+      setPlace({ top: Math.max(MARGIN, vh - height - MARGIN), left: middleX });
+    }
   }, [box, index, view, i18n.resolvedLanguage]);
 
   // ---- keyboard, focus, and the lock --------------------------------------
@@ -390,6 +426,16 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
 
   const scrim = "pointer-events-auto fixed bg-navy-deep/70 backdrop-blur-[1px]";
   const { w: vw, h: vh } = view;
+  /** The box clipped to the screen — what the dark is laid out against. */
+  const clip = (n: number, max: number) => Math.min(Math.max(0, n), max);
+  const edge = box
+    ? {
+        top: clip(box.top, vh),
+        bottom: clip(box.top + box.height, vh),
+        left: clip(box.left, vw),
+        right: clip(box.left + box.width, vw),
+      }
+    : { top: 0, bottom: 0, left: 0, right: 0 };
 
   return (
     // Transparent to the pointer, so that only what is drawn inside it — the
@@ -401,27 +447,31 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
           gap between four rectangles has nothing over it at all. */}
       {box ? (
         <>
-          <div className={scrim} style={{ top: 0, left: 0, width: vw, height: box.top }} />
+          {/* The panes are the box seen through the screen: a thing that runs
+              past an edge simply has no dark on that side. The rim below is
+              drawn at the box's true bounds instead, so its edges land on the
+              element and the ones off screen are not drawn at all. */}
+          <div className={scrim} style={{ top: 0, left: 0, width: vw, height: edge.top }} />
+          <div
+            className={scrim}
+            style={{ top: edge.bottom, left: 0, width: vw, height: vh - edge.bottom }}
+          />
           <div
             className={scrim}
             style={{
-              top: box.top + box.height,
+              top: edge.top,
               left: 0,
-              width: vw,
-              height: Math.max(0, vh - box.top - box.height),
+              width: edge.left,
+              height: edge.bottom - edge.top,
             }}
           />
           <div
             className={scrim}
-            style={{ top: box.top, left: 0, width: box.left, height: box.height }}
-          />
-          <div
-            className={scrim}
             style={{
-              top: box.top,
-              left: box.left + box.width,
-              width: Math.max(0, vw - box.left - box.width),
-              height: box.height,
+              top: edge.top,
+              left: edge.right,
+              width: vw - edge.right,
+              height: edge.bottom - edge.top,
             }}
           />
           {/* The rim, and nothing else — pointer-events-none, or it would be
