@@ -154,6 +154,14 @@ export default {
           "60%": { opacity: "1", transform: "scale(0.94)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
+        // The wizard's pill, mid-journey. Squash-and-stretch: a thing that
+        // sets off leans into the direction it is going and settles when it
+        // arrives. Scale only — the *travel* is a transform transition on the
+        // element above it, so the two compose and neither fights the other.
+        "pill-travel": {
+          "0%, 100%": { transform: "scaleX(1)" },
+          "45%": { transform: "scaleX(1.3)" },
+        },
         // A bottom sheet coming up under the thumb. Its own keyframe rather
         // than `fade-up`, which is a scroll reveal at 0.7s — three times too
         // slow for a control the owner just tapped.
@@ -199,6 +207,9 @@ export default {
         "sheet-up": "sheet-up 0.22s cubic-bezier(0.16,1,0.3,1) both",
         "pop-in": "pop-in 0.16s cubic-bezier(0.16,1,0.3,1) both",
         "stamp-in": "stamp-in 0.34s cubic-bezier(0.34,1.4,0.64,1) both",
+        // Matches the travel transition in `StepProgress` exactly — the
+        // stretch has to be over by the time the pill stops moving.
+        "pill-travel": "pill-travel 0.34s cubic-bezier(0.34,1.4,0.64,1)",
         "scan-sweep": "scan-sweep 2.4s cubic-bezier(0.4,0,0.6,1) infinite",
         // Two curves carry the whole landing page, and which one an element
         // gets is a statement about what it is. Words *rise*:

@@ -43,6 +43,38 @@ export function OnboardingLayout() {
 
 const PLATFORMS: PreviewPlatform[] = ["apple", "google"];
 
+/**
+ * How much of the phone each step earns on a short screen.
+ *
+ * The wizard used to give all eight steps the same 530px crop, which is the
+ * right answer for exactly half of them. On the colour and stamp screens the
+ * card *is* the question — the owner is looking at the preview, not the
+ * control. On the account screen it is a trophy for work already finished,
+ * and it was pushing the password field off the bottom of an iPhone SE.
+ *
+ * `full` keeps the whole cut. `short` keeps the pass's top — name, and
+ * Apple's stamps. `peek` is a reminder that the card is still there.
+ *
+ * The sizes live in `index.css`, next to `--phone-scale`, because they are
+ * one system: scale is how big the phone is and the tier is how much of it
+ * you see, and both only bite where the screen is short.
+ */
+const PREVIEW_TIER: Record<WizardStep, "full" | "short" | "peek"> = {
+  business: "full",
+  color: "full",
+  accent: "full",
+  stamp: "full",
+  // The number and the words. The card restates them live, but the slider
+  // and the reward field are what the owner is reading.
+  reward: "short",
+  // Two fields and a password manager. Nothing here is about the card.
+  account: "peek",
+  // "Add to Apple Wallet" — the card is the subject again, but the step is
+  // mostly one big button.
+  wallet: "short",
+  billing: "peek",
+};
+
 function stepFromPath(pathname: string): WizardStep | null {
   const last = pathname.replace(/\/+$/, "").split("/").pop() ?? "";
   return (ALL_STEPS as readonly string[]).includes(last) ? (last as WizardStep) : null;
@@ -105,6 +137,15 @@ function Shell() {
     return <Navigate to={`/onboarding/${first}`} replace />;
   }
 
+  // The row counts the road the owner can actually walk right now. Wallet and
+  // billing sit behind `OnboardingGate`, so to someone without an account they
+  // are not steps — they are what happens after signing up. Showing all eight
+  // from the start made the free design phase look twice as long as it is.
+  const shown =
+    isAuthenticated || !(DRAFT_STEPS as readonly string[]).includes(step ?? "business")
+      ? ALL_STEPS
+      : DRAFT_STEPS;
+
   const stepLabel = (s: string) => t(`onboarding.steps.${s}`);
   const reachable = (s: string) =>
     (DRAFT_STEPS as readonly string[]).includes(s) &&
@@ -124,7 +165,11 @@ function Shell() {
 
       <TopBar showSignIn={!isAuthenticated} />
 
-      <main className="mx-auto w-full max-w-md px-3 pb-16 sm:max-w-lg sm:px-0">
+      {/* `pb-4` on a phone. The 16 below was room to breathe under the panel
+          on a desktop page that scrolls; on a screen where the whole point is
+          that nothing follows the button, it was 48px of the very thing that
+          made the button need scrolling to reach. */}
+      <main className="mx-auto w-full max-w-md px-3 pb-4 sm:max-w-lg sm:px-0 sm:pb-16">
         {/* A staff account usually has no Business of its own, so it never
             reaches the dashboard — the only other place the admin link lives. */}
         {user?.is_staff && (
@@ -136,7 +181,14 @@ function Shell() {
           </div>
         )}
 
-        <section className="onboarding-stage overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
+        <section
+          className="onboarding-stage overflow-hidden rounded-2xl border border-border bg-surface shadow-card"
+          data-preview={PREVIEW_TIER[step ?? "business"]}
+          // Which wallet is showing changes how much card there is to see —
+          // Google's is 65px taller and puts its stamps at the very bottom.
+          // Only the `full` tier reads this; see `--phone-crop` in index.css.
+          data-wallet={platform}
+        >
           {/* The phone, cropped: you are looking at the top of a phone with
               the pass on it, not at a picture of one. */}
           {/* The phone is cropped; the pass never is. Google stacks its
@@ -162,11 +214,21 @@ function Shell() {
               same factor on a short screen, so the crop lands in exactly the
               same place on the pass — it is a smaller phone, not a deeper cut.
 
-              The `sm` number is not a free choice either: the frame sits 16px
-              lower there (`sm:pt-5` here, `sm:pt-6` inside the frame), so
-              424 + 16 is the same cut through the pass as on a phone. */}
+              Both numbers now live in `index.css` beside the scale, because
+              `--phone-crop` also carries the per-step tier (`PREVIEW_TIER`
+              above) and an arbitrary-property class here would outrank it.
+              That is where the `sm` variant went too: the frame sits 16px
+              lower from `sm` up (`sm:pt-5` here, `sm:pt-6` inside the frame),
+              so 530 + 16 is the same cut through the pass as on a phone.
+
+              The height is animated, and that is the wizard's one piece of
+              theatre: stepping from the reward screen back to the stamp
+              screen, the phone *rises* into the panel rather than jumping a
+              tier. It is a layout property and so not free, but it fires once
+              per navigation — not per frame of a drag — and the alternative
+              is the card changing size between two blinks. */}
           <div
-            className="overflow-hidden bg-background/60 pt-3 [--phone-crop:530px] sm:pt-5 sm:[--phone-crop:546px]"
+            className="overflow-hidden bg-background/60 pt-3 transition-[height] duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)] motion-reduce:transition-none sm:pt-5"
             style={{ height: "calc(var(--phone-crop) * var(--phone-scale))" }}
           >
             <div className="origin-top" style={{ transform: "scale(var(--phone-scale))" }}>
@@ -201,16 +263,20 @@ function Shell() {
           {/* No caption under the phone: it read out the stamp count and the
               reward, which is what the pass above it already says, and the
               `aria-live` summary says the same for anyone who can't see it. */}
-          <div className="px-5 pb-6 pt-2 sm:px-8 sm:pt-3">
+          <div className="px-5 pb-4 pt-2 sm:px-8 sm:pb-6 sm:pt-3">
             <StepProgress
-              steps={ALL_STEPS}
+              steps={shown}
               current={step ?? "business"}
               reachable={reachable}
               hrefFor={(s) => `/onboarding/${s}`}
               labelFor={stepLabel}
             />
 
-            <div id="onboarding-step" className="mt-2 sm:mt-3">
+            {/* 12px, not 8: the progress row draws 28px tall but each dot
+                keeps a 44px pointer box that overhangs it by 8px, and the
+                Back button on the first line of the step has a 44px box of
+                its own. This is the clearance that keeps them apart. */}
+            <div id="onboarding-step" className="mt-3">
               <Outlet />
             </div>
           </div>

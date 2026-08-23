@@ -228,6 +228,17 @@ html.theme-night .logo-mark {
    the page scrolls instead. */
 .onboarding-stage {
   --phone-scale: 1;
+  --phone-crop: 530px;
+}
+
+/* The frame sits 16px lower from `sm` up, so the same cut through the pass
+   costs 16px more. Declared here rather than on the element so the tiers
+   below can override it — an arbitrary-property class on the div would win
+   over anything inherited. */
+@media (min-width: 640px) {
+  .onboarding-stage {
+    --phone-crop: 546px;
+  }
 }
 
 @media (max-height: 860px) {
@@ -251,6 +262,63 @@ html.theme-night .logo-mark {
 @media (max-height: 700px) {
   .onboarding-stage {
     --phone-scale: 0.55;
+  }
+}
+
+/* The preview earns its height.
+ *
+ * Scale is spent; 0.55 is the floor and the paragraph above says why. What
+ * is left is the *cut*, and unlike scale it does not have to be the same on
+ * every step: the card is the entire question on the colour and stamp
+ * screens, and a trophy on the one where the owner is typing a password. So
+ * the tier is a property of the step (`PREVIEW_TIER` in `OnboardingLayout`)
+ * and the crop follows it.
+ *
+ * Only on a short viewport. Where there is room the phone is drawn whole on
+ * every step, because there is no reason not to be generous — this is a
+ * squeeze, not an opinion about which steps deserve a picture.
+ *
+ * The cut is from the top, so a shorter crop keeps the top of the pass:
+ * Apple puts the business name and the stamps there. Google stacks its
+ * stamps *below* the barcode, so on a tiered step a Google preview shows the
+ * name and the barcode and not the stamps. That is the cost, and it is
+ * spent only where the stamps are not what is being decided. */
+/* 860, the same band `--phone-scale` opens on, and for the same reason: a
+   844px iPhone is not a tall screen, it is the common one. Keyed lower — at
+   800 — the tiers skipped every current iPhone and only rescued the SE. */
+@media (max-height: 860px) {
+  /* 530 is Google's number: 94px of frame, its 395px card, and 41px of
+     wallpaper under it. Apple's card is 330, so on Apple the last 65px of
+     that crop is wallpaper and bezel — a sixth of the preview spent on
+     nothing, on the wallet that is showing by default. 430 ends where Apple's
+     card ends.
+
+     Google keeps the full cut even here, because its stamps sit *below* the
+     barcode and 430 would take them. So the frame grows when the owner taps
+     Google in the island and shrinks when they tap back, on the same 300ms
+     the tiers animate on. That is a height change tied to a deliberate tap on
+     the device itself, which is the one kind this frame is allowed: the rule
+     it must not break is the *slider* changing the crop, because that would
+     move a control out from under a finger mid-drag. */
+  .onboarding-stage[data-preview="full"][data-wallet="apple"] {
+    --phone-crop: 430px;
+  }
+
+  /* Ends just under the CUSTOMER / HAIRCUTS row, before the barcode — the
+     last boundary on Apple's card where nothing gets sliced. It also happens
+     to be the most useful cut for the step that uses it: both rows of stamps
+     are whole, and the stamp count is what the reward slider changes. */
+  .onboarding-stage[data-preview="short"] {
+    --phone-crop: 310px;
+  }
+
+  /* Cut just under the business name, in the card's own colour. Not a number
+     picked for the space it saves — 210 saved less and cut through the middle
+     of a row of stamps, which reads as content clipped by accident rather
+     than as a phone seen past the edge of the panel. A crop should land
+     somewhere the card has nothing to say. */
+  .onboarding-stage[data-preview="peek"] {
+    --phone-crop: 150px;
   }
 }
 
@@ -540,6 +608,7 @@ h4 {
   .animate-pop-in,
   .animate-sheet-up,
   .animate-stamp-in,
+  .animate-pill-travel,
   .animate-scan-sweep,
   .animate-draw-rule,
   .animate-bloom-drift {

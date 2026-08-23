@@ -57,28 +57,46 @@ export function StepShell({
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4 sm:gap-5">
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3 sm:gap-5">
+      {/* Back sits *beside* the question, not above it. It had a row of its
+          own — 44px to hold one word — and on a 375px screen that row was the
+          difference between reaching the button and scrolling for it. Beside
+          the title it costs nothing: the title is already at least that tall,
+          and a back arrow at the start of a heading is the one place a reader
+          looks for one.
+
+          The word goes with the row. That is a real trade — an icon alone is
+          less plain than an icon and a label, and this audience is not a
+          technical one — so the button keeps its accessible name, keeps the
+          44px box, and keeps a `title` for anyone who hovers to check. The
+          progress row above is the other way back and it is still there. */}
       <div className={cn(!onBack && "pt-1")}>
-        {onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            className={cn(
-              "-ms-2 -mt-1 inline-flex min-h-[44px] items-center gap-1 rounded-lg px-2 text-sm font-medium text-ink-muted hover:text-ink",
-              focusRing,
-            )}
+        <div className="flex items-start gap-1">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              aria-label={t("common.back")}
+              title={t("common.back")}
+              className={cn(
+                // Pulled up and out so the arrow's box does not indent the
+                // title or push the block down: the glyph optically lines up
+                // with the first line of the heading, the box overhangs.
+                "-ms-3 -mt-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ink-muted hover:text-ink",
+                focusRing,
+              )}
+            >
+              <ArrowLeft size={20} aria-hidden="true" className="rtl:-scale-x-100" />
+            </button>
+          )}
+          <h1
+            ref={heading}
+            tabIndex={-1}
+            className="t-h3 min-w-0 text-balance text-ink outline-none"
           >
-            <ArrowLeft size={16} aria-hidden="true" className="rtl:-scale-x-100" />
-            {t("common.back")}
-          </button>
-        )}
-        <h1
-          ref={heading}
-          tabIndex={-1}
-          className="t-h3 text-balance text-ink outline-none"
-        >
-          {title}
-        </h1>
+            {title}
+          </h1>
+        </div>
         {subtitle && <p className="mt-2 text-pretty text-ink-muted">{subtitle}</p>}
       </div>
 
