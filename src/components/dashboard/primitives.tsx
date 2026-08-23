@@ -434,3 +434,81 @@ export function SegmentedControl<T extends string | number>({
     </div>
   );
 }
+
+/**
+ * A filter that shows what it would find.
+ *
+ * The select this replaces held exactly these options and hid the one thing
+ * worth knowing about them — how many people are in each. With the count on
+ * the chip the shape of the roster is readable without choosing anything, and
+ * a bucket that would come back empty is disabled rather than a click that
+ * lands on "no matches".
+ *
+ * One scrolling row on a phone, wrapping once there is room: six 44px chips
+ * stacked three deep would push the list itself off a 375px screen, which is
+ * the width this page is most often opened at.
+ */
+export function FilterChips<T extends string>({
+  value,
+  options,
+  onChange,
+  label,
+  className,
+}: {
+  value: T;
+  options: { value: T; label: string; count: number }[];
+  onChange: (value: T) => void;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label={label}
+      className={cn(
+        // Bleeds to the screen edge below `sm`, where the page pads by 4, so a
+        // half-cut chip is the affordance that says there are more of them.
+        "-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0",
+        className,
+      )}
+    >
+      {options.map((option) => {
+        const active = option.value === value;
+        return (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={active}
+            // Never the active one: a chip you are standing on has to stay
+            // clickable, or a search that empties it traps you there.
+            disabled={!active && option.count === 0}
+            onClick={() => onChange(option.value)}
+            className={cn(
+              "inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-text focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              active
+                ? "border-primary bg-primary text-primary-on"
+                : "border-border bg-surface text-ink-muted hover:border-border-strong hover:text-ink disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border disabled:hover:text-ink-muted",
+            )}
+          >
+            {option.label}
+            {/* No alpha on the active count. `text-primary-on/75` on the
+                violet measured 4.25 by day and 3.67 at night — this is 12px
+                text, so it owes the full 4.5 and both failed. It is already
+                the quieter half of the chip by being smaller and mono; it
+                does not need to be faded as well. Measured at full opacity:
+                6.28 and 5.26. */}
+            <Figure
+              className={cn(
+                "text-xs",
+                active ? "text-primary-on" : "text-ink-subtle",
+              )}
+            >
+              {option.count}
+            </Figure>
+          </button>
+        );
+      })}
+    </div>
+  );
+}

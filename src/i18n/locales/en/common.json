@@ -582,6 +582,7 @@
       "showingFiltered": "{{shown}} of {{total}} customers",
       "truncated": "Showing the first {{shown}} customers — search and export cover only these until the API gains a search parameter.",
       "columns": {
+        "customer": "Customer",
         "name": "Name",
         "phone": "Phone",
         "progress": "Progress",
@@ -600,6 +601,7 @@
         "label": "Show",
         "all": "Everyone",
         "ready": "Reward ready",
+        "oneAway": "One stamp away",
         "progress": "In progress",
         "new": "No stamps yet",
         "void": "Void"

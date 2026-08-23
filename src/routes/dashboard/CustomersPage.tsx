@@ -4,13 +4,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Download, Search } from "lucide-react";
 import { StampAdjuster } from "../../components/customers/StampAdjuster";
+import { Monogram } from "../../components/customers/Monogram";
 import { ctaClasses, focusRing } from "../../components/marketing/primitives";
 import { CardPunches } from "../../components/dashboard/CardPunches";
 import {
   Figure,
+  FilterChips,
   Notice,
   Panel,
-  Readouts,
   Tag,
   fieldClasses,
   type Tone,
@@ -29,7 +30,6 @@ import { env } from "../../lib/env";
 import { cn } from "../../lib/cn";
 
 const PAGE_SIZE = 20;
-const RECENT_WINDOW_DAYS = 30;
 /** A card longer than this is a progress bar; a shorter one is drawn as the
  * row of punches it actually is. */
 const PUNCHABLE_CARD = 10;
@@ -41,10 +41,16 @@ const PUNCHABLE_CARD = 10;
  * `n / m` rendered beside it should the server's own `reward_ready` flip lag
  * the count it is computed from. */
 type Bucket = "void" | "ready" | "progress" | "new";
-type Filter = Bucket | "all";
+/** `oneAway` is a filter and deliberately *not* a bucket: it is a slice of
+ * `progress`, not a fifth state, so it never reaches `bucketOf`, the status
+ * tag, or the `status` column of the export. It earns a chip because it is
+ * the most actionable question an owner asks of this list — the people
+ * walking in this week — and it is defined exactly as `overviewBrief` defines
+ * its own `oneAway`, so the two screens can never disagree about who counts. */
+type Filter = Bucket | "all" | "oneAway";
 type Sort = "progress" | "recent" | "name";
 
-const FILTERS: Filter[] = ["all", "ready", "progress", "new", "void"];
+const FILTERS: Filter[] = ["all", "ready", "oneAway", "progress", "new", "void"];
 const SORTS: Sort[] = ["progress", "recent", "name"];
 
 const BUCKET_TONES: Record<Bucket, Tone> = {
@@ -72,6 +78,42 @@ function bucketOf(c: CustomerListItem): Bucket {
 
 function progressOf(c: CustomerListItem): number {
   return c.stamps_required > 0 ? c.stamp_count / c.stamps_required : 0;
+}
+
+/** One stamp short of the reward. A voided card is not a customer, and a
+ * template with no requirement has no such thing as "nearly full" — the same
+ * two exclusions `overviewBrief.countable` makes. */
+function isOneAway(c: CustomerListItem): boolean {
+  return (
+    c.status !== "void" &&
+    c.stamps_required > 0 &&
+    c.stamps_required - c.stamp_count === 1
+  );
+}
+
+function matchesFilter(c: CustomerListItem, filter: Filter): boolean {
+  if (filter === "all") return true;
+  if (filter === "oneAway") return isOneAway(c);
+  return bucketOf(c) === filter;
+}
+
+/** `digits` arrives already stripped: "050-123" and "0501234567" should find
+ * the same person, so the phone is compared on digits alone once the typed
+ * query actually contains some. The card is still searchable even though it
+ * no longer has a column — the placeholder promises it, and a shop running
+ * more than one template needs it. */
+function matchesSearch(
+  c: CustomerListItem,
+  query: string,
+  digits: string,
+): boolean {
+  if (!query) return true;
+  if (c.customer_display_name.toLowerCase().includes(query)) return true;
+  if (c.template_name.toLowerCase().includes(query)) return true;
+  return (
+    digits.length > 0 &&
+    (c.customer_phone ?? "").replace(/\D/g, "").includes(digits)
+  );
 }
 
 export function CustomersPage() {
@@ -122,31 +164,28 @@ export function CustomersPage() {
     },
   });
 
-  const stats = useMemo(() => {
-    const recentCutoff = Date.now() - RECENT_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-    return {
-      total: all.length,
-      ready: all.filter((c) => bucketOf(c) === "ready").length,
-      recent: all.filter((c) => Date.parse(c.created_at) >= recentCutoff).length,
-    };
-  }, [all]);
+  /** The search applied but not the bucket. This is what the chips count, so
+   * each one reports what it would actually return from where the owner is
+   * standing rather than from the whole roster. */
+  const searched = useMemo(() => {
+    const query = debouncedSearch.trim().toLowerCase();
+    const digits = query.replace(/\D/g, "");
+    return all.filter((c) => matchesSearch(c, query, digits));
+  }, [all, debouncedSearch]);
+
+  const counts = useMemo(() => {
+    const tally = Object.fromEntries(FILTERS.map((f) => [f, 0])) as Record<
+      Filter,
+      number
+    >;
+    for (const c of searched) {
+      for (const f of FILTERS) if (matchesFilter(c, f)) tally[f] += 1;
+    }
+    return tally;
+  }, [searched]);
 
   const visible = useMemo(() => {
-    const query = debouncedSearch.trim().toLowerCase();
-    // "050-123" and "0501234567" should find the same person, so compare the
-    // digits alone once the typed query actually contains some.
-    const digits = query.replace(/\D/g, "");
-
-    const rows = all.filter((c) => {
-      if (filter !== "all" && bucketOf(c) !== filter) return false;
-      if (!query) return true;
-      if (c.customer_display_name.toLowerCase().includes(query)) return true;
-      if (c.template_name.toLowerCase().includes(query)) return true;
-      return (
-        digits.length > 0 &&
-        (c.customer_phone ?? "").replace(/\D/g, "").includes(digits)
-      );
-    });
+    const rows = searched.filter((c) => matchesFilter(c, filter));
 
     if (sort === "name") {
       rows.sort((a, b) =>
@@ -163,7 +202,7 @@ export function CustomersPage() {
       );
     }
     return rows;
-  }, [all, debouncedSearch, filter, sort, i18n.resolvedLanguage]);
+  }, [searched, filter, sort, i18n.resolvedLanguage]);
 
   const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
   // Filtering can shrink the list under the current page; clamp on render so
@@ -238,9 +277,60 @@ export function CustomersPage() {
     );
   }
 
+  /** The person, not the row. The monogram and the name carry it, and the
+   * phone drops to the mono voice the pass uses for a field label — so the
+   * largest thing in a row is who it is, which is what an owner is scanning
+   * for at the counter. */
+  function personFor(c: CustomerListItem) {
+    return (
+      <div className="flex min-w-0 items-center gap-3">
+        <Monogram name={c.customer_display_name} />
+        <div className="min-w-0">
+          <p className="truncate font-heading font-semibold text-ink">
+            {c.customer_display_name || "—"}
+          </p>
+          <p
+            dir="ltr"
+            className="truncate font-mono text-xs text-ink-subtle rtl:text-end"
+          >
+            {c.customer_phone || "—"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  /** Sorting by name or by join date scatters the full cards through the
+   * list, where the status column only finds them by reading. The one row
+   * that means "greet this person" is marked at its start edge instead, so it
+   * is found by running an eye down the edge. Gold, and the only colour in
+   * the list — see `TAG_TONES` for why the reward owns it. */
+  function readyEdge(c: CustomerListItem) {
+    if (bucketOf(c) !== "ready") return null;
+    return (
+      <span aria-hidden className="absolute inset-y-0 start-0 w-[3px] bg-reward" />
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 sm:gap-5">
-      <h1 className="t-h3 text-ink">{t("dashboard.customers.title")}</h1>
+      {/* The export leaves the control row: it acts on the whole filtered
+          list rather than on anything typed beside it, and standing among the
+          filters it read as a fourth one. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="t-h3 text-ink">{t("dashboard.customers.title")}</h1>
+        {all.length > 0 && (
+          <button
+            type="button"
+            disabled={visible.length === 0}
+            onClick={handleExport}
+            className={ctaClasses("secondary", "sm")}
+          >
+            <Download className="h-4 w-4" aria-hidden />
+            {t("dashboard.customers.export.cta")}
+          </button>
+        )}
+      </div>
 
       {isLoading ? (
         <p className="font-mono text-sm text-ink-subtle">{t("common.loading")}</p>
@@ -262,25 +352,13 @@ export function CustomersPage() {
         </Panel>
       ) : (
         <>
-          {/* The overview's strip, so the same three figures are the same
-              three figures wherever they are met. Only the one that means "go
-              and do something" carries its colour into the figure. */}
-          <Panel className="px-5 py-4 sm:px-6">
-            <Readouts
-              items={(
-                [
-                  ["total", "roster"],
-                  ["ready", "reward"],
-                  ["recent", "growth"],
-                ] as const
-              ).map(([key, hue]) => ({
-                label: t(`dashboard.customers.stats.${key}`, { days: RECENT_WINDOW_DAYS }),
-                value: stats[key],
-                hue,
-                emphasis: key === "ready",
-              }))}
-            />
-          </Panel>
+          {/* No readout strip here any more. It carried Customers / Reward
+              ready / Joined in 30 days, and the chips below say the first two
+              in the same words — in Hebrew "מוכנים לפרס 4" was printed twice
+              fifteen pixels apart. The overview already spends `Readouts` on
+              those same two figures and reports joins with a delta besides,
+              so this page keeps the roster and the doing, and lets the
+              overview keep the headline. */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative min-w-[14rem] flex-1">
               <Search
@@ -297,21 +375,14 @@ export function CustomersPage() {
               />
             </div>
 
+            {/* `!w-auto`, not `w-auto`: `cn` is plain clsx with no
+                tailwind-merge, so `w-full` from `fieldClasses` and `w-auto`
+                both survive into the class list and Tailwind's own source
+                order decides — `w-full` is emitted after every other width,
+                so it wins and the select swallows its whole row. Full width
+                below `sm` is right for a thumb; above it, content width. */}
             <select
-              className={cn(fieldClasses, "w-auto")}
-              value={filter}
-              aria-label={t("dashboard.customers.filter.label")}
-              onChange={(e) => resetTo(() => setFilter(e.target.value as Filter))}
-            >
-              {FILTERS.map((key) => (
-                <option key={key} value={key}>
-                  {t(`dashboard.customers.filter.${key}`)}
-                </option>
-              ))}
-            </select>
-
-            <select
-              className={cn(fieldClasses, "w-auto")}
+              className={cn(fieldClasses, "sm:!w-auto")}
               value={sort}
               aria-label={t("dashboard.customers.sort.label")}
               onChange={(e) => resetTo(() => setSort(e.target.value as Sort))}
@@ -322,17 +393,18 @@ export function CustomersPage() {
                 </option>
               ))}
             </select>
-
-            <button
-              type="button"
-              disabled={visible.length === 0}
-              onClick={handleExport}
-              className={ctaClasses("secondary", "sm")}
-            >
-              <Download className="h-4 w-4" aria-hidden />
-              {t("dashboard.customers.export.cta")}
-            </button>
           </div>
+
+          <FilterChips
+            value={filter}
+            label={t("dashboard.customers.filter.label")}
+            onChange={(next) => resetTo(() => setFilter(next))}
+            options={FILTERS.map((key) => ({
+              value: key,
+              label: t(`dashboard.customers.filter.${key}`),
+              count: counts[key],
+            }))}
+          />
 
           {data?.truncated && (
             <Notice tone="warn">
@@ -376,47 +448,52 @@ export function CustomersPage() {
             </Panel>
           ) : (
             <>
-              {/* A six-column table is unreadable on a 375px phone, and this
-                  is a page an owner opens at the counter. Same rows, two
-                  shapes: a card each below `lg`, the table above it. */}
+              {/* A table is unreadable on a 375px phone, and this is a page an
+                  owner opens at the counter. Same rows, two shapes: a card
+                  each below `lg`, the table above it. */}
               <ul className="flex flex-col gap-3 lg:hidden">
                 {pageRows.map((c) => (
-                  <Panel key={c.card_id} className="flex flex-col gap-3 p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-ink">
-                          {c.customer_display_name || "—"}
-                        </p>
-                        <p
-                          dir="ltr"
-                          className="truncate font-mono text-xs text-ink-subtle rtl:text-end"
-                        >
-                          {c.customer_phone || "—"}
-                        </p>
+                  <li key={c.card_id}>
+                    <Panel className="relative flex flex-col gap-3 overflow-hidden p-4">
+                      {readyEdge(c)}
+                      <div className="flex items-start justify-between gap-3">
+                        {personFor(c)}
+                        <Tag tone={BUCKET_TONES[bucketOf(c)]}>
+                          {t(`dashboard.customers.status.${bucketOf(c)}`)}
+                        </Tag>
                       </div>
-                      <Tag tone={BUCKET_TONES[bucketOf(c)]}>
-                        {t(`dashboard.customers.status.${bucketOf(c)}`)}
-                      </Tag>
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <CardPunches filled={c.stamp_count} total={c.stamps_required} maxMarks={PUNCHABLE_CARD} />
-                      {adjusterFor(c)}
-                    </div>
-                  </Panel>
+                      <div className="flex items-center justify-between gap-3">
+                        <CardPunches
+                          filled={c.stamp_count}
+                          total={c.stamps_required}
+                          maxMarks={PUNCHABLE_CARD}
+                        />
+                        {adjusterFor(c)}
+                      </div>
+                    </Panel>
+                  </li>
                 ))}
               </ul>
 
+              {/* Four columns, not six. `phone` folded into the person it
+                  belongs to, and `card` went entirely: it renders
+                  `template_name`, which for a shop running one card is the
+                  same string on every row. It is still searchable, and still
+                  in the export for the shops that run more than one. */}
               <Panel className="hidden overflow-x-auto p-1 lg:block">
                 <table className="w-full text-start text-sm">
                   <thead>
                     <tr className="border-b border-border text-ink-subtle">
-                      {(
-                        ["name", "phone", "progress", "status", "card", "stamps"] as const
-                      ).map((key) => (
-                        <th key={key} className="px-3 py-2.5 text-start font-medium">
-                          {t(`dashboard.customers.columns.${key}`)}
-                        </th>
-                      ))}
+                      {(["customer", "progress", "status", "stamps"] as const).map(
+                        (key) => (
+                          <th
+                            key={key}
+                            className="px-3 py-2.5 text-start font-medium"
+                          >
+                            {t(`dashboard.customers.columns.${key}`)}
+                          </th>
+                        ),
+                      )}
                     </tr>
                   </thead>
                   <tbody>
@@ -425,22 +502,21 @@ export function CustomersPage() {
                         key={c.card_id}
                         className="border-b border-border last:border-0 transition-colors hover:bg-ink/[0.03]"
                       >
-                        <td className="px-3 py-2.5 text-ink">
-                          {c.customer_display_name || "—"}
-                        </td>
-                        <td className="px-3 py-2.5 text-ink-muted" dir="ltr">
-                          {c.customer_phone || "—"}
+                        <td className="relative px-3 py-2.5">
+                          {readyEdge(c)}
+                          {personFor(c)}
                         </td>
                         <td className="px-3 py-2.5">
-                          <CardPunches filled={c.stamp_count} total={c.stamps_required} maxMarks={PUNCHABLE_CARD} />
+                          <CardPunches
+                            filled={c.stamp_count}
+                            total={c.stamps_required}
+                            maxMarks={PUNCHABLE_CARD}
+                          />
                         </td>
                         <td className="px-3 py-2.5">
                           <Tag tone={BUCKET_TONES[bucketOf(c)]}>
                             {t(`dashboard.customers.status.${bucketOf(c)}`)}
                           </Tag>
-                        </td>
-                        <td className="px-3 py-2.5 text-ink-muted">
-                          {c.template_name}
                         </td>
                         <td className="px-3 py-2.5">{adjusterFor(c)}</td>
                       </tr>
