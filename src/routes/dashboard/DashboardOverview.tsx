@@ -179,13 +179,13 @@ export function DashboardOverview() {
       // is a shop that has not started yet — "same as last week" would be
       // true and useless. The empty rows already say it.
       delta: prevKnown && (total > 0 || prevWeek > 0) ? total - prevWeek : null,
-      // Newest first: today is the row the owner opened the page for.
-      days: buckets
-        .map((stamps, i) => ({
-          date: new Date(windowStart + i * DAY_MS),
-          stamps,
-        }))
-        .reverse(),
+      // Oldest first, so the bars run in the reading direction and today is
+      // the one at the end. The same order `ActivityChart` and `buildBrief`
+      // take — three charts on this page, one direction between them.
+      days: buckets.map((stamps, i) => ({
+        date: new Date(windowStart + i * DAY_MS),
+        stamps,
+      })),
     };
   }, [activity]);
 
