@@ -14,6 +14,7 @@ import {
   type EnrollOut,
 } from "../../api/loyalty";
 import { isLikelyIlPhone } from "../../lib/phone";
+import { toNameCase } from "../../lib/name";
 import { ApiError } from "../../api/errors";
 import { env } from "../../lib/env";
 
@@ -123,7 +124,7 @@ export function JoinPage() {
     try {
       const enrollResult = await enroll(templateId, {
         phone: phone.trim(),
-        display_name: displayName.trim() || undefined,
+        display_name: toNameCase(displayName) || undefined,
         birthday: birthday || undefined,
         marketing_opt_in: marketingOptIn,
         otp_code: otpCode,
@@ -174,7 +175,7 @@ export function JoinPage() {
         <PassStage
           card={card}
           serial={enrollResult.card_serial}
-          holderName={displayName}
+          holderName={toNameCase(displayName)}
         />
 
         <div className="flex w-full flex-col items-center gap-4">
@@ -294,6 +295,10 @@ export function JoinPage() {
           label={t("enroll.nameLabel")}
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
+          // Cased on the way out of the field, not silently at submit: the
+          // name is going on a wallet pass, so the customer should see what
+          // it will say while they can still argue with it.
+          onBlur={() => setDisplayName((n) => toNameCase(n))}
           autoComplete="name"
         />
         <Input
