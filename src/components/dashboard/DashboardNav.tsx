@@ -110,12 +110,17 @@ const ROW_BASE =
 function NavRow({
   to,
   end,
+  tour,
   Icon,
   label,
   onClick,
 }: {
   to: string;
   end: boolean;
+  /** What the tour calls this door. Both this row and its twin in the tab
+   * bar carry it; only one of the two is ever on screen, and the tour takes
+   * whichever measures. See `components/tour/steps.ts`. */
+  tour: string;
   Icon: typeof Store;
   label: string;
   onClick?: () => void;
@@ -124,6 +129,7 @@ function NavRow({
     <NavLink
       to={to}
       end={end}
+      data-tour={tour}
       onClick={onClick}
       className={({ isActive }) =>
         cn(
@@ -181,6 +187,7 @@ export function SidebarNav({
                 key={item.key}
                 to={item.to}
                 end={item.end}
+                tour={`nav-${item.key}`}
                 Icon={item.Icon}
                 label={t(`dashboard.nav.${item.key}`)}
               />
@@ -222,6 +229,7 @@ export function BottomBar({
             <NavLink
               to={item.to}
               end={item.end}
+              data-tour={`nav-${item.key}`}
               className={({ isActive }) =>
                 cn(
                   "flex min-h-[56px] flex-col items-center justify-center gap-1 px-1 py-2 text-[0.6875rem] font-semibold transition-colors",
@@ -357,6 +365,7 @@ export function SetupRows({ onNavigate }: { onNavigate: () => void }) {
               key={item.key}
               to={item.to}
               end={item.end}
+              tour={`nav-${item.key}`}
               Icon={item.Icon}
               label={t(`dashboard.nav.${item.key}`)}
               onClick={onNavigate}

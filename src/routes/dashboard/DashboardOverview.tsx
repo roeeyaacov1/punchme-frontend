@@ -310,6 +310,9 @@ export function DashboardOverview() {
               a tenth-visit regular the same, and the thing this product was
               sold on — and the thing `calculator.ts` prices a year of it in —
               is people coming back. */}
+          {/* Wrapped only so the tour has something to measure — BriefBand
+              draws its own band edge to edge and takes no props of ours. */}
+          <div data-tour="overview-lead">
           <BriefBand
             days={BRIEF_DAYS}
             returned={brief.returned}
@@ -340,6 +343,7 @@ export function DashboardOverview() {
               },
             ]}
           />
+          </div>
 
           <WorthDoing rows={todos} />
 
@@ -455,7 +459,7 @@ export function DashboardOverview() {
           )}
         </>
       ) : manages ? (
-        <Panel className="p-5 sm:p-6">
+        <Panel data-tour="overview-lead" className="p-5 sm:p-6">
           <PanelHeader title={t("dashboard.start.title")} />
           {/* Numbered, because this genuinely is an order: there is nothing
               to print until the card exists, and nothing for a printed code

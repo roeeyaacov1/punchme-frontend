@@ -229,7 +229,7 @@ export function StandeePage() {
               read as a panel that had forgotten to switch rather than as a
               lamp. So it is staged the way the studio stages a pass: a panel
               like the two beside it, with the sheet in a well cut into it. */}
-          <Panel className="p-3 sm:p-4">
+          <Panel data-tour="standee-sheet" className="p-3 sm:p-4">
             <div className="rounded-xl bg-background p-4 sm:p-6">
               <StandeeSheet
                 design={design}
