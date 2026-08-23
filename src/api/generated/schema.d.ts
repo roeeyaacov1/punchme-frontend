@@ -881,6 +881,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/businesses/{business_id}/customers/{card_id}/message": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send Customer Message
+         * @description Message one customer from her row on the roster.
+         *
+         *     Manager+, like everything else here — it changes what a customer sees.
+         *     Returns the same shape as a broadcast because it IS one of these rows:
+         *     a one-shot automation with an audience of one, which is what puts it in
+         *     the message history beside the rest.
+         */
+        post: operations["apps_messaging_api_send_customer_message"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/businesses/{business_id}/messaging/deliveries": {
         parameters: {
             query?: never;
@@ -2069,6 +2094,32 @@ export interface components {
             items: components["schemas"]["BroadcastOut"][];
             /** Count */
             count: number;
+        };
+        /**
+         * DirectMessageIn
+         * @description One message to one customer. No `template_id` — the card names its
+         *     own design — and no `opt_in_only`, which is a way of narrowing a crowd
+         *     and there is no crowd here. Consent is not sidestepped: this is the
+         *     owner answering one customer, not marketing to a list.
+         */
+        DirectMessageIn: {
+            /**
+             * Title
+             * @default
+             */
+            title: string;
+            /** Body */
+            body: string;
+            /**
+             * Gift Stamps
+             * @default 0
+             */
+            gift_stamps: number;
+            /**
+             * Gift Complete Card
+             * @default false
+             */
+            gift_complete_card: boolean;
         };
         /** DeliveryOut */
         DeliveryOut: {
@@ -3617,6 +3668,33 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BroadcastOut"];
+                };
+            };
+        };
+    };
+    apps_messaging_api_send_customer_message: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                card_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DirectMessageIn"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };

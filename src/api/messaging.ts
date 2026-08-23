@@ -14,6 +14,7 @@ export type AudienceOut = components["schemas"]["AudienceOut"];
 export type TestSendIn = components["schemas"]["TestSendIn"];
 export type TestSendOut = components["schemas"]["TestSendOut"];
 export type BroadcastIn = components["schemas"]["BroadcastIn"];
+export type DirectMessageIn = components["schemas"]["DirectMessageIn"];
 export type BroadcastOut = components["schemas"]["BroadcastOut"];
 export type PagedBroadcasts = components["schemas"]["PagedBroadcastOut"];
 export type DeliveryOut = components["schemas"]["DeliveryOut"];
@@ -35,6 +36,35 @@ export interface AudienceQuery {
 
 function base(businessId: string) {
   return `/api/businesses/${businessId}`;
+}
+
+/** Message ONE customer, from her row on the roster. Manager+ (403
+ * `insufficient_role` below that), Pro-only, and subject to the same pilot
+ * allowlist and kill switch as every other real send.
+ *
+ * Returns a `BroadcastOut` because on the backend it IS one of those rows —
+ * a one-shot automation with an audience of one — which is what puts it in
+ * the message history beside the broadcasts.
+ *
+ * Refusals worth handling by name (422 `automation_invalid`):
+ * - `card_void` / `card_has_no_pass` — this customer can't be reached;
+ * - `kind_unsupported:direct` — the wallet provider can't write to a single
+ *   pass here and more than one customer holds her card design, so the only
+ *   way to reach her would reach them too. Refused rather than sent.
+ */
+export function sendCustomerMessage(
+  businessId: string,
+  cardId: string,
+  // `body` and whatever else the caller wants to set. The generated type
+  // marks every field required — openapi-typescript can't see that the
+  // others carry server-side defaults — so asking for the whole object
+  // would force each caller to spell out a title and gift it doesn't want.
+  payload: Pick<DirectMessageIn, "body"> & Partial<DirectMessageIn>,
+) {
+  return api.post<BroadcastOut>(
+    `${base(businessId)}/customers/${cardId}/message`,
+    payload,
+  );
 }
 
 export function getMessagingSummary(businessId: string) {

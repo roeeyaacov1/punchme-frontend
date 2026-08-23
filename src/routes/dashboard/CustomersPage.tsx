@@ -2,11 +2,13 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Copy, Download, Search, Trash2 } from "lucide-react";
+import { Copy, Download, MessageSquare, Search, Trash2 } from "lucide-react";
 import { StampAdjuster } from "../../components/customers/StampAdjuster";
 import { Monogram } from "../../components/customers/Monogram";
 import { RemoveCustomerConfirm } from "../../components/customers/RemoveCustomerConfirm";
 import { RowMenu, type RowMenuItem } from "../../components/customers/RowMenu";
+import { QuickMessage } from "../../components/customers/QuickMessage";
+import { messagingErrorMessage } from "../../components/messaging/describe";
 import { ctaClasses, focusRing } from "../../components/marketing/primitives";
 import { CardPunches } from "../../components/dashboard/CardPunches";
 import {
@@ -26,6 +28,7 @@ import {
   listAllCustomers,
   type CustomerListItem,
 } from "../../api/loyalty";
+import { getMessagingSummary, sendCustomerMessage } from "../../api/messaging";
 import { ApiError } from "../../api/errors";
 import { useDebounce } from "../../hooks/useDebounce";
 import { csvText, downloadCsv, toCsv } from "../../lib/csv";
@@ -134,9 +137,26 @@ export function CustomersPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("progress");
   const [page, setPage] = useState(1);
-  /** The card whose removal is being confirmed, at most one at a time. */
-  const [removing, setRemoving] = useState<string | null>(null);
+  /** What one row has been opened up to do — confirm a removal, or compose
+   * a message. One at a time and modelled as one value, so a row can never
+   * be showing both, and opening either closes whatever was open. */
+  const [action, setAction] = useState<
+    { cardId: string; kind: "remove" | "message" } | null
+  >(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [sentTo, setSentTo] = useState<string | null>(null);
+
+  /** Shared cache key with the messages pages, so opening the roster
+   * usually costs nothing. It answers whether real sends are possible at
+   * all — Pro, on the pilot allowlist, dispatch not killed — which is what
+   * decides whether the menu offers to send one. */
+  const { data: messaging } = useQuery({
+    queryKey: ["messaging", "summary", business?.id],
+    queryFn: () => getMessagingSummary(business!.id!),
+    enabled: !!business?.id && canRemove,
+    staleTime: 60_000,
+  });
+  const canMessage = !!messaging?.can_send;
 
   const debouncedSearch = useDebounce(search, 200);
 
@@ -175,10 +195,29 @@ export function CustomersPage() {
     },
   });
 
+  const message = useMutation({
+    mutationFn: ({ cardId, body }: { cardId: string; body: string }) =>
+      sendCustomerMessage(business!.id!, cardId, { body }),
+    onSuccess: (_result, sent) => {
+      const row = all.find((c) => c.card_id === sent.cardId);
+      setSentTo(row ? nameOf(row) : null);
+      setAction(null);
+      // The send is queued, not delivered — the worker claims the row and
+      // writes to her pass after this returns. What is already true is that
+      // a message exists in the history and the gift (if any) is about to
+      // land on the card, so both of those views are stale.
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({
+        queryKey: ["messaging", "summary", business?.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["deliveries"] });
+    },
+  });
+
   const remove = useMutation({
     mutationFn: (cardId: string) => deleteCustomer(business!.id!, cardId),
     onSuccess: () => {
-      setRemoving(null);
+      setAction(null);
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       // Their stamps leave the feed with them, and every audience a message
       // could reach is one person smaller.
@@ -348,13 +387,21 @@ export function CustomersPage() {
         onSelect: () => void copyPhone(c),
       });
     }
+    if (canMessage) {
+      items.push({
+        key: "message",
+        label: t("dashboard.customers.menu.message"),
+        icon: MessageSquare,
+        onSelect: () => setAction({ cardId: c.card_id, kind: "message" }),
+      });
+    }
     if (canRemove) {
       items.push({
         key: "remove",
         label: t("dashboard.customers.menu.remove"),
         icon: Trash2,
         danger: true,
-        onSelect: () => setRemoving(c.card_id),
+        onSelect: () => setAction({ cardId: c.card_id, kind: "remove" }),
       });
     }
     if (items.length === 0) return null;
@@ -362,19 +409,31 @@ export function CustomersPage() {
       <RowMenu
         label={t("dashboard.customers.menu.label", { name: nameOf(c) })}
         items={items}
-        disabled={remove.isPending}
+        disabled={remove.isPending || message.isPending}
       />
     );
   }
 
-  /** The confirmation that stands in for a row while it is being answered. */
-  function confirmFor(c: CustomerListItem) {
+  /** What stands in for a row while it is being acted on, or null when the
+   * row should render itself as usual. */
+  function actionFor(c: CustomerListItem) {
+    if (action?.cardId !== c.card_id) return null;
+    if (action.kind === "message") {
+      return (
+        <QuickMessage
+          name={nameOf(c)}
+          busy={message.isPending}
+          onSend={(body) => message.mutate({ cardId: c.card_id, body })}
+          onCancel={() => setAction(null)}
+        />
+      );
+    }
     return (
       <RemoveCustomerConfirm
         name={nameOf(c)}
         busy={remove.isPending && remove.variables === c.card_id}
         onConfirm={() => remove.mutate(c.card_id)}
-        onCancel={() => setRemoving(null)}
+        onCancel={() => setAction(null)}
       />
     );
   }
@@ -519,6 +578,24 @@ export function CustomersPage() {
             <Notice tone="ok">{t("dashboard.customers.menu.copied")}</Notice>
           )}
 
+          {sentTo && (
+            <Notice tone="ok">
+              {t("dashboard.customers.message.sent", { name: sentTo })}
+            </Notice>
+          )}
+
+          {message.isError && (
+            <Notice tone="danger">
+              {t("dashboard.customers.message.failed", {
+                reason: messagingErrorMessage(
+                  message.error,
+                  t,
+                  i18n.resolvedLanguage ?? "en",
+                ),
+              })}
+            </Notice>
+          )}
+
           {remove.isError && (
             <Notice tone="danger">
               {t("dashboard.customers.remove.failed", {
@@ -569,9 +646,7 @@ export function CustomersPage() {
                 {pageRows.map((c) => (
                   <li key={c.card_id}>
                     <Panel className="relative flex flex-col gap-3 overflow-hidden p-4">
-                      {removing === c.card_id ? (
-                        confirmFor(c)
-                      ) : (
+                      {actionFor(c) ?? (
                         <>
                           {readyEdge(c)}
                           <div className="flex items-start justify-between gap-3">
@@ -633,13 +708,13 @@ export function CustomersPage() {
                         key={c.card_id}
                         className="border-b border-border last:border-0 transition-colors hover:bg-ink/[0.03]"
                       >
-                        {removing === c.card_id ? (
+                        {actionFor(c) ? (
                           // One cell across the row rather than a second row
-                          // below it: the question replaces the person it is
-                          // about, so the roster never shows a customer and
-                          // their own removal at the same time.
+                          // below it: what is being done replaces the person
+                          // it is about, so the roster never shows a customer
+                          // and their own removal at the same time.
                           <td colSpan={5} className="px-3 py-3">
-                            {confirmFor(c)}
+                            {actionFor(c)}
                           </td>
                         ) : (
                           <>

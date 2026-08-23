@@ -77,6 +77,12 @@ export function messagingErrorMessage(error: unknown, t: TFunction, lang: string
           token: t(`messaging.editor.chip.${detail.slice("placeholder_unsupported:".length)}`),
         });
       }
+      // Same limit, but the other kinds reach it from "switch this rule
+      // on" and a direct message from "send this now" — one copy cannot be
+      // right for both.
+      if (detail === "kind_unsupported:direct") {
+        return t("messaging.errors.kind_unsupported_direct");
+      }
       if (detail.startsWith("kind_unsupported:")) return t("messaging.errors.kind_unsupported");
       const known = [
         "opt_in_only_unsupported",
@@ -94,6 +100,10 @@ export function messagingErrorMessage(error: unknown, t: TFunction, lang: string
         "birthday_days_before_range",
         "reward_waiting_days_range",
         "too_many_automations",
+        // Why this one customer can't be reached, as opposed to what the
+        // provider can address in general.
+        "card_void",
+        "card_has_no_pass",
       ];
       if (known.includes(detail)) {
         return t(`messaging.errors.${detail}`, {
