@@ -5,6 +5,9 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, Cake, Gift, Plus, Send, UserRoundX } from "lucide-react";
 import { ctaClasses, focusRing } from "../../components/marketing/primitives";
 import {
+  BAND_INSET,
+  BAND_RULE,
+  Band,
   Figure,
   Notice,
   Panel,
@@ -174,31 +177,70 @@ export function MessagesPage() {
         <Notice tone="warn">{t("messaging.guard.personalOnHold")}</Notice>
       )}
 
-      {/* The same four figures the overview's band carries, in the same
-          strip, so a number the owner met on the front page is recognisable
-          here. Amber is the one that is slipping away; gold is the reward
-          somebody is owed. */}
-      <Panel className="px-5 py-4 sm:px-6 sm:py-5">
-        <Readouts
-          items={(
-            [
-              ["withCard", summary.data?.customers_with_card, "roster"],
-              ["inactive30", summary.data?.inactive_counts?.["30"], "risk"],
-              ["rewardWaiting", summary.data?.reward_waiting_count, "reward"],
-              ["sentMonth", summary.data?.sent_this_month, "activity"],
-            ] as const
-          ).map(([key, value, hue]) => ({
-            label: t(`messaging.summary.${key}`),
-            value: value ?? "—",
-            hue,
-            // No emphasis here, deliberately. `warn` is #fcd34d on the night
-            // panel and `reward` #ffd875 — as two big adjacent figures they
-            // read as one colour saying two opposite things. They are also
-            // not where anything is done on this page: the rules below are.
-            // So the 3px rules carry the category and the figures stay ink.
-          }))}
-        />
-      </Panel>
+      {/* The audience, on the overview's own ground.
+
+          This was a white panel holding four equal figures, and it opened a
+          page whose whole subject is *who you are talking to* with no answer
+          to that question louder than any other. The overview leads with the
+          one number its page is about; so does this one. Every rule below
+          picks from these people and every broadcast goes to all of them —
+          nothing else here means anything if this is zero.
+
+          The other three follow under the hairline, in the same strip the
+          brief spends, so a figure met on the front page is recognisable
+          here: amber is the one slipping away, gold is the reward somebody
+          is owed, violet is what has gone out. No emphasis colour on the
+          figures — on the band every one of them is white, because a hue
+          measured against a page ground cannot be trusted against a
+          gradient. */}
+      <Band>
+        <div className={BAND_INSET}>
+          <p className="t-eyebrow text-brand-on-band">
+            {t("messaging.summary.title")}
+          </p>
+
+          <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-2">
+            {!summary.data ? (
+              <p className="t-card-title text-white">{t("common.loading")}</p>
+            ) : summary.data.customers_with_card === 0 ? (
+              // A bare 0 beside "nobody has your card" says it twice, and the
+              // digit is the harsher half — the brief's own rule.
+              <p className="t-card-title text-white">
+                {t("messaging.summary.audienceNone")}
+              </p>
+            ) : (
+              <>
+                {/* `t-stat` bare: it already sets tabular figures, and
+                    wrapping it in `Figure` would quietly set it in mono. */}
+                <span className="t-stat text-white">
+                  {summary.data.customers_with_card}
+                </span>
+                <p className="text-white">
+                  {t("messaging.summary.audience", {
+                    count: summary.data.customers_with_card,
+                  })}
+                </p>
+              </>
+            )}
+          </div>
+
+          <Readouts
+            on="band"
+            className={BAND_RULE}
+            items={(
+              [
+                ["inactive30", summary.data?.inactive_counts?.["30"], "risk"],
+                ["rewardWaiting", summary.data?.reward_waiting_count, "reward"],
+                ["sentMonth", summary.data?.sent_this_month, "activity"],
+              ] as const
+            ).map(([key, value, hue]) => ({
+              label: t(`messaging.summary.${key}`),
+              value: value ?? "—",
+              hue,
+            }))}
+          />
+        </div>
+      </Band>
 
       {/* Broadcast */}
       <Panel className="p-5 sm:p-6">

@@ -1213,7 +1213,10 @@
       "personalOnHold": "More than one customer holds your card design. The wallet publishes a message to a whole design at once, so a rule meant for one person would reach all of them — these rules stay saved, but they won't send. They work again when a wallet can address a single card."
     },
     "summary": {
-      "withCard": "Customers with a card",
+      "title": "Who you can reach",
+      "audienceNone": "Nobody has your card yet",
+      "audience_one": "customer has your card",
+      "audience_other": "customers have your card",
       "inactive30": "No visit in 30 days",
       "rewardWaiting": "Reward waiting",
       "sentMonth": "Messages this month"

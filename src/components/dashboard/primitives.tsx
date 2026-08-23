@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { CircleCheck, Info, TriangleAlert } from "lucide-react";
+import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { cn } from "../../lib/cn";
 
 /** The dashboard's own primitives.
@@ -28,6 +29,57 @@ export function Panel({
       )}
       {...props}
     />
+  );
+}
+
+/**
+ * The one loud surface, and the only one.
+ *
+ * `AppShowcase` on the landing page — the dashboard we sell — puts the
+ * owner's headline number on a violet-to-magenta card, and the real dashboard
+ * answered with a row of flat panels that all weighed the same. Two screens
+ * earn that weight, because two of them open on a single figure worth
+ * reading before anything else: what the shop did (the overview's brief) and
+ * who it can talk to (the messages page). Both stand on this ground and
+ * nothing else does — a second loud thing is no loud thing.
+ *
+ * Dark in *both* themes: a brief is a brief whatever the theme is set to. So
+ * nothing on it is tokenised and nothing is white-with-an-alpha — alpha
+ * composites differently at each end of a gradient and cannot be measured
+ * once. `.grad-brief` in src/index.css carries the two text colours that are
+ * allowed here (`text-white`, `text-brand-on-band`) and their ratios against
+ * both stops.
+ *
+ * The padding is the caller's, not the band's: the overview draws its month
+ * flush along the bottom, outside it. `BAND_INSET` is that padding, so the
+ * two bands are one object seen twice rather than two that resemble each
+ * other.
+ */
+export const BAND_INSET = "px-5 py-5 sm:px-7 sm:py-6";
+
+/** The hairline the readouts sit under, so the figures belong to the
+ * headline above them instead of forming a second card. */
+export const BAND_RULE = "mt-6 border-t border-white/15 pt-5";
+
+export function Band({
+  className,
+  children,
+  ...props
+}: HTMLAttributes<HTMLElement>) {
+  const reduced = usePrefersReducedMotion();
+  return (
+    <section
+      className={cn(
+        "relative isolate overflow-hidden rounded-2xl",
+        // The ad's run, darkened until the type fits. Flips for Hebrew.
+        "grad-brief shadow-panel-lift",
+        !reduced && "animate-fade-in",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </section>
   );
 }
 
@@ -124,9 +176,9 @@ const FIGURE_HUE: Record<ReadoutHue, string> = {
  * category is a 2px rule above the label, in one of five colours that mean
  * the same thing everywhere in the product: emerald is growth, violet is
  * activity, gold is the reward, amber is something slipping, neutral is the
- * roster. The overview's band, the customers table and the messages page all
- * spend this one component, so the same figure looks the same wherever the
- * owner meets it.
+ * roster. Both bands spend this one component, so the same figure looks the
+ * same wherever the owner meets it — and the panel ground is kept for the
+ * day a quieter page needs a strip of its own.
  */
 export function Readouts({
   items,

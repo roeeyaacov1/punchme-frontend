@@ -3,7 +3,15 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { ArrowRight, TrendingDown, TrendingUp } from "lucide-react";
 import { focusRing } from "../marketing/primitives";
-import { Panel, PanelHeader, Readouts, type ReadoutItem } from "./primitives";
+import {
+  BAND_INSET,
+  BAND_RULE,
+  Band,
+  Panel,
+  PanelHeader,
+  Readouts,
+  type ReadoutItem,
+} from "./primitives";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { cn } from "../../lib/cn";
 
@@ -15,12 +23,9 @@ import { cn } from "../../lib/cn";
  * working; `WorthDoing` turns what is left into the two or three things worth
  * their morning.
  *
- * **Why this one surface is loud.** `AppShowcase` on the landing page — the
- * dashboard we sell — puts the owner's headline number on a violet-to-magenta
- * card, and the real dashboard answered with a row of flat white panels that
- * all weighed the same. This is the promised surface, delivered: one band,
- * dark in *both* themes, and everything below it stays quiet. A brief is a
- * brief whatever the theme is set to.
+ * **Why this one surface is loud.** See `Band` in `./primitives` — it is the
+ * ground this stands on, and the messages page's audience band stands on the
+ * same one. Everything below either of them stays quiet.
  *
  * **The floor is the shop's own month.** The horizon along the bottom of the
  * band is this business's thirty days, people per day. It is not an ornament
@@ -74,7 +79,6 @@ export function BriefBand({
   readouts: ReadoutItem[];
 }) {
   const { t } = useTranslation();
-  const reduced = usePrefersReducedMotion();
   // The headline figure does *not* count up. `useCountUp` is a scroll-reveal
   // built for the landing page: it starts from 0 and waits on an
   // IntersectionObserver, so an element already on screen at mount can sit
@@ -83,15 +87,10 @@ export function BriefBand({
   // part is the month drawing itself in, which cannot misreport anything.
 
   return (
-    <section
-      className={cn(
-        "relative isolate overflow-hidden rounded-2xl",
-        // The ad's run, darkened until the type fits. Flips for Hebrew.
-        "grad-brief shadow-panel-lift",
-        !reduced && "animate-fade-in",
-      )}
-    >
-      <div className="relative px-5 pb-5 pt-5 sm:px-7 sm:pb-6 sm:pt-6">
+    <Band>
+      {/* The month sits flush along the bottom, so the inset is on this
+          wrapper rather than on the band itself. */}
+      <div className={cn("relative", BAND_INSET)}>
         <p className="t-eyebrow text-brand-on-band">
           {t("dashboard.brief.title", { days })}
         </p>
@@ -122,13 +121,9 @@ export function BriefBand({
         {/* The readouts sit on the band under a hairline, so the brief is one
             object rather than a headline card with a panel of figures below
             it. Two across on a phone: four columns puts "Reward ready" on two
-            lines in both languages. Same strip the customers and messages
-            pages spend — one figure, one look, wherever it is met. */}
-        <Readouts
-          items={readouts}
-          on="band"
-          className="mt-6 border-t border-white/15 pt-5"
-        />
+            lines in both languages. The same strip the messages band spends —
+            one figure, one look, wherever it is met. */}
+        <Readouts items={readouts} on="band" className={BAND_RULE} />
 
         {capped && (
           <p className="mt-4 text-xs text-brand-on-band">
@@ -143,7 +138,7 @@ export function BriefBand({
           with a number attached that an owner acts on. A ground that eats a
           label is decoration, whatever it is made of. */}
       <Month series={series} />
-    </section>
+    </Band>
   );
 }
 
