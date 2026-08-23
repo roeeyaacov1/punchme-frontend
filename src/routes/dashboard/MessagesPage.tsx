@@ -9,6 +9,7 @@ import {
   Notice,
   Panel,
   PanelHeader,
+  Readouts,
   Tag,
   Toggle,
 } from "../../components/dashboard/primitives";
@@ -173,24 +174,31 @@ export function MessagesPage() {
         <Notice tone="warn">{t("messaging.guard.personalOnHold")}</Notice>
       )}
 
-      {/* Four figures, small: context for the two panels below. */}
-      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {(
-          [
-            ["withCard", summary.data?.customers_with_card],
-            ["inactive30", summary.data?.inactive_counts?.["30"]],
-            ["rewardWaiting", summary.data?.reward_waiting_count],
-            ["sentMonth", summary.data?.sent_this_month],
-          ] as const
-        ).map(([key, value]) => (
-          <Panel key={key} className="px-4 py-3">
-            <dd className="font-heading text-2xl font-bold tabular-nums text-ink">
-              {value ?? "—"}
-            </dd>
-            <dt className="mt-0.5 text-xs text-ink-subtle">{t(`messaging.summary.${key}`)}</dt>
-          </Panel>
-        ))}
-      </dl>
+      {/* The same four figures the overview's band carries, in the same
+          strip, so a number the owner met on the front page is recognisable
+          here. Amber is the one that is slipping away; gold is the reward
+          somebody is owed. */}
+      <Panel className="px-5 py-4 sm:px-6 sm:py-5">
+        <Readouts
+          items={(
+            [
+              ["withCard", summary.data?.customers_with_card, "roster"],
+              ["inactive30", summary.data?.inactive_counts?.["30"], "risk"],
+              ["rewardWaiting", summary.data?.reward_waiting_count, "reward"],
+              ["sentMonth", summary.data?.sent_this_month, "activity"],
+            ] as const
+          ).map(([key, value, hue]) => ({
+            label: t(`messaging.summary.${key}`),
+            value: value ?? "—",
+            hue,
+            // No emphasis here, deliberately. `warn` is #fcd34d on the night
+            // panel and `reward` #ffd875 — as two big adjacent figures they
+            // read as one colour saying two opposite things. They are also
+            // not where anything is done on this page: the rules below are.
+            // So the 3px rules carry the category and the figures stay ink.
+          }))}
+        />
+      </Panel>
 
       {/* Broadcast */}
       <Panel className="p-5 sm:p-6">

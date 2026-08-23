@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { ArrowRight, TrendingDown, TrendingUp } from "lucide-react";
 import { focusRing } from "../marketing/primitives";
-import { Panel, PanelHeader } from "./primitives";
+import { Panel, PanelHeader, Readouts, type ReadoutItem } from "./primitives";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { cn } from "../../lib/cn";
 
@@ -55,23 +55,6 @@ const BAND_AREA_BOTTOM = "rgb(255 255 255 / 0.01)";
  * verdict above it is still the loudest thing in the band. */
 const PLOT_H = 56;
 
-export interface Readout {
-  label: string;
-  value: number;
-  /** What kind of number this is. The rule over it is the only place the
-   * category is said in colour, and the label says it in words underneath. */
-  hue: "roster" | "growth" | "activity" | "reward";
-  /** The activity walk fell short, so this figure is a floor. */
-  capped?: boolean;
-}
-
-const HUE_RULE: Record<Readout["hue"], string> = {
-  roster: "bg-white/45",
-  growth: "bg-[#6ee7b7]",
-  activity: "bg-[#a78bfa]",
-  reward: "bg-[#ffd875]",
-};
-
 export function BriefBand({
   days,
   returned,
@@ -88,7 +71,7 @@ export function BriefBand({
   capped: boolean;
   /** Oldest first — one entry per day of the window. */
   series: { date: Date; visits: number }[];
-  readouts: Readout[];
+  readouts: ReadoutItem[];
 }) {
   const { t } = useTranslation();
   const reduced = usePrefersReducedMotion();
@@ -139,24 +122,13 @@ export function BriefBand({
         {/* The readouts sit on the band under a hairline, so the brief is one
             object rather than a headline card with a panel of figures below
             it. Two across on a phone: four columns puts "Reward ready" on two
-            lines in both languages. */}
-        <dl className="mt-6 grid grid-cols-2 gap-x-5 gap-y-4 border-t border-white/15 pt-5 sm:grid-cols-4">
-          {readouts.map((readout) => (
-            <div key={readout.label} className="flex flex-col gap-1.5">
-              <span
-                aria-hidden
-                className={cn("h-[3px] w-7 rounded-full", HUE_RULE[readout.hue])}
-              />
-              <dt className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-brand-on-band">
-                {readout.label}
-              </dt>
-              <dd className="font-heading text-2xl font-bold tabular-nums text-white">
-                {readout.value}
-                {readout.capped ? "+" : ""}
-              </dd>
-            </div>
-          ))}
-        </dl>
+            lines in both languages. Same strip the customers and messages
+            pages spend — one figure, one look, wherever it is met. */}
+        <Readouts
+          items={readouts}
+          on="band"
+          className="mt-6 border-t border-white/15 pt-5"
+        />
 
         {capped && (
           <p className="mt-4 text-xs text-brand-on-band">

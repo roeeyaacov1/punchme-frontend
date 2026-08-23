@@ -72,13 +72,129 @@ export function GroupLabel({
 
 export type Tone = "neutral" | "accent" | "reward" | "ok" | "warn" | "danger";
 
+/** What kind of number a readout is holding. The rule above it is the only
+ * place the category is said in colour; the label says it in words. */
+export type ReadoutHue = "roster" | "growth" | "activity" | "reward" | "risk";
+
+export interface ReadoutItem {
+  label: string;
+  value: number | string;
+  hue: ReadoutHue;
+  /** The figure takes its own hue once there is something in it — for the
+   * one or two that mean "go and do something". Panels only: on the band
+   * every figure is white, because a hue measured against a page ground
+   * cannot be trusted against a gradient. */
+  emphasis?: boolean;
+  /** The sample fell short, so this figure is a floor. */
+  capped?: boolean;
+}
+
+/** The rules, on a panel (tokens, which flip with the theme) and on the brief
+ * band (fixed lights, because that ground never flips). */
+const RULE_ON_PANEL: Record<ReadoutHue, string> = {
+  roster: "bg-ink/25",
+  growth: "bg-ok",
+  activity: "bg-primary",
+  reward: "bg-reward",
+  risk: "bg-warn",
+};
+const RULE_ON_BAND: Record<ReadoutHue, string> = {
+  roster: "bg-white/45",
+  growth: "bg-[#6ee7b7]",
+  activity: "bg-[#a78bfa]",
+  reward: "bg-[#ffd875]",
+  risk: "bg-[#fcd34d]",
+};
+/** Figures that carry their own hue. Every one measured on both panel
+ * grounds: ok 5.48/10.77, primary-text 6.14/6.03, reward 6.58/11.98,
+ * warn 7.09/11.38. */
+const FIGURE_HUE: Record<ReadoutHue, string> = {
+  roster: "text-ink",
+  growth: "text-ok",
+  activity: "text-primary-text",
+  reward: "text-reward",
+  risk: "text-warn",
+};
+
+/**
+ * A row of readouts — an instrument strip, not a row of stat cards.
+ *
+ * Four identical boxes each holding one number is the shape every dashboard
+ * reaches for, and it says nothing about what the numbers are. Here the
+ * category is a 2px rule above the label, in one of five colours that mean
+ * the same thing everywhere in the product: emerald is growth, violet is
+ * activity, gold is the reward, amber is something slipping, neutral is the
+ * roster. The overview's band, the customers table and the messages page all
+ * spend this one component, so the same figure looks the same wherever the
+ * owner meets it.
+ */
+export function Readouts({
+  items,
+  on = "panel",
+  className,
+}: {
+  items: ReadoutItem[];
+  on?: "panel" | "band";
+  className?: string;
+}) {
+  const band = on === "band";
+  const rules = band ? RULE_ON_BAND : RULE_ON_PANEL;
+  return (
+    <dl
+      className={cn(
+        "grid grid-cols-2 gap-x-5 gap-y-4",
+        items.length >= 4 ? "sm:grid-cols-4" : "sm:grid-cols-3",
+        className,
+      )}
+    >
+      {items.map((item) => (
+        <div key={item.label} className="flex flex-col gap-1.5">
+          <span
+            aria-hidden
+            className={cn("h-[3px] w-7 rounded-full", rules[item.hue])}
+          />
+          <dt
+            className={cn(
+              "font-mono text-[0.625rem] uppercase tracking-[0.12em]",
+              band ? "text-brand-on-band" : "text-ink-subtle",
+            )}
+          >
+            {item.label}
+          </dt>
+          <dd
+            className={cn(
+              "font-heading text-2xl font-bold tabular-nums",
+              band
+                ? "text-white"
+                : item.emphasis && item.value !== 0
+                  ? FIGURE_HUE[item.hue]
+                  : "text-ink",
+            )}
+          >
+            {item.value}
+            {item.capped ? "+" : ""}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 const TAG_TONES: Record<Tone, string> = {
   neutral: "bg-ink/[0.07] text-ink-muted",
   // `accent` is the brand — a plan badge, a thing that is switched on.
-  // `reward` is the free coffee, and the two were the same violet until the
-  // brief band started saying the reward in gold. One meaning, one colour.
   accent: "bg-primary-text/15 text-primary-text",
-  reward: "bg-reward/15 text-reward",
+  // The one filled tag in the product. Every other tone is a wash of itself,
+  // which is right for a state; a full card is not a state, it is the thing
+  // the customer has been collecting towards, and it gets to look like an
+  // event. Filled also settles a collision the gold introduced: `warn` is
+  // #fcd34d on the night panel and `reward` #ffd875, so VOID and REWARD READY
+  // were two near-identical yellows meaning opposite things. One is now a
+  // solid pill and the other a faint tint, which no longer reads alike.
+  // Fixed colours, not tokens: gold is gold in both themes, and navy on it
+  // measures 10.06:1 either way. (`gold` alone would be 2.96:1 as text on
+  // white — it is only ever a fill, and this is the fill.)
+  reward: "bg-gold text-navy",
   ok: "bg-ok/15 text-ok",
   warn: "bg-warn/15 text-warn",
   danger: "bg-danger/15 text-danger",

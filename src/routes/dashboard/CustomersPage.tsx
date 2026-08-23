@@ -10,6 +10,7 @@ import {
   Figure,
   Notice,
   Panel,
+  Readouts,
   Tag,
   fieldClasses,
   type Tone,
@@ -261,30 +262,25 @@ export function CustomersPage() {
         </Panel>
       ) : (
         <>
-          {/* Three counts, and only the one that means "go and do something"
-              is coloured. */}
-          <dl className="grid grid-cols-3 gap-3">
-            {(["total", "ready", "recent"] as const).map((key) => (
-              <Panel key={key} className="px-4 py-3">
-                <dd
-                  className={cn(
-                    "font-heading text-2xl font-bold tabular-nums",
-                    key === "ready" && stats.ready > 0
-                      ? "text-primary-text"
-                      : "text-ink",
-                  )}
-                >
-                  {stats[key]}
-                </dd>
-                <dt className="mt-0.5 text-xs text-ink-subtle">
-                  {t(`dashboard.customers.stats.${key}`, {
-                    days: RECENT_WINDOW_DAYS,
-                  })}
-                </dt>
-              </Panel>
-            ))}
-          </dl>
-
+          {/* The overview's strip, so the same three figures are the same
+              three figures wherever they are met. Only the one that means "go
+              and do something" carries its colour into the figure. */}
+          <Panel className="px-5 py-4 sm:px-6">
+            <Readouts
+              items={(
+                [
+                  ["total", "roster"],
+                  ["ready", "reward"],
+                  ["recent", "growth"],
+                ] as const
+              ).map(([key, hue]) => ({
+                label: t(`dashboard.customers.stats.${key}`, { days: RECENT_WINDOW_DAYS }),
+                value: stats[key],
+                hue,
+                emphasis: key === "ready",
+              }))}
+            />
+          </Panel>
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative min-w-[14rem] flex-1">
               <Search
