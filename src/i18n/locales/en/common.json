@@ -590,7 +590,8 @@
         "card": "Card",
         "stamps": "Stamps",
         "required": "Stamps required",
-        "joined": "Joined"
+        "joined": "Joined",
+        "actions": "Actions"
       },
       "stats": {
         "total": "Customers",
@@ -627,6 +628,21 @@
         "voided": "This card has been voided",
         "conflict": "Someone else changed this card first — we've refreshed it to the current count, so check it and try again.",
         "failed": "Couldn't update that card: {{reason}}"
+      },
+      "menu": {
+        "label": "More for {{name}}",
+        "copyPhone": "Copy phone number",
+        "copied": "Phone number copied",
+        "remove": "Remove from list",
+        "unnamed": "this customer"
+      },
+      "remove": {
+        "title": "Remove {{name}}?",
+        "body": "Their card, the stamps on it and their whole visit history are deleted permanently. This can't be undone.",
+        "wallet": "The pass already in their wallet stops working, but stays on their phone until they delete it themselves — no business can remove it for them.",
+        "rejoin": "They can sign up again from your QR code or standee, as a new customer starting from zero.",
+        "confirm": "Remove",
+        "failed": "Couldn't remove that customer: {{reason}}"
       },
       "export": {
         "cta": "Export CSV",

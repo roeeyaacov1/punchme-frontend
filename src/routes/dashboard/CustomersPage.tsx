@@ -2,9 +2,11 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Download, Search } from "lucide-react";
+import { Copy, Download, Search, Trash2 } from "lucide-react";
 import { StampAdjuster } from "../../components/customers/StampAdjuster";
 import { Monogram } from "../../components/customers/Monogram";
+import { RemoveCustomerConfirm } from "../../components/customers/RemoveCustomerConfirm";
+import { RowMenu, type RowMenuItem } from "../../components/customers/RowMenu";
 import { ctaClasses, focusRing } from "../../components/marketing/primitives";
 import { CardPunches } from "../../components/dashboard/CardPunches";
 import {
@@ -17,9 +19,10 @@ import {
   type Tone,
 } from "../../components/dashboard/primitives";
 import { useBusiness } from "../../business/useBusiness";
-import { canEnrollRealCustomers } from "../../business/gating";
+import { canEnrollRealCustomers, canManage } from "../../business/gating";
 import {
   adjustCardStamps,
+  deleteCustomer,
   listAllCustomers,
   type CustomerListItem,
 } from "../../api/loyalty";
@@ -118,14 +121,22 @@ function matchesSearch(
 
 export function CustomersPage() {
   const { t, i18n } = useTranslation();
-  const { business } = useBusiness();
+  const { business, role } = useBusiness();
   const queryClient = useQueryClient();
   const canEnroll = canEnrollRealCustomers(business);
+  // Removing a customer is manager+ on the API (`get_managed_business_or_404`),
+  // so a staff member is offered the rest of the menu and not that item —
+  // the same rule the nav follows, for the same reason: never draw a door
+  // that answers 403.
+  const canRemove = canManage(role);
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("progress");
   const [page, setPage] = useState(1);
+  /** The card whose removal is being confirmed, at most one at a time. */
+  const [removing, setRemoving] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(search, 200);
 
@@ -163,6 +174,34 @@ export function CustomersPage() {
       }
     },
   });
+
+  const remove = useMutation({
+    mutationFn: (cardId: string) => deleteCustomer(business!.id!, cardId),
+    onSuccess: () => {
+      setRemoving(null);
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      // Their stamps leave the feed with them, and every audience a message
+      // could reach is one person smaller.
+      queryClient.invalidateQueries({ queryKey: ["activity"] });
+      queryClient.invalidateQueries({
+        queryKey: ["messaging", "summary", business?.id],
+      });
+    },
+  });
+
+  async function copyPhone(c: CustomerListItem) {
+    if (!c.customer_phone) return;
+    try {
+      await navigator.clipboard.writeText(c.customer_phone);
+      setCopied(c.card_id);
+      window.setTimeout(() => setCopied(null), 2500);
+    } catch {
+      // A clipboard the browser won't hand over (an insecure origin, a
+      // permission the owner declined) is not worth an error panel — the
+      // number is on screen and selectable either way.
+      setCopied(null);
+    }
+  }
 
   /** The search applied but not the bucket. This is what the chips count, so
    * each one reports what it would actually return from where the owner is
@@ -273,6 +312,69 @@ export function CustomersPage() {
             expected: c.stamp_count,
           })
         }
+      />
+    );
+  }
+
+  /** How to refer to this person in a sentence — the menu's label and the
+   * confirmation's title.
+   *
+   * The row itself can print an em dash for a customer who joined without a
+   * name, but "Remove —?" is not a question, and a screen reader hearing
+   * "More for" nine times learns nothing about which row it is on. So the
+   * number stands in where the name is missing, and a phrase where both
+   * are. */
+  function nameOf(c: CustomerListItem): string {
+    return (
+      c.customer_display_name.trim() ||
+      c.customer_phone ||
+      t("dashboard.customers.menu.unnamed")
+    );
+  }
+
+  /** The overflow menu for one row, or nothing if there is nothing in it.
+   *
+   * Copying the number is offered to everyone who can see the roster — it
+   * reveals nothing the row is not already printing, and at a counter it is
+   * the fastest way to get from a name to a phone call. Removal is the item
+   * that is ranked. */
+  function menuFor(c: CustomerListItem) {
+    const items: RowMenuItem[] = [];
+    if (c.customer_phone) {
+      items.push({
+        key: "copy",
+        label: t("dashboard.customers.menu.copyPhone"),
+        icon: Copy,
+        onSelect: () => void copyPhone(c),
+      });
+    }
+    if (canRemove) {
+      items.push({
+        key: "remove",
+        label: t("dashboard.customers.menu.remove"),
+        icon: Trash2,
+        danger: true,
+        onSelect: () => setRemoving(c.card_id),
+      });
+    }
+    if (items.length === 0) return null;
+    return (
+      <RowMenu
+        label={t("dashboard.customers.menu.label", { name: nameOf(c) })}
+        items={items}
+        disabled={remove.isPending}
+      />
+    );
+  }
+
+  /** The confirmation that stands in for a row while it is being answered. */
+  function confirmFor(c: CustomerListItem) {
+    return (
+      <RemoveCustomerConfirm
+        name={nameOf(c)}
+        busy={remove.isPending && remove.variables === c.card_id}
+        onConfirm={() => remove.mutate(c.card_id)}
+        onCancel={() => setRemoving(null)}
       />
     );
   }
@@ -413,6 +515,18 @@ export function CustomersPage() {
             </Notice>
           )}
 
+          {copied && (
+            <Notice tone="ok">{t("dashboard.customers.menu.copied")}</Notice>
+          )}
+
+          {remove.isError && (
+            <Notice tone="danger">
+              {t("dashboard.customers.remove.failed", {
+                reason: remove.error.message,
+              })}
+            </Notice>
+          )}
+
           {adjust.isError &&
             (isStampConflict(adjust.error) ? (
               // Not the owner's mistake, and already self-corrected by the
@@ -455,21 +569,30 @@ export function CustomersPage() {
                 {pageRows.map((c) => (
                   <li key={c.card_id}>
                     <Panel className="relative flex flex-col gap-3 overflow-hidden p-4">
-                      {readyEdge(c)}
-                      <div className="flex items-start justify-between gap-3">
-                        {personFor(c)}
-                        <Tag tone={BUCKET_TONES[bucketOf(c)]}>
-                          {t(`dashboard.customers.status.${bucketOf(c)}`)}
-                        </Tag>
-                      </div>
-                      <div className="flex items-center justify-between gap-3">
-                        <CardPunches
-                          filled={c.stamp_count}
-                          total={c.stamps_required}
-                          maxMarks={PUNCHABLE_CARD}
-                        />
-                        {adjusterFor(c)}
-                      </div>
+                      {removing === c.card_id ? (
+                        confirmFor(c)
+                      ) : (
+                        <>
+                          {readyEdge(c)}
+                          <div className="flex items-start justify-between gap-3">
+                            {personFor(c)}
+                            <div className="flex shrink-0 items-center gap-1">
+                              <Tag tone={BUCKET_TONES[bucketOf(c)]}>
+                                {t(`dashboard.customers.status.${bucketOf(c)}`)}
+                              </Tag>
+                              {menuFor(c)}
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between gap-3">
+                            <CardPunches
+                              filled={c.stamp_count}
+                              total={c.stamps_required}
+                              maxMarks={PUNCHABLE_CARD}
+                            />
+                            {adjusterFor(c)}
+                          </div>
+                        </>
+                      )}
                     </Panel>
                   </li>
                 ))}
@@ -494,6 +617,14 @@ export function CustomersPage() {
                           </th>
                         ),
                       )}
+                      {/* Unlabelled on screen — a column of three dots needs
+                          no heading — but named for a screen reader, which
+                          would otherwise meet a blank `th`. */}
+                      <th className="w-px px-3 py-2.5">
+                        <span className="sr-only">
+                          {t("dashboard.customers.columns.actions")}
+                        </span>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -502,23 +633,36 @@ export function CustomersPage() {
                         key={c.card_id}
                         className="border-b border-border last:border-0 transition-colors hover:bg-ink/[0.03]"
                       >
-                        <td className="relative px-3 py-2.5">
-                          {readyEdge(c)}
-                          {personFor(c)}
-                        </td>
-                        <td className="px-3 py-2.5">
-                          <CardPunches
-                            filled={c.stamp_count}
-                            total={c.stamps_required}
-                            maxMarks={PUNCHABLE_CARD}
-                          />
-                        </td>
-                        <td className="px-3 py-2.5">
-                          <Tag tone={BUCKET_TONES[bucketOf(c)]}>
-                            {t(`dashboard.customers.status.${bucketOf(c)}`)}
-                          </Tag>
-                        </td>
-                        <td className="px-3 py-2.5">{adjusterFor(c)}</td>
+                        {removing === c.card_id ? (
+                          // One cell across the row rather than a second row
+                          // below it: the question replaces the person it is
+                          // about, so the roster never shows a customer and
+                          // their own removal at the same time.
+                          <td colSpan={5} className="px-3 py-3">
+                            {confirmFor(c)}
+                          </td>
+                        ) : (
+                          <>
+                            <td className="relative px-3 py-2.5">
+                              {readyEdge(c)}
+                              {personFor(c)}
+                            </td>
+                            <td className="px-3 py-2.5">
+                              <CardPunches
+                                filled={c.stamp_count}
+                                total={c.stamps_required}
+                                maxMarks={PUNCHABLE_CARD}
+                              />
+                            </td>
+                            <td className="px-3 py-2.5">
+                              <Tag tone={BUCKET_TONES[bucketOf(c)]}>
+                                {t(`dashboard.customers.status.${bucketOf(c)}`)}
+                              </Tag>
+                            </td>
+                            <td className="px-3 py-2.5">{adjusterFor(c)}</td>
+                            <td className="px-3 py-2.5">{menuFor(c)}</td>
+                          </>
+                        )}
                       </tr>
                     ))}
                   </tbody>

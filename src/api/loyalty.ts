@@ -162,6 +162,29 @@ export function adjustCardStamps(
   );
 }
 
+/** JWTAuth, **manager+** (`get_managed_business_or_404`) — a staff member
+ * gets 403 `insufficient_role`, so the caller must gate the control on
+ * `canManage` rather than offer a door that won't open.
+ *
+ * Keyed by `card_id`, like `adjustCardStamps` and for the same reason: the
+ * customers list returns card ids and the dashboard never handles a serial.
+ *
+ * What it actually destroys, because the confirmation has to say so: the
+ * card, its whole stamp and redemption history, and — when this was the
+ * person's last card at any business — the customer record and their OTP
+ * challenges too. 204 on success, 404 for a card that isn't this
+ * business's (never 403, which would confirm the card exists).
+ *
+ * What it cannot do is remove the pass from the customer's phone. No wallet
+ * platform offers an issuer that; the backend retires the PassKit member
+ * (`apps/wallet/signals.py`, on `pre_delete`), which stops the pass updating
+ * and stops it billing, but the dead card sits in their wallet until they
+ * delete it themselves. Nor is it a block: the standee QR is public, so a
+ * removed customer who scans it again enrolls fresh at zero stamps. */
+export function deleteCustomer(businessId: string, cardId: string) {
+  return api.delete<void>(`/api/businesses/${businessId}/customers/${cardId}`);
+}
+
 export function listActivity(
   businessId: string,
   page?: number,
