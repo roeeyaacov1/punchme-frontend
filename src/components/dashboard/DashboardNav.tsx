@@ -33,12 +33,12 @@ import { GroupLabel } from "./primitives";
  * you can scan and a menu you have to read.
  *
  * Scan leads the counter group and is the only entry there that is an
- * action rather than a reading. That is also why it takes the tab bar to
- * five, which is as wide as one gets to be: it is the only screen an owner
- * opens with a customer standing in front of them, and burying the thing
- * they came to do behind "More" would cost a tap every single visit.
+ * action rather than a reading: it is the only screen an owner opens with a
+ * customer standing in front of them, which is why it is never behind
+ * "More" and why on a phone it is a button rather than a tab.
  *
- * Only the first group gets a tab on the phone; the rest live behind "More".
+ * Which of these get a tab on the phone is no longer "the first group", and
+ * is not decided here — see `TAB_START` / `TAB_CENTER` / `TAB_END` below.
  *
  * `min` is the lowest role a destination is worth showing to. It is not the
  * security boundary — the API is, and it answers 403 either way — it is what
@@ -93,12 +93,49 @@ export function visibleGroups(role: Role | null) {
   })).filter((group) => group.items.length > 0);
 }
 
-/** Every route that lives behind the phone's "More" tab — all groups but
- * the first. Sub-routes (`/dashboard/messages/new`) count as their parent,
- * so the tab lights up on them too. */
-export const MORE_PATHS: readonly string[] = NAV_GROUPS.slice(1).flatMap((group) =>
-  group.items.map((item) => item.to),
+/**
+ * What the phone's bar carries, and in what order.
+ *
+ * It used to be "the first group", which was true for exactly as long as the
+ * counter was what fitted. It isn't any more: Messages is on the bar and
+ * Activity is not, and neither of those is a thing the groups can say. The
+ * groups are about what a route *is*; this is about what an owner reaches
+ * for with a customer standing in front of them. So the bar gets its own
+ * list, and everything not on it falls behind "More" automatically.
+ *
+ * Scan is the middle because it is the only entry here that is an action
+ * rather than a reading, and the only screen anyone opens mid-transaction.
+ * The rest read outwards from it: what the shop did (Overview) and who it
+ * did it with (Customers) on the leading side, what to say to them (Push)
+ * and everything else (More) on the trailing side. In Hebrew that whole row
+ * mirrors, which is why it is written as start-and-end and never as
+ * left-and-right.
+ *
+ * Typed off `NAV_GROUPS` rather than as loose strings, so a rename over
+ * there is a compile error here instead of a tab that silently vanishes.
+ */
+type NavKey = (typeof NAV_GROUPS)[number]["items"][number]["key"];
+
+const TAB_START: readonly NavKey[] = ["overview", "customers"];
+const TAB_CENTER: NavKey = "scan";
+const TAB_END: readonly NavKey[] = ["messages"];
+
+const TAB_KEYS: readonly NavKey[] = [...TAB_START, TAB_CENTER, ...TAB_END];
+
+const ALL_ITEMS = NAV_GROUPS.flatMap(
+  (group) => group.items as readonly NavItem[],
 );
+
+function itemByKey(key: NavKey): NavItem {
+  return ALL_ITEMS.find((item) => item.key === key)!;
+}
+
+/** Everything the bar doesn't carry lives behind "More" — Activity included,
+ * now that it is off the bar. Sub-routes (`/dashboard/messages/new`) count as
+ * their parent, so the tab lights up on them too. */
+export const MORE_PATHS: readonly string[] = ALL_ITEMS.filter(
+  (item) => !TAB_KEYS.includes(item.key as NavKey),
+).map((item) => item.to);
 
 export function isMorePath(pathname: string): boolean {
   return MORE_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -201,13 +238,73 @@ export function SidebarNav({
   );
 }
 
+/** The bar's own word for a destination, where the rail's is too long to sit
+ * under a 22px icon. "Customer messages" is the right name in a list of
+ * nine; on a tab it truncates to "Customer m..." and says nothing. */
+const TAB_LABEL: Partial<Record<NavKey, string>> = {
+  messages: "dashboard.nav.messagesTab",
+};
+
+const TAB_BASE =
+  "flex min-h-[56px] w-full flex-col items-center justify-center gap-1 px-1 pb-2 pt-2.5 text-[0.6875rem] font-semibold transition-colors";
+
+function tabClasses(active: boolean) {
+  return cn(
+    TAB_BASE,
+    focusRing,
+    active ? "text-primary-text" : "text-ink-subtle",
+  );
+}
+
+/**
+ * One tab's face: icon over label, the active one marked by a filled ground
+ * behind the icon as well as by colour.
+ *
+ * The design draws its active state as a filled icon against an outlined
+ * one, which lucide cannot do — it ships strokes only. The ground is the
+ * stand-in, and it is the honest one: it changes the icon's silhouette at a
+ * glance, which is the whole job the filled variant was doing, and it does
+ * it in the accent already measured rather than in a second colour that
+ * would need measuring.
+ */
+function TabFace({
+  Icon,
+  label,
+  active,
+}: {
+  Icon: typeof Store;
+  label: string;
+  active: boolean;
+}) {
+  return (
+    <>
+      <span
+        aria-hidden
+        className={cn(
+          "flex h-8 w-12 shrink-0 items-center justify-center rounded-full transition-colors",
+          active ? "bg-primary/10" : "bg-transparent",
+        )}
+      >
+        <Icon size={22} strokeWidth={active ? 2.4 : 1.8} />
+      </span>
+      <span className="w-full truncate text-center">{label}</span>
+    </>
+  );
+}
+
 /**
  * The phone's bar, at the bottom where the thumb is.
  *
- * Only the counter group gets tabs — four of them plus "More", which is the
- * width a tab bar stops being scannable at, and the reason nothing else may
- * join it. Setup and messages live behind "More" with the account rows,
- * because none of those four routes is something you reach for mid-shift.
+ * Five slots, and the middle one is a raised button rather than a tab. Scan
+ * is not a place you go to look at something; it is the one thing an owner
+ * does with a person waiting, so it is drawn as the button it is, lifted
+ * clear of the bar's own edge and sized well past a thumb.
+ *
+ * A slot whose role can't reach it stays in the row, empty. The bar is two
+ * equal halves either side of that button, and dropping a slot outright
+ * would slide the button off centre — so a staff member, who has no
+ * Messages, gets a gap on the trailing side rather than a bar that is
+ * visibly a different shape from everyone else's.
  */
 export function BottomBar({
   onMore,
@@ -217,56 +314,88 @@ export function BottomBar({
   moreActive: boolean;
 }) {
   const { t } = useTranslation();
+  const { role } = useBusiness();
+  const scan = itemByKey(TAB_CENTER);
+
+  // The rail's filter, with one difference that only matters on a phone: a
+  // tab asking for no more than the floor is drawn before the role lands.
+  // `staff` is what anyone with a dashboard at all already is, and a bar
+  // that empties itself for the length of a fetch is a bar that flickers.
+  const slot = (key: NavKey) => {
+    const item = itemByKey(key);
+    const shown = item.min === "staff" || atLeast(role, item.min as Role);
+    if (!shown) return <li key={key} aria-hidden className="flex-1 basis-0" />;
+    return (
+      <li key={key} className="flex-1 basis-0">
+        <NavLink
+          to={item.to}
+          end={item.end}
+          data-tour={`nav-${item.key}`}
+          className={({ isActive }) => tabClasses(isActive)}
+        >
+          {({ isActive }) => (
+            <TabFace
+              Icon={item.Icon}
+              label={t(TAB_LABEL[key] ?? `dashboard.nav.${key}`)}
+              active={isActive}
+            />
+          )}
+        </NavLink>
+      </li>
+    );
+  };
+
   return (
     <nav
       aria-label={t("dashboard.nav.label")}
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 lg:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <ul className="mx-auto flex max-w-lg items-stretch">
-        {NAV_GROUPS[0].items.map((item) => (
-          <li key={item.key} className="flex-1">
+      <div className="mx-auto max-w-lg rounded-t-[28px] border border-b-0 border-border bg-surface/95 shadow-panel-lift backdrop-blur">
+        <ul className="flex items-stretch">
+          {TAB_START.map(slot)}
+
+          {/* Scan keeps its place in the row — same reading order, same tab
+              order — and only its own box climbs out of it. */}
+          <li className="flex w-[5.5rem] shrink-0 items-start justify-center">
             <NavLink
-              to={item.to}
-              end={item.end}
-              data-tour={`nav-${item.key}`}
+              to={scan.to}
+              end={scan.end}
+              data-tour={`nav-${scan.key}`}
+              aria-label={t(`dashboard.nav.${scan.key}`)}
               className={({ isActive }) =>
                 cn(
-                  "flex min-h-[56px] flex-col items-center justify-center gap-1 px-1 py-2 text-[0.6875rem] font-semibold transition-colors",
+                  "-mt-4 flex h-[4.625rem] w-[4.625rem] items-center justify-center rounded-full border-[5px] bg-primary bg-clip-padding text-primary-on shadow-lift transition-colors",
                   focusRing,
-                  isActive ? "text-primary-text" : "text-ink-subtle",
+                  // The halo is the fill again at low alpha, so it reads as
+                  // the button's own light in either theme rather than as a
+                  // colour of its own.
+                  isActive ? "border-primary/45" : "border-primary/20",
                 )
               }
             >
-              {({ isActive }) => (
-                <>
-                  <item.Icon
-                    size={20}
-                    aria-hidden
-                    strokeWidth={isActive ? 2.4 : 1.8}
-                  />
-                  <span className="truncate">{t(`dashboard.nav.${item.key}`)}</span>
-                </>
-              )}
+              <scan.Icon size={26} aria-hidden strokeWidth={2} />
             </NavLink>
           </li>
-        ))}
-        <li className="flex-1">
-          <button
-            type="button"
-            onClick={onMore}
-            aria-haspopup="dialog"
-            className={cn(
-              "flex min-h-[56px] w-full flex-col items-center justify-center gap-1 px-1 py-2 text-[0.6875rem] font-semibold transition-colors",
-              focusRing,
-              moreActive ? "text-primary-text" : "text-ink-subtle",
-            )}
-          >
-            <Ellipsis size={20} aria-hidden strokeWidth={moreActive ? 2.4 : 1.8} />
-            <span>{t("dashboard.nav.more")}</span>
-          </button>
-        </li>
-      </ul>
+
+          {TAB_END.map(slot)}
+
+          <li className="flex-1 basis-0">
+            <button
+              type="button"
+              onClick={onMore}
+              aria-haspopup="dialog"
+              className={tabClasses(moreActive)}
+            >
+              <TabFace
+                Icon={Ellipsis}
+                label={t("dashboard.nav.more")}
+                active={moreActive}
+              />
+            </button>
+          </li>
+        </ul>
+      </div>
     </nav>
   );
 }
@@ -349,10 +478,18 @@ export function MoreSheet({
 export function SetupRows({ onNavigate }: { onNavigate: () => void }) {
   const { t } = useTranslation();
   const { role } = useBusiness();
-  // By key rather than by index: for a staff member the counter is the only
-  // group left standing, and "everything after the first one" would be a
-  // quietly different sentence than "everything that is not the counter".
-  const groups = visibleGroups(role).filter((group) => group.key !== "counter");
+  // By tab rather than by group: Activity is a counter route that no longer
+  // has a tab, so "every group but the counter" would leave it with nowhere
+  // to be reached from on a phone. The sheet is the complement of the bar,
+  // which is the same sentence `MORE_PATHS` is written in.
+  const groups = visibleGroups(role)
+    .map((group) => ({
+      key: group.key,
+      items: group.items.filter(
+        (item) => !TAB_KEYS.includes(item.key as NavKey),
+      ),
+    }))
+    .filter((group) => group.items.length > 0);
   return (
     <div className="flex flex-col gap-4">
       {groups.map((group) => (

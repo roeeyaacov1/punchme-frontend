@@ -526,7 +526,8 @@
       "signOut": "Sign out",
       "label": "Dashboard sections",
       "more": "More",
-      "messages": "Customer messages"
+      "messages": "Customer messages",
+      "messagesTab": "Push"
     },
     "plan": {
       "free": "Free",
