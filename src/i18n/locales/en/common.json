@@ -549,19 +549,6 @@
         "visits": "Visits"
       }
     },
-    "today": {
-      "title": "Worth doing",
-      "clear": "Nothing needs you right now.",
-      "inactive_one": "1 customer hasn't been back in {{days}} days.",
-      "inactive_other": "{{count}} customers haven't been back in {{days}} days.",
-      "inactiveCta": "Win them back",
-      "birthday_one": "1 birthday this month.",
-      "birthday_other": "{{count}} birthdays this month.",
-      "birthdayCta": "Send a greeting",
-      "quiet_one": "Nothing has been scanned for a day.",
-      "quiet_other": "Nothing has been scanned for {{count}} days.",
-      "quietCta": "Open the scanner"
-    },
     "qr": {
       "title": "Your enrollment QR",
       "activateCta": "Activate to get your QR code"
@@ -807,13 +794,6 @@
       "fewerThanLast_one": "1 fewer than last week",
       "fewerThanLast_other": "{{count}} fewer than last week",
       "sameAsLast": "Same as last week"
-    },
-    "near": {
-      "title": "Close to a reward",
-      "empty": "Nobody's close yet — this fills up as people collect.",
-      "all": "All customers",
-      "toGo_one": "1 to go",
-      "toGo_other": "{{count}} to go"
     },
     "start": {
       "title": "Get your first customer",
@@ -1406,15 +1386,6 @@
       "kind_unsupported_direct": "This customer can't be messaged on her own right now: the wallet publishes to a whole card design at once, and more than one customer holds hers — so a message meant for her would reach them too.",
       "card_void": "This card has been voided, so there's nothing to send a message to.",
       "card_has_no_pass": "This customer's wallet pass hasn't been issued yet, so there's nowhere for the message to arrive."
-    },
-    "overview": {
-      "title": "Customer messages",
-      "none": "No automatic rules yet.",
-      "active_one": "{{count}} rule on",
-      "active_other": "{{count}} rules on",
-      "sentMonth_one": "{{count}} message this month",
-      "sentMonth_other": "{{count}} messages this month",
-      "all": "All messages"
     },
     "activity": {
       "gift": "gift"

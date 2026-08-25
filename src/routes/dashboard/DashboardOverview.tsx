@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowRight, Cake, Copy, ScanLine, Send, UserRoundX } from "lucide-react";
+import { ArrowRight, Copy } from "lucide-react";
 import { CardPreview } from "../../components/card-studio/CardPreviews";
 import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
 import { PunchMark } from "../../components/marketing/PunchMark";
@@ -14,25 +14,17 @@ import {
   Notice,
   Panel,
   PanelHeader,
-  Tag,
 } from "../../components/dashboard/primitives";
-import { BriefBand, WorthDoing, type TodoRow } from "../../components/dashboard/Brief";
-import { CardPunches } from "../../components/dashboard/CardPunches";
+import { BriefBand } from "../../components/dashboard/Brief";
 import { InstallApp } from "../../components/dashboard/InstallApp";
 import { WeekLedger } from "../../components/dashboard/WeekLedger";
 import { useBusiness } from "../../business/useBusiness";
 import { canEnrollRealCustomers, canManage, isOwner } from "../../business/gating";
 import { listTemplates } from "../../api/businesses";
 import { designImageUrls, getTemplateDesign } from "../../api/designs";
-import {
-  listAllCustomers,
-  previewCard,
-  type CustomerListItem,
-  type EnrollOut,
-} from "../../api/loyalty";
-import { getMessagingSummary, listAutomations } from "../../api/messaging";
+import { listAllCustomers, previewCard, type EnrollOut } from "../../api/loyalty";
 import { fetchActivityWindow } from "./activityWindow";
-import { BRIEF_DAYS, QUIET_DAYS, buildBrief } from "./overviewBrief";
+import { BRIEF_DAYS, buildBrief } from "./overviewBrief";
 import { buildEnrollUrl } from "../../lib/enrollUrl";
 import { useWalletPass } from "../../hooks/useWalletPass";
 import { cn } from "../../lib/cn";
@@ -43,19 +35,6 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * have the thirty before them to be measured against — one walk serves the
  * verdict, its comparison, and the week ledger underneath it. */
 const WINDOW_DAYS = BRIEF_DAYS * 2;
-/** Which of `inactive_counts`' buckets the "worth doing" row reads. 30 is the
- * bucket the Messages page surfaces and the win-back rule's own default. */
-const INACTIVE_BUCKET = "30";
-/** How many people the counter panel names. More than this and it stops
- * being "who should I look out for" and becomes the customers table. */
-const NEAR_LIMIT = 5;
-/** A card longer than this is a progress figure, not a row of marks. */
-const PUNCHABLE_CARD = 10;
-
-function remainingOf(c: CustomerListItem): number {
-  return Math.max(0, c.stamps_required - c.stamp_count);
-}
-
 export function DashboardOverview() {
   const { t } = useTranslation();
   const { business, role } = useBusiness();
@@ -191,35 +170,6 @@ export function DashboardOverview() {
 
   const all = useMemo(() => customers?.items ?? [], [customers]);
 
-  // The owner's messaging rules + the month's sent count, for the one-line
-  // state on the panel below (same keys the Messages page uses, so these are
-  // cache reads after it). The count comes from the summary — the rules list
-  // alone would miss broadcasts and disagree with the Messages page.
-  const automationsQuery = useQuery({
-    queryKey: ["automations", business?.id],
-    queryFn: () => listAutomations(business!.id!),
-    enabled: !!business?.id && canEnroll && manages,
-    staleTime: 30_000,
-  });
-  const { data: messagingSummary } = useQuery({
-    queryKey: ["messaging", "summary", business?.id],
-    queryFn: () => getMessagingSummary(business!.id!),
-    enabled: !!business?.id && canEnroll && manages,
-    staleTime: 30_000,
-  });
-  const automations = automationsQuery.data;
-  const activeRules = (automations ?? []).filter((a) => a.is_active).length;
-  const sentThisMonth = messagingSummary?.sent_this_month ?? 0;
-
-  const near = useMemo(
-    () =>
-      all
-        .filter((c) => c.status !== "void" && c.stamp_count > 0)
-        .sort((a, b) => remainingOf(a) - remainingOf(b) || b.stamp_count - a.stamp_count)
-        .slice(0, NEAR_LIMIT),
-    [all],
-  );
-
   // The verdict and everything under it, off the two reads above. Nothing
   // here costs a request the page was not already making.
   const brief = useMemo(
@@ -232,59 +182,6 @@ export function DashboardOverview() {
       }),
     [activity, all],
   );
-
-  // What is worth the owner's morning: only rows with something in them, and
-  // only rows this person can act on. A hire gets the quiet-till warning —
-  // they are the one holding the scanner — and neither of the messaging
-  // rows, whose endpoints would answer them 403.
-  const todos = useMemo<TodoRow[]>(() => {
-    const rows: TodoRow[] = [];
-
-    // First, because it is the only row here that is closer to a fault than
-    // to an opportunity — and a shop with no customers yet is not quiet, it
-    // has not started.
-    if (brief.quietDays !== null && brief.quietDays >= QUIET_DAYS && all.length > 0) {
-      rows.push({
-        key: "quiet",
-        tone: "quiet",
-        icon: <ScanLine size={17} />,
-        body: t("dashboard.today.quiet", { count: brief.quietDays }),
-        to: "/dashboard/scan",
-        cta: t("dashboard.today.quietCta"),
-      });
-    }
-
-    const inactive = messagingSummary?.inactive_counts?.[INACTIVE_BUCKET] ?? 0;
-    if (manages && inactive > 0) {
-      rows.push({
-        key: "inactive",
-        tone: "winback",
-        icon: <UserRoundX size={17} />,
-        body: t("dashboard.today.inactive", {
-          count: inactive,
-          days: Number(INACTIVE_BUCKET),
-        }),
-        // The same slug the Messages page's own recipe cards use, so this
-        // opens the win-back rule already seeded rather than a blank one.
-        to: "/dashboard/messages/automations/new?recipe=winback",
-        cta: t("dashboard.today.inactiveCta"),
-      });
-    }
-
-    const birthdays = messagingSummary?.birthdays_this_month ?? 0;
-    if (manages && birthdays > 0) {
-      rows.push({
-        key: "birthday",
-        tone: "birthday",
-        icon: <Cake size={17} />,
-        body: t("dashboard.today.birthday", { count: birthdays }),
-        to: "/dashboard/messages/automations/new?recipe=birthday",
-        cta: t("dashboard.today.birthdayCta"),
-      });
-    }
-
-    return rows;
-  }, [brief, all.length, messagingSummary, manages, t]);
 
   const images = designImageUrls(design);
 
@@ -341,8 +238,6 @@ export function DashboardOverview() {
             ]}
           />
 
-          <WorthDoing rows={todos} />
-
           {/* The month says whether it is working; the week says how the
               shop is running. Both, in that order. */}
           <Panel className="p-5 sm:p-6">
@@ -357,102 +252,6 @@ export function DashboardOverview() {
               />
             </div>
           </Panel>
-
-          <Panel className="p-5 sm:p-6">
-            <PanelHeader
-              title={t("dashboard.near.title")}
-              action={
-                <Link
-                  to="/dashboard/customers"
-                  className={cn(
-                    "inline-flex min-h-[44px] items-center gap-1 rounded-lg text-sm font-semibold text-primary-text hover:underline",
-                    focusRing,
-                  )}
-                >
-                  {t("dashboard.near.all")}
-                  <ArrowRight size={15} aria-hidden className="rtl:-scale-x-100" />
-                </Link>
-              }
-            />
-
-            {near.length === 0 ? (
-              <p className="mt-3 text-sm text-ink-muted">
-                {t("dashboard.near.empty")}
-              </p>
-            ) : (
-              <ul className="mt-4 flex flex-col divide-y divide-border">
-                {near.map((c) => {
-                  const left = remainingOf(c);
-                  return (
-                    // On a phone the name gets its own line. Sharing one row
-                    // with eight punch marks and a status left it about two
-                    // characters wide, which is worse than no name at all —
-                    // and the name is the whole point of this panel.
-                    <li
-                      key={c.card_id}
-                      className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4"
-                    >
-                      <span className="truncate font-medium text-ink sm:min-w-0 sm:flex-1">
-                        {c.customer_display_name || "—"}
-                      </span>
-
-                      <div className="flex items-center justify-between gap-3 sm:justify-end">
-                        <CardPunches
-                          filled={c.stamp_count}
-                          total={c.stamps_required}
-                          size={12}
-                          maxMarks={PUNCHABLE_CARD}
-                        />
-
-                        <Tag tone={left === 0 ? "reward" : "neutral"}>
-                          {left === 0
-                            ? t("dashboard.customers.status.ready")
-                            : t("dashboard.near.toGo", { count: left })}
-                        </Tag>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </Panel>
-
-          {/* Messages to customers: the one line of state and the two
-              things you'd come here to do — send everyone a message on a
-              slow day, or go and change the rules. One tap from the phone's
-              first screen, which the More sheet is not. */}
-          {manages && (
-          <Panel className="p-5 sm:p-6">
-            <PanelHeader
-              title={t("messaging.overview.title")}
-              action={
-                <Link
-                  to="/dashboard/messages"
-                  className={cn(
-                    "inline-flex min-h-[44px] items-center gap-1 rounded-lg text-sm font-semibold text-primary-text hover:underline",
-                    focusRing,
-                  )}
-                >
-                  {t("messaging.overview.all")}
-                  <ArrowRight size={15} aria-hidden className="rtl:-scale-x-100" />
-                </Link>
-              }
-            />
-            <p className="mt-3 text-sm text-ink-muted">
-              {automationsQuery.isPending
-                ? t("common.loading")
-                : automationsQuery.isError || activeRules === 0
-                  ? t("messaging.overview.none")
-                  : `${t("messaging.overview.active", { count: activeRules })} · ${t("messaging.overview.sentMonth", { count: sentThisMonth })}`}
-            </p>
-            <div className="mt-4">
-              <Link to="/dashboard/messages/new" className={ctaClasses("secondary", "sm")}>
-                <Send size={15} aria-hidden className="rtl:-scale-x-100" />
-                {t("messaging.broadcast.cta")}
-              </Link>
-            </div>
-          </Panel>
-          )}
         </>
       ) : manages ? (
         <Panel className="p-5 sm:p-6">

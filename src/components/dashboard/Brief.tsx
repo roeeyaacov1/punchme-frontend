@@ -1,14 +1,10 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { ArrowRight, TrendingDown, TrendingUp } from "lucide-react";
-import { focusRing } from "../marketing/primitives";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import {
   BAND_INSET,
   BAND_RULE,
   Band,
-  Panel,
-  PanelHeader,
   Readouts,
   type ReadoutItem,
 } from "./primitives";
@@ -16,12 +12,11 @@ import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { cn } from "../../lib/cn";
 
 /**
- * The brief — the band at the top of the overview, and the list under it.
+ * The brief — the band at the top of the overview.
  *
  * The owner's question at ₪99 a month is never "how many stamps", it is "are
  * people coming back". `BriefBand` answers it in one sentence and shows its
- * working; `WorthDoing` turns what is left into the two or three things worth
- * their morning.
+ * working.
  *
  * **Why this one surface is loud.** See `Band` in `./primitives` — it is the
  * ground this stands on, and the messages page's audience band stands on the
@@ -270,93 +265,5 @@ function Delta({ value, days }: { value: number; days: number }) {
           ? t("dashboard.brief.moreThanBefore", { count: value, days })
           : t("dashboard.brief.fewerThanBefore", { count: Math.abs(value), days })}
     </span>
-  );
-}
-
-export interface TodoRow {
-  key: string;
-  /** The whole point, in one sentence an owner reads without decoding. */
-  body: string;
-  /** Where the sentence leads, and what to call it. Omitted for a row that
-   * is a heads-up rather than a job. */
-  to?: string;
-  cta?: string;
-  icon: ReactNode;
-  /** What kind of job it is. A quiet till is the one row closer to a fault
-   * than to an opportunity, so it is the only one allowed to warn. */
-  tone: "quiet" | "winback" | "birthday";
-}
-
-/** The chip behind each row's icon. Tinted rather than filled: these sit on
- * the page's own panel, which is white by day and near-black by night, and a
- * wash of the token works on both where a solid fill would need two values. */
-const TONE_CHIP: Record<TodoRow["tone"], string> = {
-  quiet: "bg-warn/15 text-warn",
-  winback: "bg-primary-text/15 text-primary-text",
-  // Gold, not emerald: a birthday message in this product carries a gift, so
-  // it belongs to the reward, not to growth. Emerald stays what it is on the
-  // band — new customers. (It also measured 4.43:1 here against the reward
-  // token's 5.27:1, though an aria-hidden icon beside its own sentence is
-  // held to 3:1, not 4.5:1.)
-  birthday: "bg-reward/15 text-reward",
-};
-
-/**
- * The short list of things worth the owner's morning.
- *
- * Every row is something no other panel says: who has drifted away, whose
- * birthday is coming, whether anything is being scanned at all. Who is close
- * to a reward is deliberately *not* here — the panel below names them, and a
- * count of the same people higher up the page is a second thing to read for
- * no second piece of information.
- *
- * An empty list is a real answer and gets said out loud, because "nothing
- * needs you" is worth more to a solo operator than a panel that quietly
- * disappears and leaves them wondering whether it failed to load.
- */
-export function WorthDoing({ rows }: { rows: TodoRow[] }) {
-  const { t } = useTranslation();
-
-  return (
-    <Panel className="p-5 sm:p-6">
-      <PanelHeader title={t("dashboard.today.title")} />
-      {rows.length === 0 ? (
-        <p className="mt-3 text-sm text-ink-muted">{t("dashboard.today.clear")}</p>
-      ) : (
-        <ul className="mt-4 flex flex-col divide-y divide-border">
-          {rows.map((row) => (
-            <li
-              key={row.key}
-              className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4"
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-3">
-                <span
-                  aria-hidden
-                  className={cn(
-                    "flex size-9 shrink-0 items-center justify-center rounded-xl",
-                    TONE_CHIP[row.tone],
-                  )}
-                >
-                  {row.icon}
-                </span>
-                <p className="min-w-0 text-sm text-ink">{row.body}</p>
-              </div>
-              {row.to && row.cta && (
-                <Link
-                  to={row.to}
-                  className={cn(
-                    "inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-lg ps-12 text-sm font-semibold text-primary-text hover:underline sm:ps-0",
-                    focusRing,
-                  )}
-                >
-                  {row.cta}
-                  <ArrowRight size={15} aria-hidden className="rtl:-scale-x-100" />
-                </Link>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </Panel>
   );
 }
