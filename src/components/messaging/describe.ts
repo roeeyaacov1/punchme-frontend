@@ -104,6 +104,11 @@ export function messagingErrorMessage(error: unknown, t: TFunction, lang: string
         // provider can address in general.
         "card_void",
         "card_has_no_pass",
+        // Not a limit of the provider but of THIS shop's card: the design
+        // the wallet is holding predates the field a personal message is
+        // written into, and re-saving the design pushes one that has it.
+        // Distinct from kind_unsupported because it has a fix.
+        "design_outdated",
       ];
       if (known.includes(detail)) {
         return t(`messaging.errors.${detail}`, {

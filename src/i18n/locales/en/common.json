@@ -1405,6 +1405,7 @@
       "notEnabled": "Messaging isn't open for your business yet.",
       "generic": "Something went wrong. Try again.",
       "kind_unsupported_direct": "This customer can't be messaged on her own right now: the wallet publishes to a whole card design at once, and more than one customer holds hers — so a message meant for her would reach them too.",
+      "design_outdated": "This customer can't be messaged on her own until your card design is re-published to the wallet. Open your card design and save it — that pushes the update to every pass — then try again.",
       "card_void": "This card has been voided, so there's nothing to send a message to.",
       "card_has_no_pass": "This customer's wallet pass hasn't been issued yet, so there's nowhere for the message to arrive."
     },
