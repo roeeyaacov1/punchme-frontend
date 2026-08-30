@@ -24,6 +24,7 @@
     "catalog": {
       "title": "Template catalog",
       "subtitle": "The library businesses choose from. Instantiating COPIES an entry — editing or deleting here never touches a live business card.",
+      "lookCoverage": "Wizard looks per trade — built-ins fill any shortfall",
       "create": "New template",
       "createTitle": "New catalog template",
       "editTitle": "Edit catalog template",
@@ -192,7 +193,7 @@
   "onboarding": {
     "steps": {
       "business": "Your business",
-      "color": "Card colour",
+      "color": "Card look",
       "accent": "Stamp colour",
       "stamp": "Stamp",
       "reward": "Reward",
@@ -223,8 +224,7 @@
       }
     },
     "color": {
-      "title": "Pick your card colour",
-      "gridLabel": "Card colour",
+      "title": "Pick your card look",
       "custom": "Custom colour",
       "customLabel": "Card colour",
       "names": {
@@ -239,6 +239,19 @@
         "blush": "Blush",
         "cream": "Cream",
         "custom": "Custom colour {{hex}}"
+      }
+    },
+    "looks": {
+      "legend": "Ready-made looks",
+      "orColor": "Or pick your own colour",
+      "names": {
+        "classic": "Classic",
+        "warm": "Warm",
+        "bold": "Bold",
+        "light": "Light",
+        "night": "Night",
+        "fresh": "Fresh",
+        "calm": "Calm"
       }
     },
     "accent": {
