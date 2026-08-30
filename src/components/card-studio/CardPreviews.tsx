@@ -22,6 +22,9 @@ export interface CardPreviewValue {
    * name, which is exactly what the server generates when none was uploaded. */
   appleLogoUrl?: string;
   stampArtUrl?: string;
+  /** Whole-tile before/after artwork — beats the stamp photo and the glyph. */
+  stampedArtUrl?: string;
+  unstampedArtUrl?: string;
   stripBaseUrl?: string;
   /** The real published strip/hero PNGs by stamp state. When present (and the
    * draft matches what's saved) we show the actual card art instead of the
@@ -153,6 +156,8 @@ function StripArt({
       glyph={glyph(value)}
       pattern={pattern(value)}
       stampArtUrl={value.stampArtUrl}
+      stampedArtUrl={value.stampedArtUrl}
+      unstampedArtUrl={value.unstampedArtUrl}
       stripBaseUrl={value.stripBaseUrl}
     />
   );

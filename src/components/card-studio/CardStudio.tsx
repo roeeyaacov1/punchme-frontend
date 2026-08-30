@@ -257,6 +257,8 @@ export function CardStudio({
               logoUrl={images.logo}
               appleLogoUrl={images.apple_logo}
               stampArtUrl={images.stamp_art}
+              stampedArtUrl={images.stamped_art}
+              unstampedArtUrl={images.unstamped_art}
               stripBaseUrl={images.strip_base}
               stripStates={images.strip_states}
               heroStates={images.hero_states}

@@ -10,16 +10,23 @@ export interface StampGridProps {
   pattern: CardPattern;
   /** Data-URL / CDN URL of uploaded stamp art (circle-masked in tiles). */
   stampArtUrl?: string;
+  /** Whole-tile overrides. Beat `stampArtUrl` and the glyph, and drop the
+   * circle entirely — the server uses them verbatim, contain-fitted. */
+  stampedArtUrl?: string;
+  unstampedArtUrl?: string;
   /** Uploaded strip background image — suppresses the pattern, like the server. */
   stripBaseUrl?: string;
   /** Tile size in px. */
   size?: number;
 }
 
-/** Client-side mirror of the server strip renderer (apps/wallet/strips.py):
- * 1 row up to 6 stamps, balanced 2 rows beyond; filled circle in the stamp
- * color with the glyph knocked out white; muted greys when unstamped;
- * uploaded stamp art circle-masked and grayscaled when unstamped. */
+/** Client-side mirror of the server strip renderer (apps/wallet/strips.py),
+ * including its order of precedence for a tile — most specific wins:
+ * before/after artwork used verbatim with no circle chrome; then an
+ * uploaded stamp photo, circle-masked and grayscaled when unstamped; then
+ * the named glyph, knocked out of a filled circle in the stamp color with
+ * muted greys when unstamped. 1 row up to 6 stamps, balanced 2 rows
+ * beyond. */
 export function StampGrid({
   stampsRequired,
   currentStamps,
@@ -28,6 +35,8 @@ export function StampGrid({
   glyph,
   pattern,
   stampArtUrl,
+  stampedArtUrl,
+  unstampedArtUrl,
   stripBaseUrl,
   size = 30,
 }: StampGridProps) {
@@ -52,6 +61,25 @@ export function StampGrid({
           {Array.from({ length: rowCount }).map(() => {
             const stamped = index < currentStamps;
             index += 1;
+            const override = stamped ? stampedArtUrl : unstampedArtUrl;
+            // An override IS the tile: no circle, no fill, no ring. Drawing
+            // one behind it is how a preview starts disagreeing with the
+            // card the customer is holding.
+            if (override) {
+              return (
+                <span
+                  key={index}
+                  className="flex shrink-0 items-center justify-center"
+                  style={{ width: size, height: size }}
+                >
+                  <img
+                    src={override}
+                    alt=""
+                    className="h-full w-full object-contain"
+                  />
+                </span>
+              );
+            }
             return (
               <span
                 key={index}

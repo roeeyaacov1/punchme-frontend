@@ -37,7 +37,39 @@
       "deleteConfirm": "Delete \"{{name}}\" from the catalog?",
       "nicheLabel": "Niche",
       "descriptionLabel": "Description",
-      "publishedLabel": "Published"
+      "publishedLabel": "Published",
+      "hasArt": "Carries artwork the wizard tile does not draw yet",
+      "publishedHint": "Published entries are what the onboarding wizard offers, in catalog order, up to three per trade.",
+      "descriptionHint": "Staff-facing note. Owners never see it.",
+      "unsaved": "Unsaved changes",
+      "shelfTitle": "Where it sits",
+      "shelfHint": "The trade this look is offered for, and whether owners can see it yet.",
+      "art": {
+        "title": "Artwork",
+        "hint": "Copied onto the business's own card when someone picks this template. No logo here — that one is theirs.",
+        "lockedNew": "Save this template once and the artwork opens up — pictures are stored against its id.",
+        "upload": "Upload",
+        "replace": "Replace",
+        "removeNamed": "Remove {{name}}",
+        "uses": {
+          "strip_base": {
+            "label": "Background",
+            "hint": "Fills the strip behind the stamps, and replaces the texture. At least 1125×432px; anything wider is centre-cropped to that shape."
+          },
+          "stamp_art": {
+            "label": "Stamp picture",
+            "hint": "Circle-masked into every stamp, grey and faded until it is earned. Beats the icon chosen below."
+          },
+          "stamped_art": {
+            "label": "Earned stamp",
+            "hint": "Replaces the whole tile once earned, with no circle drawn around it. Beats everything else."
+          },
+          "unstamped_art": {
+            "label": "Empty stamp",
+            "hint": "The tile before it is earned. Pairs with the one above — upload both, or neither."
+          }
+        }
+      }
     },
     "staffOnly": "Staff area",
     "staffOnlyBody": "This area is for PunchMe staff. You're signed in as {{email}}, which doesn't have staff access.",

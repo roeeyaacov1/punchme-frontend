@@ -1036,7 +1036,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Catalog Entry */
+        /**
+         * Get Catalog Entry
+         * @description The one entry the editor has open — artwork included, as data URLs.
+         */
         get: operations["apps_businesses_api_get_catalog_entry"];
         put?: never;
         post?: never;
@@ -1046,6 +1049,46 @@ export interface paths {
         head?: never;
         /** Patch Catalog Entry */
         patch: operations["apps_businesses_api_patch_catalog_entry"];
+        trace?: never;
+    };
+    "/api/admin/catalog/{catalog_id}/images": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Catalog Image
+         * @description Put a picture on a catalog entry — the background, or the stamp.
+         *
+         *     Validated by the same rules an owner's upload is, and echoed back as a
+         *     data URL so the editor can show it without a second round trip.
+         */
+        post: operations["apps_businesses_api_upload_catalog_image"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/catalog/{catalog_id}/images/{use}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Catalog Image */
+        delete: operations["apps_businesses_api_delete_catalog_image"];
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -1348,6 +1391,21 @@ export interface components {
             synced_at: string | null;
             /** Error */
             error: string;
+            /**
+             * Revision
+             * @default 0
+             */
+            revision: number;
+            /**
+             * Current Revision
+             * @default 0
+             */
+            current_revision: number;
+            /**
+             * Stale
+             * @default false
+             */
+            stale: boolean;
         };
         /**
          * DesignPreviewIn
@@ -2183,6 +2241,11 @@ export interface components {
         };
         /** CatalogTemplateOut */
         CatalogTemplateOut: {
+            /**
+             * Art Uses
+             * @default []
+             */
+            art_uses: string[];
             /** Id */
             id?: string | null;
             /** Niche */
@@ -2324,6 +2387,77 @@ export interface components {
             /** Stamp State */
             stamp_state?: number | null;
         };
+        /**
+         * CatalogTemplateDetailOut
+         * @description One entry, as the editor opens it: the artwork as data URLs.
+         *
+         *     Data URLs because the staff API is read with a bearer token an `<img>`
+         *     cannot send, and because a draft entry's artwork has no business
+         *     sitting on a public URL.
+         */
+        CatalogTemplateDetailOut: {
+            /**
+             * Art Uses
+             * @default []
+             */
+            art_uses: string[];
+            /** Id */
+            id?: string | null;
+            /** Niche */
+            niche: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /** Stamps Required */
+            stamps_required: number;
+            /** Reward Description */
+            reward_description: string;
+            /**
+             * Background Color
+             * @default #FFFFFF
+             */
+            background_color: string;
+            /**
+             * Foreground Color
+             * @default #000000
+             */
+            foreground_color: string;
+            /**
+             * Label Color
+             * @default #000000
+             */
+            label_color: string;
+            /** Design */
+            design?: Record<string, never> | null;
+            /**
+             * Is Published
+             * @default false
+             */
+            is_published: boolean;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Art
+             * @default {}
+             */
+            art: {
+                [key: string]: string;
+            };
+        };
         /** CatalogTemplatePatchIn */
         CatalogTemplatePatchIn: {
             /** Niche */
@@ -2348,6 +2482,13 @@ export interface components {
             } | null;
             /** Is Published */
             is_published?: boolean | null;
+        };
+        /** CatalogImageOut */
+        CatalogImageOut: {
+            /** Use */
+            use: string;
+            /** Url */
+            url: string;
         };
     };
     responses: never;
@@ -3883,7 +4024,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CatalogTemplateOut"];
+                    "application/json": components["schemas"]["CatalogTemplateDetailOut"];
                 };
             };
         };
@@ -3931,6 +4072,61 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["CatalogTemplateOut"];
                 };
+            };
+        };
+    };
+    apps_businesses_api_upload_catalog_image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                catalog_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Use */
+                    use: string;
+                    /**
+                     * File
+                     * Format: binary
+                     */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogImageOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_delete_catalog_image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                catalog_id: string;
+                use: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

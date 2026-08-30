@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Image as ImageIcon } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge, Button, buttonClasses } from "../../components/ui";
 import { LookTile } from "../../components/onboarding/LookTile";
@@ -79,10 +80,28 @@ export function AdminCatalogListPage() {
                 reason, so showing nothing here is the truth. */}
             {(() => {
               const look = presetLook(entry, (entry.niche ?? "other") as Niche);
-              return look ? (
-                <LookTile look={look} className="h-10 w-16 shrink-0 rounded-lg ring-1 ring-slate/20" />
-              ) : (
-                <span className="h-10 w-16 shrink-0 rounded-lg border border-dashed border-slate/40" />
+              // An entry with artwork is drawn here as its colours anyway:
+              // the tile is the wizard's own component and the wizard has no
+              // catalog art yet. The corner mark is the honest half of that
+              // — this row has a picture the tile is not showing.
+              const hasArt = (entry.art_uses ?? []).length > 0;
+              return (
+                <span className="relative h-10 w-16 shrink-0">
+                  {look ? (
+                    <LookTile look={look} className="h-10 w-16 rounded-lg ring-1 ring-slate/20" />
+                  ) : (
+                    <span className="block h-10 w-16 rounded-lg border border-dashed border-slate/40" />
+                  )}
+                  {hasArt && (
+                    <span
+                      title={t("admin.catalog.hasArt")}
+                      className="absolute -bottom-1 -end-1 flex h-4 w-4 items-center justify-center rounded-full bg-navy text-white ring-2 ring-white"
+                    >
+                      <ImageIcon size={9} aria-hidden="true" />
+                      <span className="sr-only">{t("admin.catalog.hasArt")}</span>
+                    </span>
+                  )}
+                </span>
               );
             })()}
             <div className="min-w-0 flex-1">
