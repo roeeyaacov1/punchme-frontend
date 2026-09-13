@@ -31,6 +31,7 @@ import { BillingStep } from "./routes/onboarding/steps/BillingStep";
 import { JoinPage } from "./routes/public/JoinPage";
 import { InvitePage } from "./routes/invite/InvitePage";
 import { CardStatusPage } from "./routes/public/CardStatusPage";
+import { PublicCardPage } from "./routes/public/PublicCardPage";
 import { DashboardLayout } from "./routes/dashboard/DashboardLayout";
 import { DashboardOverview } from "./routes/dashboard/DashboardOverview";
 import { ScanPage } from "./routes/dashboard/ScanPage";
@@ -66,6 +67,10 @@ const router = createBrowserRouter([
       // invitation is still on screen while they type.
       { path: "invite/:token", element: <InvitePage /> },
       { path: "c/:serial", element: <CardStatusPage /> },
+      // The page behind the wallet QR once it is a URL. Public, because a
+      // customer's friend opens it from a plain camera; but it reads the
+      // owner's session when there is one and turns into a stamp screen.
+      { path: "p/:token", element: <PublicCardPage /> },
       {
         // Public: the owner designs the card before there is an account.
         // Only the last two steps (wallet, billing) need one, and

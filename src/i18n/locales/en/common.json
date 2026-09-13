@@ -1517,5 +1517,37 @@
       "alreadyIn": "You're already on this team.",
       "generic": "That didn't go through. Try again."
     }
+  },
+  "publicCard": {
+    "eyebrow": "PunchMe loyalty card",
+    "notFound": "This card can't be found. It may have been removed, or the link is wrong.",
+    "failed": "Something went wrong loading this card. Try again.",
+    "card": {
+      "reward": "Collect {{stamps}} stamps and get: {{reward}}",
+      "join": "Get your own card",
+      "staffHint": "Working at {{business}}?",
+      "signIn": "Sign in to add a stamp",
+      "notYourShop": "You're signed in, but this card isn't from your shop."
+    },
+    "stamp": {
+      "title": "Add a stamp to {{name}}'s card",
+      "anonymous": "this customer",
+      "preview": "This is your own preview card.",
+      "confirm": "Add a stamp",
+      "working": "Adding…",
+      "full": "The card is full — time to hand over: {{reward}}",
+      "redeem": "Reward handed over — start the card again",
+      "redeeming": "Resetting…",
+      "openScanner": "Open the scanner instead",
+      "result": {
+        "stamped": "Stamped.",
+        "rewardReady": "That was the last stamp — the reward is ready!",
+        "redeemed": "Reward redeemed. The card starts again from zero.",
+        "tooSoon": "This card was stamped a moment ago. Wait a little before adding another.",
+        "conflict": "This card is already full. Hand over the reward first.",
+        "unknownCard": "This card isn't yours to stamp.",
+        "offline": "Couldn't reach the server. Check the connection and try again."
+      }
+    }
   }
 }

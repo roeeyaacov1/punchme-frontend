@@ -923,6 +923,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/p/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Public Card Page
+         * @description The page behind the wallet QR. Public, because a customer's friend
+         *     opens it from a plain camera with no account; identity-aware, because
+         *     the shop's own staff open it from the same camera and expect to stamp.
+         *     See services.resolve_public_card_page for who is shown what.
+         */
+        get: operations["apps_referrals_api_public_card_page"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/invitations/{token}": {
         parameters: {
             query?: never;
@@ -2213,6 +2236,71 @@ export interface components {
             items: components["schemas"]["DeliveryOut"][];
             /** Count */
             count: number;
+        };
+        /**
+         * PublicCardPageOut
+         * @description The card's public face: the shop and the design, nothing about the
+         *     card or the person holding it. Every value here is already printed on
+         *     the shop's own sign-up poster.
+         *
+         *     No serial, no artwork URL. CardPublicOut's strip and logo URLs are keyed
+         *     by the serial, and the serial is a credential (it opens the holder's
+         *     stamps and add-to-wallet link through GET /cards/{serial}); this page is
+         *     reached by a token printed for strangers, so it hands out neither.
+         *     `logo_url` is the owner's own logo link when they set one, else null.
+         *
+         *     `join_path` is a path, not a URL, for the reason InvitationOut gives:
+         *     the frontend knows its origin, the API does not. It is the ordinary
+         *     sign-up link until the referral program exists to attribute a join.
+         */
+        PublicCardPageOut: {
+            /**
+             * View
+             * @enum {string}
+             */
+            view: "stamp" | "card";
+            /** Business Name */
+            business_name: string;
+            /** Template Name */
+            template_name: string;
+            /** Stamps Required */
+            stamps_required: number;
+            /** Reward Description */
+            reward_description: string;
+            /** Background Color */
+            background_color: string;
+            /** Foreground Color */
+            foreground_color: string;
+            /** Label Color */
+            label_color: string;
+            /** Logo Url */
+            logo_url: string | null;
+            /** Join Path */
+            join_path: string;
+            stamp?: components["schemas"]["PublicCardStampOut"] | null;
+        };
+        /**
+         * PublicCardStampOut
+         * @description What the counter needs to put a stamp on this card. Present only when
+         *     the viewer is on the shop's team — it names the customer, and the serial
+         *     it carries is the code the existing POST /scan takes.
+         */
+        PublicCardStampOut: {
+            /** Card Serial */
+            card_serial: string;
+            /** Customer Display Name */
+            customer_display_name: string;
+            /** Stamp Count */
+            stamp_count: number;
+            /** Stamps Required */
+            stamps_required: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "reward_ready" | "void";
+            /** Is Preview */
+            is_preview: boolean;
         };
         /**
          * InvitationPreviewOut
@@ -3867,6 +3955,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PagedDeliveryOut"];
+                };
+            };
+        };
+    };
+    apps_referrals_api_public_card_page: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicCardPageOut"];
                 };
             };
         };
