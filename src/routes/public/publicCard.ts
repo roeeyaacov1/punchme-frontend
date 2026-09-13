@@ -114,6 +114,7 @@ export function usePublicCardPreview(
 
   return {
     ...base,
+    barcodeMessage: card.barcode_message,
     logoUrl: loaded.logo,
     appleLogoUrl: loaded.appleLogo,
     stripStates: loaded.strip ? { [state]: loaded.strip } : undefined,

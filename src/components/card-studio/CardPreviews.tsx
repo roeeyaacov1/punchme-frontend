@@ -40,6 +40,11 @@ export interface CardPreviewValue {
    * pass never made it into their wallet can still be scanned off this
    * screen. Omit in the studio, where no card exists yet. */
   serial?: string;
+  /** Exactly what the installed pass encodes, from the API (the serial, or
+   * the card's public URL once the barcode switch is on). When present it
+   * wins over the doc's `${pid}` template, so the web card and the pass
+   * can never disagree. */
+  barcodeMessage?: string;
   /** Whose card this is, printed in the name field. Defaults to the sample
    * name — right for a design preview, wrong on a page showing someone
    * their own pass. */
@@ -261,7 +266,7 @@ export function AppleCardPreview(value: CardPreviewValue) {
         >
           <PassBarcode
             format={format}
-            payload={resolveBarcodePayload(value.design, value.serial)}
+            payload={value.barcodeMessage ?? resolveBarcodePayload(value.design, value.serial)}
           />
         </div>
       </div>
@@ -377,7 +382,7 @@ export function GoogleCardPreview(value: CardPreviewValue) {
         <div className="w-[34%] aspect-square rounded-xl bg-white p-[11px]">
           <PassBarcode
             format={barcodeFormat(value.design)}
-            payload={resolveBarcodePayload(value.design, value.serial)}
+            payload={value.barcodeMessage ?? resolveBarcodePayload(value.design, value.serial)}
           />
         </div>
       </div>

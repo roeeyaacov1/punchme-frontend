@@ -1861,6 +1861,8 @@ export interface components {
             wallet_issue_pending: boolean;
             /** Public Token */
             public_token: string;
+            /** Barcode Message */
+            barcode_message: string;
         };
         /** ScanOut */
         ScanOut: {
