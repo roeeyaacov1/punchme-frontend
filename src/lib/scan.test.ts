@@ -9,6 +9,8 @@ import {
 
 /** The real shape: `secrets.token_urlsafe(24)`. */
 const SERIAL = "hE2wQ8mLpZ4vT7yRbN1cKdXf";
+/** The wallet QR's token: `secrets.token_urlsafe(16)`, 22 characters. */
+const TOKEN = "Zk3yQ9wXb2vLp7Rt4Nm8sA";
 
 describe("readScannedPayload", () => {
   it("takes a bare card code", () => {
@@ -41,6 +43,17 @@ describe("readScannedPayload", () => {
     });
   });
 
+  it("unwraps the public token from the wallet QR's url", () => {
+    expect(readScannedPayload(`https://punchmeapp.com/p/${TOKEN}`)).toEqual({
+      kind: "code",
+      code: TOKEN,
+    });
+    expect(readScannedPayload(`https://punchmeapp.com/p/${TOKEN}/`)).toEqual({
+      kind: "code",
+      code: TOKEN,
+    });
+  });
+
   it("names the shop's own sign-up poster instead of reporting it missing", () => {
     expect(readScannedPayload("https://punchme.co.il/join/abc-123")).toEqual({
       kind: "enrollLink",
@@ -52,6 +65,8 @@ describe("readScannedPayload", () => {
       "",
       "   ",
       "https://example.com/promo",
+      "https://punchmeapp.com/p/",
+      `https://punchmeapp.com/p/${TOKEN}/extra`,
       "WIFI:S:cafe;T:WPA;P:hunter2;;",
       "tel:+972501234567",
       "javascript:alert(1)",

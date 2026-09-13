@@ -18,7 +18,8 @@ import { ApiError } from "../api/errors";
 const CODE = /^[A-Za-z0-9_-]{6,128}$/;
 
 export type ScannedPayload =
-  /** A card code: our serial, or the member id an issued pass renders. */
+  /** A card code: our serial, the member id an issued pass renders, or the
+   * public token the wallet QR carries once it is a URL. */
   | { kind: "code"; code: string }
   /** Our own sign-up poster. The standee's QR is `/join/:templateId`, and
    * pointing the scanner at it is an easy mistake to make on day one — it is
@@ -32,6 +33,13 @@ export type ScannedPayload =
  * as the pass's own barcode, so a code that arrives wrapped in that URL is
  * still a scan. */
 const CARD_PATH = /^\/c\/([A-Za-z0-9_-]{6,128})\/?$/;
+/** The wallet QR, once it is a URL. `/p/<token>` carries punchme-backend's
+ * `Card.public_token` (`secrets.token_urlsafe(16)`: 22 characters of the same
+ * alphabet). A friend's camera opens the page behind it; the counter's
+ * scanner sends the token to `/api/scan` exactly as it sends a serial. The
+ * scanner learns this before any pass renders it, so flipping the barcode
+ * can never strand a pass. */
+const PUBLIC_CARD_PATH = /^\/p\/([A-Za-z0-9_-]{6,128})\/?$/;
 const JOIN_PATH = /^\/join\/[^/]+\/?$/;
 
 export function readScannedPayload(raw: string): ScannedPayload {
@@ -49,7 +57,8 @@ export function readScannedPayload(raw: string): ScannedPayload {
     return { kind: "foreign" };
   }
   if (JOIN_PATH.test(url.pathname)) return { kind: "enrollLink" };
-  const card = CARD_PATH.exec(url.pathname);
+  const card =
+    CARD_PATH.exec(url.pathname) ?? PUBLIC_CARD_PATH.exec(url.pathname);
   if (card) return { kind: "code", code: card[1] };
   return { kind: "foreign" };
 }
