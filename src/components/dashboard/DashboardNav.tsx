@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 import {
   CreditCard,
   Ellipsis,
+  Handshake,
   Palette,
   Printer,
   ScanLine,
@@ -60,6 +61,7 @@ export const NAV_GROUPS = [
     key: "marketing",
     items: [
       { to: "/dashboard/messages", end: false, key: "messages", Icon: Send, min: "manager" },
+      { to: "/dashboard/referrals", end: false, key: "referrals", Icon: Handshake, min: "manager" },
     ],
   },
   {

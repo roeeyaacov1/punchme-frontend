@@ -44,6 +44,7 @@ import { MessagesPage } from "./routes/dashboard/MessagesPage";
 import { TeamPage } from "./routes/dashboard/TeamPage";
 import { AutomationEditorPage } from "./routes/dashboard/AutomationEditorPage";
 import { BroadcastComposerPage } from "./routes/dashboard/BroadcastComposerPage";
+import { ReferralsPage } from "./routes/dashboard/ReferralsPage";
 import { BillingSuccessPage } from "./routes/billing/BillingSuccessPage";
 import { BillingCancelPage } from "./routes/billing/BillingCancelPage";
 import { RequireStaff } from "./auth/RequireStaff";
@@ -155,6 +156,7 @@ const router = createBrowserRouter([
                             path: "messages/automations/:automationId",
                             element: <AutomationEditorPage />,
                           },
+                          { path: "referrals", element: <ReferralsPage /> },
                         ],
                       },
                       {

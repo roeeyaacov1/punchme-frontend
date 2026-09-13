@@ -572,7 +572,8 @@
       "label": "Dashboard sections",
       "more": "More",
       "messages": "Customer messages",
-      "messagesTab": "Push"
+      "messagesTab": "Push",
+      "referrals": "Refer a friend"
     },
     "plan": {
       "free": "Free",
@@ -1548,6 +1549,125 @@
         "unknownCard": "This card isn't yours to stamp.",
         "offline": "Couldn't reach the server. Check the connection and try again."
       }
+    },
+    "join": {
+      "invitedBy": "{{name}} invited you",
+      "invited": "You've been invited to join"
+    }
+  },
+  "referrals": {
+    "title": "Refer a friend",
+    "lead": "A member shows their card, a friend scans it with their phone's camera and lands on a join page that already knows who invited them. You decide what happens at each step.",
+    "master": {
+      "label": "Referral program",
+      "hint": "Off, nothing below happens — the code on a member's card is just their card."
+    },
+    "blocked": {
+      "upgrade_required": "Referral rewards are part of Pro.",
+      "upgradeCta": "See plans",
+      "not_enabled_for_pilot": "Referrals aren't switched on for this business yet — we're rolling them out gradually."
+    },
+    "rows": {
+      "title": "What happens",
+      "hint": "Each line saves as you change it. Message texts save with their own button.",
+      "friend_joined_friend": {
+        "when": "When a friend joins",
+        "action": "give the friend a welcome gift",
+        "hint": ""
+      },
+      "friend_first_stamp_referrer": {
+        "when": "When that friend gets their first stamp",
+        "action": "give the member a reward",
+        "hint": "Recommended: it takes a stamp from your own hand, so nobody can farm it from home."
+      },
+      "friend_completed_card_referrer": {
+        "when": "When that friend finishes their first card",
+        "action": "give the member a bigger reward",
+        "hint": ""
+      },
+      "scanned_referrer": {
+        "when": "When someone scans a member's card",
+        "action": "tell the member",
+        "hint": "A message only, at most once a day per phone that scans."
+      }
+    },
+    "gift": {
+      "picker": "The gift",
+      "stamps_one": "{{count}} stamp",
+      "stamps_other": "{{count}} stamps",
+      "full": "The whole card"
+    },
+    "message": {
+      "titleLabel": "Title",
+      "bodyLabel": "Text on their card",
+      "chars": "{{used}}/{{max}}",
+      "insert": "Insert:",
+      "chip": {
+        "name": "their name",
+        "friend": "the other person",
+        "business": "the business",
+        "reward": "the reward"
+      },
+      "unknown": "Unknown placeholder: {{token}}",
+      "hintGift": "Leave the text empty to give the gift quietly.",
+      "hintOnly": "This one only speaks — there is no gift on a scan.",
+      "save": "Save text"
+    },
+    "cap": {
+      "before": "A member can earn at most",
+      "countLabel": "Rewards per period",
+      "between": "referral rewards per",
+      "periodLabel": "Period",
+      "period": {
+        "month": "month",
+        "quarter": "quarter",
+        "year": "year",
+        "lifetime": "lifetime"
+      }
+    },
+    "display": {
+      "label": "What the friend sees about who invited them",
+      "none": "Nothing",
+      "first_name": "First name",
+      "first_name_initial": "Initial only"
+    },
+    "preview": {
+      "title": "Preview",
+      "hint": "Exactly what the friend sees, and what the member receives, with sample names.",
+      "friendTitle": "What the friend sees",
+      "memberTitle": "What the member receives",
+      "nothing": "Nothing is sent yet — switch on a line above with a text to see it here."
+    },
+    "list": {
+      "title": "Referrals",
+      "empty": "No referrals yet. Once the program is on, every friend who joins through a member's card shows up here.",
+      "line": "{{friend}} joined through {{member}}",
+      "someone": "someone",
+      "status": {
+        "joined": "Joined",
+        "qualified": "First stamp",
+        "completed": "Finished a card",
+        "rejected": "Not counted",
+        "flagged": "Needs review"
+      },
+      "reason": {
+        "self_referral": "the same phone number",
+        "already_customer": "already a customer",
+        "prior_customer": "was a customer before",
+        "window_expired": "too long after the scan",
+        "shared_device": "joined from the same phone as another",
+        "burst": "many joins from one place",
+        "manual": "not counted, by your decision"
+      },
+      "review": {
+        "title": "Needs your review",
+        "approve": "Count it",
+        "reject": "Don't count it"
+      }
+    },
+    "errors": {
+      "generic": "That didn't save. Try again.",
+      "invalid": "That can't be saved as written ({{detail}})."
     }
   }
 }

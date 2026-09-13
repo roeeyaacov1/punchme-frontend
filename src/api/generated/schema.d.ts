@@ -935,11 +935,197 @@ export interface paths {
          * @description The page behind the wallet QR. Public, because a customer's friend
          *     opens it from a plain camera with no account; identity-aware, because
          *     the shop's own staff open it from the same camera and expect to stamp.
-         *     See services.resolve_public_card_page for who is shown what.
+         *     See services.resolve_public_card_page for who is shown what. `device`
+         *     is the landing page's own random id, so a scan today and a join next
+         *     week can be told to be the same person.
          */
         get: operations["apps_referrals_api_public_card_page"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p/{token}/otp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Referral Join Otp
+         * @description Step 1 of the friend's join: the same SMS code the ordinary join
+         *     sends, addressed by the referrer's token rather than a design id.
+         *     Always 204, and the same headroom pre-check as /join/{template_id}/otp
+         *     for the same reason (don't pay for an SMS a full shop can't use).
+         */
+        post: operations["apps_referrals_api_referral_join_otp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p/{token}/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Referral Join
+         * @description Step 2: the friend's card on the referrer's design, then the
+         *     referral — recorded, rejected or flagged, with the rule's name; the
+         *     join succeeds either way.
+         */
+        post: operations["apps_referrals_api_referral_join"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/referrals/program": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Referral Program
+         * @description The settings screen. Defaults when the shop never saved any — GET
+         *     creates nothing.
+         */
+        get: operations["apps_referrals_api_get_referral_program"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Patch Referral Program */
+        patch: operations["apps_referrals_api_patch_referral_program"];
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/referrals/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Referral Rules
+         * @description The four sentences, in screen order, with the starter copy in the
+         *     card's language where a slot was never saved. GET creates nothing.
+         */
+        get: operations["apps_referrals_api_list_referral_rules"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/referrals/rules/{event}/{recipient}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Put Referral Rule */
+        put: operations["apps_referrals_api_put_referral_rule"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/referrals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Referrals
+         * @description The roster, newest first. `status=flagged` is the review queue.
+         */
+        get: operations["apps_referrals_api_list_referrals"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/referrals/{referral_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Review Referral */
+        post: operations["apps_referrals_api_review_referral"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/referrals/grants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Referral Grants
+         * @description Every reward a rule promised, newest first, with what became of it.
+         */
+        get: operations["apps_referrals_api_list_referral_grants"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/referrals/grants/{grant_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke Referral Grant
+         * @description The owner's manual mark on a granted reward. Takes nothing back —
+         *     there is no automatic reversal in v1 — it records the verdict and stops
+         *     the row counting toward the member's cap.
+         */
+        post: operations["apps_referrals_api_revoke_referral_grant"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1861,8 +2047,8 @@ export interface components {
         };
         /**
          * PlaceholderOut
-         * @description A variable the composer may offer for this kind, already spelled for
-         *     the card's language — `token` is what gets inserted verbatim.
+         * @description A variable the composer may offer, already spelled for the card's
+         *     language — `token` is what gets inserted verbatim.
          */
         PlaceholderOut: {
             /** Key */
@@ -2251,14 +2437,16 @@ export interface components {
          *
          *     `join_path` is a path, not a URL, for the reason InvitationOut gives:
          *     the frontend knows its origin, the API does not. It is the ordinary
-         *     sign-up link until the referral program exists to attribute a join.
+         *     sign-up link; with `view: "join"` the page uses POST /p/{token}/otp and
+         *     POST /p/{token}/join instead, and `referrer_display` is what the owner
+         *     allowed it to say about who referred the friend.
          */
         PublicCardPageOut: {
             /**
              * View
              * @enum {string}
              */
-            view: "stamp" | "card";
+            view: "stamp" | "card" | "join";
             /** Business Name */
             business_name: string;
             /** Template Name */
@@ -2277,6 +2465,8 @@ export interface components {
             logo_url: string | null;
             /** Join Path */
             join_path: string;
+            /** Referrer Display */
+            referrer_display?: string | null;
             stamp?: components["schemas"]["PublicCardStampOut"] | null;
         };
         /**
@@ -2301,6 +2491,298 @@ export interface components {
             status: "active" | "reward_ready" | "void";
             /** Is Preview */
             is_preview: boolean;
+        };
+        /**
+         * ReferralJoinOut
+         * @description EnrollOut plus what became of the referral. `referral_status` is
+         *     "none" when the shop has no program; otherwise the Referral's status —
+         *     "rejected" and "flagged" are still a successful join.
+         */
+        ReferralJoinOut: {
+            /** Card Serial */
+            card_serial: string;
+            /** Stamp Count */
+            stamp_count: number;
+            /** Stamps Required */
+            stamps_required: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "reward_ready" | "void";
+            /** Wallet Pass Url */
+            wallet_pass_url?: string | null;
+            /**
+             * Wallet Issue Pending
+             * @default false
+             */
+            wallet_issue_pending: boolean;
+            /**
+             * Referral Status
+             * @enum {string}
+             */
+            referral_status: "none" | "joined" | "qualified" | "completed" | "rejected" | "flagged";
+        };
+        /**
+         * ReferralJoinIn
+         * @description The friend's join. Same fields as EnrollIn, with two differences: the
+         *     SMS code is required whatever OTP_REQUIRED says, and `device_id` is the
+         *     random value the landing page keeps in its own storage — the thread the
+         *     attribution window and the device rules are measured along. Absent in
+         *     a chat app's browser, which is allowed; it only ever narrows a rule.
+         */
+        ReferralJoinIn: {
+            /** Phone */
+            phone: string;
+            /** Otp Code */
+            otp_code: string;
+            /**
+             * Display Name
+             * @default
+             */
+            display_name: string;
+            /** Birthday */
+            birthday?: string | null;
+            /**
+             * Marketing Opt In
+             * @default false
+             */
+            marketing_opt_in: boolean;
+            /** Device Id */
+            device_id?: string | null;
+        };
+        /** ReferralProgramOut */
+        ReferralProgramOut: {
+            /** Enabled */
+            enabled: boolean;
+            /** Attribution Window Days */
+            attribution_window_days: number;
+            /**
+             * Attribution Policy
+             * @enum {string}
+             */
+            attribution_policy: "first_touch" | "last_touch";
+            /** Max Rewarded Per Referrer */
+            max_rewarded_per_referrer: number;
+            /**
+             * Cap Period
+             * @enum {string}
+             */
+            cap_period: "month" | "quarter" | "year" | "lifetime";
+            /**
+             * Referrer Display Mode
+             * @enum {string}
+             */
+            referrer_display_mode: "none" | "first_name" | "first_name_initial";
+            /** Review Flagged Manually */
+            review_flagged_manually: boolean;
+            /** Can Enable */
+            can_enable: boolean;
+            /** Enable Blocker */
+            enable_blocker: string;
+        };
+        /**
+         * ReferralProgramPatchIn
+         * @description Partial update: only fields present in the body change. Ranges and
+         *     the enable gate are checked in services so the error carries a
+         *     field-level slug (`referral_program_invalid`).
+         */
+        ReferralProgramPatchIn: {
+            /** Enabled */
+            enabled?: boolean | null;
+            /** Attribution Window Days */
+            attribution_window_days?: number | null;
+            /** Attribution Policy */
+            attribution_policy?: ("first_touch" | "last_touch") | null;
+            /** Max Rewarded Per Referrer */
+            max_rewarded_per_referrer?: number | null;
+            /** Cap Period */
+            cap_period?: ("month" | "quarter" | "year" | "lifetime") | null;
+            /** Referrer Display Mode */
+            referrer_display_mode?: ("none" | "first_name" | "first_name_initial") | null;
+            /** Review Flagged Manually */
+            review_flagged_manually?: boolean | null;
+        };
+        /**
+         * ReferralRuleOut
+         * @description One sentence on the settings screen. `saved` is false for a slot the
+         *     owner has never touched — the starter copy is shown, not stored.
+         */
+        ReferralRuleOut: {
+            /**
+             * Event
+             * @enum {string}
+             */
+            event: "scanned" | "friend_joined" | "friend_first_stamp" | "friend_completed_card";
+            /**
+             * Recipient
+             * @enum {string}
+             */
+            recipient: "referrer" | "friend";
+            /** Enabled */
+            enabled: boolean;
+            /** Gift Stamps */
+            gift_stamps: number;
+            /** Gift Complete Card */
+            gift_complete_card: boolean;
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /** Saved */
+            saved: boolean;
+        };
+        /** ReferralRulesOut */
+        ReferralRulesOut: {
+            /** Language */
+            language: string;
+            /** Placeholders */
+            placeholders: components["schemas"]["PlaceholderOut"][];
+            /** Rules */
+            rules: components["schemas"]["ReferralRuleOut"][];
+        };
+        /**
+         * ReferralRuleIn
+         * @description PUT on one slot: only fields present in the body change. Ranges,
+         *     the no-gift-on-scanned rule and placeholders are checked in services
+         *     so the error carries a field-level slug (`referral_rule_invalid`).
+         */
+        ReferralRuleIn: {
+            /** Enabled */
+            enabled?: boolean | null;
+            /** Gift Stamps */
+            gift_stamps?: number | null;
+            /** Gift Complete Card */
+            gift_complete_card?: boolean | null;
+            /** Title */
+            title?: string | null;
+            /** Body */
+            body?: string | null;
+        };
+        /** PagedReferralOut */
+        PagedReferralOut: {
+            /** Items */
+            items: components["schemas"]["ReferralOut"][];
+            /** Count */
+            count: number;
+        };
+        /**
+         * ReferralOut
+         * @description One referral as the owner sees it. Full names, because the owner
+         *     already holds both customers' records — this is the roster, not the
+         *     friend's page.
+         */
+        ReferralOut: {
+            /** Id */
+            id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "joined" | "qualified" | "completed" | "rejected" | "flagged";
+            /** Fraud Reason */
+            fraud_reason: string;
+            /** Referrer Card Id */
+            referrer_card_id: string | null;
+            /** Referrer Display Name */
+            referrer_display_name: string;
+            /** Friend Card Id */
+            friend_card_id: string | null;
+            /** Friend Display Name */
+            friend_display_name: string;
+            /**
+             * Attributed At
+             * Format: date-time
+             */
+            attributed_at: string;
+            /**
+             * Joined At
+             * Format: date-time
+             */
+            joined_at: string;
+            /** First Stamp At */
+            first_stamp_at: string | null;
+            /** Completed At */
+            completed_at: string | null;
+            /** Reviewed At */
+            reviewed_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ReferralReviewIn */
+        ReferralReviewIn: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "approve" | "reject";
+        };
+        /** PagedReferralGrantOut */
+        PagedReferralGrantOut: {
+            /** Items */
+            items: components["schemas"]["ReferralGrantOut"][];
+            /** Count */
+            count: number;
+        };
+        /**
+         * ReferralGrantOut
+         * @description One reward as the owner sees it: what a rule promised, what landed,
+         *     and why not when it didn't.
+         */
+        ReferralGrantOut: {
+            /** Id */
+            id: string;
+            /** Referral Id */
+            referral_id: string | null;
+            /**
+             * Event
+             * @enum {string}
+             */
+            event: "scanned" | "friend_joined" | "friend_first_stamp" | "friend_completed_card";
+            /**
+             * Recipient
+             * @enum {string}
+             */
+            recipient: "referrer" | "friend";
+            /** Recipient Card Id */
+            recipient_card_id: string | null;
+            /** Recipient Display Name */
+            recipient_display_name: string;
+            /** Gift Stamps */
+            gift_stamps: number;
+            /** Gift Complete Card */
+            gift_complete_card: boolean;
+            /** Stamps Granted */
+            stamps_granted: number;
+            /** Message Sent */
+            message_sent: boolean;
+            /** Title Rendered */
+            title_rendered: string;
+            /** Body Rendered */
+            body_rendered: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "sending" | "granted" | "failed" | "skipped" | "revoked";
+            /** Skip Reason */
+            skip_reason: string;
+            /** Failure Reason */
+            failure_reason: string;
+            /** Attempts */
+            attempts: number;
+            /** Granted At */
+            granted_at: string | null;
+            /** Revoked At */
+            revoked_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * InvitationPreviewOut
@@ -3961,7 +4443,9 @@ export interface operations {
     };
     apps_referrals_api_public_card_page: {
         parameters: {
-            query?: never;
+            query?: {
+                device?: string | null;
+            };
             header?: never;
             path: {
                 token: string;
@@ -3977,6 +4461,256 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PublicCardPageOut"];
+                };
+            };
+        };
+    };
+    apps_referrals_api_referral_join_otp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OtpRequestIn"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    apps_referrals_api_referral_join: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReferralJoinIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReferralJoinOut"];
+                };
+            };
+        };
+    };
+    apps_referrals_api_get_referral_program: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReferralProgramOut"];
+                };
+            };
+        };
+    };
+    apps_referrals_api_patch_referral_program: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReferralProgramPatchIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReferralProgramOut"];
+                };
+            };
+        };
+    };
+    apps_referrals_api_list_referral_rules: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReferralRulesOut"];
+                };
+            };
+        };
+    };
+    apps_referrals_api_put_referral_rule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                event: string;
+                recipient: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReferralRuleIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReferralRuleOut"];
+                };
+            };
+        };
+    };
+    apps_referrals_api_list_referrals: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                page?: number;
+                page_size?: number | null;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedReferralOut"];
+                };
+            };
+        };
+    };
+    apps_referrals_api_review_referral: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                referral_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReferralReviewIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReferralOut"];
+                };
+            };
+        };
+    };
+    apps_referrals_api_list_referral_grants: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                page?: number;
+                page_size?: number | null;
+            };
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedReferralGrantOut"];
+                };
+            };
+        };
+    };
+    apps_referrals_api_revoke_referral_grant: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+                grant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReferralGrantOut"];
                 };
             };
         };

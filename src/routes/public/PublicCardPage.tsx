@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
@@ -14,22 +14,27 @@ import {
 import { useAuth } from "../../auth/useAuth";
 import { ctaClasses, focusRing } from "../../components/marketing/primitives";
 import { cn } from "../../lib/cn";
+import { currentDeviceId } from "../../lib/deviceId";
 import { classifyScanError } from "../../lib/scan";
+import { ReferralJoin } from "./ReferralJoin";
 
 /**
  * The page behind the wallet QR: `/p/:token`.
  *
- * The same QR serves two people. The shop's own staff, phone signed in,
+ * The same QR serves three people. The shop's own staff, phone signed in,
  * pointed a plain camera at a customer's pass because the dashboard was not
  * open — they get one thing to do, add the stamp, and nothing to read first.
- * Anyone else gets the card's public face: whose card design this is and
- * how to get one. Which of the two is decided by the server from the bearer
- * token, so the request waits for the session to bootstrap — on a fresh tab
- * the access token is only in memory once AuthProvider has refreshed it.
+ * With the shop's referral program on, anyone else is a friend of the
+ * member whose card it is: they get a join attributed to that member. With
+ * it off, the card's public face — whose design this is and how to get one.
+ * Which of the three is decided by the server from the bearer token and
+ * the program, so the request waits for the session to bootstrap — on a
+ * fresh tab the access token is only in memory once AuthProvider has
+ * refreshed it.
  *
- * What the friend's version becomes — a join attributed to the person whose
- * card it is — arrives with the referral program (phase 4), behind a switch
- * the shop turns on. Until then the sign-up link here is the ordinary one.
+ * The device id is this browser's own random value (lib/deviceId): sent
+ * with the page so a scan today and a join next week can be told to be the
+ * same person. Absent in a chat app's browser, which is allowed.
  */
 
 type Outcome =
@@ -57,11 +62,12 @@ export function PublicCardPage() {
   const { token } = useParams<{ token: string }>();
   const auth = useAuth();
   const queryClient = useQueryClient();
+  const deviceId = useMemo(() => currentDeviceId(), []);
 
   const { data: page, isLoading, error } = useQuery({
     // The session is part of the key: the answer changes when it does.
     queryKey: ["publicCard", token, auth.isAuthenticated],
-    queryFn: () => getPublicCardPage(token!),
+    queryFn: () => getPublicCardPage(token!, deviceId),
     enabled: !!token && !auth.isLoading,
     retry: false,
   });
@@ -87,6 +93,8 @@ export function PublicCardPage() {
               void queryClient.invalidateQueries({ queryKey: ["publicCard", token] })
             }
           />
+        ) : page.view === "join" ? (
+          <ReferralJoin token={token} page={page} deviceId={deviceId} />
         ) : (
           <CardFace token={token} page={page} signedIn={auth.isAuthenticated} />
         )}
