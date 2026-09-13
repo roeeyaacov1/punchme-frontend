@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
 import { ctaClasses } from "../../components/marketing/primitives";
 import { getPublicCard } from "../../api/loyalty";
+import { browserStorage, rememberHeldCard } from "../../lib/heldCards";
 import { PassStage } from "./PassStage";
 
 /** Where the QR on a lost pass, and the link under the join screen, both
@@ -19,6 +21,12 @@ export function CardStatusPage() {
     enabled: !!serial,
     retry: false,
   });
+
+  // Whoever opens this page holds the card: remember the token its wallet
+  // QR carries, so /p/<token> can greet them as its holder (lib/heldCards).
+  useEffect(() => {
+    if (card && serial) rememberHeldCard(browserStorage(), card.public_token, serial);
+  }, [card, serial]);
 
   return (
     <div className="theme-purple theme-raised min-h-screen bg-background px-5 py-10 text-ink sm:py-16">

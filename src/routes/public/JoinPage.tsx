@@ -5,6 +5,7 @@ import { Input } from "../../components/ui";
 import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
 import { Eyebrow, ctaClasses, focusRing } from "../../components/marketing/primitives";
 import { cn } from "../../lib/cn";
+import { browserStorage, rememberHeldCard } from "../../lib/heldCards";
 import { PassStage } from "./PassStage";
 import {
   enroll,
@@ -130,6 +131,8 @@ export function JoinPage() {
         otp_code: otpCode,
       });
       const card = await getPublicCard(enrollResult.card_serial);
+      // The person who just joined holds this card: let /p/<token> know.
+      rememberHeldCard(browserStorage(), card.public_token, enrollResult.card_serial);
       setStep({ kind: "success", enrollResult, card });
     } catch (err) {
       if (err instanceof ApiError && err.code === "otp_invalid")

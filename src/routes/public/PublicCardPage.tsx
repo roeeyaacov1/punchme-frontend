@@ -15,6 +15,7 @@ import { useAuth } from "../../auth/useAuth";
 import { ctaClasses, focusRing } from "../../components/marketing/primitives";
 import { cn } from "../../lib/cn";
 import { currentDeviceId } from "../../lib/deviceId";
+import { browserStorage, heldCardSerial } from "../../lib/heldCards";
 import { classifyScanError } from "../../lib/scan";
 import { ReferralJoin } from "./ReferralJoin";
 
@@ -35,6 +36,12 @@ import { ReferralJoin } from "./ReferralJoin";
  * The device id is this browser's own random value (lib/deviceId): sent
  * with the page so a scan today and a join next week can be told to be the
  * same person. Absent in a chat app's browser, which is allowed.
+ *
+ * A fourth person the server cannot see: the holder, scanning their own
+ * pass. This browser may know (lib/heldCards) — it was shown the card when
+ * they joined or opened it — and then says so instead of inviting them to
+ * join their own card. The counter's stamp screen still wins when the
+ * server has identified the shop's own staff.
  */
 
 type Outcome =
@@ -63,6 +70,7 @@ export function PublicCardPage() {
   const auth = useAuth();
   const queryClient = useQueryClient();
   const deviceId = useMemo(() => currentDeviceId(), []);
+  const heldSerial = useMemo(() => heldCardSerial(browserStorage(), token), [token]);
 
   const { data: page, isLoading, error } = useQuery({
     // The session is part of the key: the answer changes when it does.
@@ -93,6 +101,8 @@ export function PublicCardPage() {
               void queryClient.invalidateQueries({ queryKey: ["publicCard", token] })
             }
           />
+        ) : heldSerial ? (
+          <YourCard page={page} serial={heldSerial} />
         ) : page.view === "join" ? (
           <ReferralJoin token={token} page={page} deviceId={deviceId} />
         ) : (
@@ -250,6 +260,29 @@ function OutcomeNote({ outcome }: { outcome: Outcome }) {
       <Icon size={18} aria-hidden className="mt-0.5 shrink-0" />
       <p>{text}</p>
     </div>
+  );
+}
+
+/** The holder, recognised by this browser: their own card, one tap away,
+ * and — while the shop's program is on — what showing it to a friend does. */
+function YourCard({ page, serial }: { page: PublicCardPageData; serial: string }) {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <div className="flex flex-col items-center gap-1 text-center">
+        <p className="text-sm font-semibold text-ink-muted">
+          {page.business_name} · {page.template_name}
+        </p>
+        <h1 className="text-2xl font-heading font-bold text-ink">{t("publicCard.yours.title")}</h1>
+      </div>
+      {page.view === "join" && (
+        <p className="text-center font-body text-ink-muted">{t("publicCard.yours.hint")}</p>
+      )}
+      <Link to={`/c/${serial}`} className={ctaClasses("gradient", "lg", "w-full max-w-[300px]")}>
+        {t("publicCard.yours.open")}
+      </Link>
+    </>
   );
 }
 

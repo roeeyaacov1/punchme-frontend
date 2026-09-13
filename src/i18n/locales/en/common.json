@@ -503,7 +503,8 @@
     "successTitle": "Your card is ready! Add it to your wallet",
     "successEyebrow": "You're in at {{businessName}}",
     "scanMeanwhile": "No need to wait — staff can scan the code above right now.",
-    "statusTitle": "Your card"
+    "statusTitle": "Your card",
+    "alreadyMemberTitle": "You already have a card here — here it is"
   },
   "standee": {
     "title": "Print signage",
@@ -1553,6 +1554,11 @@
     "join": {
       "invitedBy": "{{name}} invited you",
       "invited": "You've been invited to join"
+    },
+    "yours": {
+      "title": "This is your card",
+      "hint": "Friends who scan it get a card of their own here.",
+      "open": "Open your card"
     }
   },
   "referrals": {

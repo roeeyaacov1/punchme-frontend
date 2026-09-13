@@ -13,6 +13,7 @@ import { Eyebrow, ctaClasses, focusRing } from "../../components/marketing/primi
 import { Input } from "../../components/ui";
 import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
 import { cn } from "../../lib/cn";
+import { browserStorage, rememberHeldCard } from "../../lib/heldCards";
 import { toNameCase } from "../../lib/name";
 import { isLikelyIlPhone } from "../../lib/phone";
 import { PassStage } from "./PassStage";
@@ -30,7 +31,9 @@ import { PassStage } from "./PassStage";
  *
  * `referral_status` comes back with the card but is not shown: "rejected"
  * and "flagged" are the shop's business, and the friend's card is theirs
- * either way.
+ * either way. `already_member` is shown — the one outcome that is about the
+ * person rather than the referral: they get the card they already hold,
+ * with a greeting that says so instead of a welcome.
  */
 
 type Step =
@@ -135,6 +138,7 @@ export function ReferralJoin({
         device_id: deviceId ?? undefined,
       });
       const card = await getPublicCard(result.card_serial);
+      rememberHeldCard(browserStorage(), card.public_token, result.card_serial);
       setStep({ kind: "success", result, card });
     } catch (err) {
       if (err instanceof ApiError && err.code === "otp_invalid") setError(t("enroll.otpInvalid"));
@@ -161,7 +165,7 @@ export function ReferralJoin({
         <div className="flex flex-col items-center gap-2 text-center">
           <Eyebrow>{t("enroll.successEyebrow", { businessName: card.business_name })}</Eyebrow>
           <h1 className="text-2xl font-heading font-bold text-ink">
-            {t("enroll.successTitle")}
+            {t(result.already_member ? "enroll.alreadyMemberTitle" : "enroll.successTitle")}
           </h1>
         </div>
         <PassStage card={card} serial={result.card_serial} holderName={toNameCase(displayName)} />

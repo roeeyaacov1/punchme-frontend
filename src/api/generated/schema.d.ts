@@ -1044,13 +1044,13 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Put Referral Rule */
-        put: operations["apps_referrals_api_put_referral_rule"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** Patch Referral Rule */
+        patch: operations["apps_referrals_api_patch_referral_rule"];
         trace?: never;
     };
     "/api/businesses/{business_id}/referrals": {
@@ -1859,6 +1859,8 @@ export interface components {
             wallet_pass_url: string | null;
             /** Wallet Issue Pending */
             wallet_issue_pending: boolean;
+            /** Public Token */
+            public_token: string;
         };
         /** ScanOut */
         ScanOut: {
@@ -2496,7 +2498,11 @@ export interface components {
          * ReferralJoinOut
          * @description EnrollOut plus what became of the referral. `referral_status` is
          *     "none" when the shop has no program; otherwise the Referral's status —
-         *     "rejected" and "flagged" are still a successful join.
+         *     "rejected" and "flagged" are still a successful join. `already_member`
+         *     says the phone held a card at this shop before this join: the page then
+         *     greets the person with the card they already have rather than a
+         *     welcome, which is the one thing about the referral's outcome the friend
+         *     is told, because it is about them and not about the referrer.
          */
         ReferralJoinOut: {
             /** Card Serial */
@@ -2522,6 +2528,11 @@ export interface components {
              * @enum {string}
              */
             referral_status: "none" | "joined" | "qualified" | "completed" | "rejected" | "flagged";
+            /**
+             * Already Member
+             * @default false
+             */
+            already_member: boolean;
         };
         /**
          * ReferralJoinIn
@@ -2643,7 +2654,7 @@ export interface components {
         };
         /**
          * ReferralRuleIn
-         * @description PUT on one slot: only fields present in the body change. Ranges,
+         * @description PATCH on one slot: only fields present in the body change. Ranges,
          *     the no-gift-on-scanned rule and placeholders are checked in services
          *     so the error carries a field-level slug (`referral_rule_invalid`).
          */
@@ -4585,7 +4596,7 @@ export interface operations {
             };
         };
     };
-    apps_referrals_api_put_referral_rule: {
+    apps_referrals_api_patch_referral_rule: {
         parameters: {
             query?: never;
             header?: never;
