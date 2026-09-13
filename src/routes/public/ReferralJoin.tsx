@@ -24,10 +24,11 @@ import { PassStage } from "./PassStage";
  * The same three steps as the poster's join page — details, SMS code, the
  * card — with two differences the friend never sees: the requests go to the
  * member's token rather than a design id, so the join is attributed to the
- * member; and the code is never skipped, whatever the deployment's OTP
- * setting, because every fraud rule behind the attribution rests on the
- * phone being real. Same legal text (the s.11 notice, the separate
- * marketing checkbox) by way of the same strings.
+ * member; and whether there is a code step at all comes from the page
+ * itself (`otp_required`, the deployment's OTP switch) rather than from a
+ * build-time flag, so the API and the page cannot disagree about it. Same
+ * legal text (the s.11 notice, the separate marketing checkbox) by way of
+ * the same strings.
  *
  * `referral_status` comes back with the card but is not shown: "rejected"
  * and "flagged" are the shop's business, and the friend's card is theirs
@@ -102,6 +103,12 @@ export function ReferralJoin({
   async function sendCode() {
     if (!isLikelyIlPhone(phone)) {
       setError(t("enroll.phoneInvalid"));
+      return;
+    }
+    // With OTP off there is no code to wait for, and asking for one anyway
+    // would burn the backend's per-phone send limit for nothing.
+    if (!page.otp_required) {
+      await join("");
       return;
     }
     setError(null);
@@ -326,7 +333,9 @@ export function ReferralJoin({
         </details>
         {error && <p className="text-sm font-body text-danger">{error}</p>}
         <button type="submit" disabled={busy} className={ctaClasses("gradient", "lg")}>
-          {busy ? t("common.loading") : t("enroll.sendCodeCta")}
+          {busy
+            ? t("common.loading")
+            : t(page.otp_required ? "enroll.sendCodeCta" : "enroll.submit")}
         </button>
       </form>
     </>

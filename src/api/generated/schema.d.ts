@@ -2451,6 +2451,8 @@ export interface components {
             view: "stamp" | "card" | "join";
             /** Business Name */
             business_name: string;
+            /** Otp Required */
+            otp_required: boolean;
             /** Template Name */
             template_name: string;
             /** Stamps Required */
@@ -2536,16 +2538,21 @@ export interface components {
         };
         /**
          * ReferralJoinIn
-         * @description The friend's join. Same fields as EnrollIn, with two differences: the
-         *     SMS code is required whatever OTP_REQUIRED says, and `device_id` is the
+         * @description The friend's join. Same fields as EnrollIn, plus `device_id`: the
          *     random value the landing page keeps in its own storage — the thread the
          *     attribution window and the device rules are measured along. Absent in
          *     a chat app's browser, which is allowed; it only ever narrows a rule.
+         *     The SMS code is required exactly when the deployment requires one
+         *     (OTP_REQUIRED, which the page reads off PublicCardPageOut.otp_required),
+         *     the same rule as the ordinary join.
          */
         ReferralJoinIn: {
             /** Phone */
             phone: string;
-            /** Otp Code */
+            /**
+             * Otp Code
+             * @default
+             */
             otp_code: string;
             /**
              * Display Name
