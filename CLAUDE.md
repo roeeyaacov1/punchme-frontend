@@ -80,9 +80,10 @@ on the page, so the invitation is still on screen while they type.
 
 ## Redesign rules
 
-The frontend is being redesigned page group by page group: landing → onboarding →
-dashboard. Landing and onboarding have shipped; the dashboard phase is
-presentation-layer only.
+Landing and onboarding have shipped. The dashboard is being reworked from
+scratch. What must carry over is in `docs/dashboard-routes.md`: every route
+stays, and each page keeps making the API calls listed there. Everything else
+about the dashboard is open, within the other rules in this file.
 
 **Never modify during a redesign:**
 
@@ -93,9 +94,8 @@ presentation-layer only.
   design. Stage them, frame them, animate them; do not redraw them.
 - Any route group outside the phase currently being worked on.
 
-**Behavior is frozen.** Routes, hrefs, anchor ids, form field names, event
-handlers, prop signatures, query keys, and validation rules all stay exactly as
-they are. If a redesign seems to require changing one, stop and ask.
+**Routes and API calls are fixed.** If the rework seems to need a route removed
+or renamed, or a page's call dropped or changed, stop and ask.
 
 ## Hebrew and RTL
 
