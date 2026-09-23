@@ -1,0 +1,570 @@
+<title>PunchMe × Figma Make</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Assistant:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f5f6fe;
+    --panel: #ffffff;
+    --ink: #111111;
+    --ink-muted: #414141;
+    --ink-subtle: #55555f;
+    --accent: #5b41e6;
+    --accent-text: #683de8;
+    --accent-on: #ffffff;
+    --accent-wash: #eeebfd;
+    --border: #e2e3f6;
+    --border-strong: #caccee;
+    --fact: #f0b429;
+    --fact-ink: #845209;
+    --fact-wash: #fefaec;
+    --warn: #92400e;
+    --warn-bg: #fffbeb;
+    --ok: #047857;
+    --ok-bg: #ecfdf5;
+    --band-ink: #e3ddfb;
+    --mono-bg: #0f0f23;
+    --mono-ink: #d6d2f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f0f23;
+      --panel: #1d1d35;
+      --ink: #f2f1fb;
+      --ink-muted: #b9b7d4;
+      --ink-subtle: #9a98ba;
+      --accent: #6d4df2;
+      --accent-text: #a78bfa;
+      --accent-on: #ffffff;
+      --accent-wash: #262148;
+      --border: #2c2c48;
+      --border-strong: #3d3d61;
+      --fact: #ffd875;
+      --fact-ink: #ffd875;
+      --fact-wash: #2d2412;
+      --warn: #fcd34d;
+      --warn-bg: #2b2113;
+      --ok: #6ee7b7;
+      --ok-bg: #10261f;
+      --band-ink: #e3ddfb;
+      --mono-bg: #08081a;
+      --mono-ink: #d6d2f0;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f0f23;
+    --panel: #1d1d35;
+    --ink: #f2f1fb;
+    --ink-muted: #b9b7d4;
+    --ink-subtle: #9a98ba;
+    --accent: #6d4df2;
+    --accent-text: #a78bfa;
+    --accent-on: #ffffff;
+    --accent-wash: #262148;
+    --border: #2c2c48;
+    --border-strong: #3d3d61;
+    --fact: #ffd875;
+    --fact-ink: #ffd875;
+    --fact-wash: #2d2412;
+    --warn: #fcd34d;
+    --warn-bg: #2b2113;
+    --ok: #6ee7b7;
+    --ok-bg: #10261f;
+    --band-ink: #e3ddfb;
+    --mono-bg: #08081a;
+    --mono-ink: #d6d2f0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Assistant", system-ui, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    margin: 0;
+  }
+  .page { direction: rtl; max-width: 46rem; margin: 0 auto; padding: 2.5rem 1.25rem 6rem; }
+  h1, h2, h3 { font-family: "Rubik", system-ui, sans-serif; line-height: 1.25; text-wrap: balance; margin: 0; }
+  h1 { font-size: 2.1rem; font-weight: 700; }
+  h2 { font-size: 1.45rem; font-weight: 600; margin: 0 0 .35rem; }
+  h3 { font-size: 1.08rem; font-weight: 600; }
+  p { margin: .55rem 0; }
+  a { color: var(--accent-text); }
+  .muted { color: var(--ink-muted); }
+  .small { font-size: .92rem; }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace; font-size: .72rem; letter-spacing: .04em;
+    color: var(--accent-text); margin-bottom: .5rem;
+  }
+  header.hero { margin-bottom: 2rem; }
+  header.hero .lead { color: var(--ink-muted); max-width: 40rem; margin-top: .75rem; }
+
+  .band {
+    background: linear-gradient(135deg, #17123a, #0f0f23 55%, #251a4d);
+    color: #ffffff; border-radius: 1rem; padding: 1.4rem 1.5rem; margin: 1.5rem 0 2rem;
+  }
+  .band .who { color: var(--band-ink); font-size: .95rem; margin: 0; }
+  .band strong { color: #ffffff; }
+
+  .panel {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 1rem;
+    padding: 1.35rem 1.5rem; margin: 1.1rem 0;
+  }
+  section { margin-top: 2.6rem; }
+  .station-label {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-family: "IBM Plex Mono", monospace; font-size: .72rem; letter-spacing: .04em;
+    color: var(--accent-text); background: var(--accent-wash);
+    border-radius: 999px; padding: .3rem .8rem; margin-bottom: .6rem;
+  }
+
+  ul.clean { padding-inline-start: 1.2rem; margin: .5rem 0; }
+  ul.clean li { margin: .3rem 0; }
+
+  .check { list-style: none; padding: 0; margin: .6rem 0 0; }
+  .check li { display: flex; gap: .65rem; align-items: flex-start; padding: .42rem 0; border-top: 1px solid var(--border); }
+  .check li:first-child { border-top: 0; }
+  .check input[type="checkbox"] {
+    inline-size: 1.15rem; block-size: 1.15rem; margin-top: .25rem; accent-color: var(--accent); flex: none; cursor: pointer;
+  }
+  .check label { cursor: pointer; }
+
+  .fact {
+    border-inline-start: 4px solid var(--fact); background: var(--fact-wash);
+    border-radius: .6rem; padding: .7rem 1rem; margin: .6rem 0;
+  }
+  .fact b { color: var(--fact-ink); }
+  .dont {
+    border-inline-start: 4px solid var(--warn); background: var(--warn-bg);
+    border-radius: .6rem; padding: .7rem 1rem; margin: .6rem 0;
+  }
+  .dont b { color: var(--warn); }
+  .tip { background: var(--ok-bg); border-radius: .6rem; padding: .7rem 1rem; margin: .6rem 0; }
+  .tip b { color: var(--ok); }
+
+  details.prompt-box { border: 1px solid var(--border-strong); border-radius: .8rem; margin: .7rem 0; background: var(--panel); overflow: hidden; }
+  details.prompt-box > summary {
+    cursor: pointer; padding: .8rem 1.1rem; font-family: "Rubik", system-ui, sans-serif; font-weight: 600;
+    list-style: none; display: flex; align-items: center; gap: .6rem;
+  }
+  details.prompt-box > summary::-webkit-details-marker { display: none; }
+  details.prompt-box > summary::before { content: "◂"; color: var(--accent-text); transition: transform .15s; }
+  details.prompt-box[open] > summary::before { transform: rotate(-90deg); }
+  details.prompt-box > summary .where {
+    font-family: "IBM Plex Mono", monospace; font-weight: 400; font-size: .7rem; color: var(--ink-subtle);
+    margin-inline-start: auto;
+  }
+  .prompt-body { border-top: 1px solid var(--border); }
+  .prompt-toolbar { display: flex; justify-content: flex-end; padding: .5rem .9rem 0; }
+  button.copy {
+    font-family: "Assistant", system-ui, sans-serif; font-size: .85rem; font-weight: 600;
+    color: var(--accent-on); background: var(--accent); border: 0; border-radius: .5rem;
+    padding: .35rem .9rem; cursor: pointer; min-height: 2.2rem;
+  }
+  button.copy:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+  pre.prompt {
+    direction: ltr; text-align: left; font-family: "IBM Plex Mono", monospace; font-size: .8rem; line-height: 1.55;
+    background: var(--mono-bg); color: var(--mono-ink); margin: .6rem .9rem .9rem;
+    padding: 1rem 1.1rem; border-radius: .6rem; overflow-x: auto; white-space: pre-wrap;
+  }
+
+  table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+  th, td { text-align: start; padding: .45rem .6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-family: "Rubik", system-ui, sans-serif; font-weight: 600; font-size: .85rem; color: var(--ink-subtle); }
+  .table-wrap { overflow-x: auto; }
+  code { font-family: "IBM Plex Mono", monospace; font-size: .85em; background: var(--accent-wash); border-radius: .3rem; padding: .08em .35em; direction: ltr; unicode-bidi: isolate; }
+
+  .toc { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+  .toc a {
+    text-decoration: none; border: 1px solid var(--border-strong); border-radius: 999px;
+    padding: .35rem .9rem; font-size: .9rem; color: var(--ink-muted); background: var(--panel);
+  }
+  .toc a:hover { color: var(--accent-text); border-color: var(--accent); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="page">
+<header class="hero">
+  <div class="eyebrow">PUNCHME · DASHBOARD REDESIGN</div>
+  <h1>המדריך שלך לעיצוב הדשבורד</h1>
+  <p class="lead">
+    PunchMe היא כרטיסיית נאמנות דיגיטלית לעסקים קטנים — ספר, בית קפה, מאמן כושר. הלקוח סורק
+    QR פעם אחת, הכרטיסייה נכנסת לארנק בטלפון ומנקבת את עצמה בכל ביקור. אתה הולך לעצב מחדש את
+    לוח הבקרה של בעל העסק — <b>מאפס, בחופש מלא</b>. הלייאאוט, הצבעים, הטיפוגרפיה, הרכיבים —
+    הכול שלך. מה שכן מוגדר: מה כל מסך צריך <b>לעשות</b>, וכמה עובדות מוצר שאי אפשר לעקוף.
+  </p>
+  <div class="band">
+    <p class="who"><strong>איך זה עובד:</strong> אתה מעצב ב־Figma Make לפי בריפים פונקציונליים
+    שמתארים יכולות, לא מראה. בסוף כל שלב אתה מוריד את התוצרים ושולח לרואי — ובצד השני Claude
+    (עוזר תכנות) בונה מהם את האתר האמיתי, נאמן לעיצוב <strong>שלך</strong>.
+    אתה לא צריך לגעת בקוד בכלל.</p>
+  </div>
+  <nav class="toc" aria-label="ניווט מהיר">
+    <a href="#before">לפני שמתחילים</a>
+    <a href="#facts">העובדות הקבועות</a>
+    <a href="#station1">תחנה 1 · תבנית</a>
+    <a href="#station2">תחנה 2 · קובץ הבסיס</a>
+    <a href="#station3">תחנה 3 · שאר המסכים</a>
+    <a href="#handoff">מסירה</a>
+    <a href="#prompts">כל הבריפים</a>
+  </nav>
+</header>
+
+<section id="before">
+  <h2>לפני שמתחילים</h2>
+  <div class="panel">
+    <ul class="check">
+      <li><input type="checkbox" id="b1"><label for="b1">יש לך חשבון פיגמה עם גישה ל־<b>Figma Make</b> (הכלי של פיגמה שמייצר עיצוב חי מהנחיות טקסט — נדרש מושב בתשלום. אם אין, תגיד לרואי).</label></li>
+      <li><input type="checkbox" id="b2"><label for="b2">קיבלת מרואי שני קבצים: <code>product-brief.md</code> (עובדות המוצר) ו־<code>copy-deck.md</code> (כל הטקסטים האמיתיים בעברית ובאנגלית).</label></li>
+      <li><input type="checkbox" id="b3"><label for="b3">קיבלת מרואי תיקיית צילומי מסך של <b>האובייקטים הנעולים</b> — כרטיס הארנק והשילוט המודפס. עוד רגע תבין למה הם נעולים.</label></li>
+      <li><input type="checkbox" id="b4"><label for="b4">קראת את העובדות הקבועות שלמטה. חמש דקות — ואלה הדברים היחידים שלא נתונים לבחירתך.</label></li>
+    </ul>
+  </div>
+</section>
+
+<section id="facts">
+  <h2>העובדות הקבועות</h2>
+  <p class="muted">לא הנחיות עיצוב — עובדות על המוצר והשוק שלו. כל השאר פתוח לגמרי.</p>
+
+  <div class="fact"><b>עברית קודם, RTL קודם.</b> כל מסך מעוצב קודם בעברית, מימין לשמאל; האנגלית היא הווריאציה. הטקסטים לקוחים מ־copy-deck בלבד. מספרים, טלפונים וקודים נשארים תמיד LTR בתוך הטקסט. הפונטים שתבחר חייבים לתמוך בעברית באופן מלא (לרוב פונטי monospace אין עברית — לא מקלידים בהם עברית). בעברית אין אותיות גדולות.</div>
+  <div class="fact"><b>שני גדלים, שני מצבים.</b> כל מסך קיים גם ב־375px וגם בדסקטופ, גם בערכה בהירה וגם בכהה (שתיהן קיימות במוצר היום). הפלטה שלך — אבל כל טקסט חייב לעמוד בניגודיות WCAG AA בשני המצבים.</div>
+  <div class="fact"><b>שלושה תפקידים.</b> איש צוות (סריקה, סקירה, לקוחות, פעילות) &lt; מנהל (בנוסף: הודעות, סטודיו, שילוט, הגדרות) &lt; בעלים (בנוסף: צוות, חיוב). אף אחד לא רואה דלת שהתפקיד שלו לא פותח.</div>
+  <div class="fact"><b>חינמי מול פרו.</b> בתוכנית החינמית לקוחות אמיתיים עוד לא יכולים להצטרף — רוב מסכי הנתונים ריקים ונעולים, עם נתיב כן להפעלה (חיוב). המצבים האלה מעוצבים באותה השקעה כמו המלאים — עסק חדש רואה בעיקר אותם.</div>
+  <div class="fact"><b>שימוש ביד אחת, ליד הדלפק.</b> בעל העסק משתמש בזה בטלפון, בין לקוחות. אזורי מגע נוחים, מקלדת עובדת, פוקוס נראה.</div>
+  <div class="fact"><b>תוכן כן.</b> נתוני הדוגמה נראים כמו עסק אמיתי: שמות ישראליים (נועה לוי, אבי כהן), "מספרת שי", בערך 40 לקוחות. בלי מדדי צמיחה מומצאים, בלי סטטיסטיקות קישוט.</div>
+
+  <div class="dont"><b>אל תצייר מחדש את האובייקטים הנעולים.</b> כרטיס הארנק (אפל/גוגל), קוד ה־QR והשילוט המודפס מיוצרים על ידי קוד קיים שמחקה בדיוק את מה שאפל, גוגל והנייר באמת מציגים — ובצבעים של הכרטיסייה שכל בעל עסק עיצב לעצמו. אתה קובע איפה ואיך הם יושבים בעמוד — לעולם לא איך הם נראים מבפנים. השתמש בצילומי המסך שקיבלת כתמונות קבועות.</div>
+  <div class="dont"><b>אל תמציא עברית ואל תשתמש בטקסט דמה.</b> כל המילים כבר כתובות ב־<code>copy-deck.md</code>. אם חסר לך טקסט — שאל את רואי, אל תנחש.</div>
+</section>
+
+<section id="station1">
+  <span class="station-label">תחנה 1 · חצי שעה</span>
+  <h2>בחירת התבנית</h2>
+  <p>
+    תבנית מ־Figma Community היא חומר גלם, לא כיוון מחייב — <b>תבחר איזו שתרצה</b>, או תוותר
+    עליה לגמרי ותתחיל מאפס. מה שחשוב לבדוק לפני שמשתמשים באחת:
+  </p>
+  <div class="panel">
+    <ul class="clean">
+      <li><b>רישיון</b> שמתיר שימוש מסחרי בנגזרות (בקהילת פיגמה לרוב CC BY 4.0 — כתוב בעמוד התבנית).</li>
+      <li><b>פריימים למובייל</b>, לא רק דסקטופ.</li>
+      <li><b>טבלאות וטפסים</b> — המוצר הזה הוא בעיקר טבלאות וטפסים.</li>
+    </ul>
+    <p class="small muted">
+      שתי אופציות שכבר בדקנו להן רישיון (CC BY 4.0), אם זה חוסך לך זמן — ממש לא חובה:
+      <a href="https://www.figma.com/community/file/1020079203222518115/untitled-ui-free-figma-ui-kit-and-design-system-v2-0">Untitled UI החינמית ↗</a>
+      · <a href="https://www.figma.com/community/file/1332203037536263387/figma-data-tables-ui-kit-untitled-ui">ערכת הטבלאות שלה ↗</a>
+    </p>
+    <ul class="check">
+      <li><input type="checkbox" id="s1a"><label for="s1a">בחרתי תבנית (או החלטתי בלעדיה) ובדקתי רישיון.</label></li>
+      <li><input type="checkbox" id="s1b"><label for="s1b">אם בחרתי — צירפתי ל־Make רק <b>2–4 פריימים</b> ששווה ללמוד מהם, לא את כל הערכה (Make מחקה סט קטן ומוקפד הרבה יותר טוב).</label></li>
+      <li><input type="checkbox" id="s1c"><label for="s1c">מחקתי מהפריימים כל תמונת סטוק או לוגו מומצא.</label></li>
+    </ul>
+  </div>
+</section>
+
+<section id="station2">
+  <span class="station-label">תחנה 2 · הלב של הפרויקט</span>
+  <h2>קובץ הבסיס (ה־Seed)</h2>
+  <p>
+    כאן אתה מגבש את השפה הוויזואלית <b>שלך</b>. פותחים פרויקט <b>אחד</b> ב־Figma Make, מצרפים
+    את הפריימים שבחרת + שני הקבצים מרואי, ומריצים את ארבעת הבריפים הראשונים <b>לפי הסדר</b>:
+    בריף 0 (עובדות המוצר), בריף 1 (הניווט), בריף 2 (מסך הסקירה), בריף 3 (מסך הלקוחות).
+    סקירה ולקוחות הם שני המסכים העמוסים ביותר פונקציונלית — תגבש עליהם את השיטה שלך
+    (הטבלה שלך, הטופס שלך, הכרטיס שלך), כי כל שאר המסכים יורשים ממנה.
+  </p>
+  <div class="tip"><b>טיפ חשוב:</b> בריף 0 מנחה את Make ליצור קובץ <code>tokens.css</code> — כל צבעי המערכת שבחרת כמשתנים, סט בהיר וסט כהה. הערכים לגמרי שלך; העיקרון הוא שכל מסך משתמש רק בהם. אחרי בריף 0, בקש לראות שהקובץ קיים — זה מה ששומר על עקביות לאורך עשרים מסכים.</div>
+
+  <div class="panel">
+    <h3>איך מדברים עם Make (זה חצי מהמקצוע)</h3>
+    <ul class="clean">
+      <li><b>שינוי אחד בכל הודעה,</b> ובשם מפורש: "שנה רק את כרטיס הלקוח בשורה השלישית; אל תיגע בשום דבר אחר." בקשות כלליות ("תסדר את העמוד") הורסות דברים שכבר עבדו.</li>
+      <li><b>לתיקונים קטנים — עריכה ישירה,</b> לא פרומפט: ב־Make אפשר ללחוץ על אלמנט ולערוך אותו נקודתית. פרומפטים גורמים נזק אגבי, עריכה ישירה לא.</li>
+      <li><b>לפני שינוי מבני גדול — שכפל את הקובץ.</b> קודם עותק, אחר כך ניסוי.</li>
+      <li><b>אם משהו נהרס — שחזר גרסה.</b> אל תנסה "לתקן בפרומפטים" נזק. History בפיגמה זה החבר שלך.</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h3>מתי מסך נחשב "גמור"? הצ'ק־ליסט לכל מסך</h3>
+    <ul class="check">
+      <li><input type="checkbox" id="q1"><label for="q1">עברית RTL נכונה: פריסה מראה, יישור ימינה, אייקונים כיווניים מסובבים.</label></li>
+      <li><input type="checkbox" id="q2"><label for="q2">מספרים, טלפונים וקודים נשארים LTR בתוך הטקסט העברי.</label></li>
+      <li><input type="checkbox" id="q3"><label for="q3">שני המצבים קיימים ותקינים: אותה פריסה, ערכת צבעים מתחלפת, ניגודיות AA בשניהם. האובייקטים הנעולים לא הושפעו.</label></li>
+      <li><input type="checkbox" id="q4"><label for="q4">גרסת 375px עובדת ביד אחת.</label></li>
+      <li><input type="checkbox" id="q5"><label for="q5">כל המצבים קיימים: טעינה · עסק חדש וריק · נעול בתוכנית חינמית (עם נתיב הפעלה) · שגיאה · אין תוצאות חיפוש.</label></li>
+      <li><input type="checkbox" id="q6"><label for="q6">כל הפונקציונליות מהבריף קיימת — שום יכולת לא נשמטה ושום פיצ'ר לא הומצא.</label></li>
+      <li><input type="checkbox" id="q7"><label for="q7">כל הטקסטים מה־copy-deck, כל הנתונים צנועים ואמיתיים למראה.</label></li>
+    </ul>
+  </div>
+  <p><b>סיום התחנה:</b> כשארבעת הבריפים הראשונים עוברים את הצ'ק־ליסט — שולחים לרואי צילומי מסך לאישור. רק אחרי האישור ממשיכים. מכאן והלאה <b>השפה שגיבשת קבועה — בלי שינויים מבניים.</b></p>
+</section>
+
+<section id="station3">
+  <span class="station-label">תחנה 3 · הכפלה ועבודה שוטפת</span>
+  <h2>שאר המסכים, בחמישה קבצים</h2>
+  <p>
+    משכפלים את קובץ הבסיס המאושר <b>חמש פעמים</b> (Duplicate) — עותק לכל קבוצת מסכים. ככה כל
+    קבוצה יורשת את השפה שגיבשת, וטעות באחת לא מזיקה לאחרות. בכל קובץ מריצים את הבריפים שלו,
+    ומתחילים כל בריף בהדבקת "בלוק העובדות" (למעלה ברשימת הבריפים) — ביטוח זול נגד שכחה של
+    Make בשיחות ארוכות.
+  </p>
+  <div class="panel table-wrap">
+    <table>
+      <tr><th>קובץ</th><th>בריפים</th><th>מה יש בו</th></tr>
+      <tr><td><b>Core</b></td><td>7</td><td>מסך הפעילות. <b>מבחן הקנרית:</b> העמוד הזה אמור להיבנות רק מרכיבים שכבר גיבשת — אם Make ממציא לו רכיבים חדשים, משהו התפרק בשיטה. ספר לרואי.</td></tr>
+      <tr><td><b>Customers</b></td><td>14</td><td>תצוגת פרטי לקוח (חדש).</td></tr>
+      <tr><td><b>Messaging</b></td><td>4, 5, 6, 15</td><td>מרכז ההודעות, כתיבת תפוצה, עורך האוטומציות, יומן המסירה (חדש).</td></tr>
+      <tr><td><b>Periphery</b></td><td>8, 9, 10, 11, 12, 16</td><td>סריקה, סטודיו הכרטיסיות, שילוט, צוות, חיוב, הגדרות (חדש).</td></tr>
+      <tr><td><b>Admin</b></td><td>17</td><td>כלי הניהול הפנימי.</td></tr>
+      <tr><td colspan="2"><b>13 — הסיור</b></td><td>מסך ההיכרות למשתמש חדש — באיזה קובץ שנוח.</td></tr>
+    </table>
+  </div>
+  <div class="panel">
+    <h3>שלושת סבבי הביקורת (בסוף, בכל אחד מחמשת הקבצים)</h3>
+    <p class="small muted">שלושה פרומפטים קצרים שמבקשים מ־Make לבדוק את עצמו ולתקן: <b>סבב A</b> — ביקורת RTL. <b>סבב B</b> — ביקורת שני המצבים. <b>סבב C</b> — ביקורת מצבים ריקים/טעינה/שגיאה. הנוסח המדויק ברשימת הבריפים למטה.</p>
+    <ul class="check">
+      <li><input type="checkbox" id="a1"><label for="a1">סבב A רץ בכל חמשת הקבצים</label></li>
+      <li><input type="checkbox" id="a2"><label for="a2">סבב B רץ בכל חמשת הקבצים</label></li>
+      <li><input type="checkbox" id="a3"><label for="a3">סבב C רץ בכל חמשת הקבצים</label></li>
+      <li><input type="checkbox" id="a4"><label for="a4">השוואה אחרונה: צילום מסך אחד מכל קובץ, זה לצד זה — הכול נראה כמו מוצר אחד? אם משהו סטה, מיישרים לפי קובץ הבסיס.</label></li>
+    </ul>
+  </div>
+</section>
+
+<section id="handoff">
+  <h2>מסירה לרואי — שלושה תוצרים מכל קובץ</h2>
+  <p class="muted">מהתוצרים האלה Claude בונה את האתר האמיתי, נאמן לעיצוב שלך. שלושתם חשובים — כל אחד עונה על שאלה אחרת.</p>
+  <div class="panel">
+    <ul class="check">
+      <li><input type="checkbox" id="h1"><label for="h1"><b>הקוד של Make:</b> בכל פרויקט Make יש אפשרות Download / Export code. מורידים ZIP לכל אחד מחמשת הקבצים ושולחים לרואי. אתה לא צריך להבין מה יש בפנים — בשביל Claude זה המפרט המדויק ביותר שקיים (מרווחים, צבעים, גדלים).</label></li>
+      <li><input type="checkbox" id="h2"><label for="h2"><b>קישור לאב־טיפוס חי:</b> מפרסמים (Publish) כל פרויקט ושולחים את הקישורים. ככה Claude בודק התנהגות — ריחוף, רספונסיביות, מעברים.</label></li>
+      <li><input type="checkbox" id="h3"><label for="h3"><b>צילומי מסך מסודרים:</b> לכל מסך — עברית + אנגלית × בהיר + כהה × מובייל + דסקטופ. שם קובץ ברור, למשל <code>customers-he-dark-mobile.png</code>. זו תעודת המקור כשיש ספק.</label></li>
+    </ul>
+  </div>
+</section>
+
+<section id="prompts">
+  <h2>הבריפים</h2>
+  <p class="muted">
+    הבריפים באנגלית — ככה מדביקים אותם ל־Make, מילה במילה, לפי הסדר. הם מתארים <b>פונקציונליות
+    בלבד</b>: מה כל מסך עושה, אילו נתונים ופעולות יש בו, אילו מצבים קיימים. איך זה ייראה —
+    שלך. כפתור העתקה בכל אחד.
+  </p>
+
+  <details class="prompt-box"><summary>בלוק העובדות — להדביק בראש כל בריף מ־4 והלאה<span class="where">HEADER</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">=== PunchMe facts ===
+- Hebrew RTL is the primary state of every screen; English LTR is the variant.
+- All copy comes from the attached copy deck — never invent Hebrew, never lorem ipsum.
+- Numbers, phone numbers, URLs and serial codes stay LTR inside Hebrew text.
+- Every screen: mobile 375px + desktop, light + dark theme, WCAG AA text contrast.
+- Wallet pass / QR / printed signage are locked objects (attached screenshots) —
+  design around them, never redraw them.
+- Sample data: realistic Israeli small business (real names, ~40 customers, honest numbers).</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 0 — עובדות המוצר (הודעה ראשונה בקובץ הבסיס)<span class="where">SEED</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">You are designing the owner dashboard of **PunchMe** — a digital loyalty punch card for small Israeli businesses (a barber, a café owner, a personal trainer). The customer scans a QR code once and a punch card lands in their Apple/Google Wallet; it stamps itself on every visit. The dashboard is where the owner scans customer codes, sees who came back, and sends messages. Owners are not technical, use this between haircuts with one hand at the counter, and are skeptical of software dashboards.
+
+All design decisions — layout, color, typography, components, navigation patterns — are yours. The following are product facts, not suggestions:
+
+**Language.** Hebrew is the primary language; design every screen RTL-first, with an English LTR variant. Use only the real product strings from the attached copy deck. Whatever typefaces you choose must fully support Hebrew (note: most monospace faces have no Hebrew — never set Hebrew text in one). Numbers, phones, URLs and serial codes remain LTR inside Hebrew text. Hebrew has no uppercase.
+
+**Platforms.** Every screen at mobile 375×812 and desktop 1280+. Mobile is the primary counter context.
+
+**Themes.** The dashboard ships with light and dark themes today and both must exist in your design. Palette is yours; all text must meet WCAG AA contrast in both.
+
+**Roles.** Three ranked roles gate everything: **staff** (counter work: scan, overview, customers, activity) < **manager** (adds: messages, card studio, signage, settings) < **owner** (adds: team, billing). A person must never be shown a destination their role can't open.
+
+**Plans.** Free vs Pro. On Free, the owner can design and preview everything but real customers can't join — most data surfaces are empty and locked behind an "activate" path that leads to Billing. Design these locked/empty states as real screens, not leftovers.
+
+**Locked objects** (attached screenshots): the wallet pass preview, the enrollment QR, and the printed signage sheets are rendered by existing code — the pass shows each owner's own card colors, the signage is physical printed paper. Place them, frame them, give them room — never redraw or restyle them.
+
+**Content honesty.** Sample data must look like a real small business: real Israeli names, a barbershop called מספרת שי, modest numbers (~40 customers). No invented growth metrics, no decorative fake stats.
+
+**Consistency mechanism:** before generating any screen, define your chosen palette as CSS variables in a tokens.css (a light set and a dark set) and use only those variables in everything you generate — this keeps ~20 screens coherent. The values are entirely your choice.
+
+Wait for my page briefs before generating screens. Confirm you've absorbed this.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 1 — ניווט ומסגרת<span class="where">SEED</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">Design the dashboard's navigation and page frame, mobile and desktop, Hebrew RTL first. Navigation structure and patterns are your call. Functional requirements:
+
+**Destinations** (with minimum role): סריקה scan (staff) · סקירה overview (staff) · לקוחות customers (staff) · פעילות activity (staff) · הודעות ללקוחות messages (manager) · סטודיו הכרטיסיות card studio (manager) · שילוט signage (manager) · הגדרות settings (manager) · צוות team (owner) · חיוב billing (owner). Scan is the most frequently used action — it happens at the counter many times a day.
+
+**Also present somewhere in the frame:** the business identity (name + their own card's look + Free/Pro plan state); account controls — theme choice (light/dark/system), language switch (HE⇄EN), "replay the tour", sign out; staff accounts of PunchMe itself additionally get a link to an internal admin tool.
+
+**Role behavior:** a staff member sees only their four destinations — no disabled doors, no empty leftovers. Show the frame for an owner and the frame for a staff member.
+
+**Mobile:** one-handed counter use is the reality; every destination must remain reachable.
+
+Generate: desktop frame (owner, HE), desktop frame (staff, HE), mobile frame incl. how beyond-primary destinations are reached (HE), one EN LTR variant, light + dark.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 2 — סקירה<span class="where">SEED</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">**סקירה (Overview)** — the first screen after login. Its job: tell the owner whether people are coming back, and what's worth doing today.
+
+**Data to present (Pro):** how many people returned in the last 30 days (returned = visited on 2+ separate days) with a comparison to the previous 30 days; totals — customers, new joins, visits, customers whose reward is ready; a 30-day daily trend; this week's stamps per day (Israeli week starts Sunday) with a total and a vs-last-week comparison; the 5 customers closest to their reward (name, progress, remaining); up to 3 suggested actions when relevant — nothing scanned in N days (→ scan), N customers inactive 30+ days (→ start a win-back message), N birthdays this month (→ birthday message) — plus a calm "nothing needs you" state.
+
+**Also on the page:** the enrollment QR (locked object) with a copy-link action; the wallet pass preview (locked object); an install-as-app nudge (Chrome install prompt / iOS add-to-home-screen steps, dismissible).
+
+**Variants:** Free-plan owner — instead of stats, a 3-step getting-started path (card is designed ✓ → print signage → activate), each linking to its page; staff member — counter essentials only, no marketing content.
+
+**A quiet week is a normal state, not an error.** Empty states for a brand-new business are part of the brief.
+
+Generate: desktop Pro (HE), mobile Pro (HE), desktop Free-owner, dark, one EN LTR.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 3 — לקוחות<span class="where">SEED</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">**לקוחות (Customers)** — the roster; the busiest working screen.
+
+**Data per customer:** name, phone, stamp progress (e.g. 7 of 10), status (in progress / reward ready / new / void), which card design they hold, join date.
+
+**Functionality:** search (by name, phone digits, card name); sort (progress / recently joined / name); filter by status — each filter shows how many it would return, and an empty filter can't be applied; export the filtered list to CSV; pagination (~20 per page with a count of shown/total).
+
+**Per-customer actions:** copy phone; send them a one-off message (max 160 chars, live counter, it arrives as a wallet notification on their lock screen); open their detail view; adjust stamps up/down (bounded 0..required; can be disabled server-side — show a disabled state with its reason); remove them — removal requires explicit confirmation that states three consequences: history is permanently deleted, the pass in their wallet stops working, they can re-join from zero. Reward-ready customers should be findable at a glance; messaging/removal are manager+ actions — staff see only copy-phone.
+
+**States:** loading; empty roster on Pro ("share the QR to get your first customer"); empty roster on Free (activate path); no search matches (with clear-filters); a void card (muted, stamp adjustment disabled with reason).
+
+Generate: desktop list (HE, one row's actions open), the message flow, the remove confirmation, mobile list (HE), an empty state, dark.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 4 — מרכז ההודעות<span class="where">MESSAGING</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">**הודעות ללקוחות (Messages)** — manager+. Home for everything the owner sends.
+
+**Data:** audience size (customers holding the card); inactive-30-days count; reward-waiting count; messages sent this month.
+
+**Functionality:** start a broadcast (→ its own screen) — broadcasts are rate-limited (N remaining per 7 days; when exhausted, when the next is allowed) and the limit is shown honestly, not hidden; manage automations — each rule shows: its kind (win-back / birthday / reward-waiting), name (→ editor), on/off state incl. "on hold" (a rule can be paused by the system — switching ON is blocked while on hold, switching OFF always works), a plain-language summary of when it fires and what it sends, sent-this-month, next run time; create a new automation from three recipes (win-back · birthday · reward waiting), each with an honest one-line description — this recipe picker is also the empty state; history of sent broadcasts — title, body preview, timestamp, delivered X of Y, failures count, sending status with live progress while a send is in flight; each opens its delivery log.
+
+**Guard states (shown above content, not replacing it):** Free plan (→ billing); messaging not enabled for this account; sending temporarily paused system-wide.
+
+Generate: desktop full (HE, 2 rules + 3 history entries), the recipe picker / empty state, mobile (HE), dark.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 5 — כתיבת הודעה לכולם<span class="where">MESSAGING</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">A dedicated screen (with a way back to Messages) for writing one message to many customers.
+
+**Functionality:** title (max 40 chars, live counter) and body (max 160 chars, live counter); insertable placeholders — customer name, business name, reward, days — that render as real values per recipient; a placeholder that would exceed the limit can't be inserted; a live preview of the actual lock-screen notification as one sample customer will see it (uses the card's colors); optional gift attached to the message — off by default — of 1/2/3 stamps or complete-the-card, with a plain explanation of what a gift stamp does; audience controls — live recipient count that updates with every change, an opt-in-only toggle (with a disabled-state reason when unavailable), and a card-design scope selector shown only when the business has several card designs; send — the user must see the final recipient count and how many broadcasts remain afterwards, and explicitly confirm before anything is sent; send-a-test-to-myself (delivers to the owner's own preview pass).
+
+**States:** quota exhausted (with when the next send unlocks); zero recipients; not-enabled guard; send error.
+
+Generate: desktop (HE) with live preview, the confirm step, mobile (HE), dark.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 6 — עורך האוטומציות<span class="where">MESSAGING</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">One screen serves create and edit for a message rule. Three rule kinds:
+
+- **Win-back:** fires after N days without a visit — presets 14/30/60/90 or custom 7–365 (validated, with a live validity message); optional repeat every N days (7–365).
+- **Birthday:** fires 0/1/3/7 days before the birthday.
+- **Reward waiting:** fires after the reward has waited N days — presets 3/7/14 or custom 1–90.
+
+**Functionality:** rule name (max 60); the kind-specific timing controls above; send hour (08:00–21:00); the same message composition as the broadcast composer — same placeholders, same live preview, same gift option (gift hidden for reward-waiting rules), same live audience count; save-and-activate vs save-paused (activation blocked while the account is on hold — the reason shown); in edit mode: current on/off state and switch, and delete — with explicit confirmation; send-a-test-to-myself.
+
+**States:** create (seeded from a recipe) vs edit; invalid custom values; load failure (message + way back, not an eternal spinner).
+
+Generate: desktop win-back (HE), the birthday timing variant, mobile (HE), delete confirmation.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 7 — פעילות (מבחן הקנרית)<span class="where">CORE</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">**פעילות (Activity)** — the ledger: every stamp event, day by day. Answers "what happened when I wasn't there".
+
+**Data per event:** when (day + time), who (customer name, or their card's short code when nameless), what (stamp / gift / manual adjustment / removed / import), by whom (which staff member, or automatic).
+
+**Functionality:** period switch 7/14/30 days; a per-day trend of the period which can also filter the list to a single day (with a visible, dismissible indication of the selected day); search (customer, card code, staff member); filter by event type; filter by person (only when more than one exists); events grouped by day with "today"/"yesterday" naming; pagination at ~50 (shown/total when filtered).
+
+**States:** Free plan (→ billing); loading; empty period; filters with no matches (with clear-all); a truncation notice when the window couldn't load everything.
+
+Generate: desktop (HE, a day selected, ~15 events over 3 days), mobile (HE), dark, empty period.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 8 — סריקה<span class="where">PERIPHERY</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">**סריקה (Scan)** — the counter tool: staff point the camera at a customer's wallet pass and a stamp registers. Used many times a day, one-handed, phone-first.
+
+**Functionality:** a live camera view that opens on arrival and stays open between scans; torch toggle (only when supported) and scan-sound toggle; a manual code entry path (typed codes are deliberate — they bypass duplicate protection); a session tally after the first scan (stamps + rewards this session, link to Activity); Free-plan notice with activation path.
+
+**Scan outcomes to design** (each shown clearly, then the scanner resumes; timing feel is yours — the reward decision must wait for the user): working; **stamped** (their new count X of Y and how many remain); **reward ready** — the reward's own text with a redeem action and a not-now; **redeemed** confirmation; **too soon** (same card scanned again within 45s — friendly, not scolding); **void card** (with explanation); **unknown code**; **they scanned the shop's own enrollment poster** (gentle explanation); **camera denied / unavailable** (explanation + retry); network failure.
+
+Generate: mobile idle (HE), stamped, reward-ready, camera-denied, desktop, dark mobile.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 9 — סטודיו הכרטיסיות<span class="where">PERIPHERY</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">**סטודיו הכרטיסיות** — where the owner edits the wallet card itself. The live pass preview is the locked object (attached); everything around it is yours.
+
+**Functionality:** preview the pass as Apple Wallet and as Google Wallet (toggle), at any sample stamp count (0..required); edit — card name; reward text; stamps required (2–12); stamp icon from a fixed set of 16, or upload custom stamp art (an upload wins over the icon); background/stamp/text/label colors (free color choice — hex entry, eyedropper, swatches); 6 ready palettes; background pattern (none/waves/dots/stripes); logo upload; advanced ("wallet details"): rename the two pass field labels, card language HE/EN, barcode format (QR / PDF417 / AZTEC / CODE128), organization name, custom artwork uploads, and a pass-fields editor (add/remove/reorder fields: binding, label, section, alignment, change message).
+
+**Behavior facts:** a server-side check continuously reviews the draft and returns either "all clear" or a list of concrete problems (e.g. text too light on the background) — these must be visible; save is explicit (disabled until something changed, with saved confirmation); every card already in customers' wallets updates itself after save.
+
+Generate: desktop (HE), the advanced section open, mobile (HE), dark — noting the pass keeps its own colors regardless of theme.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 10 — שילוט<span class="where">PERIPHERY</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">**שילוט (Signage)** — pick a printed sheet, pick a paper size, print. The sheet designs themselves are locked objects (attached) rendered with the owner's real card and QR.
+
+**Functionality:** choose one of four sheet designs (poster / counter card / card / plain) — the choice must show each design as it will actually print; choose paper — A4, A5, or a folded table tent (A4 folded across the middle); a print action; on Free plan printing is locked with the reason and an activation path shown.
+
+**Facts:** the preview shows physical paper; the printed output must match what's on screen.
+
+Generate: desktop (HE), mobile (HE), the Free-locked state, dark (the paper preview is still a preview of white paper).</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 11 — צוות<span class="where">PERIPHERY</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">**צוות (Team)** — owner only. **There is no email sending in this product:** the owner creates an invitation LINK and sends it themselves (typically WhatsApp). The design must make that model self-evident.
+
+**Functionality:** create an invitation — choose the role it grants (staff or manager, each explained in one plain sentence of what it opens); optionally bind it to an email address (bound = only that address can use it; unbound = the link itself is the credential — whoever receives it gets in — and this difference must be communicated); on creation the link is shown and copied for sending; members list — each member's email and current role, role changeable in place (staff⇄manager), removable with confirmation; the owner appears but has no controls (there must always be an owner); pending invitations — who it's for (or "anyone with the link"), role, expiry date, copy-again, revoke; expired invitations visible but unusable.
+
+**Errors to design:** already a member; team size limit reached; invalid email.
+
+Generate: desktop (HE, 3 members + 2 pending incl. one expired), the link-created moment, mobile (HE), one error state.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 12 — חיוב + מסכי חזרה מתשלום<span class="where">PERIPHERY</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">**חיוב (Billing)** — owner only. Deliberately minimal: the payment provider's own portal does the heavy lifting.
+
+**Functionality:** Free state — explains what's free (designing, previewing, the dashboard) and what activation unlocks (real customers can join), shows the price ₪59/month, one activate action (→ external checkout); Pro state — confirms the card is active, one manage-billing action (→ external portal), and the subscription status as reported by the provider. No invoice tables, no plan-comparison grids — those don't exist in the product.
+
+**Also:** the two full-screen payment return pages — success: a finalizing/waiting state (the system confirms the payment asynchronously, up to ~30s) then done; cancel: "no charge was made" + way back.
+
+Generate: Free (HE), Pro (HE), success + cancel, mobile, dark.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 13 — הסיור למשתמש חדש<span class="where">חופשי</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">A short introduction shown once on first arrival (replayable from account controls). 4–5 steps, filtered by role (staff see fewer). Each step: a title, 2–3 sentences (copy deck: tour.steps.*), and where that feature lives in the navigation. Requirements: skip is available on every step, not just the first; back/next; progress indication; keyboard navigable; it must not cover the scanner.
+
+Generate: mobile (HE, mid-tour), desktop (HE), dark.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 14 — פרטי לקוח (מסך חדש)<span class="where">CUSTOMERS</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">A view of one customer, opened from the roster. Presentation (page, panel, drawer…) is your call.
+
+**Data:** name, phone (copyable), join date, which card design; stamp progress and the reward they're collecting toward; their personal visit history, day by day (who stamped, when — note: redemption events are not available in the data and must not be promised); messages they received (title, date, delivered/failed).
+
+**Actions:** the same per-customer actions as the roster — message, adjust stamps, remove (same confirmation contract).
+
+**States:** brand-new customer (joined today, 1 stamp, no messages); void card.
+
+Generate: desktop (HE), mobile (HE), void state, dark.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 15 — יומן מסירה (מסך חדש)<span class="where">MESSAGING</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">For any sent message (broadcast or automation): who actually received it. Failures are shown plainly — honesty is the product's stance.
+
+**Data:** the message itself (title, body, sent date); totals — sent X of Y, failed N; per recipient — name, delivery time, delivered or failed with a plain-language reason ("the card was removed from the wallet"). Failed entries must be easy to find.
+
+**States:** all delivered (the common case — quiet); still sending, with live progress; an automation that hasn't fired yet (when it will).
+
+Generate: desktop (HE, some failures), mobile (HE), sending state, dark.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 16 — הגדרות (מסך חדש)<span class="where">PERIPHERY</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">**הגדרות (Settings)** — manager+; the destructive part owner-only.
+
+**Functionality:** edit business identity — name, trade (barber / café / trainer / therapist / other), address (autocomplete), logo (with current logo shown); explicit save with confirmation; pointers (not duplicates) to where card language and dashboard theme/language live; owner-only danger zone — delete the business, requiring typed confirmation of the business name, with the honest consequences stated: all customers, cards and history permanently deleted, every pass in every wallet stops working.
+
+Generate: desktop owner (HE), desktop manager (no danger zone), mobile (HE), the delete confirmation, dark.</pre></div></details>
+
+  <details class="prompt-box"><summary>בריף 17 — כלי הניהול הפנימי<span class="where">ADMIN</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">An internal tool for PunchMe staff who author the ready-made card looks shown to new businesses. Same design system, RTL and themes as the rest; its own minimal frame (title, staff indication, signed-in email, back-to-app, language, sign out). Desktop-first is acceptable; must not break at 375px.
+
+**List page functionality:** per-trade authoring coverage (how many published looks out of a target of 3 per trade, shortfalls visible); the catalog entries — a true-color thumbnail of each look, name, id, trade, description, published/draft; reorder (the order is what new businesses see); publish/unpublish; edit; delete with confirmation; create new.
+
+**Editor page:** trade, description, published flag, and the same Card Studio editing established in brief 9 (it embeds the same editor).
+
+Generate: list desktop (HE, 6 entries, one draft), editor (HE), list at 375px, dark.</pre></div></details>
+
+  <details class="prompt-box"><summary>סבב A — ביקורת RTL<span class="where">כל קובץ, בסוף</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">Audit every Hebrew screen for RTL correctness and fix: layout mirrored end-to-end, text right-aligned, directional icons mirrored; numbers, phone numbers, URLs and serial codes stay LTR within Hebrew text; interactive directionality (sliders, steppers, progressions) behaves correctly in RTL; no letter-spacing artifacts on Hebrew. List every screen you changed and what was wrong.</pre></div></details>
+
+  <details class="prompt-box"><summary>סבב B — ביקורת שני המצבים<span class="where">כל קובץ, בסוף</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">Audit both themes: every screen exists in both; layout identical between them; all text meets WCAG AA in both; the locked objects (wallet pass, QR, printed-paper previews) are unchanged by the theme — they show real physical/rendered artifacts. Fix and list.</pre></div></details>
+
+  <details class="prompt-box"><summary>סבב C — ביקורת מצבים<span class="where">כל קובץ, בסוף</span></summary><div class="prompt-body"><div class="prompt-toolbar"><button class="copy" type="button">העתקה</button></div><pre class="prompt">For each screen verify these exist as designed states (not gray boxes): loading; empty-new-business; Free-plan-locked with a path to activation; error; no-search-results where applicable. A brand-new shop with zero customers must see a dashboard that feels ready, not broken. Generate any missing states.</pre></div></details>
+
+  <p class="small muted" style="margin-top:1.5rem">
+    נתקעת? משהו לא ברור? שאלה על בריף? — תכתוב לרואי. עדיף שאלה של דקה מסבב תיקונים של שעה.
+    בהצלחה! 🎨
+  </p>
+</section>
+</div>
+
+<script>
+  document.querySelectorAll("button.copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".prompt-body").querySelector("pre.prompt");
+      var text = pre.innerText;
+      function done(ok) {
+        btn.textContent = ok ? "הועתק ✓" : "סמן והעתק ידנית";
+        setTimeout(function () { btn.textContent = "העתקה"; }, 2000);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+      } else {
+        var r = document.createRange();
+        r.selectNodeContents(pre);
+        var sel = window.getSelection();
+        sel.removeAllRanges(); sel.addRange(r);
+        done(document.execCommand && document.execCommand("copy"));
+      }
+    });
+  });
+</script>
