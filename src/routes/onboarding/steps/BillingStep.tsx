@@ -107,7 +107,7 @@ export function BillingStep() {
       <div className="border-y border-border-strong py-5">
         <p className="flex items-baseline gap-1.5">
           <span className="t-figure font-heading text-5xl font-bold tracking-tight text-ink">
-            {t("landing.pricing.price")}
+            {t("landing.pricing.pro.price")}
           </span>
           <span className="text-sm text-ink-muted">{t("onboarding.billing.priceNote")}</span>
         </p>
