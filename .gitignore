@@ -26,3 +26,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Impeccable's detector engine is a per-platform binary (19 MB on Windows);
+# `npx impeccable install` fetches the right one, with the local hook
+.claude/skills/impeccable/scripts/bin/
