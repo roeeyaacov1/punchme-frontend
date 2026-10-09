@@ -252,7 +252,7 @@ three cards.
 | `emil-design-eng` | The philosophy and the numbers. Ask it a question; with none it only says it's ready |
 | `find-animation-opportunities` | Where motion helps, and where it must not go |
 | `animate` | Builds one animation: curve, duration, properties |
-| `review-animations` | A strict review of motion code |
+| `review-animations` | A strict review of motion code. Only runs when your message starts with `/review-animations` |
 | `improve-animations` | Audits all existing motion and gives a prioritised plan |
 | `mobile-native` | Makes the web app feel native on a phone: safe areas, `100dvh`, tap, zoom |
 | `break-ui` | Feeds a component worst-case data behind a dev-only toggle and reports what breaks. The data covers long names, non-Latin script, RTL, empty, one item and 1,000 rows |
@@ -425,7 +425,12 @@ git switch -c redesign/setup
    session and ask "Which skills do you have?". You should see:
    - `impeccable` and `ui-ux-pro-max`;
    - `design-taste-frontend` and `redesign-existing-projects`;
-   - the eight Emil skills.
+   - six of the Emil skills.
+
+   `prototype` and `review-animations` won't be in the list, by design: they
+   only run when your message starts with `/prototype` or
+   `/review-animations`. Checked on 9 Oct: all ten listed, both hidden ones
+   in `.claude/skills`.
 
 7. **Commit** `.claude/skills/`, `.claude/agents/` and `skills-lock.json` as
    their own commit ("tooling: the design skills, pinned in the repo").
@@ -755,10 +760,18 @@ Phase [N], [name], step C: motion and feel.
      usePrefersReducedMotion), not just switched off.
 3. /mobile-native on the phone layouts: safe areas, 100dvh, tap highlight,
    hover only on hover-capable pointers, and inputs that don't zoom the page.
-4. /review-animations on the diff, then fix what it flags.
 
 Commit.
 ```
+
+Then send the review as a message of its own. `review-animations` only runs
+when a message starts with it, so it can't sit inside the prompt above:
+
+```text
+/review-animations the motion changes on this branch since step B
+```
+
+Then ask the session to fix what it flagged, and commit.
 
 ### Template D: harden, polish, verify
 
@@ -1273,6 +1286,7 @@ as it is.
 | Two skills give opposite advice | CLAUDE.md's "Design skills" section decides. If it keeps happening, add "ignore the [x] skill for this step" to the prompt |
 | UI UX Pro Max can't find Python | Run `py -3 --version`, and turn off the App execution aliases (§4, step 1). If Smart App Control blocks it, ask Claude to search the files in `.claude/skills/ui-ux-pro-max/data` instead |
 | Impeccable's hook flags old code in pages you aren't working on | `/impeccable hooks` adjusts it. Its findings in a page outside the phase can wait for that page's phase |
+| A skill named in the middle of a prompt didn't run | `prototype` and `review-animations` only run when the message starts with them. Send them as their own message |
 | `/prototype` or `/animate` runs the wrong skill | Don't run `/impeccable pin animate`: the shortcut it creates would clash with Emil's `animate` |
 | The dashboard is empty | Add the seed command (§1) |
 | The browser preview signs you out | The app clears the session if its start-up check is cut off. After loading a page, wait a few seconds before navigating |
