@@ -55,7 +55,7 @@ things are still missing:
 |---|---|---|
 | The four skills | Nothing is installed: no plugins and no `.claude/skills` | §4. **Done 9 Oct** |
 | Python 3 | UI UX Pro Max's search engine is a Python script. This PC only has the Microsoft Store shortcut | §4, step 1. **Done 9 Oct** (3.13) |
-| `PRODUCT.md` and `DESIGN.md` | Impeccable reads both before any design work | Phase 0 |
+| `PRODUCT.md` and `DESIGN.md` | Impeccable reads both before any design work | Phase 0. `PRODUCT.md` **done 9 Oct** (`807e092`); `DESIGN.md` is step 0.4 |
 | Your decisions | Eleven questions in §3 change what every session does | §3 |
 | An up-to-date CLAUDE.md | It is wrong in five places, and its redesign rules forbid this work (list below) | Phase 0, prompt 0.2. **Done 9 Oct** (`1b2304c`) |
 | Demo data and test accounts | The backend has no seed command, so a local dashboard starts empty. You can't judge a customer list with no customers, or check role and plan gating without an account for each | Before Phase 2, add a `seed_demo` command to punchme-backend (below). Phase 2 is the first to sign in as each role, and Phase 5 needs the data. Until then, Emil's `break-ui` fakes data in the browser |
@@ -337,7 +337,7 @@ Answered on 9 Oct 2026. Prompt 0.2 reads this table.
 | # | Question | Why it matters | Recommendation | Your answer |
 |---|---|---|---|---|
 | D1 | May the redesign change the card studio's editor, with only the pass previews frozen? | CLAUDE.md freezes the whole folder, but the code itself draws the line at the card (`docs/card-studio.md`) | Yes. Freeze the files in the first table of `docs/card-studio.md` and open the rest | **Yes.** The editor is open; the pass previews stay frozen |
-| D2 | What happens to the invented testimonials, the unsourced stats band, "Most popular" and "already earning more"? | CLAUDE.md forbids them, the code warns about legal exposure, and every skill will either remove them or argue | Replace them with real quotes when you have some; until then, remove them. The sourced proof band and the calculator carry the argument. Either way, write the answer into CLAUDE.md | **Remove them** until there are real ones, used with permission. Done as its own small fix right after Phase 0, outside the phases |
+| D2 | What happens to the invented testimonials, the unsourced stats band, "Most popular" and "already earning more"? | CLAUDE.md forbids them, the code warns about legal exposure, and every skill will either remove them or argue | Replace them with real quotes when you have some; until then, remove them. The sourced proof band and the calculator carry the argument. Either way, write the answer into CLAUDE.md | **Remove them** until there are real ones, used with permission. Done as its own small fix right after Phase 0, outside the phases. Step 0.3 found two more lines, to correct rather than remove, in the same fix: "Unlimited push messages" (sends are capped) and "no signup" (joining takes a mobile number and an SMS code). CLAUDE.md lists all six (`fef315a`) |
 | D3 | Is the price ₪99? | CLAUDE.md says ₪59 and the code says ₪99 | Correct CLAUDE.md to the real price | **₪99** a month |
 | D4 | Is violet the brand colour? | Violet runs through the landing page, onboarding, sign-in, the public pages and the dashboard. All four skills treat purple-blue gradients as the most common sign of AI-made design | Let Phase 1 propose. Keep today's violet as one of its three candidates, and decide when you see the prototypes | **Phase 1 proposes**, with violet as one of the three candidates |
 | D5 | May the fonts change? | Rubik and Assistant set Hebrew; most fonts the skills suggest don't | Yes, as long as every face has Hebrew. IBM Plex Mono, which has no Hebrew, stays for digits and pass labels only | **Yes**, any face that has Hebrew |
@@ -513,6 +513,11 @@ Record these in PRODUCT.md:
 
 Write PRODUCT.md at the repo root.
 ```
+
+Done on 9 Oct (`807e092`). `init` asked three things the files didn't answer,
+and `PRODUCT.md` holds the answers: two more landing claims to correct (see
+D2), the Hebrew form of address (the plural to the reader, slash forms for
+people), and WhatsApp as the support channel.
 
 ### 0.4 DESIGN.md, as things are today
 
@@ -1335,9 +1340,9 @@ as it is.
 - [x] §4 skills installed, checked, committed (9 Oct)
 - [x] 0.1 `redesign-start` tag (9 Oct)
 - [x] 0.2 CLAUDE.md updated (9 Oct)
-- [ ] 0.3 PRODUCT.md
+- [x] 0.3 PRODUCT.md (9 Oct)
 - [ ] 0.4 DESIGN.md (before)
-- [ ] The four unbacked landing claims removed (D2)
+- [ ] The six unbacked landing claims fixed: four removed (D2), two corrected (0.3)
 - [ ] A first visit opens in the browser's language, Hebrew otherwise (D11)
 - [ ] 1.1 Research
 - [ ] 1.2 Visual-world brief
