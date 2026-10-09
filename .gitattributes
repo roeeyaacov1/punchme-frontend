@@ -1,0 +1,3 @@
+# Impeccable's hook launcher is a POSIX shell script. A CRLF checkout
+# (core.autocrlf on Windows) garbles it, and the hook runs on every edit.
+.claude/skills/impeccable/scripts/impeccable text eol=lf
