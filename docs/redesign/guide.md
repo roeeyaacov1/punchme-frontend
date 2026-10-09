@@ -57,7 +57,7 @@ things are still missing:
 | Python 3 | UI UX Pro Max's search engine is a Python script. This PC only has the Microsoft Store shortcut | §4, step 1. **Done 9 Oct** (3.13) |
 | `PRODUCT.md` and `DESIGN.md` | Impeccable reads both before any design work | Phase 0 |
 | Your decisions | Eleven questions in §3 change what every session does | §3 |
-| An up-to-date CLAUDE.md | It is wrong in five places, and its redesign rules forbid this work (list below) | Phase 0, prompt 0.2 |
+| An up-to-date CLAUDE.md | It is wrong in five places, and its redesign rules forbid this work (list below) | Phase 0, prompt 0.2. **Done 9 Oct** (`1b2304c`) |
 | Demo data and test accounts | The backend has no seed command, so a local dashboard starts empty. You can't judge a customer list with no customers, or check role and plan gating without an account for each | Before Phase 2, add a `seed_demo` command to punchme-backend (below). Phase 2 is the first to sign in as each role, and Phase 5 needs the data. Until then, Emil's `break-ui` fakes data in the browser |
 | Real assets | The hero's Apple and Google Wallet marks are placeholders (a TODO in `WalletMarks.tsx` says so), and the skills will ask for photos and quotes | Before Phase 9: the official wallet badges, plus any real customer quotes (with permission) and real photos |
 
@@ -75,6 +75,9 @@ The seed command should create enough to show every dashboard state:
 - **A free-plan business** with a card and no customers.
 
 ### Where CLAUDE.md no longer matches the code
+
+All of this was fixed on 9 Oct in `1b2304c`, the two rule collisions below
+included. It stays here as the record of what changed and why.
 
 1. **Emoji stamps** were removed on 18 Aug (`1eb2712`). A stamp is a glyph or
    a picture.
