@@ -644,8 +644,15 @@ Look at every version on a real phone if you can. Then tell the session:
 
 ### 1.4 Build the foundation
 
+Switch the new session to **Plan mode** before you paste this. It shows you
+its plan and changes nothing until you approve it.
+
 ```text
 Phase 1, step 1.4: the foundation. Branch: redesign/foundation.
+
+Plan first. Before changing any file, show me the plan: the token names and
+values, the fonts, the primitives and where they will live, and the order
+you'll build them in. Then wait for my go-ahead.
 
 Turn the chosen direction in docs/redesign/briefs/visual-world.md into the
 design foundation. Don't restyle any page yet.
@@ -716,19 +723,30 @@ Run template D from §7 on `/style-guide`, then merge `redesign/foundation`.
 | Step | What happens | Skills | Output |
 |---|---|---|---|
 | **A. Diagnose and brief** | See the pages as they are, find what breaks, plan the new version | Impeccable `critique`, `audit`, `shape`; Emil `break-ui`; UI UX Pro Max lookups | `docs/redesign/briefs/<phase>.md` |
-| **B. Build** | Build the brief on the new foundation, one page per commit | Impeccable, inside DESIGN.md (Taste on the landing page only) | Commits |
+| **B. Build** | In Plan mode: approve the plan, then build the brief on the new foundation, one page per commit | Impeccable, inside DESIGN.md (Taste on the landing page only) | Commits |
 | **C. Motion and feel** | Only the motion that earns its place | Emil `find-animation-opportunities`, `animate`, `mobile-native`, `review-animations` | Commits |
 | **D. Harden, polish, verify** | Edge cases, copy, the detector, CLAUDE.md's checklist, screenshots | Impeccable `harden`, `adapt`, `clarify`, `polish`, `detect` | Commits, then review and merge |
 
 Read every brief before you start step B. Ten minutes on the brief saves
 hours of rework.
 
+Run every step B in **Plan mode**. Switch the new session to Plan mode before
+you paste the prompt. The session reads the brief and the code, shows you its
+plan (the files it will change and in what order), and changes nothing until
+you approve. Each step B prompt also asks for the plan first, so a session
+that isn't in Plan mode still stops for you.
+
 ### Template B: build
 
-Use this for any phase that doesn't have its own step B below.
+Use this for any phase that doesn't have its own step B below. Run it in Plan
+mode.
 
 ```text
 Phase [N], [name], step B: build. Branch: redesign/[branch].
+
+Plan first. Before changing any file, show me the plan: the files you'll
+create or change, in what order, and anything in the brief you would do
+differently. Then wait for my go-ahead.
 
 Build docs/redesign/briefs/[brief].md with the new system in DESIGN.md. Use
 the new theme scope and the new primitives only; no old primitives in new
@@ -887,6 +905,10 @@ Save the brief to docs/redesign/briefs/card-studio.md and stop for my review.
 ```text
 Phase 3, card studio, step B: build. Branch: redesign/card-studio.
 
+Plan first. Before changing any file, show me the plan: the files you'll
+create or change, in what order, and anything in the brief you would do
+differently. Then wait for my go-ahead.
+
 Build docs/redesign/briefs/card-studio.md with the new system in DESIGN.md.
 
 What you may change:
@@ -956,6 +978,10 @@ Save the brief to docs/redesign/briefs/onboarding.md and stop for my review.
 
 ```text
 Phase 4, onboarding, step B: build. Branch: redesign/onboarding.
+
+Plan first. Before changing any file, show me the plan: the files you'll
+create or change, in what order, and anything in the brief you would do
+differently. Then wait for my go-ahead.
 
 Build docs/redesign/briefs/onboarding.md with the new system in DESIGN.md.
 
@@ -1188,6 +1214,10 @@ Save the brief to docs/redesign/briefs/landing.md and stop for my review.
 ```text
 Phase 9, the landing page, step B: build. Branch: redesign/landing.
 
+Plan first. Before changing any file, show me the plan: the files you'll
+create or change, in what order, and anything in the brief you would do
+differently. Then wait for my go-ahead.
+
 Build docs/redesign/briefs/landing.md with design-taste-frontend at the dials
 in the brief, inside DESIGN.md's system.
 
@@ -1276,8 +1306,8 @@ as it is.
 - **Watch the diff.** Before each commit, ask for `git diff --stat`. A phase
   that touches files outside its pages, or anything in `src/api`, `src/auth`,
   `src/hooks`, `src/config` or `src/lib`, should be stopped.
-- **Use Plan mode for step B** if you want to see the build plan before any
-  file changes.
+- **Step 1.4 and every step B run in Plan mode.** You approve the plan before
+  any file changes. That's where a wrong approach costs the most.
 
 ---
 
