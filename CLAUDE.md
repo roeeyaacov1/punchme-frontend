@@ -3,8 +3,9 @@
 ## What this is
 
 A digital loyalty punch card for small businesses. The customer scans a QR code
-once and a pass lands in their Apple Wallet or Google Wallet — no app, no signup,
-no account. It stamps itself on every visit and updates live on their lock screen.
+once and a pass lands in their Apple Wallet or Google Wallet — no app, no
+account, no password. It stamps itself on every visit and updates live on their
+lock screen.
 
 ₪99/month, Israeli market, Hebrew and English. Free to design and preview; you
 pay only when you activate the card for real customers.
@@ -22,12 +23,15 @@ invented testimonials, unsourced metrics, or claims of popularity or results
 that nothing backs up. The real numbers are stronger, and undermining that
 honesty costs more than any conversion it buys.
 
-Four things on the landing page break this today, and they come off: the three
+Six things on the landing page break this today. Four come off: the three
 invented testimonials (`Testimonials.tsx`), the unsourced stats band
 (`StatsBand.tsx`), the "Most popular" badge on Pro, and the closing line about
-owners "already earning more". Until they are gone, don't copy them. A quote
-goes back only when a real customer said it and agreed to its use, and a figure
-only with a source in `src/components/marketing/sources.ts`.
+owners "already earning more". Two get corrected: "Unlimited push messages"
+(sends are capped), and "no signup" in the hero (joining takes a mobile number
+and an SMS code, so the true line is no app, no account, no password). Until
+they are gone, don't copy them. A quote goes back only when a real customer
+said it and agreed to its use, and a figure only with a source in
+`src/components/marketing/sources.ts`.
 
 ## Stack
 
