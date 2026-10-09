@@ -53,11 +53,11 @@ things are still missing:
 
 | What | Why it matters | What to do |
 |---|---|---|
-| The four skills | Nothing is installed: no plugins and no `.claude/skills` | §4 |
-| Python 3 | UI UX Pro Max's search engine is a Python script. This PC only has the Microsoft Store shortcut | §4, step 1 |
+| The four skills | Nothing is installed: no plugins and no `.claude/skills` | §4. **Done 9 Oct** |
+| Python 3 | UI UX Pro Max's search engine is a Python script. This PC only has the Microsoft Store shortcut | §4, step 1. **Done 9 Oct** (3.13) |
 | `PRODUCT.md` and `DESIGN.md` | Impeccable reads both before any design work | Phase 0 |
 | Your decisions | Eleven questions in §3 change what every session does | §3 |
-| An up-to-date CLAUDE.md | It is wrong in six places, and its redesign rules forbid this work (list below) | Phase 0, prompt 0.2 |
+| An up-to-date CLAUDE.md | It is wrong in five places, and its redesign rules forbid this work (list below) | Phase 0, prompt 0.2 |
 | Demo data and test accounts | The backend has no seed command, so a local dashboard starts empty. You can't judge a customer list with no customers, or check role and plan gating without an account for each | Before Phase 2, add a `seed_demo` command to punchme-backend (below). Phase 2 is the first to sign in as each role, and Phase 5 needs the data. Until then, Emil's `break-ui` fakes data in the browser |
 | Real assets | The hero's Apple and Google Wallet marks are placeholders (a TODO in `WalletMarks.tsx` says so), and the skills will ask for photos and quotes | Before Phase 9: the official wallet badges, plus any real customer quotes (with permission) and real photos |
 
@@ -76,21 +76,22 @@ The seed command should create enough to show every dashboard state:
 
 ### Where CLAUDE.md no longer matches the code
 
-1. **Price.** CLAUDE.md says ₪59/month. The code, both languages and the
-   calculator have said ₪99 since 18 Aug (`35fc9a4`).
-2. **Emoji stamps** were removed on 18 Aug (`1eb2712`). A stamp is a glyph or
+1. **Emoji stamps** were removed on 18 Aug (`1eb2712`). A stamp is a glyph or
    a picture.
-3. **`primary.text #96670d`** doesn't exist. The token is a CSS variable:
+2. **`primary.text #96670d`** doesn't exist. The token is a CSS variable:
    `#8a5d0b` (oat), `#683de8` (purple), `#a78bfa` (night).
-4. **"Four test files"**: there are 17.
-5. **"Hand-rolled primitives in `src/components/ui`"**: those are the old
+3. **"Four test files"**: there are 17.
+4. **"Hand-rolled primitives in `src/components/ui`"**: those are the old
    ones. Four primitive sets are in use:
    - `components/ui`
    - `components/dashboard/primitives.tsx`
    - `components/card-studio/studio-primitives.tsx`
    - `components/onboarding`
-6. **`useInView` and `useCountUp`** are listed as useful hooks. Neither is
+5. **`useInView` and `useCountUp`** are listed as useful hooks. Neither is
    used, on purpose: sourced numbers don't count up.
+
+A sixth, the price, was corrected on 9 Oct (`7f709bd`): CLAUDE.md now says
+₪99, like the code.
 
 Two of its rules also collide with this work:
 
@@ -105,9 +106,9 @@ Two of its rules also collide with this work:
 
   Every skill will trip over this until it is settled (§3, D2).
 
-One bug also turned up. The onboarding billing step shows the raw key
+One bug also turned up: the onboarding billing step showed the raw key
 `landing.pricing.price` instead of the price, because `35fc9a4` removed that
-key. Fix it on its own, before the redesign.
+key. It was fixed on its own on 9 Oct (`b8bc369`).
 
 ---
 
@@ -376,11 +377,26 @@ git switch -c redesign/setup
    npx impeccable install --providers=claude --scope=project
    ```
 
+   Besides the skill, it adds:
+   - four helper agents, in `.claude/agents`;
+   - its engine, `impeccable.exe` (19 MB, git-ignored);
+   - a hook in `.claude/settings.local.json`.
+
+   The hook runs in every Claude session in this folder. It checks each UI
+   file Claude edits, and runs a deeper pass (up to 30 seconds) when Claude
+   finishes a turn.
+
 3. **UI UX Pro Max**:
 
    ```
    npx ui-ux-pro-max-cli init --ai claude
    ```
+
+   It also installs six more skills: `banner-design`, `brand`, `design`,
+   `design-system`, `slides` and `ui-styling`. Delete those six folders from
+   `.claude/skills`. `ui-styling` builds with shadcn and Radix, and
+   `design-system` keeps tokens of its own; the other four have no part in
+   this work.
 
 4. **Taste**, two of its skills:
 
@@ -411,13 +427,16 @@ git switch -c redesign/setup
    - `design-taste-frontend` and `redesign-existing-projects`;
    - the eight Emil skills.
 
-7. **Commit** `.claude/skills/` as its own commit ("tooling: the design
-   skills, pinned in the repo"). Impeccable's hook lives in
-   `.claude/settings.local.json`, which git ignores, so on another machine
-   run step 2 again.
+7. **Commit** `.claude/skills/`, `.claude/agents/` and `skills-lock.json` as
+   their own commit ("tooling: the design skills, pinned in the repo").
+
+Done on 9 Oct. The skills are in the repo, so on another machine only step 2
+is needed: it fetches Impeccable's engine and installs the hook, which git
+doesn't carry.
 
 To update later, run `npx impeccable update`, `npx ui-ux-pro-max-cli update`
-and `npx skills update`, then commit what changed.
+and `npx skills update`. Delete the six extra skills again after the UI UX
+Pro Max update, then commit what changed.
 
 ---
 
@@ -441,7 +460,7 @@ Phase 0, step 0.2: update CLAUDE.md for the redesign. Branch: redesign/setup.
 Read docs/redesign/guide.md §1, §2 and §3. My answers are in §3's last column.
 Then edit CLAUDE.md:
 
-1. Fix the six facts listed under "Where CLAUDE.md no longer matches the code"
+1. Fix the five facts listed under "Where CLAUDE.md no longer matches the code"
    in guide §1. Check each against the code first.
 2. Rewrite "Redesign rules" for a whole-app rework:
    - the phases and their order from guide §7;
@@ -1264,9 +1283,9 @@ as it is.
 ## 11. Progress checklist
 
 - [x] §3 decisions filled in (9 Oct)
-- [ ] Billing-step key bug fixed
+- [x] Billing-step key bug fixed (9 Oct)
 - [ ] Seed command and test accounts on the backend
-- [ ] §4 skills installed, checked, committed
+- [x] §4 skills installed, checked, committed (9 Oct)
 - [ ] 0.1 `redesign-start` tag
 - [ ] 0.2 CLAUDE.md updated
 - [ ] 0.3 PRODUCT.md
