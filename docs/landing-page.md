@@ -81,26 +81,39 @@ Behaviour to keep:
 | Block | `id` | What it says |
 |---|---|---|
 | Header | – | Logo; anchor links; language toggle; "Sign in" and "Design your card" when signed out, "Dashboard" and an account menu when signed in |
-| Hero | – | "You deserve a customer club too", the wallet promise, "Start free" and "See what regulars are worth"; a real pass (the card-studio Apple preview, fed by three real presets in `heroTemplates.ts`) taking a stamp |
+| Hero | – | "You deserve a customer club too", the wallet promise, "Start free" and "See what regulars are worth"; a real pass (the card-studio Apple preview, fed by three real presets in `heroTemplates.ts`) taking a stamp. The promise says "no signup", which isn't true (see below) |
 | Paper cards | `paper-cards` | Paper punch cards are over |
 | Proof | `proof` | The three sourced numbers above |
-| Push | `push` | Messages bring customers back; three sample notifications |
+| Push | `push` | Messages bring customers back; three sample notifications. The "Unlimited push messages" badge isn't true (see below) |
 | How it works | `how-it-works` | Create the card, share a QR, scan and reward |
 | App showcase | `dashboard` | The owner's dashboard on a phone, drawn with sample data (`aria-hidden`) |
 | Calculator | `calculator` | Your own arithmetic |
 | Testimonials | `testimonials` | Three quotes with five stars. **Invented**: `Testimonials.tsx` carries a warning |
 | Automations | `automation` | Special offers, smart reminders, automatic win-back |
 | Stats | – | "10,000+ active customers", "85% return rate", "<60 seconds to set up". **No sources**: `StatsBand.tsx` says so |
-| Pricing | `pricing` | Free to design, preview and use the dashboard; Pro ₪99/month only when you activate. "Most popular" badge |
-| FAQ | `faq` | Six questions in native `<details>` |
+| Pricing | `pricing` | Free to design, preview and use the dashboard; Pro ₪99/month only when you activate. "Most popular" badge; "Unlimited push messages" in the Pro list |
+| FAQ | `faq` | Six questions in native `<details>`. Two answers are wrong (see below) |
 | Final CTA | – | "Ready to turn one-off customers into regulars?" |
 | Footer | – | Product links, language, ©. No Terms/Privacy/Contact links, because those pages don't exist |
 
-The invented testimonials, the unsourced stats, the "Most popular" badge and
-the line "Join the business owners already earning more" conflict with
-CLAUDE.md's rule against invented testimonials and unsourced metrics. Keeping,
-replacing or removing them is the owner's decision, and the redesign guide
-asks for it first.
+Eight things on the page aren't true. All are fixed in one small change right
+after Phase 0, outside the phases:
+
+- **Removed** (CLAUDE.md, "The brand is candour"; decision D2):
+  1. the invented testimonials;
+  2. the unsourced stats band;
+  3. the "Most popular" badge;
+  4. the line "Join the business owners already earning more".
+- **Corrected** (CLAUDE.md):
+  5. "Unlimited push messages", on the push badge and in the Pro list. Sends
+     are capped at two broadcasts in any seven days and 25 rules.
+  6. "No signup" in the hero. Joining takes a mobile number and an SMS code,
+     so the true line is no app, no account, no password.
+- **Wrong FAQ answers** (PRODUCT.md):
+  7. The answer on changing the design after launch says to message PunchMe.
+     Owners change it themselves, in the dashboard's card studio.
+  8. "Message us" doesn't say how. The channel is WhatsApp, but no page
+     carries the number yet.
 
 ## Links and anchors
 

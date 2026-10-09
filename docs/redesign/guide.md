@@ -1342,7 +1342,7 @@ as it is.
 - [x] 0.2 CLAUDE.md updated (9 Oct)
 - [x] 0.3 PRODUCT.md (9 Oct)
 - [ ] 0.4 DESIGN.md (before)
-- [ ] The six unbacked landing claims fixed: four removed (D2), two corrected (0.3)
+- [ ] The landing page's eight untrue lines fixed: four removed (D2), two corrected (0.3), two FAQ answers (`PRODUCT.md`). The list is in `docs/landing-page.md`
 - [ ] A first visit opens in the browser's language, Hebrew otherwise (D11)
 - [ ] 1.1 Research
 - [ ] 1.2 Visual-world brief
