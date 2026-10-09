@@ -6,7 +6,7 @@ A digital loyalty punch card for small businesses. The customer scans a QR code
 once and a pass lands in their Apple Wallet or Google Wallet — no app, no signup,
 no account. It stamps itself on every visit and updates live on their lock screen.
 
-₪59/month, Israeli market, Hebrew and English. Free to design and preview; you
+₪99/month, Israeli market, Hebrew and English. Free to design and preview; you
 pay only when you activate the card for real customers.
 
 **Who buys it:** a barber, a café owner, a personal trainer, a therapist. Usually
