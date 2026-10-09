@@ -238,8 +238,8 @@ In the generated schema (`src/api/generated/schema.d.ts`) with no wrapper:
 
 ## Routes outside the dashboard
 
-Listed so links into and out of the dashboard resolve. The rework doesn't
-touch them.
+Listed so links into and out of the dashboard resolve. Each area now has its
+own phase in the redesign: see `docs/redesign/guide.md`.
 
 | Route | What it is |
 |---|---|

@@ -334,7 +334,7 @@ Answered on 9 Oct 2026. Prompt 0.2 reads this table.
 | # | Question | Why it matters | Recommendation | Your answer |
 |---|---|---|---|---|
 | D1 | May the redesign change the card studio's editor, with only the pass previews frozen? | CLAUDE.md freezes the whole folder, but the code itself draws the line at the card (`docs/card-studio.md`) | Yes. Freeze the files in the first table of `docs/card-studio.md` and open the rest | **Yes.** The editor is open; the pass previews stay frozen |
-| D2 | What happens to the invented testimonials, the unsourced stats band, "Most popular" and "already earning more"? | CLAUDE.md forbids them, the code warns about legal exposure, and every skill will either remove them or argue | Replace them with real quotes when you have some; until then, remove them. The sourced proof band and the calculator carry the argument. Either way, write the answer into CLAUDE.md | **Remove them** until there are real ones, used with permission |
+| D2 | What happens to the invented testimonials, the unsourced stats band, "Most popular" and "already earning more"? | CLAUDE.md forbids them, the code warns about legal exposure, and every skill will either remove them or argue | Replace them with real quotes when you have some; until then, remove them. The sourced proof band and the calculator carry the argument. Either way, write the answer into CLAUDE.md | **Remove them** until there are real ones, used with permission. Done as its own small fix right after Phase 0, outside the phases |
 | D3 | Is the price ₪99? | CLAUDE.md says ₪59 and the code says ₪99 | Correct CLAUDE.md to the real price | **₪99** a month |
 | D4 | Is violet the brand colour? | Violet runs through the landing page, onboarding, sign-in, the public pages and the dashboard. All four skills treat purple-blue gradients as the most common sign of AI-made design | Let Phase 1 propose. Keep today's violet as one of its three candidates, and decide when you see the prototypes | **Phase 1 proposes**, with violet as one of the three candidates |
 | D5 | May the fonts change? | Rubik and Assistant set Hebrew; most fonts the skills suggest don't | Yes, as long as every face has Hebrew. IBM Plex Mono, which has no Hebrew, stays for digits and pass labels only | **Yes**, any face that has Hebrew |
@@ -343,7 +343,7 @@ Answered on 9 Oct 2026. Prompt 0.2 reads this table.
 | D8 | Where is there a dark theme? | The dashboard has a night theme today; Taste wants both themes everywhere | Night for the dashboard, including the card studio. Light for the landing page, onboarding and public pages | **The dashboard only**, card studio included |
 | D9 | In what order? | Each phase builds on the ones before it | The order in §7. If marketing can't wait, move the landing page to right after Phase 1 | **The order in §7**: product first, landing page last |
 | D10 | Where do the skills live? | A global install drifts from machine to machine | In the project (`.claude/skills`), committed, so every session and every machine uses the same versions | **In the project**, committed |
-| D11 | Which language does a first visit open in? | The site opens in English whatever the browser's language, and Hebrew is likely the main market | Follow the browser's language, with Hebrew as the fallback | **The browser's language**, with Hebrew as the fallback |
+| D11 | Which language does a first visit open in? | The site opens in English whatever the browser's language, and Hebrew is likely the main market | Follow the browser's language, with Hebrew as the fallback | **The browser's language**, with Hebrew as the fallback. Done as its own small fix right after Phase 0, outside the phases |
 
 ---
 
@@ -1300,10 +1300,12 @@ as it is.
 - [x] Billing-step key bug fixed (9 Oct)
 - [ ] Seed command and test accounts on the backend
 - [x] §4 skills installed, checked, committed (9 Oct)
-- [ ] 0.1 `redesign-start` tag
-- [ ] 0.2 CLAUDE.md updated
+- [x] 0.1 `redesign-start` tag (9 Oct)
+- [x] 0.2 CLAUDE.md updated (9 Oct)
 - [ ] 0.3 PRODUCT.md
 - [ ] 0.4 DESIGN.md (before)
+- [ ] The four unbacked landing claims removed (D2)
+- [ ] A first visit opens in the browser's language, Hebrew otherwise (D11)
 - [ ] 1.1 Research
 - [ ] 1.2 Visual-world brief
 - [ ] 1.3 Prototypes, direction chosen
