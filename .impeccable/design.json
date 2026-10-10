@@ -1,0 +1,1744 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-10T00:31:38.868Z",
+  "title": "Design System: PunchMe",
+  "note": "Before the redesign. Read from the code at the redesign-start tag; Phase 1 of docs/redesign/guide.md replaces it, and this file with it.",
+  "extensions": {
+    "colorMeta": {
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 0)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "black": {
+        "role": "neutral",
+        "displayName": "Black",
+        "canonical": "#000000",
+        "oklch": "oklch(0.0% 0.000 0)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "navy": {
+        "role": "neutral",
+        "displayName": "Wordmark Navy",
+        "canonical": "#0e1120",
+        "oklch": "oklch(18.3% 0.031 274.3)",
+        "tonalRamp": [
+          "#070a18",
+          "#202434",
+          "#3d4153",
+          "#5c6073",
+          "#7c8196",
+          "#9fa4b9",
+          "#c3c8de",
+          "#e9eeff"
+        ]
+      },
+      "slate": {
+        "role": "neutral",
+        "displayName": "Old Slate",
+        "canonical": "#5c6478",
+        "oklch": "oklch(50.4% 0.033 268.0)",
+        "tonalRamp": [
+          "#060a19",
+          "#1e2436",
+          "#3a4254",
+          "#596175",
+          "#7a8297",
+          "#9ca5bb",
+          "#c0c9e0",
+          "#e8eeff"
+        ]
+      },
+      "lavender": {
+        "role": "neutral",
+        "displayName": "Lavender (unused)",
+        "canonical": "#a7adc9",
+        "oklch": "oklch(75.2% 0.041 275.8)",
+        "tonalRamp": [
+          "#07091c",
+          "#202339",
+          "#3c4058",
+          "#5a6079",
+          "#7b819b",
+          "#9ea3bf",
+          "#c1c8e4",
+          "#eaeeff"
+        ]
+      },
+      "gold": {
+        "role": "secondary",
+        "displayName": "Reward Gold",
+        "canonical": "#f0b429",
+        "oklch": "oklch(80.4% 0.156 82.5)",
+        "tonalRamp": [
+          "#120a00",
+          "#322200",
+          "#563d00",
+          "#7d5b00",
+          "#a77a00",
+          "#d29a00",
+          "#fbbe38",
+          "#ffecca"
+        ]
+      },
+      "gold-light": {
+        "role": "secondary",
+        "displayName": "Pale Gold",
+        "canonical": "#ffd875",
+        "oklch": "oklch(89.6% 0.126 88.3)",
+        "tonalRamp": [
+          "#110a00",
+          "#302300",
+          "#533f00",
+          "#795d00",
+          "#a17d00",
+          "#c6a039",
+          "#ebc461",
+          "#ffedc2"
+        ]
+      },
+      "gold-dark": {
+        "role": "secondary",
+        "displayName": "Deep Gold",
+        "canonical": "#c88a11",
+        "oklch": "oklch(67.9% 0.139 76.1)",
+        "tonalRamp": [
+          "#130900",
+          "#342100",
+          "#5a3b00",
+          "#825800",
+          "#ad7600",
+          "#d69729",
+          "#fdbc56",
+          "#ffebd0"
+        ]
+      },
+      "brand-violet": {
+        "role": "tertiary",
+        "displayName": "Band Violet",
+        "canonical": "#683de8",
+        "oklch": "oklch(52.1% 0.239 286.3)",
+        "tonalRamp": [
+          "#0c002d",
+          "#27006a",
+          "#4500ad",
+          "#6132de",
+          "#7e60ff",
+          "#9e94ff",
+          "#c4c1ff",
+          "#edecff"
+        ]
+      },
+      "brand-indigo": {
+        "role": "tertiary",
+        "displayName": "Indigo",
+        "canonical": "#5b41e6",
+        "oklch": "oklch(51.3% 0.234 281.5)",
+        "tonalRamp": [
+          "#0a002f",
+          "#22006e",
+          "#3d00b3",
+          "#5639df",
+          "#7366ff",
+          "#9698ff",
+          "#bfc3ff",
+          "#ebedff"
+        ]
+      },
+      "brand-royal": {
+        "role": "tertiary",
+        "displayName": "Royal",
+        "canonical": "#404ee6",
+        "oklch": "oklch(51.5% 0.226 271.5)",
+        "tonalRamp": [
+          "#040033",
+          "#140076",
+          "#2617b7",
+          "#3b46de",
+          "#5870ff",
+          "#859eff",
+          "#b6c7ff",
+          "#e8eeff"
+        ]
+      },
+      "brand-blue": {
+        "role": "tertiary",
+        "displayName": "Gradient Blue",
+        "canonical": "#2562ea",
+        "oklch": "oklch(54.3% 0.215 263.0)",
+        "tonalRamp": [
+          "#00052d",
+          "#001965",
+          "#0030a5",
+          "#1651d8",
+          "#3977ff",
+          "#74a3ff",
+          "#adcaff",
+          "#e6efff"
+        ]
+      },
+      "brand-bright": {
+        "role": "tertiary",
+        "displayName": "Bright Violet",
+        "canonical": "#7a3aec",
+        "oklch": "oklch(53.8% 0.245 292.5)",
+        "tonalRamp": [
+          "#0f002b",
+          "#2c0064",
+          "#4d00a5",
+          "#6e26dc",
+          "#8c57ff",
+          "#a990ff",
+          "#cabfff",
+          "#eeecff"
+        ]
+      },
+      "brand-tint": {
+        "role": "tertiary",
+        "displayName": "Tint",
+        "canonical": "#f0f1fc",
+        "oklch": "oklch(96.1% 0.015 282.0)",
+        "tonalRamp": [
+          "#0a0a11",
+          "#24242c",
+          "#40414a",
+          "#60606a",
+          "#81818b",
+          "#a3a4ae",
+          "#c7c8d3",
+          "#ecedf8"
+        ]
+      },
+      "brand-wash": {
+        "role": "tertiary",
+        "displayName": "Wash",
+        "canonical": "#f5f6fe",
+        "oklch": "oklch(97.5% 0.011 280.5)",
+        "tonalRamp": [
+          "#0a0b10",
+          "#24252a",
+          "#414148",
+          "#606167",
+          "#818289",
+          "#a3a4ac",
+          "#c7c8d0",
+          "#edeef6"
+        ]
+      },
+      "brand-pill": {
+        "role": "tertiary",
+        "displayName": "Pill Lilac",
+        "canonical": "#dfd5fa",
+        "oklch": "oklch(89.3% 0.051 297.7)",
+        "tonalRamp": [
+          "#0e051e",
+          "#281f3b",
+          "#453c5a",
+          "#645b7b",
+          "#867c9e",
+          "#a89fc2",
+          "#cdc3e7",
+          "#f0ebff"
+        ]
+      },
+      "brand-on-band": {
+        "role": "tertiary",
+        "displayName": "On-Band Lilac",
+        "canonical": "#e3ddfb",
+        "oklch": "oklch(91.1% 0.041 294.7)",
+        "tonalRamp": [
+          "#0d071a",
+          "#262137",
+          "#433e56",
+          "#625d77",
+          "#847e99",
+          "#a6a0bd",
+          "#cac4e2",
+          "#efebff"
+        ]
+      },
+      "brand-night": {
+        "role": "tertiary",
+        "displayName": "Night",
+        "canonical": "#0f0f23",
+        "oklch": "oklch(18.1% 0.040 281.6)",
+        "tonalRamp": [
+          "#09081c",
+          "#222338",
+          "#3e4057",
+          "#5d5f78",
+          "#7e809b",
+          "#a0a3be",
+          "#c4c7e4",
+          "#ebedff"
+        ]
+      },
+      "brand-slate": {
+        "role": "tertiary",
+        "displayName": "Night Panel",
+        "canonical": "#1d1d35",
+        "oklch": "oklch(24.4% 0.045 282.5)",
+        "tonalRamp": [
+          "#09081d",
+          "#22223a",
+          "#3e3f5a",
+          "#5d5e7b",
+          "#7e7f9d",
+          "#a0a2c1",
+          "#c4c6e7",
+          "#ecedff"
+        ]
+      },
+      "brand-bezel": {
+        "role": "tertiary",
+        "displayName": "Bezel",
+        "canonical": "#1e1e2f",
+        "oklch": "oklch(24.3% 0.032 283.7)",
+        "tonalRamp": [
+          "#0a0918",
+          "#232334",
+          "#3f4053",
+          "#5e5f73",
+          "#7f8096",
+          "#a2a3b9",
+          "#c6c7de",
+          "#ecedff"
+        ]
+      },
+      "brand-warm": {
+        "role": "tertiary",
+        "displayName": "Rose",
+        "canonical": "#e11d48",
+        "oklch": "oklch(58.6% 0.222 17.6)",
+        "tonalRamp": [
+          "#1f0003",
+          "#4c0010",
+          "#7f0022",
+          "#b60034",
+          "#e9294e",
+          "#ff707c",
+          "#ffb1b3",
+          "#ffe8e8"
+        ]
+      },
+      "brand-ember": {
+        "role": "tertiary",
+        "displayName": "Ember",
+        "canonical": "#c2410c",
+        "oklch": "oklch(55.3% 0.174 38.4)",
+        "tonalRamp": [
+          "#1c0300",
+          "#461000",
+          "#752100",
+          "#a83400",
+          "#d55325",
+          "#fd784c",
+          "#ffb49d",
+          "#ffe9e2"
+        ]
+      },
+      "brand-magenta": {
+        "role": "tertiary",
+        "displayName": "Magenta",
+        "canonical": "#ce2f82",
+        "oklch": "oklch(57.9% 0.206 354.1)",
+        "tonalRamp": [
+          "#1d000d",
+          "#490029",
+          "#7a0047",
+          "#af0069",
+          "#d83a8b",
+          "#ff65ad",
+          "#ffadce",
+          "#ffe7f0"
+        ]
+      },
+      "brief-violet": {
+        "role": "tertiary",
+        "displayName": "Brief Violet",
+        "canonical": "#662eba",
+        "oklch": "oklch(46.1% 0.203 295.4)",
+        "tonalRamp": [
+          "#100029",
+          "#2f0061",
+          "#51059f",
+          "#6f39c5",
+          "#8f5fec",
+          "#ae8dff",
+          "#cdbeff",
+          "#efebff"
+        ]
+      },
+      "brief-plum": {
+        "role": "tertiary",
+        "displayName": "Brief Plum",
+        "canonical": "#a52668",
+        "oklch": "oklch(49.3% 0.172 353.9)",
+        "tonalRamp": [
+          "#1d000d",
+          "#490029",
+          "#7a0048",
+          "#a52668",
+          "#cc4d8a",
+          "#f471ad",
+          "#ffadce",
+          "#ffe7f0"
+        ]
+      },
+      "oat-background": {
+        "role": "neutral",
+        "displayName": "Oat",
+        "canonical": "#efe9dc",
+        "oklch": "oklch(93.5% 0.018 86.1)",
+        "tonalRamp": [
+          "#0f0b04",
+          "#29251b",
+          "#464137",
+          "#666156",
+          "#878276",
+          "#aaa498",
+          "#cec9bc",
+          "#f4eee1"
+        ]
+      },
+      "oat-surface": {
+        "role": "neutral",
+        "displayName": "Oat panel",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 0)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "oat-ink": {
+        "role": "neutral",
+        "displayName": "Oat ink",
+        "canonical": "#0e1120",
+        "oklch": "oklch(18.3% 0.031 274.3)",
+        "tonalRamp": [
+          "#070a18",
+          "#202434",
+          "#3d4153",
+          "#5c6073",
+          "#7c8196",
+          "#9fa4b9",
+          "#c3c8de",
+          "#e9eeff"
+        ]
+      },
+      "oat-ink-muted": {
+        "role": "neutral",
+        "displayName": "Oat muted ink",
+        "canonical": "#5e5750",
+        "oklch": "oklch(46.1% 0.014 67.5)",
+        "tonalRamp": [
+          "#0f0a05",
+          "#2a241e",
+          "#47413a",
+          "#676059",
+          "#888179",
+          "#aba49c",
+          "#d0c8bf",
+          "#f5ede5"
+        ]
+      },
+      "oat-ink-subtle": {
+        "role": "neutral",
+        "displayName": "Oat subtle ink",
+        "canonical": "#6b6459",
+        "oklch": "oklch(50.6% 0.019 79.3)",
+        "tonalRamp": [
+          "#0f0a03",
+          "#2a241b",
+          "#484137",
+          "#676055",
+          "#898176",
+          "#aca498",
+          "#d0c8bc",
+          "#f5ede1"
+        ]
+      },
+      "oat-primary": {
+        "role": "primary",
+        "displayName": "Oat Gold",
+        "canonical": "#c88a11",
+        "oklch": "oklch(67.9% 0.139 76.1)",
+        "tonalRamp": [
+          "#130900",
+          "#342100",
+          "#5a3b00",
+          "#825800",
+          "#ad7600",
+          "#d69729",
+          "#fdbc56",
+          "#ffebd0"
+        ]
+      },
+      "oat-primary-hover": {
+        "role": "primary",
+        "displayName": "Oat accent hover",
+        "canonical": "#b87f10",
+        "oklch": "oklch(63.8% 0.130 76.2)",
+        "tonalRamp": [
+          "#130900",
+          "#342100",
+          "#5a3b00",
+          "#825800",
+          "#ad7600",
+          "#d39937",
+          "#f9bd60",
+          "#ffebd0"
+        ]
+      },
+      "oat-primary-text": {
+        "role": "primary",
+        "displayName": "Oat accent text",
+        "canonical": "#8a5d0b",
+        "oklch": "oklch(51.4% 0.105 74.8)",
+        "tonalRamp": [
+          "#130900",
+          "#352000",
+          "#5a3b00",
+          "#835700",
+          "#a77831",
+          "#cc9b56",
+          "#f1bf79",
+          "#ffebd1"
+        ]
+      },
+      "oat-primary-on": {
+        "role": "primary",
+        "displayName": "Oat text on accent",
+        "canonical": "#0e1120",
+        "oklch": "oklch(18.3% 0.031 274.3)",
+        "tonalRamp": [
+          "#070a18",
+          "#202434",
+          "#3d4153",
+          "#5c6073",
+          "#7c8196",
+          "#9fa4b9",
+          "#c3c8de",
+          "#e9eeff"
+        ]
+      },
+      "oat-primary-shadow": {
+        "role": "primary",
+        "displayName": "Oat seated edge",
+        "canonical": "#8a5d0b",
+        "oklch": "oklch(51.4% 0.105 74.8)",
+        "tonalRamp": [
+          "#130900",
+          "#352000",
+          "#5a3b00",
+          "#835700",
+          "#a77831",
+          "#cc9b56",
+          "#f1bf79",
+          "#ffebd1"
+        ]
+      },
+      "oat-border": {
+        "role": "neutral",
+        "displayName": "Oat hairline",
+        "canonical": "#ded5c2",
+        "oklch": "oklch(87.5% 0.027 85.7)",
+        "tonalRamp": [
+          "#100a01",
+          "#2b2415",
+          "#494131",
+          "#686050",
+          "#8a8170",
+          "#ada492",
+          "#d1c8b5",
+          "#f7eeda"
+        ]
+      },
+      "oat-border-strong": {
+        "role": "neutral",
+        "displayName": "Oat strong rule",
+        "canonical": "#c8bca3",
+        "oklch": "oklch(79.8% 0.037 85.4)",
+        "tonalRamp": [
+          "#110a00",
+          "#2d240f",
+          "#4b412b",
+          "#6b6049",
+          "#8c816a",
+          "#b0a48b",
+          "#d4c8af",
+          "#faedd3"
+        ]
+      },
+      "oat-navy-deep": {
+        "role": "neutral",
+        "displayName": "Oat deep band",
+        "canonical": "#0e1120",
+        "oklch": "oklch(18.3% 0.031 274.3)",
+        "tonalRamp": [
+          "#070a18",
+          "#202434",
+          "#3d4153",
+          "#5c6073",
+          "#7c8196",
+          "#9fa4b9",
+          "#c3c8de",
+          "#e9eeff"
+        ]
+      },
+      "oat-rim": {
+        "role": "neutral",
+        "displayName": "Oat rim",
+        "canonical": "#000000",
+        "oklch": "oklch(0.0% 0.000 0)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "purple-background": {
+        "role": "neutral",
+        "displayName": "Purple ground",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 0)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "purple-surface": {
+        "role": "neutral",
+        "displayName": "Purple panel",
+        "canonical": "#f5f6fe",
+        "oklch": "oklch(97.5% 0.011 280.5)",
+        "tonalRamp": [
+          "#0a0b10",
+          "#24252a",
+          "#414148",
+          "#606167",
+          "#818289",
+          "#a3a4ac",
+          "#c7c8d0",
+          "#edeef6"
+        ]
+      },
+      "purple-ink": {
+        "role": "neutral",
+        "displayName": "Purple ink",
+        "canonical": "#111111",
+        "oklch": "oklch(17.8% 0.000 0)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "purple-ink-muted": {
+        "role": "neutral",
+        "displayName": "Purple muted ink",
+        "canonical": "#414141",
+        "oklch": "oklch(37.5% 0.000 0)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "purple-ink-subtle": {
+        "role": "neutral",
+        "displayName": "Purple subtle ink",
+        "canonical": "#55555f",
+        "oklch": "oklch(45.3% 0.016 285.7)",
+        "tonalRamp": [
+          "#0a0a12",
+          "#24242d",
+          "#41414a",
+          "#60606a",
+          "#81818c",
+          "#a4a4af",
+          "#c8c8d4",
+          "#ededf9"
+        ]
+      },
+      "purple-primary": {
+        "role": "primary",
+        "displayName": "Indigo",
+        "canonical": "#5b41e6",
+        "oklch": "oklch(51.3% 0.234 281.5)",
+        "tonalRamp": [
+          "#0a002f",
+          "#22006e",
+          "#3d00b3",
+          "#5639df",
+          "#7366ff",
+          "#9698ff",
+          "#bfc3ff",
+          "#ebedff"
+        ]
+      },
+      "purple-primary-hover": {
+        "role": "primary",
+        "displayName": "Purple accent hover",
+        "canonical": "#4f38d1",
+        "oklch": "oklch(47.2% 0.221 280.6)",
+        "tonalRamp": [
+          "#090030",
+          "#21006e",
+          "#3b0bb1",
+          "#543fd8",
+          "#7167ff",
+          "#9598ff",
+          "#bfc4ff",
+          "#ebedff"
+        ]
+      },
+      "purple-primary-text": {
+        "role": "primary",
+        "displayName": "Violet Text",
+        "canonical": "#683de8",
+        "oklch": "oklch(52.1% 0.239 286.3)",
+        "tonalRamp": [
+          "#0c002d",
+          "#27006a",
+          "#4500ad",
+          "#6132de",
+          "#7e60ff",
+          "#9e94ff",
+          "#c4c1ff",
+          "#edecff"
+        ]
+      },
+      "purple-primary-on": {
+        "role": "primary",
+        "displayName": "Purple text on accent",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 0)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "purple-primary-shadow": {
+        "role": "primary",
+        "displayName": "Purple seated edge",
+        "canonical": "#3f2da5",
+        "oklch": "oklch(40.2% 0.182 281.3)",
+        "tonalRamp": [
+          "#09002f",
+          "#21006e",
+          "#3a259d",
+          "#554bc3",
+          "#736eea",
+          "#9698ff",
+          "#bfc3ff",
+          "#ebedff"
+        ]
+      },
+      "purple-border": {
+        "role": "neutral",
+        "displayName": "Purple hairline",
+        "canonical": "#e2e3f6",
+        "oklch": "oklch(92.1% 0.026 283.5)",
+        "tonalRamp": [
+          "#0a0a16",
+          "#232431",
+          "#404050",
+          "#5f6070",
+          "#808192",
+          "#a2a3b5",
+          "#c6c7da",
+          "#ecedff"
+        ]
+      },
+      "purple-border-strong": {
+        "role": "neutral",
+        "displayName": "Purple strong rule",
+        "canonical": "#caccee",
+        "oklch": "oklch(85.5% 0.047 282.7)",
+        "tonalRamp": [
+          "#09071e",
+          "#22223b",
+          "#3e3f5b",
+          "#5d5e7c",
+          "#7e7f9e",
+          "#a0a2c2",
+          "#c4c6e8",
+          "#ecedff"
+        ]
+      },
+      "purple-navy-deep": {
+        "role": "neutral",
+        "displayName": "Purple deep band",
+        "canonical": "#0f0f23",
+        "oklch": "oklch(18.1% 0.040 281.6)",
+        "tonalRamp": [
+          "#09081c",
+          "#222338",
+          "#3e4057",
+          "#5d5f78",
+          "#7e809b",
+          "#a0a3be",
+          "#c4c7e4",
+          "#ebedff"
+        ]
+      },
+      "raised-background": {
+        "role": "neutral",
+        "displayName": "Raised ground",
+        "canonical": "#f5f6fe",
+        "oklch": "oklch(97.5% 0.011 280.5)",
+        "tonalRamp": [
+          "#0a0b10",
+          "#24252a",
+          "#414148",
+          "#606167",
+          "#818289",
+          "#a3a4ac",
+          "#c7c8d0",
+          "#edeef6"
+        ]
+      },
+      "raised-surface": {
+        "role": "neutral",
+        "displayName": "Raised panel",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 0)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "night-background": {
+        "role": "neutral",
+        "displayName": "Night ground",
+        "canonical": "#0f0f23",
+        "oklch": "oklch(18.1% 0.040 281.6)",
+        "tonalRamp": [
+          "#09081c",
+          "#222338",
+          "#3e4057",
+          "#5d5f78",
+          "#7e809b",
+          "#a0a3be",
+          "#c4c7e4",
+          "#ebedff"
+        ]
+      },
+      "night-surface": {
+        "role": "neutral",
+        "displayName": "Night panel",
+        "canonical": "#1d1d35",
+        "oklch": "oklch(24.4% 0.045 282.5)",
+        "tonalRamp": [
+          "#09081d",
+          "#22223a",
+          "#3e3f5a",
+          "#5d5e7b",
+          "#7e7f9d",
+          "#a0a2c1",
+          "#c4c6e7",
+          "#ecedff"
+        ]
+      },
+      "night-ink": {
+        "role": "neutral",
+        "displayName": "Night ink",
+        "canonical": "#f2f1fb",
+        "oklch": "oklch(96.2% 0.013 290.8)",
+        "tonalRamp": [
+          "#0b0a10",
+          "#25242b",
+          "#424149",
+          "#616068",
+          "#82818a",
+          "#a5a4ad",
+          "#c9c8d1",
+          "#eeedf7"
+        ]
+      },
+      "night-ink-muted": {
+        "role": "neutral",
+        "displayName": "Night muted ink",
+        "canonical": "#b9b7d4",
+        "oklch": "oklch(79.0% 0.041 288.6)",
+        "tonalRamp": [
+          "#0b081b",
+          "#242238",
+          "#413f57",
+          "#605e77",
+          "#817f9a",
+          "#a3a1be",
+          "#c7c5e3",
+          "#edecff"
+        ]
+      },
+      "night-ink-subtle": {
+        "role": "neutral",
+        "displayName": "Night subtle ink",
+        "canonical": "#9a98ba",
+        "oklch": "oklch(69.3% 0.050 287.7)",
+        "tonalRamp": [
+          "#0b071e",
+          "#24213c",
+          "#403e5b",
+          "#5f5d7c",
+          "#807e9f",
+          "#a3a1c3",
+          "#c7c5e8",
+          "#edecff"
+        ]
+      },
+      "night-primary": {
+        "role": "primary",
+        "displayName": "Night Violet",
+        "canonical": "#6d4df2",
+        "oklch": "oklch(55.5% 0.233 284.8)",
+        "tonalRamp": [
+          "#0b002e",
+          "#25006b",
+          "#4200af",
+          "#5d36dc",
+          "#7b62ff",
+          "#9c95ff",
+          "#c3c2ff",
+          "#ecedff"
+        ]
+      },
+      "night-primary-hover": {
+        "role": "primary",
+        "displayName": "Night accent hover",
+        "canonical": "#7a5cf4",
+        "oklch": "oklch(58.9% 0.217 286.8)",
+        "tonalRamp": [
+          "#0c002d",
+          "#270069",
+          "#4503ab",
+          "#613bd2",
+          "#7f62fa",
+          "#9f94ff",
+          "#c5c1ff",
+          "#edecff"
+        ]
+      },
+      "night-primary-text": {
+        "role": "primary",
+        "displayName": "Plot Violet",
+        "canonical": "#a78bfa",
+        "oklch": "oklch(70.9% 0.159 293.5)",
+        "tonalRamp": [
+          "#0f002a",
+          "#2d0063",
+          "#4a258c",
+          "#6849b1",
+          "#896bd7",
+          "#ab8ffe",
+          "#cbbeff",
+          "#efecff"
+        ]
+      },
+      "night-primary-on": {
+        "role": "primary",
+        "displayName": "Night text on accent",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 0)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "night-primary-shadow": {
+        "role": "primary",
+        "displayName": "Night seated edge",
+        "canonical": "#4a2fd0",
+        "oklch": "oklch(45.6% 0.229 279.9)",
+        "tonalRamp": [
+          "#090030",
+          "#20006f",
+          "#3a01b5",
+          "#523ddd",
+          "#6f68ff",
+          "#9499ff",
+          "#bec4ff",
+          "#ebedff"
+        ]
+      },
+      "night-border": {
+        "role": "neutral",
+        "displayName": "Night hairline",
+        "canonical": "#2c2c48",
+        "oklch": "oklch(30.7% 0.050 283.1)",
+        "tonalRamp": [
+          "#09071f",
+          "#22213c",
+          "#3e3f5c",
+          "#5d5e7d",
+          "#7e7fa0",
+          "#a0a2c4",
+          "#c4c6ea",
+          "#ecedff"
+        ]
+      },
+      "night-border-strong": {
+        "role": "neutral",
+        "displayName": "Night strong rule",
+        "canonical": "#3d3d61",
+        "oklch": "oklch(37.7% 0.061 283.1)",
+        "tonalRamp": [
+          "#090523",
+          "#212041",
+          "#3d3d62",
+          "#5c5d83",
+          "#7d7ea6",
+          "#9fa1cb",
+          "#c3c5f1",
+          "#ecedff"
+        ]
+      },
+      "night-navy-deep": {
+        "role": "neutral",
+        "displayName": "Night deep band",
+        "canonical": "#08081a",
+        "oklch": "oklch(14.7% 0.038 280.6)",
+        "tonalRamp": [
+          "#09091b",
+          "#222337",
+          "#3e4056",
+          "#5d5f77",
+          "#7e8099",
+          "#a0a3bd",
+          "#c4c7e2",
+          "#ebedff"
+        ]
+      },
+      "night-rim": {
+        "role": "neutral",
+        "displayName": "Night rim",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 0)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "ok": {
+        "role": "state",
+        "displayName": "Day ok",
+        "canonical": "#047857",
+        "oklch": "oklch(50.8% 0.105 165.6)",
+        "tonalRamp": [
+          "#000f08",
+          "#002d1e",
+          "#004f38",
+          "#007353",
+          "#369673",
+          "#5dba95",
+          "#82dfb9",
+          "#c0ffe3"
+        ]
+      },
+      "ok-bg": {
+        "role": "state",
+        "displayName": "Day ok fill",
+        "canonical": "#ecfdf5",
+        "oklch": "oklch(97.9% 0.021 166.1)",
+        "tonalRamp": [
+          "#040e09",
+          "#1b2823",
+          "#38463f",
+          "#57655e",
+          "#77867f",
+          "#9aa9a2",
+          "#bdcec6",
+          "#e2f3eb"
+        ]
+      },
+      "warn": {
+        "role": "state",
+        "displayName": "Day warn",
+        "canonical": "#92400e",
+        "oklch": "oklch(47.3% 0.125 46.2)",
+        "tonalRamp": [
+          "#190500",
+          "#411600",
+          "#6d2b00",
+          "#984616",
+          "#be683c",
+          "#e58b5f",
+          "#ffb593",
+          "#ffe9e0"
+        ]
+      },
+      "warn-bg": {
+        "role": "state",
+        "displayName": "Day warn fill",
+        "canonical": "#fffbeb",
+        "oklch": "oklch(98.7% 0.021 95.3)",
+        "tonalRamp": [
+          "#0e0b03",
+          "#282519",
+          "#454235",
+          "#656154",
+          "#868274",
+          "#a9a596",
+          "#cdc9ba",
+          "#f3efdf"
+        ]
+      },
+      "danger": {
+        "role": "state",
+        "displayName": "Day danger",
+        "canonical": "#b91c1c",
+        "oklch": "oklch(50.5% 0.190 27.5)",
+        "tonalRamp": [
+          "#1f0000",
+          "#4d0002",
+          "#810007",
+          "#b51517",
+          "#dd453c",
+          "#ff7366",
+          "#ffb3a9",
+          "#ffe9e5"
+        ]
+      },
+      "danger-bg": {
+        "role": "state",
+        "displayName": "Day danger fill",
+        "canonical": "#fef2f2",
+        "oklch": "oklch(97.1% 0.013 17.4)",
+        "tonalRamp": [
+          "#100909",
+          "#2b2323",
+          "#493f3f",
+          "#685e5e",
+          "#8a7f7f",
+          "#ada2a2",
+          "#d1c6c6",
+          "#f7ebeb"
+        ]
+      },
+      "reward": {
+        "role": "secondary",
+        "displayName": "Reward Text",
+        "canonical": "#845209",
+        "oklch": "oklch(48.4% 0.102 68.2)",
+        "tonalRamp": [
+          "#140800",
+          "#371f00",
+          "#5e3800",
+          "#87540e",
+          "#aa7638",
+          "#cf995b",
+          "#f6bd7f",
+          "#ffebd6"
+        ]
+      },
+      "reward-bg": {
+        "role": "secondary",
+        "displayName": "Day reward fill",
+        "canonical": "#fefaec",
+        "oklch": "oklch(98.4% 0.019 93.7)",
+        "tonalRamp": [
+          "#0e0b03",
+          "#28251b",
+          "#454237",
+          "#656155",
+          "#868276",
+          "#a9a598",
+          "#cdc9bc",
+          "#f2efe1"
+        ]
+      },
+      "night-ok": {
+        "role": "state",
+        "displayName": "Night ok",
+        "canonical": "#6ee7b7",
+        "oklch": "oklch(84.5% 0.130 165.0)",
+        "tonalRamp": [
+          "#000f08",
+          "#002d1e",
+          "#004f37",
+          "#007352",
+          "#009a6f",
+          "#40be91",
+          "#6be4b4",
+          "#c0ffe2"
+        ]
+      },
+      "night-ok-bg": {
+        "role": "state",
+        "displayName": "Night ok fill",
+        "canonical": "#10261f",
+        "oklch": "oklch(24.8% 0.031 170.9)",
+        "tonalRamp": [
+          "#000f09",
+          "#142a23",
+          "#314840",
+          "#50675f",
+          "#708980",
+          "#92aca2",
+          "#b6d0c6",
+          "#dbf6ec"
+        ]
+      },
+      "night-warn": {
+        "role": "state",
+        "displayName": "Night warn",
+        "canonical": "#fcd34d",
+        "oklch": "oklch(87.9% 0.153 91.6)",
+        "tonalRamp": [
+          "#100a00",
+          "#2f2400",
+          "#514000",
+          "#765e00",
+          "#9e7f00",
+          "#c7a000",
+          "#eec53b",
+          "#ffeebb"
+        ]
+      },
+      "night-warn-bg": {
+        "role": "state",
+        "displayName": "Night warn fill",
+        "canonical": "#2b2113",
+        "oklch": "oklch(25.5% 0.029 75.3)",
+        "tonalRamp": [
+          "#120901",
+          "#2d2315",
+          "#4b4031",
+          "#6b5f4f",
+          "#8d8070",
+          "#b0a392",
+          "#d4c7b5",
+          "#faecda"
+        ]
+      },
+      "night-danger": {
+        "role": "state",
+        "displayName": "Night danger",
+        "canonical": "#fca5a5",
+        "oklch": "oklch(80.8% 0.103 19.6)",
+        "tonalRamp": [
+          "#1f0002",
+          "#4b020f",
+          "#6f262b",
+          "#934649",
+          "#b86869",
+          "#de8a8b",
+          "#ffb2b1",
+          "#ffe8e8"
+        ]
+      },
+      "night-danger-bg": {
+        "role": "state",
+        "displayName": "Night danger fill",
+        "canonical": "#2b1418",
+        "oklch": "oklch(22.6% 0.038 9.4)",
+        "tonalRamp": [
+          "#180408",
+          "#351d21",
+          "#543a3d",
+          "#75595c",
+          "#98797d",
+          "#bb9ca0",
+          "#e1c0c4",
+          "#ffe8eb"
+        ]
+      },
+      "night-reward": {
+        "role": "secondary",
+        "displayName": "Pale Gold (night reward)",
+        "canonical": "#ffd875",
+        "oklch": "oklch(89.6% 0.126 88.3)",
+        "tonalRamp": [
+          "#110a00",
+          "#302300",
+          "#533f00",
+          "#795d00",
+          "#a17d00",
+          "#c6a039",
+          "#ebc461",
+          "#ffedc2"
+        ]
+      },
+      "night-reward-bg": {
+        "role": "secondary",
+        "displayName": "Night reward fill",
+        "canonical": "#2d2412",
+        "oklch": "oklch(26.6% 0.033 83.7)",
+        "tonalRamp": [
+          "#120a00",
+          "#2d2412",
+          "#4a412e",
+          "#6a604c",
+          "#8c816c",
+          "#afa48e",
+          "#d3c8b2",
+          "#f9edd6"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "`.t-h1`. The landing hero. Hebrew: tracking 0, line height 1.12."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "`.t-h2`. Section openers. Hebrew: tracking 0, line height 1.18."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "`.t-h3`. The wizard's step titles."
+      },
+      "title-card": {
+        "displayName": "Card title",
+        "purpose": "`.t-card-title`. Panel, studio panel and disclosure titles."
+      },
+      "stat": {
+        "displayName": "Stat",
+        "purpose": "`.t-stat`. The landing's sourced figures, printed and never counted up."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "`.t-lead`. The paragraph under a section opener. Hebrew line height 1.7."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text."
+      },
+      "body-sm": {
+        "displayName": "Body small",
+        "purpose": "Hints, secondary lines and notices."
+      },
+      "control": {
+        "displayName": "Control",
+        "purpose": "Labels, legends, toggles, chips and quiet buttons."
+      },
+      "cta": {
+        "displayName": "CTA",
+        "purpose": "The large CTA's label (`ctaClasses`, lg)."
+      },
+      "cta-small": {
+        "displayName": "CTA small",
+        "purpose": "The small CTA's label (`ctaClasses`, sm)."
+      },
+      "ui-button": {
+        "displayName": "Old button",
+        "purpose": "The `ui` Button's label, md size."
+      },
+      "island": {
+        "displayName": "Island",
+        "purpose": "The wallet switch inside the phone's island."
+      },
+      "label": {
+        "displayName": "Eyebrow",
+        "purpose": "`.t-eyebrow`. Uppercase in English; Hebrew tracking 0.04em."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "`.t-figure`. Money and counts, bidi-isolated."
+      },
+      "tag": {
+        "displayName": "Tag",
+        "purpose": "The dashboard Tag. Uppercase. Plex Mono has no Hebrew."
+      },
+      "readout-label": {
+        "displayName": "Readout label",
+        "purpose": "The label under a readout's rule. Uppercase."
+      },
+      "readout-value": {
+        "displayName": "Readout value",
+        "purpose": "A readout's figure."
+      }
+    },
+    "shadows": [
+      {
+        "name": "panel",
+        "value": "0 1px 2px rgb(14 17 32 / 0.04), 0 1px 3px rgb(14 17 32 / 0.06)",
+        "purpose": "Every panel at rest, always with a hairline. Same value as `card`."
+      },
+      {
+        "name": "panel-night",
+        "value": "0 1px 2px rgb(0 0 0 / 0.5), 0 2px 8px rgb(0 0 0 / 0.35)",
+        "purpose": "`panel` at night: real black, cast further."
+      },
+      {
+        "name": "panel-lift",
+        "value": "0 8px 24px rgb(14 17 32 / 0.08)",
+        "purpose": "Hover, popovers, the brief band and the lit stage. Same value as `lift`."
+      },
+      {
+        "name": "panel-lift-night",
+        "value": "0 12px 32px rgb(0 0 0 / 0.5)",
+        "purpose": "`panel-lift` at night."
+      },
+      {
+        "name": "seated-edge",
+        "value": "0 2px 0 0 rgb(var(--c-primary-shadow))",
+        "purpose": "Under the primary CTA; 0 1px 0 0 when pressed."
+      },
+      {
+        "name": "cta-glow",
+        "value": "0 6px 20px -6px rgb(91 65 230 / 0.7)",
+        "purpose": "The gradient CTA at rest; 0 10px 28px -8px at 0.85 on hover."
+      },
+      {
+        "name": "cta-glow-warm",
+        "value": "0 6px 20px -6px rgb(194 65 12 / 0.7)",
+        "purpose": "The warm pricing CTA at rest."
+      },
+      {
+        "name": "progress-halo",
+        "value": "0 0 0 3px rgb(var(--c-primary) / 0.16)",
+        "purpose": "The wizard's progress capsule; spread only, so nothing reflows."
+      },
+      {
+        "name": "ui-card",
+        "value": "0 1px 2px rgba(14,17,32,0.06), 0 8px 24px rgba(14,17,32,0.08)",
+        "purpose": "The old `ui` Card, hard-coded. Deepens to 0 16px 36px at 0.12 on hover."
+      }
+    ],
+    "motion": [
+      {
+        "name": "rise",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Words rise: a long settle, no overshoot. fade-up 0.7s, draw-rule 0.55s, scale-in 0.8s, sheet-up 0.22s, pop-in 0.16s."
+      },
+      {
+        "name": "land",
+        "value": "cubic-bezier(0.34, 1.4, 0.64, 1)",
+        "purpose": "Objects land: overshoot and settle, like a rubber stamp. stamp-in 0.34s, pill-travel 0.34s, the progress pill's 300ms travel."
+      },
+      {
+        "name": "fade-in",
+        "value": "0.7s ease-out",
+        "purpose": "The brief band and the activity chart appearing."
+      },
+      {
+        "name": "float",
+        "value": "5s ease-in-out infinite",
+        "purpose": "A 10px bob in the landing hero."
+      },
+      {
+        "name": "bloom-drift",
+        "value": "14s ease-in-out infinite",
+        "purpose": "The hero's light breathing, slow enough to read as atmosphere."
+      },
+      {
+        "name": "scan-sweep",
+        "value": "2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "purpose": "The scanner's moving line: status, not decoration."
+      },
+      {
+        "name": "cta-transition",
+        "value": "150ms",
+        "purpose": "The CTA, on all properties."
+      },
+      {
+        "name": "hover-transition",
+        "value": "200ms",
+        "purpose": "The old Button, a resting card's lift (cardHover), chevrons."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation: none",
+        "purpose": "Today every keyframe utility is switched off under prefers-reduced-motion; transitions opt out per call site. The redesign rule is gentler, not none."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      },
+      {
+        "name": "2xl",
+        "value": "1536px"
+      },
+      {
+        "name": "phone-scale-0.86",
+        "value": "max-height: 860px"
+      },
+      {
+        "name": "phone-scale-0.74",
+        "value": "max-height: 800px"
+      },
+      {
+        "name": "phone-scale-0.62",
+        "value": "max-height: 750px"
+      },
+      {
+        "name": "phone-scale-0.55",
+        "value": "max-height: 700px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary CTA",
+      "kind": "button",
+      "refersTo": "cta-primary",
+      "description": "ctaClasses('primary'): the one button of the wizard, sign-in and the dashboard. Seated on a 2px edge; navy on gold in oat, white on indigo by day, white on night violet at night.",
+      "html": "<button class=\"ds-cta-primary\">Next <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></button>",
+      "css": ".ds-cta-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 28px; border-radius: 8px; font: 700 16px/24px Assistant, system-ui, sans-serif; cursor: pointer; transition: all 150ms; border: 0; background: rgb(var(--c-primary, 91 65 230)); color: rgb(var(--c-primary-on, 255 255 255)); box-shadow: 0 2px 0 0 rgb(var(--c-primary-shadow, 63 45 165)); } .ds-cta-primary:hover { background: rgb(var(--c-primary-hover, 79 56 209)); } .ds-cta-primary:active { transform: translateY(1px); box-shadow: 0 1px 0 0 rgb(var(--c-primary-shadow, 63 45 165)); } .ds-cta-primary:focus-visible { outline: none; box-shadow: 0 2px 0 0 rgb(var(--c-primary-shadow, 63 45 165)), 0 0 0 2px rgb(var(--c-background, 245 246 254)), 0 0 0 4px rgb(var(--c-primary-text, 104 61 232)); } .ds-cta-primary svg:dir(rtl) { transform: scaleX(-1); }"
+    },
+    {
+      "name": "Secondary CTA",
+      "kind": "button",
+      "refersTo": "cta-secondary",
+      "description": "ctaClasses('secondary'): the surface ground, a strong hairline and an ink label.",
+      "html": "<button class=\"ds-cta-secondary\">Not now</button>",
+      "css": ".ds-cta-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 28px; border-radius: 8px; font: 700 16px/24px Assistant, system-ui, sans-serif; cursor: pointer; transition: all 150ms; border: 1px solid rgb(var(--c-border-strong, 202 204 238)); background: rgb(var(--c-surface, 255 255 255)); color: rgb(var(--c-ink, 17 17 17)); } .ds-cta-secondary:hover { border-color: rgb(var(--c-ink-subtle, 85 85 95)); background: rgb(var(--c-background, 245 246 254)); } .ds-cta-secondary:active { transform: translateY(1px); } .ds-cta-secondary:focus-visible { outline: none; box-shadow: 0 0 0 2px rgb(var(--c-background, 245 246 254)), 0 0 0 4px rgb(var(--c-primary-text, 104 61 232)); }"
+    },
+    {
+      "name": "Gradient CTA",
+      "kind": "button",
+      "refersTo": "cta-primary",
+      "description": "ctaClasses('gradient'): the landing's headline control. Violet to blue with a white label; it lifts on hover because a gradient has no single colour to darken. The gradient flips in Hebrew.",
+      "html": "<button class=\"ds-cta-gradient\">Start designing <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></button>",
+      "css": ".ds-cta-gradient { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 28px; border-radius: 8px; font: 700 16px/24px Assistant, system-ui, sans-serif; cursor: pointer; transition: all 150ms; border: 0; color: #ffffff; background-image: linear-gradient(to left, #7a3aec, #2562ea); box-shadow: 0 6px 20px -6px rgb(91 65 230 / 0.7); } .ds-cta-gradient:dir(rtl) { background-image: linear-gradient(to right, #7a3aec, #2562ea); } .ds-cta-gradient:dir(rtl) svg { transform: scaleX(-1); } .ds-cta-gradient:hover { box-shadow: 0 10px 28px -8px rgb(91 65 230 / 0.85); } .ds-cta-gradient:active { transform: translateY(1px); } .ds-cta-gradient:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #683de8; }"
+    },
+    {
+      "name": "Old pill button",
+      "kind": "button",
+      "refersTo": "ui-button-primary",
+      "description": "components/ui Button: hard-coded navy pill with a gold halo on hover. No focus style of its own, so the browser's outline shows. Admin and /style-guide only; Phase 10 deletes it.",
+      "html": "<button class=\"ds-ui-button\">Save</button>",
+      "css": ".ds-ui-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border: 0; border-radius: 9999px; background: #0e1120; color: #ffffff; font: 500 16px/24px Assistant, system-ui, sans-serif; cursor: pointer; box-shadow: 0 0 0 0 rgba(240, 180, 41, 0.35); transition: all 200ms; } .ds-ui-button:hover { background: rgba(14, 17, 32, 0.9); box-shadow: 0 0 0 6px rgba(240, 180, 41, 0.2); } .ds-ui-button:active { transform: scale(0.95); }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "fieldClasses / the studio's controlClasses: a well in the ground colour on a panel, a hairline that firms on hover, and the focus ring on focus.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Business name</span><input class=\"ds-field-input\" dir=\"auto\" placeholder=\"The name on your sign\"><span class=\"ds-field-hint\">Customers see this on the card.</span></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; max-width: 320px; font-family: Assistant, system-ui, sans-serif; } .ds-field-label { font: 500 14px/20px Assistant, system-ui, sans-serif; color: rgb(var(--c-ink, 17 17 17)); } .ds-field-hint { font: 400 12px/16px Assistant, system-ui, sans-serif; color: rgb(var(--c-ink-subtle, 85 85 95)); } .ds-field-input { box-sizing: border-box; width: 100%; padding: 10px 16px; border: 1px solid rgb(var(--c-border, 226 227 246)); border-radius: 12px; background: rgb(var(--c-background, 245 246 254)); color: rgb(var(--c-ink, 17 17 17)); font: 400 16px/24px Assistant, system-ui, sans-serif; transition: border-color 150ms, box-shadow 150ms; } .ds-field-input::placeholder { color: rgb(var(--c-ink-subtle, 85 85 95)); } .ds-field-input:hover { border-color: rgb(var(--c-border-strong, 202 204 238)); } .ds-field-input:focus { outline: none; border-color: rgb(var(--c-primary, 91 65 230)); box-shadow: 0 0 0 2px rgb(var(--c-background, 245 246 254)), 0 0 0 4px rgb(var(--c-primary-text, 104 61 232)); }"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Panel with PanelHeader: a hairline, the panel ground and a shallow shadow; the title, a hint, and the one action at the end of the row.",
+      "html": "<section class=\"ds-panel\"><div class=\"ds-panel-head\"><div><h2 class=\"ds-panel-title\">Panel title</h2><p class=\"ds-panel-hint\">One line on what this panel is for.</p></div><button class=\"ds-panel-action\">Action</button></div></section>",
+      "css": ".ds-panel { max-width: 420px; padding: 20px; border: 1px solid rgb(var(--c-border, 226 227 246)); border-radius: 16px; background: rgb(var(--c-surface, 255 255 255)); box-shadow: var(--shadow-panel, 0 1px 2px rgb(14 17 32 / 0.04), 0 1px 3px rgb(14 17 32 / 0.06)); } .ds-panel-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; } .ds-panel-title { margin: 0; font: 700 19px/1.3 Rubik, system-ui, sans-serif; letter-spacing: -0.015em; color: rgb(var(--c-ink, 17 17 17)); } .ds-panel-title:dir(rtl) { letter-spacing: 0; } .ds-panel-hint { margin: 4px 0 0; font: 400 14px/20px Assistant, system-ui, sans-serif; color: rgb(var(--c-ink-muted, 65 65 65)); } .ds-panel-action { min-height: 44px; padding: 0 16px; border: 1px solid rgb(var(--c-border-strong, 202 204 238)); border-radius: 8px; background: rgb(var(--c-surface, 255 255 255)); color: rgb(var(--c-ink, 17 17 17)); font: 700 14px/20px Assistant, system-ui, sans-serif; cursor: pointer; } .ds-panel-action:hover { border-color: rgb(var(--c-ink-subtle, 85 85 95)); } .ds-panel-action:focus-visible { outline: none; box-shadow: 0 0 0 2px rgb(var(--c-background, 245 246 254)), 0 0 0 4px rgb(var(--c-primary-text, 104 61 232)); }"
+    },
+    {
+      "name": "Tags",
+      "kind": "chip",
+      "refersTo": "tag-neutral",
+      "description": "Tag: a state in one word, in mono. Every tone is a 15% wash of itself except reward, the one filled tag (navy on gold, 10.06:1). The ok tone fails AA by day (4.43:1).",
+      "html": "<span class=\"ds-tag ds-tag-neutral\">Draft</span> <span class=\"ds-tag ds-tag-accent\">Pro</span> <span class=\"ds-tag ds-tag-ok\">Saved</span> <span class=\"ds-tag ds-tag-warn\">Void</span> <span class=\"ds-tag ds-tag-danger\">Failed</span> <span class=\"ds-tag ds-tag-reward\">Reward ready</span>",
+      "css": ".ds-tag { display: inline-flex; align-items: center; white-space: nowrap; padding: 4px 10px; border-radius: 9999px; font: 400 11px/1.5 'IBM Plex Mono', monospace; letter-spacing: 0.025em; text-transform: uppercase; } .ds-tag-neutral { background: rgb(var(--c-ink, 17 17 17) / 0.07); color: rgb(var(--c-ink-muted, 65 65 65)); } .ds-tag-accent { background: rgb(var(--c-primary-text, 104 61 232) / 0.15); color: rgb(var(--c-primary-text, 104 61 232)); } .ds-tag-ok { background: rgb(var(--c-ok, 4 120 87) / 0.15); color: rgb(var(--c-ok, 4 120 87)); } .ds-tag-warn { background: rgb(var(--c-warn, 146 64 14) / 0.15); color: rgb(var(--c-warn, 146 64 14)); } .ds-tag-danger { background: rgb(var(--c-danger, 185 28 28) / 0.15); color: rgb(var(--c-danger, 185 28 28)); } .ds-tag-reward { background: #f0b429; color: #0e1120; }"
+    },
+    {
+      "name": "Notice",
+      "kind": "custom",
+      "refersTo": "notice-warn",
+      "description": "Notice: something said out loud, on the state's own fill with a lucide icon. warn carries most of the traffic and is deliberately calm.",
+      "html": "<p class=\"ds-notice\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4\"/><path d=\"M12 8h.01\"/></svg><span>This card is waiting on activation.</span></p>",
+      "css": ".ds-notice { display: flex; align-items: flex-start; gap: 10px; max-width: 420px; margin: 0; padding: 12px 16px; border-radius: 12px; background: rgb(var(--c-warn-bg, 255 251 235)); color: rgb(var(--c-warn, 146 64 14)); font: 400 14px/20px Assistant, system-ui, sans-serif; } .ds-notice svg { flex-shrink: 0; margin-top: 2px; }"
+    },
+    {
+      "name": "Toggle",
+      "kind": "custom",
+      "refersTo": "switch-on",
+      "description": "Toggle: a real role=switch in a 44px row; the label is part of the control and the knob slides toward the end edge in either direction.",
+      "html": "<label class=\"ds-toggle\"><input class=\"ds-toggle-input\" type=\"checkbox\" role=\"switch\" checked><span class=\"ds-toggle-track\"><span class=\"ds-toggle-knob\"></span></span><span class=\"ds-toggle-text\">Send on their birthday</span></label>",
+      "css": ".ds-toggle { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; font: 500 14px/20px Assistant, system-ui, sans-serif; color: rgb(var(--c-ink, 17 17 17)); } .ds-toggle-input { position: absolute; width: 1px; height: 1px; opacity: 0; } .ds-toggle-track { position: relative; flex-shrink: 0; width: 44px; height: 24px; border-radius: 9999px; background: rgb(var(--c-ink, 17 17 17) / 0.2); transition: background-color 150ms; } .ds-toggle-knob { position: absolute; top: 2px; inset-inline-start: 2px; width: 20px; height: 20px; border-radius: 9999px; background: #ffffff; box-shadow: 0 1px 3px rgb(0 0 0 / 0.1), 0 1px 2px rgb(0 0 0 / 0.06); transition: transform 150ms; } .ds-toggle-input:checked + .ds-toggle-track { background: rgb(var(--c-primary, 91 65 230)); } .ds-toggle-input:checked + .ds-toggle-track .ds-toggle-knob { transform: translateX(20px); } .ds-toggle-input:checked + .ds-toggle-track .ds-toggle-knob:dir(rtl) { transform: translateX(-20px); } .ds-toggle-input:focus-visible + .ds-toggle-track { box-shadow: 0 0 0 2px rgb(var(--c-background, 245 246 254)), 0 0 0 4px rgb(var(--c-primary-text, 104 61 232)); }"
+    },
+    {
+      "name": "Filter chips",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "FilterChips: 44px pills that show their count; active takes the accent fill, and an empty bucket is disabled unless it is the active one, so a search can never trap you in it.",
+      "html": "<div class=\"ds-chips\" role=\"group\" aria-label=\"Filter\"><button class=\"ds-chip\" aria-pressed=\"true\">All <span class=\"ds-chip-count\">0</span></button><button class=\"ds-chip\" aria-pressed=\"false\" disabled>Close to a reward <span class=\"ds-chip-count\">0</span></button><button class=\"ds-chip\" aria-pressed=\"false\" disabled>Lapsed <span class=\"ds-chip-count\">0</span></button></div>",
+      "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: 8px; } .ds-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid rgb(var(--c-border, 226 227 246)); border-radius: 9999px; background: rgb(var(--c-surface, 255 255 255)); color: rgb(var(--c-ink-muted, 65 65 65)); font: 500 14px/20px Assistant, system-ui, sans-serif; cursor: pointer; transition: color 150ms, border-color 150ms, background-color 150ms; } .ds-chip:hover:not(:disabled) { border-color: rgb(var(--c-border-strong, 202 204 238)); color: rgb(var(--c-ink, 17 17 17)); } .ds-chip[aria-pressed=\"true\"] { border-color: rgb(var(--c-primary, 91 65 230)); background: rgb(var(--c-primary, 91 65 230)); color: rgb(var(--c-primary-on, 255 255 255)); } .ds-chip:disabled { opacity: 0.4; cursor: not-allowed; } .ds-chip:focus-visible { outline: none; box-shadow: 0 0 0 2px rgb(var(--c-background, 245 246 254)), 0 0 0 4px rgb(var(--c-primary-text, 104 61 232)); } .ds-chip-count { font: 500 12px/16px 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; color: rgb(var(--c-ink-subtle, 85 85 95)); } .ds-chip[aria-pressed=\"true\"] .ds-chip-count { color: rgb(var(--c-primary-on, 255 255 255)); }"
+    },
+    {
+      "name": "Brief band with readouts",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "Band + Readouts: the dashboard's one loud surface, dark in both themes. Only white and On-Band Lilac on it; each readout's category is a 3px rule, not a box.",
+      "html": "<section class=\"ds-band\"><p class=\"ds-band-eyebrow\">This week</p><dl class=\"ds-readouts\"><div><span class=\"ds-rule\" style=\"background:rgb(255 255 255 / 0.45)\"></span><dt>Roster</dt><dd>0</dd></div><div><span class=\"ds-rule\" style=\"background:#6ee7b7\"></span><dt>Growth</dt><dd>0</dd></div><div><span class=\"ds-rule\" style=\"background:#a78bfa\"></span><dt>Activity</dt><dd>0</dd></div><div><span class=\"ds-rule\" style=\"background:#ffd875\"></span><dt>Reward</dt><dd>0</dd></div><div><span class=\"ds-rule\" style=\"background:#fcd34d\"></span><dt>Risk</dt><dd>0</dd></div></dl></section>",
+      "css": ".ds-band { max-width: 560px; padding: 20px; border-radius: 16px; color: #ffffff; background-image: linear-gradient(to left, #662eba, #a52668); box-shadow: 0 8px 24px rgb(14 17 32 / 0.08); } .ds-band:dir(rtl) { background-image: linear-gradient(to right, #662eba, #a52668); } .ds-band-eyebrow { margin: 0; font: 700 12px/1.4 Assistant, system-ui, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #e3ddfb; } .ds-readouts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; margin: 24px 0 0; padding-top: 20px; border-top: 1px solid rgb(255 255 255 / 0.15); } @media (min-width: 640px) { .ds-band { padding: 24px 28px; } .ds-readouts { grid-template-columns: repeat(4, minmax(0, 1fr)); } } .ds-readouts div { display: flex; flex-direction: column; gap: 6px; } .ds-rule { display: block; width: 28px; height: 3px; border-radius: 9999px; } .ds-readouts dt { font: 400 10px/1.5 'IBM Plex Mono', monospace; letter-spacing: 0.12em; text-transform: uppercase; color: #e3ddfb; } .ds-readouts dd { margin: 0; font: 700 24px/32px Rubik, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #ffffff; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Objects under a lamp",
+    "overview": "The strongest idea in today's system is not a colour, and it lives in the comments rather than in any token. A page is paper or a room, and the things the product is about are objects set down on it. Words rise into place on a long settle, and objects land with the overshoot of a rubber stamp. At night the room goes dark and what the owner reads goes dark with it. What the owner hands to someone else keeps its own light. A QR code is staged under a lamp rather than repainted, and a printed standee keeps the owner's colours down to the last hairline while the desk under it turns. The pass is the exception that proves the rule. It is a screen, not paper, so it turns with the room, and only its colours are a spec match, because they are the owner's.\n\nThe surface around that idea is layered. One set of token names covers the ground, the panel, three inks, the accent, two borders and four states. It is painted in four scopes: the original oat card stock with a gold accent, the landing page's violet on white, a raised variant for the single-panel pages, and night for the dashboard. Underneath sits an older set, `components/ui`, which paints navy on white directly and ignores all four. The two disagree about corners, focus rings and what the accent is.\n\nPublic pages are spacious, banded and bright. The dashboard is quieter: hairline panels on a shallow shadow, one loud surface at most, and state said in a word and a small mono tag, never in colour alone. Every colour that carries text has its ratio written beside it. The violet is under review. The design skills installed for the redesign treat purple-blue gradients as a common sign of AI-made design (guide D4), so Phase 1 keeps violet as one of three candidates, not as a given.",
+    "keyCharacteristics": [
+      "One token vocabulary, four scopes, switched by a class (on `<html>` for the dashboard and its night mode).",
+      "A measured contrast ratio beside every text colour, quoted against the tighter of its grounds.",
+      "Two motion curves with meanings: words rise, objects land.",
+      "Corners just taken off (8, 12 and 16px), and pills only for states and switches.",
+      "A hairline plus a shallow shadow, in two levels, cast in real black at night.",
+      "Rubik 700 for display, Assistant for reading, Plex Mono for figures and labels. Hebrew is set in the same families as the Latin.",
+      "The wallet pass previews are staged in a 300px slot and never redrawn."
+    ],
+    "rules": [
+      {
+        "name": "The Fill-and-Its-Ink Rule",
+        "body": "A fill never assumes the colour of its own label. Whatever sits on `primary` uses `primary.on`, and accent-coloured text uses `primary.text`, measured per scope. `primary` itself is never text on a light ground.",
+        "section": "colors"
+      },
+      {
+        "name": "The Measured Rule",
+        "body": "Every colour that carries text has its ratio written beside it, against every ground it can sit on, and the tighter one is quoted. Nothing on a gradient is set in white-with-an-alpha, because alpha composites differently at each end and cannot be measured once.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reward-Is-Gold Rule",
+        "body": "Gold means the thing being collected towards and is never a state. As a fill it carries navy; as text it is `reward`.",
+        "section": "colors"
+      },
+      {
+        "name": "The Hebrew-First Rule",
+        "body": "Type is judged in Hebrew. Tracking that makes Latin read as signage smears Hebrew, so every display class drops it and opens its leading under `[dir=\"rtl\"]`.",
+        "section": "typography"
+      },
+      {
+        "name": "The Mono-Is-for-Digits Rule",
+        "body": "Plex Mono has no Hebrew. It sets figures, pass field labels and tags, isolated left to right, and never running text. Roboto has none either and appears only in the Google Wallet preview.",
+        "section": "typography"
+      },
+      {
+        "name": "The Thumb Floor Rule",
+        "body": "44px is the target even when the mark is 6px. Keep the box and shrink the drawing.",
+        "section": "layout"
+      },
+      {
+        "name": "The Two Levels Rule",
+        "body": "A surface is at rest or lifted, and nothing sits in between. At rest the hairline does most of the work.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Lamp Rule",
+        "body": "At night, what the owner reads turns dark and what the owner hands to someone keeps its own light. A QR code sits inside `theme-lit` on a lit stage, staged rather than repainted. A printed sheet keeps the owner's colours, and `rim` gives it an edge on either ground. The pass is a screen, so it turns with the page.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Corner-Off Rule",
+        "body": "Controls and containers are rectangles with the corner just taken off, at 8, 12 or 16px. The pill is reserved for states and switches.",
+        "section": "shapes"
+      },
+      {
+        "name": "The One Loud Surface Rule",
+        "body": "The brief band is the only saturated surface in the dashboard, and only the Overview's brief and the Messages page stand on it. A second loud thing is no loud thing.",
+        "section": "components"
+      },
+      {
+        "name": "The Two Curves Rule",
+        "body": "Words rise on (0.16, 1, 0.3, 1). Objects land on (0.34, 1.4, 0.64, 1). An element's curve says which of the two it is.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "**Do** measure every text colour against every ground it can sit on, and write the ratio beside it, quoting the tighter one. All text meets AA. (Carries over.)",
+      "**Do** use logical properties only (`ms-` `me-` `ps-` `pe-` `start-` `end-` `text-start` `text-end`), and give anything that cannot be logical an `rtl:` sign flip. (Carries over.)",
+      "**Do** keep 44px targets everywhere a thumb goes, even under a 6px mark. (Carries over.)",
+      "**Do** put `focusRing` on every control: 2px `primary.text`, offset 2px in the ground colour. (Carries over.)",
+      "**Do** set running text in a face that has Hebrew, and keep Plex Mono to digits, pass field labels and tags, isolated left to right. (Carries over.)",
+      "**Do** stage `AppleCardPreview`, `GoogleCardPreview`, `StampGrid` and `PassBarcode` in their 300px slot. Frame and animate them; never redraw them. (Carries over.)",
+      "**Do** give every fill its own text token: `primary.on` on `primary`, and `primary.text` for accent-coloured text.",
+      "**Do** let what the owner hands to someone keep its own light at night: a QR code inside `theme-lit`, and a printed sheet in the owner's colours with a `rim` edge.",
+      "**Do** say a state in words and a small mono `Tag`, with colour as the second signal, never the only one.",
+      "**Do** spend the two curves for what they mean: words rise on (0.16, 1, 0.3, 1), objects land on (0.34, 1.4, 0.64, 1)."
+    ],
+    "donts": [
+      "**Don't** set text in gold #f0b429 (1.86:1 on white) or in Deep Gold #c88a11 (2.96:1). Gold is a fill that carries navy.",
+      "**Don't** put alpha text on a gradient. It composites differently at each end and cannot be measured once.",
+      "**Don't** reach for hand-picked Tailwind pairs like `bg-amber-50 text-amber-800` for a state. They vanish on the night ground; `ok`, `warn`, `danger` and `reward` don't.",
+      "**Don't** add a second loud surface to the dashboard. The brief band is on the Overview and Messages, and nowhere else.",
+      "**Don't** spend `rim` at /12. It compiles to nothing; spend it at /10.",
+      "**Don't** use `ml-` `mr-` `pl-` `pr-` `text-left` or `text-right`. (Carries over.)",
+      "**Don't** redraw the pass previews. (Carries over.)",
+      "**Don't** build on `components/ui`. It is hard-coded navy, ignores the night theme, has no focus style on its Button, and holds three of the four known AA failures. Phase 10 deletes it.",
+      "**Don't** treat today's violet, its gradients or the oat and gold palette as settled. Phase 1 chooses the brand colour, with violet as one of three candidates (guide D4).",
+      "**Don't** take today's reduced-motion handling as the standard. It switches every keyframe off; the rule is gentler, not none. (Carries over as a rule; today's code does not meet it.)"
+    ]
+  }
+}
