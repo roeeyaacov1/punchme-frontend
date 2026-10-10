@@ -365,8 +365,8 @@ components:
 > "Do's and Don'ts" marks them.
 >
 > **Ratios.** All 77 ratios quoted in the comments were re-measured with the
-> WCAG 2 formula. 75 agree to within 0.05:1 and are quoted as the comments
-> give them. Two do not. Each is given here as measured, with what the comment
+> WCAG 2 formula. 76 agree to within 0.05:1 and are quoted as the comments
+> give them. One does not. It is given here as measured, with what the comment
 > claims. In four places, colours that no comment covers fail AA. They are
 > listed under "Known failures".
 
@@ -459,12 +459,9 @@ Gold is the reward: the thing a customer collects towards, on the landing page,
 on the card and in the dashboard. It is never a state of the software.
 
 - **Reward Gold** (gold, #f0b429): a fill only, and it carries navy at
-  10.06:1 (the reward tag). On white it measures **1.86:1**. The comments in
-  `src/index.css` and `dashboard/primitives.tsx`, and CLAUDE.md ("Color and
-  contrast"), give 2.96:1. That figure is white on Deep Gold, #c88a11. The
-  verdict stands either way: gold fails AA as text and is only ever a fill.
-  (`tailwind.config.js`, `marketing/primitives.tsx` and `PunchMark.tsx` use
-  2.96:1 correctly, for the oat fill.)
+  10.06:1 (the reward tag). On white it measures 1.86:1, so it fails AA as
+  text. (The 2.96:1 that `tailwind.config.js`, `marketing/primitives.tsx` and
+  `PunchMark.tsx` give for gold is white on the oat fill, Deep Gold.)
 - **Deep Gold** (gold-dark, #c88a11): the oat fill above. As text on white it
   is 2.96:1. The old `ui` Badge still sets text in it.
 - **Pale Gold** (gold-light, #ffd875): the reward at night, as text and as the

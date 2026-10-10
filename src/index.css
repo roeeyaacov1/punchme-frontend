@@ -107,7 +107,7 @@
      reward. Gold is the product's own colour for it — the thing the customer
      is collecting towards, on the landing page and on the card — and it was
      the one meaning the dashboard said in violet, the same colour it uses for
-     the plan badge. `gold` #f0b429 itself is 2.96:1 on white and can only ever
+     the plan badge. `gold` #f0b429 itself is 1.86:1 on white and can only ever
      be a fill, so gold-as-text gets its own darker value here, the way
      `primary.text` does. */
   --c-reward: 132 82 9; /* 6.58:1 on white, 6.30:1 on fill, 5.27:1 on its own 15% wash */

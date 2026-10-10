@@ -182,7 +182,7 @@ and never sets running text.
 
 `tailwind.config.js` and the theme scopes in `src/index.css` carry measured
 contrast ratios in their comments and they are load-bearing — e.g. gold
-`#f0b429` is 2.96:1 on white and fails AA, so it is a fill colour that always
+`#f0b429` is 1.86:1 on white and fails AA, so it is a fill colour that always
 carries navy text. Accent-coloured text uses `primary.text`, a CSS variable
 measured per theme: `#8a5d0b` on oat, `#683de8` in `.theme-purple` and
 `#a78bfa` at night.
