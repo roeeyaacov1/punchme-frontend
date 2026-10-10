@@ -544,10 +544,10 @@ Done on 10 Oct (`0e0eeaa`), and `redesign/setup` was merged into `main` the
 same day. `document` asked for the system's name ("Objects under a lamp") and
 what to do with two ratios in the comments that are wrong when re-measured.
 `DESIGN.md` gives the measured figures. Gold `#f0b429` is 1.86:1 on white, not
-2.96:1. That figure belongs to gold-dark `#c88a11`, and CLAUDE.md and two code
-comments repeat it. Oat ink on white is 18.75:1, not 17.6:1. It also lists four
-AA failures that no comment covered. Impeccable's sidecar is in
-`.impeccable/design.json`.
+2.96:1. That figure belongs to gold-dark `#c88a11`. CLAUDE.md and two code
+comments repeated it until 10 Oct (`aec87ad`), and now say 1.86:1. Oat ink on
+white is 18.75:1, not 17.6:1. It also lists four AA failures that no comment
+covered. Impeccable's sidecar is in `.impeccable/design.json`.
 
 ---
 
