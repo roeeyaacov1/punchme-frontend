@@ -244,7 +244,7 @@ const TAG_TONES: Record<Tone, string> = {
   // were two near-identical yellows meaning opposite things. One is now a
   // solid pill and the other a faint tint, which no longer reads alike.
   // Fixed colours, not tokens: gold is gold in both themes, and navy on it
-  // measures 10.06:1 either way. (`gold` alone would be 2.96:1 as text on
+  // measures 10.06:1 either way. (`gold` alone would be 1.86:1 as text on
   // white — it is only ever a fill, and this is the fill.)
   reward: "bg-gold text-navy",
   ok: "bg-ok/15 text-ok",
