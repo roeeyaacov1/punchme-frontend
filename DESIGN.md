@@ -365,9 +365,8 @@ components:
 > "Do's and Don'ts" marks them.
 >
 > **Ratios.** All 77 ratios quoted in the comments were re-measured with the
-> WCAG 2 formula. 76 agree to within 0.05:1 and are quoted as the comments
-> give them. One does not. It is given here as measured, with what the comment
-> claims. In four places, colours that no comment covers fail AA. They are
+> WCAG 2 formula. Each agrees to within 0.05:1 and is quoted as the comment
+> gives it. In four places, colours that no comment covers fail AA. They are
 > listed under "Known failures".
 
 ## Overview
@@ -516,7 +515,7 @@ mirrors it, so in English the accent keeps its place relative to the reader.
 |---|---|---|---|---|
 | background | Oat #efe9dc | White #ffffff | Wash #f5f6fe | Night #0f0f23 |
 | surface | White #ffffff | Wash #f5f6fe | White #ffffff | Night Panel #1d1d35 |
-| ink | #0e1120: 15.5:1 on oat, **18.75:1** on white (measured; the comment says 17.6:1) | #111111: 17.5:1 on wash, 18.9:1 on white | 17.53 / 18.88:1 | #f2f1fb: 16.85:1 on night, 14.66:1 on panel |
+| ink | #0e1120: 15.5:1 on oat, 18.75:1 on white | #111111: 17.5:1 on wash, 18.9:1 on white | 17.53 / 18.88:1 | #f2f1fb: 16.85:1 on night, 14.66:1 on panel |
 | ink-muted | #5e5750: 5.89 / 7.12:1 | #414141: 9.48 / 10.2:1 | | #b9b7d4: 9.69 / 8.43:1 |
 | ink-subtle | #6b6459: 4.83 / 5.85:1 | #55555f: 6.84 / 7.37:1 | | #9a98ba: 6.81 / 5.92:1 |
 | border | #ded5c2 | #e2e3f6 | | #2c2c48 |
