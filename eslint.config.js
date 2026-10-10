@@ -5,7 +5,9 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  // .claude holds the design skills' scripts and, under .claude/worktrees,
+  // whole copies of this repo made for Claude Code sessions.
+  { ignores: ['dist', '.claude'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],

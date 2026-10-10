@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import { configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
@@ -11,5 +12,10 @@ export default defineConfig({
     // blocks the sign-in button on any origin that isn't registered.
     port: 5173,
     strictPort: true,
+  },
+  test: {
+    // Claude Code keeps session worktrees under .claude/worktrees, each a
+    // full copy of the repo. Without this, every copy's tests run too.
+    exclude: [...configDefaults.exclude, '.claude/**'],
   },
 })
