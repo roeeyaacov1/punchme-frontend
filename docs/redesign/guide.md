@@ -55,7 +55,7 @@ things are still missing:
 |---|---|---|
 | The four skills | Nothing is installed: no plugins and no `.claude/skills` | §4. **Done 9 Oct** |
 | Python 3 | UI UX Pro Max's search engine is a Python script. This PC only has the Microsoft Store shortcut | §4, step 1. **Done 9 Oct** (3.13) |
-| `PRODUCT.md` and `DESIGN.md` | Impeccable reads both before any design work | Phase 0. `PRODUCT.md` **done 9 Oct** (`807e092`); `DESIGN.md` is step 0.4 |
+| `PRODUCT.md` and `DESIGN.md` | Impeccable reads both before any design work | Phase 0. `PRODUCT.md` **done 9 Oct** (`807e092`); `DESIGN.md` **done 10 Oct** (`0e0eeaa`) |
 | Your decisions | Eleven questions in §3 change what every session does | §3 |
 | An up-to-date CLAUDE.md | It is wrong in five places, and its redesign rules forbid this work (list below) | Phase 0, prompt 0.2. **Done 9 Oct** (`1b2304c`) |
 | Demo data and test accounts | The backend has no seed command, so a local dashboard starts empty. You can't judge a customer list with no customers, or check role and plan gating without an account for each | Before Phase 2, add a `seed_demo` command to punchme-backend (below). Phase 2 is the first to sign in as each role, and Phase 5 needs the data. Until then, Emil's `break-ui` fakes data in the browser |
@@ -539,6 +539,15 @@ system before the redesign and that Phase 1 replaces it.
 
 Read `PRODUCT.md` and `DESIGN.md` closely, because they steer everything
 after this. Then merge `redesign/setup` into `main`.
+
+Done on 10 Oct (`0e0eeaa`), and `redesign/setup` was merged into `main` the
+same day. `document` asked for the system's name ("Objects under a lamp") and
+what to do with two ratios in the comments that are wrong when re-measured.
+`DESIGN.md` gives the measured figures. Gold `#f0b429` is 1.86:1 on white, not
+2.96:1. That figure belongs to gold-dark `#c88a11`, and CLAUDE.md and two code
+comments repeat it. Oat ink on white is 18.75:1, not 17.6:1. It also lists four
+AA failures that no comment covered. Impeccable's sidecar is in
+`.impeccable/design.json`.
 
 ---
 
@@ -1341,7 +1350,7 @@ as it is.
 - [x] 0.1 `redesign-start` tag (9 Oct)
 - [x] 0.2 CLAUDE.md updated (9 Oct)
 - [x] 0.3 PRODUCT.md (9 Oct)
-- [ ] 0.4 DESIGN.md (before)
+- [x] 0.4 DESIGN.md, before (10 Oct)
 - [ ] The landing page's eight untrue lines fixed: four removed (D2), two corrected (0.3), two FAQ answers (`PRODUCT.md`). The list is in `docs/landing-page.md`
 - [ ] A first visit opens in the browser's language, Hebrew otherwise (D11)
 - [ ] 1.1 Research
