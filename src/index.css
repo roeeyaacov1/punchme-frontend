@@ -15,7 +15,7 @@
 :root {
   --c-background: 239 233 220; /* oat  #efe9dc */
   --c-surface: 255 255 255; /* white #ffffff */
-  --c-ink: 14 17 32; /* 15.5:1 on oat, 17.6:1 on white */
+  --c-ink: 14 17 32; /* 15.5:1 on oat, 18.75:1 on white */
   --c-ink-muted: 94 87 80; /* 5.89:1 on oat, 7.12:1 on white */
   --c-ink-subtle: 107 100 89; /* 4.83:1 on oat, 5.85:1 on white */
   --c-primary: 200 138 17; /* gold fill; carries navy, never white */
