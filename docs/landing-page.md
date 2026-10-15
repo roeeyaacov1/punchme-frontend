@@ -3,9 +3,10 @@
 What the landing page (`/`) has today that a rework has to keep: the
 evidence, the calculator, the links and the behaviour. Written 8 Oct 2026
 from `src/routes/marketing/LandingPage.tsx` and the components it renders, as
-the input for the redesign. Like `docs/dashboard-routes.md`, it says nothing
-about design on purpose. The list of blocks is here so nothing is lost by
-accident, not as a layout to copy.
+the input for the redesign, and updated 15 Oct 2026 when seven of the page's
+untrue lines came off or were corrected. Like `docs/dashboard-routes.md`, it
+says nothing about design on purpose. The list of blocks is here so nothing
+is lost by accident, not as a layout to copy.
 
 - Page: `src/routes/marketing/LandingPage.tsx`. Sections, the calculator and
   the sources: `src/components/marketing/`. Reveal-on-scroll:
@@ -81,39 +82,48 @@ Behaviour to keep:
 | Block | `id` | What it says |
 |---|---|---|
 | Header | – | Logo; anchor links; language toggle; "Sign in" and "Design your card" when signed out, "Dashboard" and an account menu when signed in |
-| Hero | – | "You deserve a customer club too", the wallet promise, "Start free" and "See what regulars are worth"; a real pass (the card-studio Apple preview, fed by three real presets in `heroTemplates.ts`) taking a stamp. The promise says "no signup", which isn't true (see below) |
+| Hero | – | "You deserve a customer club too", the wallet promise (no app, no account, no password), "Start free" and "See what regulars are worth"; a real pass (the card-studio Apple preview, fed by three real presets in `heroTemplates.ts`) taking a stamp |
 | Paper cards | `paper-cards` | Paper punch cards are over |
 | Proof | `proof` | The three sourced numbers above |
-| Push | `push` | Messages bring customers back; three sample notifications. The "Unlimited push messages" badge isn't true (see below) |
+| Push | `push` | Messages bring customers back: an "Automatic push messages" badge and three sample notifications |
 | How it works | `how-it-works` | Create the card, share a QR, scan and reward |
 | App showcase | `dashboard` | The owner's dashboard on a phone, drawn with sample data (`aria-hidden`) |
 | Calculator | `calculator` | Your own arithmetic |
-| Testimonials | `testimonials` | Three quotes with five stars. **Invented**: `Testimonials.tsx` carries a warning |
 | Automations | `automation` | Special offers, smart reminders, automatic win-back |
-| Stats | – | "10,000+ active customers", "85% return rate", "<60 seconds to set up". **No sources**: `StatsBand.tsx` says so |
-| Pricing | `pricing` | Free to design, preview and use the dashboard; Pro ₪99/month only when you activate. "Most popular" badge; "Unlimited push messages" in the Pro list |
-| FAQ | `faq` | Six questions in native `<details>`. Two answers are wrong (see below) |
+| Pricing | `pricing` | Free to design, preview and use the dashboard; Pro ₪99/month only when you activate. Each plan's pill names it; the Pro list gives the broadcast cap, "up to twice a week" |
+| FAQ | `faq` | Six questions in native `<details>`. One answer still says "message us" without saying how (see below) |
 | Final CTA | – | "Ready to turn one-off customers into regulars?" |
 | Footer | – | Product links, language, ©. No Terms/Privacy/Contact links, because those pages don't exist |
 
-Eight things on the page aren't true. All are fixed in one small change right
-after Phase 0, outside the phases:
+Eight things on the page weren't true. Seven were fixed on 15 Oct 2026, in
+one small change right after Phase 0, outside the phases. The eighth waits
+for the WhatsApp number.
 
-- **Removed** (CLAUDE.md, "The brand is candour"; decision D2):
-  1. the invented testimonials;
-  2. the unsourced stats band;
-  3. the "Most popular" badge;
-  4. the line "Join the business owners already earning more".
+- **Removed** (CLAUDE.md, "The brand is candour"; decision D2), with their
+  components and keys in both languages:
+  1. the invented testimonials (`Testimonials.tsx`, `landing.testimonials`);
+  2. the unsourced stats band (`StatsBand.tsx`, `landing.stats`);
+  3. the "Most popular" badge. The pill now names the plan, the way the
+     free card's names its own: "Pro" / "מסלול Pro"
+     (`landing.pricing.pro.name`, which replaced `.badge`);
+  4. the line "Join the business owners already earning more"
+     (`landing.finalCta.body`).
 - **Corrected** (CLAUDE.md):
-  5. "Unlimited push messages", on the push badge and in the Pro list. Sends
-     are capped at two broadcasts in any seven days and 25 rules.
+  5. "Unlimited push messages". The push badge says "Automatic push
+     messages", and the Pro list "Push messages to all your customers, up to
+     twice a week". Sends are capped at two broadcasts in any seven days and
+     25 rules. The Pro line writes the cap out by hand, while the dashboard
+     reads it from the API, so if the backend's
+     `MESSAGING_BROADCAST_MAX_PER_7D` changes, change the line with it.
   6. "No signup" in the hero. Joining takes a mobile number and an SMS code,
-     so the true line is no app, no account, no password.
+     so it says no app, no account, no password.
 - **Wrong FAQ answers** (PRODUCT.md):
-  7. The answer on changing the design after launch says to message PunchMe.
-     Owners change it themselves, in the dashboard's card studio.
-  8. "Message us" doesn't say how. The channel is WhatsApp, but no page
-     carries the number yet.
+  7. **Fixed.** The answer on changing the design after launch said to message
+     PunchMe. It now says owners change it themselves, in the dashboard's
+     Card Studio, and that saving sends the new design to the cards already
+     in customers' wallets.
+  8. **Still open.** "Message us", in the answer on changing phones, doesn't
+     say how. The channel is WhatsApp, but no page carries the number yet.
 
 ## Links and anchors
 
@@ -137,9 +147,10 @@ after Phase 0, outside the phases:
 
 - `src/components/marketing/primitives.tsx` is imported by 45 files across
   onboarding, the dashboard, sign-in, the public pages and admin.
-  - Used everywhere: `ctaClasses`, `focusRing`, `Eyebrow`, `cardHover` and
-    `ctaArrow`.
-  - Landing-only: `Section` and `SectionHeader`.
+  - Used everywhere: `ctaClasses`, `focusRing`, `Eyebrow` and `ctaArrow`.
+  - Landing-only: `Section`, `SectionHeader` and `cardHover`. Since the
+    testimonials went, the How it works steps are the only cards using
+    `cardHover`.
 - `PunchMark` and `PunchRow` (`PunchMark.tsx`) are used by six dashboard and
   onboarding files.
 - The `.theme-purple` token scope in `src/index.css` is also used by the
