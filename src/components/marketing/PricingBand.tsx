@@ -66,7 +66,7 @@ export function PricingBand({ netAnnual }: { netAnnual: string | null }) {
           <PlanCard
             price={t("landing.pricing.pro.price")}
             per={t("landing.pricing.pro.per")}
-            name={t("landing.pricing.pro.badge")}
+            name={t("landing.pricing.pro.name")}
             highlighted
             features={proFeatures}
             cta={t("landing.pricing.pro.cta")}

@@ -37,10 +37,6 @@ export function FinalCta() {
             {t("landing.finalCta.title")}
           </h2>
 
-          <p className="t-lead mt-6 text-pretty text-brand-on-band">
-            {t("landing.finalCta.body")}
-          </p>
-
           <div className="mt-10 flex justify-center">
             <Link
               to="/onboarding"
