@@ -1351,7 +1351,8 @@ as it is.
 - [x] 0.2 CLAUDE.md updated (9 Oct)
 - [x] 0.3 PRODUCT.md (9 Oct)
 - [x] 0.4 DESIGN.md, before (10 Oct)
-- [ ] The landing page's eight untrue lines fixed: four removed (D2), two corrected (0.3), two FAQ answers (`PRODUCT.md`). The list is in `docs/landing-page.md`
+- [x] Seven of the landing page's eight untrue lines fixed (15 Oct): four removed (D2), two corrected (0.3), one FAQ answer (`PRODUCT.md`). The list is in `docs/landing-page.md`
+- [ ] The eighth: the FAQ's "message us" names WhatsApp, once a page carries the number
 - [ ] A first visit opens in the browser's language, Hebrew otherwise (D11)
 - [ ] 1.1 Research
 - [ ] 1.2 Visual-world brief
