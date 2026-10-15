@@ -4,9 +4,13 @@ import LanguageDetector from "i18next-browser-languagedetector";
 
 import he from "./locales/he/common.json";
 import en from "./locales/en/common.json";
+import {
+  SUPPORTED_LANGS,
+  languageFromBrowser,
+  type SupportedLang,
+} from "./languages";
 
-export const SUPPORTED_LANGS = ["he", "en"] as const;
-export type SupportedLang = (typeof SUPPORTED_LANGS)[number];
+export { SUPPORTED_LANGS, type SupportedLang };
 
 const RTL_LANGS: SupportedLang[] = ["he"];
 
@@ -16,8 +20,20 @@ function applyDirection(lang: string) {
   document.documentElement.lang = lang;
 }
 
+// The browser's languages, read by `languageFromBrowser` rather than the
+// detector's own "navigator" lookup (languages.ts says why). It always
+// names a language the app is written in.
+const detector = new LanguageDetector();
+detector.addDetector({
+  name: "browserOrHebrew",
+  lookup: () =>
+    languageFromBrowser(
+      navigator.languages?.length ? navigator.languages : [navigator.language],
+    ),
+});
+
 i18n
-  .use(LanguageDetector)
+  .use(detector)
   .use(initReactI18next)
   .init({
     resources: {
@@ -26,18 +42,23 @@ i18n
     },
     ns: ["common"],
     defaultNS: "common",
+    // Only the fallback for a key one language lacks, as before. The
+    // detector always lands on a supported language, so this no longer
+    // decides which language a visit opens in.
     fallbackLng: "en",
     supportedLngs: SUPPORTED_LANGS,
     detection: {
-      // Default is English regardless of browser/OS locale — only an
-      // explicit in-app language switch (cached here) changes it.
-      order: ["localStorage"],
+      // The language this browser had last time wins: the detector keeps
+      // it in localStorage, so a switch with the toggle sticks. A first
+      // visit opens in the browser's language, and in Hebrew when the
+      // browser asks for neither (decision D11).
+      order: ["localStorage", "browserOrHebrew"],
       caches: ["localStorage"],
     },
     interpolation: { escapeValue: false },
   });
 
-applyDirection(i18n.resolvedLanguage ?? "en");
+applyDirection(i18n.resolvedLanguage ?? "he");
 i18n.on("languageChanged", applyDirection);
 
 export default i18n;
