@@ -190,8 +190,8 @@ export const ctaArrow =
   "[&>svg]:transition-transform [&>svg]:duration-200 motion-reduce:[&>svg]:transition-none hover:[&>svg]:translate-x-1 rtl:hover:[&>svg]:-translate-x-1";
 
 /** The pointer language for a resting card: it lifts a hair and its hairline
- * firms up. One definition, so a testimonial, a step and a plan all answer
- * the pointer the same way.
+ * firms up. One definition, so every resting card answers the pointer the
+ * same way.
  *
  * Belongs on the panel *inside* the revealing element, never on the element
  * `useReveal` is attached to. `animate-fade-up` fills forwards, animations
