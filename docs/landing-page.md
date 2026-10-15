@@ -139,9 +139,10 @@ for the WhatsApp number.
 - It shows neither the signed-in nor the signed-out buttons until the
   session is known, so the buttons never flicker.
 - The phone menu is a dialog. It locks scrolling and closes on Escape.
-- The language toggle stores `i18nextLng` and sets `<html dir lang>`. The
-  site defaults to English whatever the browser's language
-  (`src/i18n/index.ts`).
+- The language toggle stores `i18nextLng` and sets `<html dir lang>`. A
+  first visit opens in the browser's language, and in Hebrew when the
+  browser asks for neither (`src/i18n/languages.ts`). After that, the stored
+  language wins.
 
 ## Code other pages depend on
 

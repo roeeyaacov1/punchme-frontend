@@ -165,8 +165,7 @@ Terms the copy uses today:
   the channel is WhatsApp, and no page carries the number yet.
 - **Hebrew first.** Right to left, with English. Every string goes through
   `t()`, in both languages at once. A first visit opens in the browser's
-  language with Hebrew as the fallback; `src/i18n/index.ts` still opens in
-  English until that fix lands.
+  language, with Hebrew as the fallback.
 - **Hebrew voice.** The copy speaks to the reader in the plural (בחרו, נסו,
   היכנסו) and writes people with slash forms (לקוח/ה, מנהל/ת, מסכים/ה). The
   landing page's "How it works" (צור, בחר, סרוק) breaks this and moves over in
