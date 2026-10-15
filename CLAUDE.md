@@ -23,15 +23,14 @@ invented testimonials, unsourced metrics, or claims of popularity or results
 that nothing backs up. The real numbers are stronger, and undermining that
 honesty costs more than any conversion it buys.
 
-Six things on the landing page break this today. Four come off: the three
-invented testimonials (`Testimonials.tsx`), the unsourced stats band
-(`StatsBand.tsx`), the "Most popular" badge on Pro, and the closing line about
-owners "already earning more". Two get corrected: "Unlimited push messages"
-(sends are capped), and "no signup" in the hero (joining takes a mobile number
-and an SMS code, so the true line is no app, no account, no password). Until
-they are gone, don't copy them. A quote goes back only when a real customer
-said it and agreed to its use, and a figure only with a source in
-`src/components/marketing/sources.ts`.
+The same goes for what the product does. Sends are capped, so nothing is
+"unlimited". Joining takes a mobile number and an SMS code, so the promise is
+no app, no account, no password, never "no signup" (the standee and the
+dashboard tour still say it). A quote goes on the page only when a real
+customer said it and agreed to its use, and a figure only with a source in
+`src/components/marketing/sources.ts`. One line on the landing page is still
+wrong: the FAQ's "message us" doesn't say how, because no page carries the
+WhatsApp number yet (`docs/landing-page.md`).
 
 ## Stack
 

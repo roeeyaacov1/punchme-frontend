@@ -156,21 +156,13 @@ Terms the copy uses today:
 - **Candour.** The landing page cites real sources, and the calculator will
   show a negative number and tell an owner not to buy. No fake logo walls,
   invented testimonials, unsourced metrics, or claims of popularity or results
-  that nothing backs. A quote goes back only when a real customer said it and
-  agreed to its use, and a figure only with a source in `sources.ts`.
-- **Six things on the landing page break this today.** They come off or get
-  corrected, and until then nothing copies them:
-  1. the three invented testimonials (`Testimonials.tsx`);
-  2. the unsourced stats band (`StatsBand.tsx`);
-  3. the "Most popular" badge on Pro;
-  4. the closing line about owners "already earning more";
-  5. "Unlimited push messages", on the push badge and in the Pro list. Sends
-     are capped, so "unlimited" goes;
-  6. "No signup" in the hero. Joining takes a mobile number and an SMS code, so
-     the true line is no app, no account, no password.
-
-  Two FAQ answers are wrong too: owners change the design themselves in the
-  dashboard, and "message us" means WhatsApp.
+  that nothing backs. A quote goes on the page only when a real customer said
+  it and agreed to its use, and a figure only with a source in `sources.ts`.
+- **Claims match the product.** Sends are capped, so nothing is "unlimited".
+  Joining takes a mobile number and an SMS code, so the promise is no app, no
+  account, no password, not "no signup". Owners change the design themselves,
+  in the dashboard. One FAQ answer still says "message us" without saying how:
+  the channel is WhatsApp, and no page carries the number yet.
 - **Hebrew first.** Right to left, with English. Every string goes through
   `t()`, in both languages at once. A first visit opens in the browser's
   language with Hebrew as the fallback; `src/i18n/index.ts` still opens in
