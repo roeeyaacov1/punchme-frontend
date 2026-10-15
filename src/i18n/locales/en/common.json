@@ -1081,7 +1081,7 @@
       "pro": {
         "price": "₪99",
         "per": "/month",
-        "badge": "Most popular 🔥",
+        "name": "Pro",
         "features": [
           "Unlimited customers",
           "Unlimited push messages",
@@ -1219,7 +1219,6 @@
     },
     "finalCta": {
       "title": "Ready to turn one-off customers into regulars?",
-      "body": "Join the business owners already earning more with PunchMe.",
       "cta": "Create your customer club — free",
       "note": "No credit card. No commitment."
     }
