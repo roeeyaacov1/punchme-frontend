@@ -138,8 +138,8 @@ names. Taste is for the landing page only.
 
 Their defaults that do not apply here:
 
-- A first visit opens in the browser's language, with Hebrew as the fallback.
-  `src/i18n/index.ts` still opens in English.
+- A first visit opens in the browser's language, with Hebrew as the fallback
+  (`languageFromBrowser` in `src/i18n/languages.ts`).
 - Fonts may change, but only to faces that set Hebrew, loaded from Google
   Fonts in `index.html`: no Geist, Satoshi, Outfit or Cabinet Grotesk. IBM
   Plex Mono may stay for digits and pass labels, and Roboto stays for the
@@ -197,10 +197,10 @@ Already in place and must survive any redesign: skip link, visible focus rings
 
 ## Verification
 
-There are **no component or render tests** — the 17 test files cover pure logic
-only: the API client, the calculator, the onboarding draft, the tour, the
-Overview and Activity logic, and ten helpers in `src/lib`. The browser is the
-safety net, so use it.
+There are **no component or render tests** — the 18 test files cover pure logic
+only: the API client, the calculator, the onboarding draft, the language a
+first visit opens in, the tour, the Overview and Activity logic, and ten
+helpers in `src/lib`. The browser is the safety net, so use it.
 
 Before calling any UI change done:
 
