@@ -1353,7 +1353,7 @@ as it is.
 - [x] 0.4 DESIGN.md, before (10 Oct)
 - [x] Seven of the landing page's eight untrue lines fixed (15 Oct): four removed (D2), two corrected (0.3), one FAQ answer (`PRODUCT.md`). The list is in `docs/landing-page.md`
 - [ ] The eighth: the FAQ's "message us" names WhatsApp, once a page carries the number
-- [ ] A first visit opens in the browser's language, Hebrew otherwise (D11)
+- [x] A first visit opens in the browser's language, Hebrew otherwise (D11, 15 Oct)
 - [ ] 1.1 Research
 - [ ] 1.2 Visual-world brief
 - [ ] 1.3 Prototypes, direction chosen
