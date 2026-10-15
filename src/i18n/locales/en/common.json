@@ -1084,7 +1084,7 @@
         "name": "Pro",
         "features": [
           "Unlimited customers",
-          "Unlimited push messages",
+          "Push messages to all your customers, up to twice a week",
           "Automatic win-back",
           "Analytics and performance reports",
           "Full custom branding"
@@ -1138,7 +1138,7 @@
       ]
     },
     "push": {
-      "badge": "Unlimited push messages",
+      "badge": "Automatic push messages",
       "title": "Send a message. They come back.",
       "body": "Every customer who adds your card to their digital wallet stays connected to your business after they walk out the door. You do not have to chase them or remember to write. Set the automation once and the system sends the push itself, when it is time for them to return.",
       "notifications": [
