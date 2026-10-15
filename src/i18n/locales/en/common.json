@@ -1199,27 +1199,6 @@
         }
       ]
     },
-    "testimonials": {
-      "title": "Business owners are already using it",
-      "rating": "Rated 5 out of 5",
-      "items": [
-        {
-          "name": "Dana",
-          "trade": "Nail technician",
-          "quote": "I used to chase customers to come back. Now PunchMe does it for me — automatic messages, a card that is actually convenient, and the feeling that my business is moving forward."
-        },
-        {
-          "name": "Yael",
-          "trade": "Cosmetician",
-          "quote": "My clients simply love it. They show the card in their Wallet to their friends, proudly."
-        },
-        {
-          "name": "Daniel",
-          "trade": "Men's barber",
-          "quote": "I always wanted a way to stay in touch between haircuts. PunchMe gave me exactly that — push notifications and a card nobody loses. I see far more returning customers now."
-        }
-      ]
-    },
     "automation": {
       "title": "Automations that work while you do",
       "lead": "Set them once. They keep running whether or not you open the dashboard.",
@@ -1235,22 +1214,6 @@
         {
           "title": "Automatic win-back",
           "body": "Bring back customers who drifted away with a coupon that appears in their pocket."
-        }
-      ]
-    },
-    "stats": {
-      "items": [
-        {
-          "value": "10,000+",
-          "label": "active customers"
-        },
-        {
-          "value": "85%",
-          "label": "return rate"
-        },
-        {
-          "value": "<60",
-          "label": "seconds to set up"
         }
       ]
     },

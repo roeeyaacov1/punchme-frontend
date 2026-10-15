@@ -11,9 +11,7 @@ import { PushBand } from "../../components/marketing/PushBand";
 import { HowItWorks } from "../../components/marketing/HowItWorks";
 import { AppShowcase } from "../../components/marketing/AppShowcase";
 import { RevenueCalculator } from "../../components/marketing/RevenueCalculator";
-import { Testimonials } from "../../components/marketing/Testimonials";
 import { AutomationRows } from "../../components/marketing/AutomationRows";
-import { StatsBand } from "../../components/marketing/StatsBand";
 import { PricingBand } from "../../components/marketing/PricingBand";
 import { Faq } from "../../components/marketing/Faq";
 import { FinalCta } from "../../components/marketing/FinalCta";
@@ -70,9 +68,7 @@ export function LandingPage() {
         <HowItWorks />
         <AppShowcase />
         <RevenueCalculator onTouchedResult={handleCalculatorResult} />
-        <Testimonials />
         <AutomationRows />
-        <StatsBand />
         <PricingBand
           netAnnual={
             netAnnual === null
