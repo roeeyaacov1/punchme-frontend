@@ -1732,6 +1732,22 @@
       "lightsOnLead": "A panel's light fades up over 240ms while it rises 8px at most. Reduced: full strength in 150ms, no travel.",
       "stamp": "A stamp landing",
       "stampLead": "The product's one gesture: 340ms on the overshoot, pressed down and lifted. Reduced: it appears at its final size."
+    },
+    "overlays": {
+      "title": "Dialogs, sheets and toasts",
+      "lead": "A dialog asks a question that has to be answered first. A sheet holds work beside the page. A toast confirms what was just done, and is never how a result, a refusal or a loss is said.",
+      "openDialog": "Open the dialog",
+      "openSheet": "Open the sheet",
+      "toastOk": "A confirmation",
+      "toastNeutral": "A note",
+      "toastDanger": "An error",
+      "toastLead": "A confirmation goes after 4 seconds, counted only while it can be read. An error stays until it is dismissed.",
+      "toasts": "Toasts"
+    }
+  },
+  "kit": {
+    "toast": {
+      "region": "Notifications"
     }
   }
 }
