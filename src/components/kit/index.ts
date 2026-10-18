@@ -31,3 +31,7 @@ export { Loading, Skeleton, SkeletonRows } from "./Skeleton";
 export { Dialog, Sheet, type ModalProps } from "./Dialog";
 export { ToastProvider } from "./Toast";
 export { useToast, type ToastApi, type ToastInput, type ToastTone } from "./toast-context";
+export { StampRow, type StampRowProps } from "./StampRow";
+export { SnapFlash } from "./Snap";
+export { WallpaperStage, type LockNotification, type WallpaperStageProps } from "./WallpaperStage";
+export { wallpaperFor, type Wallpaper } from "./wallpaper";
