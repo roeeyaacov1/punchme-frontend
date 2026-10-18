@@ -3,7 +3,9 @@
     "name": "PunchMe"
   },
   "language": {
-    "switch": "עברית"
+    "switch": "עברית",
+    "he": "עברית",
+    "en": "English"
   },
   "common": {
     "save": "Save",
@@ -15,7 +17,8 @@
     "copied": "Copied!",
     "remove": "Remove",
     "edit": "Edit",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "admin": {
     "title": "PunchMe Admin",
@@ -1636,6 +1639,64 @@
     "errors": {
       "generic": "That didn't save. Try again.",
       "invalid": "That can't be saved as written ({{detail}})."
+    }
+  },
+  "styleGuide": {
+    "title": "Lightbox",
+    "lead": "The page is a lit sign: warm panels with light behind them, soft dark letters, and one coral thing to press. Every page the redesign moves over is built from what is on this one.",
+    "toolbar": {
+      "label": "How the guide is shown",
+      "language": "Language",
+      "reducedMotion": "Preview reduced motion",
+      "reducedMotionHint": "The gentler motion a device set to reduce motion gets."
+    },
+    "measure": {
+      "pending": "Measuring…",
+      "pass": "Passes {{min}}:1",
+      "fail": "Under {{min}}:1",
+      "fillOnly": "A fill only, so it always carries an ink label",
+      "sample": "Aa א"
+    },
+    "colour": {
+      "title": "Colour",
+      "lead": "Every text colour on every ground it can sit on, measured here in the browser rather than copied from a comment. Text needs 4.5:1; a field's edge, a focus ring or a state needs 3:1.",
+      "rule": "Coral is a fill and never text, and nothing else on a screen is a warm fill: a warning or an error is its words and its icon.",
+      "day": "By day",
+      "dayLead": "A warm wall with lit panels on it.",
+      "night": "At night",
+      "nightLead": "The street after closing. The panels go dark.",
+      "lit": "Lit at night",
+      "litLead": "What keeps its light after dark: the pass, the QR code, the brief and the scan's answer.",
+      "light": "The light itself",
+      "lightLead": "The same by day and at night, and always under ink.",
+      "text": "Text",
+      "edges": "Edges and rings",
+      "states": "States"
+    },
+    "type": {
+      "title": "Type",
+      "lead": "Rubik 500 for display and the interface, Assistant for running text, and Rubik's tabular figures for numbers. Each line is measured as it renders, so Hebrew shows its own leading."
+    },
+    "shape": {
+      "title": "Shape, depth and light",
+      "lead": "Generous and soft. Depth comes from light rather than from shadow.",
+      "radii": "Corners",
+      "depth": "Depth",
+      "depthLead": "By day a lit panel carries a highlight inside its top edge and a soft warm drop. At night it loses both, and its own edge is enough.",
+      "panel": "A lit panel",
+      "lift": "Lifted: a dialog, a sheet, a toast",
+      "light": "Light",
+      "band": "The band today's violet brief becomes",
+      "field": "The field the landing page stages things in"
+    },
+    "controls": {
+      "title": "Controls",
+      "lead": "Every control is 44px wherever a thumb goes, shows a ring on the keyboard, and keeps coral for the one thing to press.",
+      "buttons": "Buttons",
+      "states": "Busy and disabled",
+      "linkButton": "A link that looks like a button",
+      "toggles": "Switch and segmented control",
+      "wallet": "Wallet"
     }
   }
 }
