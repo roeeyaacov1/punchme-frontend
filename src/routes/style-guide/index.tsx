@@ -8,7 +8,10 @@ import { ReducedMotionPreview } from "../../components/kit/motion";
 import { focusRing } from "../../components/kit/classes";
 import { cn } from "../../lib/cn";
 import { ColourSection } from "./ColourSection";
+import { ContentSection } from "./ContentSection";
 import { ControlsSection } from "./ControlsSection";
+import { MotionSection } from "./MotionSection";
+import { PanelsSection } from "./PanelsSection";
 import { ShapeSection } from "./ShapeSection";
 import { Toolbar } from "./Toolbar";
 import { TypeSection } from "./TypeSection";
@@ -40,7 +43,10 @@ export function StyleGuidePage() {
           <ColourSection version={view.version} />
           <TypeSection version={view.version} />
           <ShapeSection version={view.version} />
+          <MotionSection />
           <ControlsSection />
+          <PanelsSection />
+          <ContentSection />
         </main>
       </div>
     </ReducedMotionPreview.Provider>

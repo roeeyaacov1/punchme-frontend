@@ -1703,6 +1703,35 @@
       "tabs": "Tabs",
       "tabPanel": "This is the {{name}} view.",
       "slider": "Slider"
+    },
+    "panels": {
+      "title": "Panels",
+      "lead": "Lightboxes on a wall. Each one is lit, or keeps its light at night, according to what it holds.",
+      "panel": "Lit by day and unlit at night. Most of the dashboard is this.",
+      "lit": "Keeps its light at night: the QR code, a message preview.",
+      "band": "The dashboard's one loud surface, lit in both themes.",
+      "field": "The landing page's light, brightest at the centre."
+    },
+    "content": {
+      "title": "Content",
+      "lead": "The pieces pages are made of. Every number is real and every word is the product's own.",
+      "badges": "Badges",
+      "figures": "Figures",
+      "figuresLead": "Printed, never counted up, and a figure that makes a claim carries its source.",
+      "rows": "List rows",
+      "empty": "Empty state",
+      "loading": "Loading"
+    },
+    "motion": {
+      "title": "Motion",
+      "lead": "Things arrive by light, not by travel. Interface motion stays under 300ms, and with reduced motion it is gentler, not gone.",
+      "curves": "Curves",
+      "durations": "Durations",
+      "replay": "Play again",
+      "lightsOn": "Lights on",
+      "lightsOnLead": "A panel's light fades up over 240ms while it rises 8px at most. Reduced: full strength in 150ms, no travel.",
+      "stamp": "A stamp landing",
+      "stampLead": "The product's one gesture: 340ms on the overshoot, pressed down and lifted. Reduced: it appears at its final size."
     }
   }
 }
