@@ -63,7 +63,7 @@ export function Switch({ checked, onChange, label, description, disabled, classN
         />
       </span>
       <span className="flex min-w-0 flex-col gap-0.5">
-        <span className="type-body text-ink">{label}</span>
+        <span className={cn("type-body text-ink", disabled && "opacity-60")}>{label}</span>
         {description && (
           <span id={descriptionId} className="text-sm leading-snug text-ink-muted">
             {description}

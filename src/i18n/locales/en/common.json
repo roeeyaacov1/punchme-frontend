@@ -1696,7 +1696,13 @@
       "states": "Busy and disabled",
       "linkButton": "A link that looks like a button",
       "toggles": "Switch and segmented control",
-      "wallet": "Wallet"
+      "wallet": "Wallet",
+      "fields": "Fields",
+      "fieldsLead": "A label always, a hint when it helps, and an error that says what is wrong and how to put it right. Phone numbers read left to right in either language.",
+      "choices": "Checkbox and radio group",
+      "tabs": "Tabs",
+      "tabPanel": "This is the {{name}} view.",
+      "slider": "Slider"
     }
   }
 }
