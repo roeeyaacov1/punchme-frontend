@@ -13,7 +13,6 @@ import { BusinessProvider } from "./business/BusinessProvider";
 import { RequireBusiness } from "./business/RequireBusiness";
 import { RequireRole } from "./business/RequireRole";
 import { RootLayout } from "./routes/root";
-import { StyleGuidePage } from "./routes/style-guide";
 import { LandingPage } from "./routes/marketing/LandingPage";
 import { DebugPresetsPage } from "./routes/debug-presets";
 import { LoginPage } from "./routes/auth/LoginPage";
@@ -58,7 +57,12 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { index: true, element: <LandingPage /> },
-      { path: "style-guide", element: <StyleGuidePage /> },
+      // Loaded on its own: the guide carries the whole redesign kit, and none
+      // of it should ship to someone opening the landing page.
+      {
+        path: "style-guide",
+        lazy: async () => ({ Component: (await import("./routes/style-guide")).StyleGuidePage }),
+      },
       { path: "debug/presets", element: <DebugPresetsPage /> },
       { path: "login", element: <LoginPage /> },
       { path: "join/:templateId", element: <JoinPage /> },
