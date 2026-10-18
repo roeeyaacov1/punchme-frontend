@@ -15,6 +15,8 @@ import { MotionSection } from "./MotionSection";
 import { OverlaysSection } from "./OverlaysSection";
 import { PanelsSection } from "./PanelsSection";
 import { ShapeSection } from "./ShapeSection";
+import { SnapSection } from "./SnapSection";
+import { StageSection } from "./StageSection";
 import { Toolbar } from "./Toolbar";
 import { TypeSection } from "./TypeSection";
 import { useGuideView } from "./useGuideView";
@@ -51,6 +53,8 @@ export function StyleGuidePage() {
             <PanelsSection />
             <ContentSection />
             <OverlaysSection />
+            <StageSection />
+            <SnapSection />
           </main>
         </div>
       </ToastProvider>

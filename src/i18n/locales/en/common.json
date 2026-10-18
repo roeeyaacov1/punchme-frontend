@@ -1743,6 +1743,16 @@
       "toastDanger": "An error",
       "toastLead": "A confirmation goes after 4 seconds, counted only while it can be read. An error stays until it is dismissed.",
       "toasts": "Toasts"
+    },
+    "stage": {
+      "title": "The card on its own wallpaper",
+      "lead": "How the owner's card is staged in the dashboard: on a wallpaper made from its own colours, under the message it brings. It is the customer's phone, so it looks the same at night.",
+      "example": "An example: a sample card, named for its trade.",
+      "summary": "The {{trade}} card on a lock screen, with {{filled}} of {{total}} stamps."
+    },
+    "snap": {
+      "title": "The scan's answer",
+      "lead": "At the counter, Scan answers like a photo snap: a flash of the panels' own light, the answer settling under it, the newest stamp landing, all over in 300ms. With reduced motion, a 150ms fade and a soft glow."
     }
   },
   "kit": {
