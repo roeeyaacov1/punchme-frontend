@@ -37,7 +37,9 @@ WhatsApp number yet (`docs/landing-page.md`).
 Vite · React 18 · TypeScript · Tailwind 3.4 · react-router-dom 6 · TanStack Query
 · i18next · lucide-react
 
-Hand-rolled primitives — no shadcn, no Radix — in four sets, all in use:
+Hand-rolled primitives — no shadcn, no Radix. New code uses the Lightbox set in
+`src/components/kit`, with its own outline `focusRing`; `/style-guide` shows
+every piece. Four older sets stay in use until Phase 10 deletes them:
 `src/components/ui`, `src/components/dashboard/primitives.tsx`,
 `src/components/card-studio/studio-primitives.tsx` and
 `src/components/onboarding`. Marketing layout primitives (`Section`,
@@ -144,8 +146,9 @@ Their defaults that do not apply here:
   Fonts in `index.html`: no Geist, Satoshi, Outfit or Cabinet Grotesk. IBM
   Plex Mono may stay for digits and pass labels, and Roboto stays for the
   Google Wallet preview; neither has Hebrew, so neither sets running text.
-- The brand colour is open until Phase 1, which offers three directions with
-  today's violet as one of them. After that, DESIGN.md holds it.
+- The brand is Lightbox, chosen in Phase 1
+  (`docs/redesign/briefs/visual-world.md`): a lit sign on a warm wall, with
+  coral as a fill and never as text. DESIGN.md holds it.
 - Night is for the dashboard only, the card studio included. The landing
   page, onboarding and the public pages stay light.
 - Icons are lucide-react.
@@ -180,11 +183,18 @@ and never sets running text.
 ## Color and contrast
 
 `tailwind.config.js` and the theme scopes in `src/index.css` carry measured
-contrast ratios in their comments and they are load-bearing — e.g. gold
-`#f0b429` is 1.86:1 on white and fails AA, so it is a fill colour that always
-carries navy text. Accent-coloured text uses `primary.text`, a CSS variable
-measured per theme: `#8a5d0b` on oat, `#683de8` in `.theme-purple` and
-`#a78bfa` at night.
+contrast ratios in their comments and they are load-bearing. The redesign's
+scope is `.theme-lightbox`, with `.theme-lightbox.theme-night` for the
+dashboard after dark, and `/style-guide` measures every pair in it live. Coral
+`#f67748` is 2.45:1 on the wall, so it is a fill that always carries its label
+in ink (5.50:1), and "on" and "selected" are drawn in ink. There is no accent
+text: `primary.text` is ink there, and a link is ink, underlined. A warning or
+an error is its words and its icon on a plain panel, never a warm fill. Gold
+`#f0b429` is 1.86:1 on white, so it is the reward's one fill and carries ink.
+
+Pages not yet moved keep the old scopes until Phase 10. There `primary.text`
+is `#8a5d0b` on oat, `#683de8` in `.theme-purple` and `#a78bfa` at night, and
+gold carries navy.
 
 Introducing a colour means measuring it and commenting the ratio the same way.
 All text meets AA.
@@ -197,10 +207,11 @@ Already in place and must survive any redesign: skip link, visible focus rings
 
 ## Verification
 
-There are **no component or render tests** — the 18 test files cover pure logic
+There are **no component or render tests** — the 21 test files cover pure logic
 only: the API client, the calculator, the onboarding draft, the language a
-first visit opens in, the tour, the Overview and Activity logic, and ten
-helpers in `src/lib`. The browser is the safety net, so use it.
+first visit opens in, the tour, the Overview and Activity logic, the kit's
+wallpaper and arrow keys, the kit's copy in both languages, and ten helpers in
+`src/lib`. The browser is the safety net, so use it.
 
 Before calling any UI change done:
 

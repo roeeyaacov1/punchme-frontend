@@ -1354,10 +1354,10 @@ as it is.
 - [x] Seven of the landing page's eight untrue lines fixed (15 Oct): four removed (D2), two corrected (0.3), one FAQ answer (`PRODUCT.md`). The list is in `docs/landing-page.md`
 - [ ] The eighth: the FAQ's "message us" names WhatsApp, once a page carries the number
 - [x] A first visit opens in the browser's language, Hebrew otherwise (D11, 15 Oct)
-- [ ] 1.1 Research
-- [ ] 1.2 Visual-world brief
-- [ ] 1.3 Prototypes, direction chosen
-- [ ] 1.4 Foundation built, DESIGN.md replaced
+- [x] 1.1 Research (15 Oct)
+- [x] 1.2 Visual-world brief (17 Oct)
+- [x] 1.3 Prototypes, direction chosen: Lightbox (18 Oct)
+- [x] 1.4 Foundation built, DESIGN.md replaced (18 Oct)
 - [ ] Phase 2, dashboard shell: A · B · C · D · merged
 - [ ] Phase 3, card studio: A · B · C · D · merged
 - [ ] Phase 4, onboarding: A · B · C · D · merged
