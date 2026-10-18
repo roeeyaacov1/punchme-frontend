@@ -5,6 +5,7 @@ import { Button } from "../../components/kit/Button";
 import { LinkButton } from "../../components/kit/LinkButton";
 import { SegmentedControl } from "../../components/kit/SegmentedControl";
 import { Switch } from "../../components/kit/Switch";
+import { FormSpecimens } from "./FormSpecimens";
 import { GuideSection, Specimen, TokenName } from "./GuideSection";
 
 /** The controls, in the product's own words: every label here is a real key. */
@@ -73,6 +74,8 @@ export function ControlsSection() {
           </Row>
         </div>
       </Specimen>
+
+      <FormSpecimens />
     </GuideSection>
   );
 }
