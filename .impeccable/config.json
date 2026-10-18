@@ -1,0 +1,32 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "theme(\"fontfamily.heading\")",
+        "createdAt": "2026-10-18T16:43:04.376Z",
+        "reason": "Claude: Tailwind theme() reference that resolves to Rubik (tailwind.config.js fontFamily.heading); the detector reads the function call as a font name"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "theme(\"fontfamily.body\")",
+        "createdAt": "2026-10-18T16:43:04.527Z",
+        "reason": "Claude: Tailwind theme() reference that resolves to Assistant (tailwind.config.js fontFamily.body); the detector reads the function call as a font name"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "theme(\"fontfamily.mono\")",
+        "createdAt": "2026-10-18T16:43:04.684Z",
+        "reason": "Claude: Tailwind theme() reference that resolves to IBM Plex Mono (tailwind.config.js fontFamily.mono); the detector reads the function call as a font name"
+      },
+      {
+        "rule": "bounce-easing",
+        "value": "cubic-bezier(0.34, 1.4, 0.64, 1)",
+        "createdAt": "2026-10-18T16:43:04.840Z",
+        "reason": "User confirmed: the step 1.4 prompt names it as the stamp's overshoot, the product's one gesture (docs/redesign/briefs/visual-world.md §3)"
+      }
+    ]
+  }
+}
