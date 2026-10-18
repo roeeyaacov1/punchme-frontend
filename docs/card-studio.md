@@ -39,7 +39,7 @@ type drifts, while the barcode plates hold at any width.
 | `card-studio/ColorWell.tsx` | The colour popover: picker, hex, eyedropper, random, swatches |
 | `card-studio/FieldsEditor.tsx` | Up to 10 pass fields: binding, label, section, alignment, change message |
 | `card-studio/LabelsEditor.tsx` | Renames the two labels on the face of the card |
-| `wallet-card/WalletCardPreview.tsx` | A legacy mock that only `/style-guide` uses. Its English strings are hard-coded |
+| `wallet-card/WalletCardPreview.tsx` | A legacy mock that nothing uses since `/style-guide` was rebuilt on the kit (Phase 1, step 1.4). Its English strings are hard-coded; Phase 10 deletes it |
 
 ## Where they are used
 

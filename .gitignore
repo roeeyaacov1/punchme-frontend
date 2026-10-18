@@ -30,3 +30,7 @@ dist-ssr
 # Impeccable's detector engine is a per-platform binary (19 MB on Windows);
 # `npx impeccable install` fetches the right one, with the local hook
 .claude/skills/impeccable/scripts/bin/
+
+# Impeccable's concept-seed rolls: the record of one session's exploration,
+# read back only by that session, not project state
+.impeccable/questions/
