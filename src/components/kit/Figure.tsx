@@ -46,7 +46,12 @@ export function Figure({ value, size = "inline", label, caveat, source, classNam
         {label && <span className="type-body text-ink">{label}</span>}
         {caveat && <span className="text-sm leading-snug text-ink-muted">{caveat}</span>}
         {source && (
-          <a href={source.href} target="_blank" rel="noreferrer" className={cn(linkText, "self-start text-sm")}>
+          <a
+            href={source.href}
+            target="_blank"
+            rel="noreferrer"
+            className={cn(linkText, "inline-flex min-h-11 items-center self-start text-sm")}
+          >
             {source.label}
           </a>
         )}

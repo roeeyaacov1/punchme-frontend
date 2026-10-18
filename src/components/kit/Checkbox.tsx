@@ -48,7 +48,7 @@ export function Checkbox({ checked, onChange, label, description, disabled, clas
         />
       </span>
       <span className="flex min-w-0 flex-col gap-0.5">
-        <span className={cn("type-body text-ink", disabled && "opacity-60")}>{label}</span>
+        <span className={cn("type-body", disabled ? "text-ink-subtle" : "text-ink")}>{label}</span>
         {description && (
           <span id={descriptionId} className="text-sm leading-snug text-ink-muted">
             {description}
