@@ -295,6 +295,7 @@ export default {
       },
       transitionDuration: {
         press: "var(--duration-press)",
+        move: "var(--duration-move)",
         lights: "var(--duration-lights)",
         stamp: "var(--duration-stamp)",
         sheet: "var(--duration-sheet)",

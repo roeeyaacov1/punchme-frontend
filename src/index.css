@@ -422,6 +422,7 @@ html.theme-lightbox {
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
 
   --duration-press: 120ms;
+  --duration-move: 200ms; /* the knob or the pill sliding across, on the in-out */
   --duration-lights: 240ms; /* lights on */
   --duration-stamp: 340ms;
   --duration-sheet: 300ms;
