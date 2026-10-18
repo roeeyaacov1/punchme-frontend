@@ -65,6 +65,9 @@ export default {
         ok: {
           DEFAULT: "rgb(var(--c-ok) / <alpha-value>)",
           bg: "rgb(var(--c-ok-bg) / <alpha-value>)",
+          // The ok tag's text on its own 15% wash. Only the Lightbox scope
+          // defines it: #065f46 by day (6.11:1), the ok value at night.
+          tag: "rgb(var(--c-ok-tag) / <alpha-value>)",
         },
         warn: {
           DEFAULT: "rgb(var(--c-warn) / <alpha-value>)",
@@ -82,6 +85,43 @@ export default {
           DEFAULT: "rgb(var(--c-reward) / <alpha-value>)",
           bg: "rgb(var(--c-reward-bg) / <alpha-value>)",
         },
+
+        // ── Lightbox ──────────────────────────────────────────
+        // The redesign's scope, `.theme-lightbox` in src/index.css, where
+        // every value is measured. These two are themed:
+        //
+        // The edge that identifies a field, a checkbox, a switch's track and
+        // a slider's rail — 3.35:1 on the wall by day, 3.87:1 at night.
+        // border-strong never reached the 3:1 WCAG 1.4.11 asks.
+        field: "rgb(var(--c-field) / <alpha-value>)",
+        // Behind a dialog or a sheet: ink at 0.4 by day, black at 0.6 at
+        // night. The strength is part of the token, so no opacity modifier.
+        scrim: "rgb(var(--c-scrim) / var(--scrim-alpha))",
+        //
+        // And these are fixed, because lit things keep their light at
+        // night. Their text is ink, so they are only ever painted inside a
+        // `.theme-lit` subtree, where ink is the day ink.
+        //
+        // The panels' warm light: the scan's flash, a lit panel at night,
+        // the brief band (DEFAULT → deep) and the Persuade field (bright →
+        // deep → edge). Ink 13.91 / 12.85 / 14.22 / 11.69:1.
+        light: {
+          DEFAULT: "#fff4e6",
+          deep: "#ffe9d4",
+          bright: "#fff7ec",
+          edge: "#fddcc8",
+        },
+        // The light a scan answer switches on in. Ink 12.19 / 10.63 /
+        // 10.35:1; ink-muted 5.56:1 or more. A refusal answers on the plain
+        // light above, its amber kept to its word and icon.
+        answer: {
+          punched: "#c9f0d9",
+          full: "#ffd36b",
+          failed: "#ffc9c2",
+        },
+        // The camera's dark glass, a hole in the wall that is never lit.
+        // What sits on it is `light` (17.97:1); ink would be 1.29:1.
+        glass: "#0e0c0a",
 
         // ── Landing redesign, fixed values ─────────────────────
         // Sampled from the Figma frame, then corrected where the drawing
@@ -220,6 +260,59 @@ export default {
         // is the product's one gesture. Nothing on the page uses a third.
         "draw-rule": "draw-rule 0.55s cubic-bezier(0.16,1,0.3,1) both",
         "bloom-drift": "bloom-drift 14s ease-in-out infinite",
+
+        // ── Lightbox ──────────────────────────────────────────
+        // The keyframes are plain CSS in src/index.css, so they exist whether
+        // or not a class names them, and the timings are the :root motion
+        // tokens there. The name comes first in each: Tailwind takes the
+        // first word it can't read as a time or a curve to be the name.
+        "lights-on": "lights-on var(--duration-lights) var(--ease-out-strong) both",
+        "gentle-in": "gentle-in var(--duration-gentle) ease-out both",
+        "gentle-out": "gentle-out var(--duration-gentle) ease-out both",
+        "exit-fade": "gentle-out var(--duration-exit) ease-out both",
+        "snap-flash": "snap-flash var(--duration-flash) var(--ease-out-strong) both",
+        "snap-glow": "snap-glow var(--duration-gentle) ease-out both",
+        "snap-settle": "snap-settle var(--duration-settle) var(--ease-out-strong) both",
+        "stamp-snap":
+          "stamp-land var(--duration-stamp-snap) var(--ease-overshoot) var(--delay-stamp-snap) both",
+        "stamp-land": "stamp-land var(--duration-stamp) var(--ease-overshoot) both",
+        "sheet-rise": "sheet-rise var(--duration-sheet) var(--ease-drawer) both",
+        "sheet-fall": "sheet-fall var(--duration-exit) var(--ease-drawer) both",
+        "drawer-in": "drawer-in var(--duration-sheet) var(--ease-drawer) both",
+        "drawer-out": "drawer-out var(--duration-exit) var(--ease-drawer) both",
+        "dialog-in": "dialog-in var(--duration-lights) var(--ease-out-strong) both",
+        "dialog-out": "dialog-out var(--duration-exit) var(--ease-out-strong) both",
+        skeleton: "skeleton 1.6s ease-in-out infinite",
+      },
+      // Lightbox's curves and durations, as the :root tokens in
+      // src/index.css. Tailwind's own `ease-out` is left as it is: the pages
+      // still waiting for their phase use it.
+      transitionTimingFunction: {
+        "out-strong": "var(--ease-out-strong)",
+        overshoot: "var(--ease-overshoot)",
+        drawer: "var(--ease-drawer)",
+        "in-out-strong": "var(--ease-in-out-strong)",
+      },
+      transitionDuration: {
+        press: "var(--duration-press)",
+        lights: "var(--duration-lights)",
+        stamp: "var(--duration-stamp)",
+        sheet: "var(--duration-sheet)",
+        exit: "var(--duration-exit)",
+        crossfade: "var(--duration-crossfade)",
+        ceremony: "var(--duration-ceremony)",
+        gentle: "var(--duration-gentle)",
+      },
+      // Lightbox's shapes: generous and soft. Fields 16px, Operate panels and
+      // a scan's answer 24px, the viewfinder 28px, Persuade's tall cards
+      // 32px and the lit hero panel 40px. Buttons, chips and stamps are
+      // `rounded-full`.
+      borderRadius: {
+        field: "1rem",
+        panel: "1.5rem",
+        glass: "1.75rem",
+        card: "2rem",
+        hero: "2.5rem",
       },
       boxShadow: {
         // Two levels only. Cards pair the resting shadow with a hairline
@@ -234,5 +327,14 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Hover only where a pointer can hover. Tailwind's own `hover:` also
+    // fires on a tap and sticks on touch screens, and switching it over
+    // globally would change the pages still waiting for their phase. This
+    // variant sorts after `active:`, `disabled:` and `aria-*:`, so the kit
+    // never lets it set a property a state also sets.
+    function ({ addVariant }) {
+      addVariant("hover-fine", "@media (hover: hover) and (pointer: fine) { &:hover }");
+    },
+  ],
 };

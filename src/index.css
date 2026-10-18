@@ -204,6 +204,661 @@ html.theme-night .logo-mark {
   color-scheme: light;
 }
 
+/* ── Lightbox ───────────────────────────────────────────────────────────
+   The redesign's world, chosen in step 1.3 (docs/redesign/briefs/
+   visual-world.md, "The choice" and §4). The page is a lit sign: panels are
+   lightboxes on a warm wall, white acrylic with light behind it, dark letters
+   on the front and one warm colour on the thing to press. At night the
+   dashboard is the street after closing, and only what matters stays lit.
+
+   It arrives the way .theme-purple did: the same variable names with new
+   values, so an old component that ends up under the scope repaints rather
+   than breaks, and nothing that doesn't wear the class can change. A page
+   moves onto it in its own phase; Phase 10 makes it the default.
+
+   Every ratio is WCAG 2, truncated to two decimals so a printed 4.50 is at
+   least 4.50, and measured against both grounds a value can sit on: the wall
+   (`background`) and a panel (`surface`). The brief's appendix has the
+   script.
+
+   Coral is a fill, never text: as text it lands 10° of hue from the danger
+   red at the same lightness. As an edge it is 2.45:1 on the wall and 2.70:1
+   on a panel, under the 3:1 a control's edge needs on its own, so a coral
+   control always carries its label or icon in ink, and "on" and "selected"
+   are drawn in ink instead. And nothing else on a screen is a warm fill: a
+   warning or an error is its words and its icon on a plain panel, which is
+   why warn-bg, danger-bg and reward-bg below are the panel itself. Gold
+   stays the reward's one fill, solid, carrying ink. */
+.theme-lightbox {
+  color-scheme: light;
+  --c-background: 246 242 235; /* the wall #f6f2eb */
+  --c-surface: 255 253 250; /* a lit panel #fffdfa */
+  --c-ink: 43 37 33; /* #2b2521  13.54:1 on the wall, 14.88:1 on a panel */
+  --c-ink-muted: 87 78 71; /* #574e47  7.27:1 / 7.99:1 */
+  --c-ink-subtle: 107 98 90; /* #6b625a  5.34:1 / 5.87:1 */
+  --c-primary: 246 119 72; /* coral #f67748, a fill only; carries ink 5.50:1 */
+  --c-primary-hover: 242 104 58; /* #f2683a; carries ink 4.90:1 */
+  /* There is no accent text. A link or an accent word is ink, underlined, so
+     the accent-text token is ink too, and `focusRing`'s ring with it. */
+  --c-primary-text: 43 37 33;
+  --c-primary-on: 43 37 33; /* ink on coral 5.50:1, on its hover 4.90:1 */
+  --c-primary-shadow: 185 94 60; /* #b95e3c, a darker cut; carries no text */
+  --c-border: 233 225 213; /* hairline #e9e1d5  1.16:1 / 1.27:1, decoration only */
+  --c-border-strong: 216 204 187; /* #d8ccbb  1.41:1 / 1.55:1, decoration only */
+  /* The edge that identifies a field, a checkbox, a switch's track and a
+     slider's rail: WCAG 1.4.11 asks 3:1 of it, which border-strong never
+     reached in any scope. #8e8277  3.35:1 on the wall, 3.68:1 on a panel. */
+  --c-field: 142 130 119;
+  --c-navy-deep: 43 37 33; /* a dark band; the cream panel on it 14.88:1 */
+  --c-rim: 0 0 0;
+  --c-ok: 4 120 87; /* #047857  4.91:1 / 5.40:1, 5.20:1 on its own fill */
+  --c-ok-bg: 236 253 245;
+  /* The ok tag's text, on ok's 15% wash: #047857 there was 4.43:1 and failed.
+     #065f46  6.11:1 over a panel, 5.62:1 over the wall. */
+  --c-ok-tag: 6 95 70;
+  --c-warn: 146 64 14; /* #92400e  6.35:1 / 6.98:1 */
+  --c-warn-bg: 255 253 250; /* the panel: a warning is never a warm fill */
+  --c-danger: 185 28 28; /* #b91c1c  5.79:1 / 6.37:1; as a field's edge the same */
+  --c-danger-bg: 255 253 250; /* the panel: an error is its words and icon */
+  --c-reward: 132 82 9; /* #845209  5.89:1 / 6.47:1 */
+  --c-reward-bg: 255 253 250; /* the panel; gold is the reward's one fill */
+  /* Behind a dialog or a sheet. A dimmer, not a surface; carries no text. */
+  --c-scrim: 43 37 33;
+  --scrim-alpha: 0.4;
+  /* Depth is light rather than shadow: a 1px highlight inside the top edge,
+     white at 70%, and a soft warm drop. The lift is the same three layers,
+     deeper, so a panel lifting animates instead of jumping. */
+  --shadow-panel: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 1px 2px rgb(43 37 33 / 0.05),
+    0 8px 24px rgb(43 37 33 / 0.06);
+  --shadow-panel-lift: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 2px 6px rgb(43 37 33 / 0.06),
+    0 24px 48px rgb(43 37 33 / 0.14);
+  /* What a `.theme-lit` subtree wears under this scope (see below). */
+  --lit-ground: 255 253 250;
+  --lit-shadow: var(--shadow-panel);
+  /* The scan's photo snap: the flash of the panels' own light starts here
+     and clears to nothing. */
+  --snap-flash: 0.85;
+  caret-color: rgb(var(--c-ink));
+  scrollbar-color: rgb(var(--c-field)) transparent; /* 3.35:1 on the wall */
+}
+
+/* The street after closing. The wall goes dark and the panels go unlit; only
+   what matters keeps its light (`.theme-lit`, below). Ratios against the
+   street (#16120f) and an unlit panel (#211b17). */
+.theme-lightbox.theme-night {
+  color-scheme: dark;
+  --c-background: 22 18 15; /* the street #16120f */
+  --c-surface: 33 27 23; /* an unlit panel #211b17 */
+  --c-ink: 246 239 231; /* #f6efe7  16.33:1 / 14.92:1 */
+  --c-ink-muted: 203 191 179; /* #cbbfb3  10.32:1 / 9.43:1 */
+  --c-ink-subtle: 169 156 144; /* #a99c90  6.95:1 / 6.35:1 */
+  --c-primary: 255 138 92; /* coral #ff8a5c; 8.01:1 / 7.32:1 as an edge */
+  --c-primary-hover: 255 158 120; /* #ff9e78 */
+  --c-primary-text: 246 239 231;
+  --c-primary-on: 26 18 13; /* #1a120d on coral 7.95:1, on its hover 9.16:1 */
+  --c-primary-shadow: 185 94 60;
+  --c-border: 47 39 34; /* #2f2722  1.27:1 / 1.16:1, decoration only */
+  --c-border-strong: 63 53 46; /* #3f352e  1.56:1 / 1.42:1, decoration only */
+  --c-field: 125 112 100; /* #7d7064  3.87:1 / 3.54:1 */
+  --c-navy-deep: 14 12 10; /* the camera's glass, one step under the street */
+  --c-rim: 255 255 255;
+  --c-ok: 110 231 183; /* #6ee7b7  12.21:1 / 11.16:1, 10.44:1 on its own fill */
+  --c-ok-bg: 16 38 31;
+  --c-ok-tag: 110 231 183; /* on its wash 7.83:1 over a panel; #065f46 would be 2.21:1 */
+  --c-warn: 252 211 77; /* #fcd34d  12.91:1 / 11.80:1 */
+  --c-warn-bg: 33 27 23;
+  --c-danger: 252 165 165; /* #fca5a5  9.81:1 / 8.96:1 */
+  --c-danger-bg: 33 27 23;
+  --c-reward: 255 216 117; /* #ffd875  13.59:1 / 12.42:1 */
+  --c-reward-bg: 33 27 23;
+  --c-scrim: 0 0 0;
+  --scrim-alpha: 0.6;
+  /* Panels lose the drop at night, and a lit one needs no glow: its own
+     ground against the street (17.14:1) is the light. Transparent layers
+     rather than `none`, because Tailwind folds shadow-* and ring-* into one
+     box-shadow list and a `none` inside it voids the whole declaration, focus
+     ring included. */
+  --shadow-panel: 0 0 #0000, 0 0 #0000, 0 0 #0000;
+  --shadow-panel-lift: 0 0 #0000, 0 0 #0000, 0 16px 40px rgb(0 0 0 / 0.5);
+  --lit-ground: 255 244 230; /* #fff4e6, a panel that keeps its light */
+  --lit-shadow: 0 0 #0000, 0 0 #0000, 0 0 #0000;
+  --snap-flash: 0.6;
+}
+
+/* What stays lit. The same class the old scopes use for it, so the QR stage
+   and anything else that already wears `.theme-lit` does the right thing the
+   day its page moves over. Under Lightbox a lit subtree wears the day values,
+   all of them: the old purple `.theme-lit` still matches the same element
+   and would leak its indigo into any variable left out. Its ground and
+   shadow come through --lit-ground and --lit-shadow, which every scope sets,
+   so the nearest scope wins by inheritance and a day frame inside a night
+   page stays day. At night, on #fff4e6: ink 13.91:1, ink-muted 7.47:1,
+   ink-subtle 5.49:1, ok 5.04:1, warn 6.52:1, danger 5.95:1, reward 6.05:1.
+   The second and third selectors catch `.theme-lit` on the scope's own
+   element, which a descendant selector can't reach. */
+.theme-lightbox .theme-lit,
+.theme-lightbox.theme-lit,
+.theme-lightbox.theme-night.theme-lit {
+  color-scheme: light;
+  --c-background: var(--lit-ground);
+  --c-surface: var(--lit-ground);
+  --c-ink: 43 37 33;
+  --c-ink-muted: 87 78 71;
+  --c-ink-subtle: 107 98 90;
+  --c-primary: 246 119 72;
+  --c-primary-hover: 242 104 58;
+  --c-primary-text: 43 37 33;
+  --c-primary-on: 43 37 33;
+  --c-primary-shadow: 185 94 60;
+  --c-border: 233 225 213;
+  --c-border-strong: 216 204 187;
+  --c-field: 142 130 119; /* 3.44:1 on #fff4e6 */
+  --c-navy-deep: 43 37 33;
+  --c-rim: 0 0 0;
+  --c-ok: 4 120 87;
+  --c-ok-bg: 236 253 245;
+  --c-ok-tag: 6 95 70;
+  --c-warn: 146 64 14;
+  --c-warn-bg: var(--lit-ground);
+  --c-danger: 185 28 28;
+  --c-danger-bg: var(--lit-ground);
+  --c-reward: 132 82 9;
+  --c-reward-bg: var(--lit-ground);
+  --c-scrim: 43 37 33;
+  --scrim-alpha: 0.4;
+  --shadow-panel: var(--lit-shadow);
+  --shadow-panel-lift: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 2px 6px rgb(43 37 33 / 0.06),
+    0 24px 48px rgb(43 37 33 / 0.14);
+  /* Both are inherited as computed colours, so they have to be set again
+     here or a lit panel at night gets the street's pale caret. */
+  caret-color: rgb(var(--c-ink));
+  scrollbar-color: rgb(var(--c-field)) transparent;
+}
+
+/* The ground has to be on <html> when the scope is, for the same reason as
+   the purple one: overscroll shows whatever is behind the page. */
+html.theme-lightbox {
+  background-color: rgb(var(--c-background));
+}
+
+/* Text selection, themed rather than left to the OS blue: coral at 28%,
+   with the text keeping its own colour. Ink on it 10.56:1 over the wall and
+   11.29:1 over a panel; at night 9.57:1 over the street and 8.66:1 over an
+   unlit panel; on a lit panel at night 10.77:1. Fixed values rather than
+   variables, because a highlight pseudo-element's custom properties don't
+   resolve the same way in every engine. The lit rule comes last so it wins
+   the tie with the night one. */
+.theme-lightbox ::selection {
+  background-color: rgb(246 119 72 / 0.28);
+}
+
+.theme-lightbox.theme-night ::selection {
+  background-color: rgb(255 138 92 / 0.28);
+}
+
+.theme-lightbox .theme-lit ::selection,
+.theme-lightbox.theme-lit ::selection {
+  background-color: rgb(246 119 72 / 0.28);
+}
+
+/* ── Lightbox motion ────────────────────────────────────────────────────
+   Not themed, so on :root, under names nothing else reads. "Things arrive
+   by light, not by travel": a panel's light fades up while it moves 8px at
+   most, and the stamp landing on the overshoot stays the product's one
+   gesture. Interface motion stays under 300ms; reduced motion is gentler,
+   not none, and every stand-in for it is the 150ms `gentle`.
+
+   The kit chooses between these in JS (src/components/kit/motion.ts), so
+   none of the keyframes below is on the blanket `animation: none` list
+   further down, and none reuses one of its names. Each one that arrives ends
+   on `transform: none`: a transform left in place by `fill-mode: both` would
+   trap any position: fixed inside it. */
+:root {
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1); /* anything arriving */
+  --ease-overshoot: cubic-bezier(0.34, 1.4, 0.64, 1); /* the stamp */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1); /* the sheet */
+  /* Something already on screen moving across it: the switch's knob, the
+     segmented control's pill. */
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+
+  --duration-press: 120ms;
+  --duration-lights: 240ms; /* lights on */
+  --duration-stamp: 340ms;
+  --duration-sheet: 300ms;
+  --duration-exit: 180ms; /* things leave faster than they arrive */
+  --duration-crossfade: 300ms;
+  --duration-ceremony: 600ms; /* activation: the card's panel from unlit to lit, once */
+  --duration-breathe: 14s; /* the hero's light; the only loop, and never at night */
+  --duration-gentle: 150ms; /* every reduced-motion stand-in */
+
+  /* The scan's photo snap, complete at 300ms: the flash clears in 220ms,
+     the answer settles in 180ms, and the newest stamp lands in 240ms after
+     60ms. */
+  --duration-flash: 220ms;
+  --duration-settle: 180ms;
+  --duration-stamp-snap: 240ms;
+  --delay-stamp-snap: 60ms;
+
+  /* Which way the end edge is, for the one keyframe that travels sideways:
+     the sheet coming in from the end on a wide screen. */
+  --kit-dir: 1;
+}
+
+[dir="rtl"] {
+  --kit-dir: -1;
+}
+
+@keyframes lights-on {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes gentle-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes gentle-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* A flash of the panels' warm light over the whole viewfinder, clearing to
+   nothing. The fallback keeps it working outside a scope. */
+@keyframes snap-flash {
+  from {
+    opacity: var(--snap-flash, 0.85);
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* The flash under reduced motion: a glow, not a flash. */
+@keyframes snap-glow {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* The answer is there at once, under the flash, and settles. */
+@keyframes snap-settle {
+  from {
+    transform: scale(1.04);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* A stamp pressed down and lifted: on the overshoot curve, the scale dips
+   just under 1 before it settles. */
+@keyframes stamp-land {
+  from {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sheet-rise {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes sheet-fall {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(calc(100% * var(--kit-dir, 1)));
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes drawer-out {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateX(calc(100% * var(--kit-dir, 1)));
+  }
+}
+
+/* A modal is not anchored to a trigger, so it scales from its own centre. */
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes dialog-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+/* A placeholder breathing while it waits. Status, like the scanner's sweep,
+   so it is allowed to loop; still under reduced motion. */
+@keyframes skeleton {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* ── Lightbox type ──────────────────────────────────────────────────────
+   Rubik 500 for display and the interface, Assistant for running text. The
+   old `.t-*` classes stay for the pages still wearing them. Every class sets
+   its own family and weight, so none of them can inherit the global
+   `h1–h4 { Rubik 700 }` below.
+
+   Today's Rubik is 700 and tight; here it is 500 and open. Hebrew has no
+   capitals to track and sits lower, so display sizes drop their tracking to
+   0 and open their leading under [dir="rtl"], and long Hebrew passages step
+   up to 17px, because Assistant runs small. Figures are Rubik with tabular
+   numbers: Assistant has none. */
+@layer components {
+  .type-display {
+    font-family: theme("fontFamily.heading");
+    font-weight: 500;
+    font-size: clamp(2.75rem, 6vw, 4.5rem);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+  }
+
+  .type-headline {
+    font-family: theme("fontFamily.heading");
+    font-weight: 500;
+    font-size: clamp(2rem, 3.6vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+
+  .type-lead {
+    font-family: theme("fontFamily.body");
+    font-weight: 400;
+    font-size: clamp(1.125rem, 0.95rem + 0.5vw, 1.25rem);
+    line-height: 1.6;
+  }
+
+  /* The page title in the dashboard. */
+  .type-title {
+    font-family: theme("fontFamily.heading");
+    font-weight: 500;
+    font-size: 1.75rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .type-card-title {
+    font-family: theme("fontFamily.heading");
+    font-weight: 500;
+    font-size: 1.1875rem;
+    line-height: 1.3;
+  }
+
+  /* Scan's title, set as a small sign line beside its toggles. */
+  .type-sign {
+    font-family: theme("fontFamily.heading");
+    font-weight: 500;
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  /* The word a scan answers with. */
+  .type-answer {
+    font-family: theme("fontFamily.heading");
+    font-weight: 500;
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+
+  .type-body {
+    font-family: theme("fontFamily.body");
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  /* Anything longer than a couple of lines. */
+  .type-prose {
+    font-family: theme("fontFamily.body");
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 68ch;
+  }
+
+  .type-label {
+    font-family: theme("fontFamily.body");
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .type-tag {
+    font-family: theme("fontFamily.body");
+    font-weight: 600;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
+
+  /* A number. Inherits its size; the element carries dir="ltr", which
+     isolates it, because unicode-bidi alone lets "12 / 8" and a phone number
+     reorder inside a Hebrew line. */
+  .type-figure {
+    font-family: theme("fontFamily.heading");
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Scan's count: the loudest number in the product. */
+  .type-count {
+    font-family: theme("fontFamily.heading");
+    font-weight: 700;
+    font-size: 4rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  [dir="rtl"] .type-display {
+    line-height: 1.14;
+    letter-spacing: 0;
+  }
+
+  [dir="rtl"] .type-headline {
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+
+  [dir="rtl"] .type-lead {
+    line-height: 1.7;
+  }
+
+  [dir="rtl"] .type-title {
+    line-height: 1.3;
+    letter-spacing: 0;
+  }
+
+  [dir="rtl"] .type-card-title {
+    line-height: 1.4;
+  }
+
+  [dir="rtl"] .type-answer {
+    line-height: 1.3;
+  }
+
+  [dir="rtl"] .type-body {
+    line-height: 1.6;
+  }
+
+  [dir="rtl"] .type-prose {
+    font-size: 1.0625rem;
+    line-height: 1.7;
+  }
+}
+
+/* ── Lightbox light ─────────────────────────────────────────────────────
+   Calendly's pastel fields become the light itself. Both are lit in either
+   theme, so they are only ever painted inside `.theme-lit`, where ink is the
+   day ink. */
+@layer components {
+  /* What the dashboard's violet brief band becomes: a lightbox, the
+     brightest thing on the street at night. Ink 13.91:1 at the top and
+     12.85:1 at the foot; ink-muted 7.47:1 and 6.90:1. */
+  .lit-band {
+    background-image: linear-gradient(to bottom, theme("colors.light.DEFAULT"), theme("colors.light.deep"));
+  }
+
+  /* The Persuade field: light behind acrylic, brightest at the centre and
+     falling off warm toward the edges. Ink 14.22:1 at the centre and 11.69:1
+     on the deepest stop; ink-muted 6.28:1 there, ink-subtle 4.61:1. */
+  .lit-field {
+    background-image: radial-gradient(
+      ellipse at 50% 45%,
+      theme("colors.light.bright") 0%,
+      theme("colors.light.deep") 55%,
+      theme("colors.light.edge") 100%
+    );
+  }
+}
+
+/* ── The kit's slider ───────────────────────────────────────────────────
+   Native, restyled: a field-edge rail (3.35:1 on the wall, 3.87:1 at night)
+   with the value drawn in ink, and a cream thumb inside an ink ring. The
+   input itself is the 44px target; the rail is 6px inside it. Coral is never
+   the fill: it is 2.45:1 on the wall, and the fill is the value. */
+@layer components {
+  .kit-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 44px;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .kit-range:focus-visible {
+    outline: none;
+  }
+
+  .kit-range:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .kit-range::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 9999px;
+    background: linear-gradient(
+      to right,
+      rgb(var(--c-ink)) var(--kit-range-progress, 0%),
+      rgb(var(--c-field)) var(--kit-range-progress, 0%)
+    );
+  }
+
+  /* WebKit runs the input right to left in Hebrew but paints the rail's
+     gradient as written, so the fill has to be turned round. Firefox's
+     progress pseudo-element follows the direction by itself. */
+  [dir="rtl"] .kit-range::-webkit-slider-runnable-track {
+    background: linear-gradient(
+      to left,
+      rgb(var(--c-ink)) var(--kit-range-progress, 0%),
+      rgb(var(--c-field)) var(--kit-range-progress, 0%)
+    );
+  }
+
+  .kit-range::-moz-range-track {
+    height: 6px;
+    border-radius: 9999px;
+    background: rgb(var(--c-field));
+  }
+
+  .kit-range::-moz-range-progress {
+    height: 6px;
+    border-radius: 9999px;
+    background: rgb(var(--c-ink));
+  }
+
+  .kit-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    height: 24px;
+    width: 24px;
+    margin-top: -9px;
+    border-radius: 9999px;
+    background: rgb(var(--c-surface));
+    border: 2px solid rgb(var(--c-ink)); /* 13.54:1 on the wall */
+  }
+
+  .kit-range::-moz-range-thumb {
+    box-sizing: border-box;
+    height: 24px;
+    width: 24px;
+    border-radius: 9999px;
+    background: rgb(var(--c-surface));
+    border: 2px solid rgb(var(--c-ink));
+  }
+
+  .kit-range:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid rgb(var(--c-ink));
+    outline-offset: 2px;
+  }
+
+  .kit-range:focus-visible::-moz-range-thumb {
+    outline: 2px solid rgb(var(--c-ink));
+    outline-offset: 2px;
+  }
+}
+
 /* ── The wizard's phone ────────────────────────────────────────
    The pass is the promise, but the step underneath it is the work, and on a
    short screen the phone was pushing Next off the fold. So the stage gives up
