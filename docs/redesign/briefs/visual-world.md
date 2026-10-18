@@ -1,8 +1,9 @@
 # The visual world: three directions
 
 Step 1.2 of `docs/redesign/guide.md`, written 17 Oct 2026 with
-`/impeccable shape`. No code changed. Step 1.3 builds one specimen screen per
-direction, and nothing here is chosen yet.
+`/impeccable shape`. No code changed. Step 1.3 built one specimen screen per
+direction, and on 18 Oct Roee chose **Lightbox**, with three changes tried
+in the specimen. "The choice", below, records them, and §4 now carries them.
 
 The inputs: PRODUCT.md and CLAUDE.md; `docs/redesign/research.md`, whose three
 directions are the starting point; the decisions in the guide's §3; four sites
@@ -11,8 +12,9 @@ browser and measured; a live check of which Google Fonts set Hebrew; today's
 Scan screen, read in code; and Impeccable's direction roll. Two questions went
 to Roee on the way (§9).
 
-Read "In short" first. The rest is the detail.
+Read "The choice" and "In short" first. The rest is the detail.
 
+- The choice (step 1.3)
 1. In short
 2. What the four sites share, measured
 3. The family: what every direction holds
@@ -29,8 +31,64 @@ Read "In short" first. The rest is the detail.
 
 ---
 
+## The choice
+
+Step 1.3, 17–18 Oct 2026. The three directions were built as one specimen
+screen each, behind a picker on a temporary route: a landing headline with
+the pass staged, a dashboard header and one customer row, two buttons, a
+field showing its error, the owner's card, and Scan at 375px with a punched
+card and a full one, in Hebrew and English, by day and at night. The route
+is deleted.
+
+**Lightbox wins** (Roee, 18 Oct). Of the others, he liked one piece of Lock
+screen: its small wallpaper card in the dashboard, not the big one in its
+hero, and only if it were gentler. Lightbox takes three changes, now written
+into §4:
+
+1. **The owner's card stands on its own wallpaper.** In the dashboard the
+   pass sits on a wallpaper made from the card, under the message it brings
+   shown as a lock-screen notification, with the label "Roughly how it looks
+   on the lock screen". Gentler than Lock screen's: the card's own colour, a
+   lighter tone of it (30% of the way to white) and only a hint of the stamp
+   colour (28% of the way to it), blurred 44px, with no saturation boost,
+   where Lock screen mixed in the stamp colour at full strength, added a
+   white and boosted the saturation. The notification and the label are lit
+   panels. It is the customer's phone, so it looks the same at night. It
+   replaces the panel "lit in their card's colour at low strength"; the
+   landing hero keeps Lightbox's own lit panel.
+2. **Scan answers like a photo snap.** Roee asked for the scan to feel
+   "snappier, like a photo snap". A flash of the panels' warm light,
+   `#fff4e6`, covers the whole frame and clears from 0.85 to nothing in
+   220ms (from 0.6 at night). The panel is there at once under it and
+   settles from scale 1.04 in 180ms on the ease-out, cubic-bezier(0.23, 1,
+   0.32, 1). The newest stamp lands in 240ms after 60ms, from scale 1.45 on
+   the overshoot curve. The answer is complete at 300ms, where the 120ms
+   light-up and the 340ms stamp ended at 440ms. Under reduced motion: a
+   150ms fade, the flash a 0.3 glow over 150ms, no settle, the stamp at its
+   final size.
+3. **A warning is never a warm fill.** Its amber is its words and its icon,
+   on a plain panel: `#92400e` on a lit panel by day (6.98:1), `#fcd34d` on
+   an unlit one at night (11.80:1). Beside the coral, an amber wash read as
+   one family; now coral is the only warm fill on a screen.
+
+Tried in the specimen and not kept: a neutral plaster wall (`#eeedea`)
+instead of the cream, and a bigger Scan answer (a 359px frame with the panel
+6px inside it and an 80px count). Roee kept the cream wall, and §4's 343px
+frame with its 12px inset.
+
+Of §12's Lightbox checks, coral beside a warning is answered by change 3,
+and the cream was kept over the plaster wall. Reading the inset answer at
+arm's length on a real phone is still to be done. Lightbox adds no font:
+Rubik and Assistant are loaded already, so Google Sans and Heebo stay out of
+`index.html`.
+
+---
+
 ## 1. In short
 
+- **Lightbox won step 1.3** (Roee, 18 Oct), with three changes: the
+  owner's card on its own wallpaper, a Scan answer that snaps like a photo,
+  and a warning that is never a warm fill. See "The choice".
 - **Three directions, one family.** All three are light and airy with dark
   text, keep one colour for the main action, set big headlines that are
   confident but not heavy, use generous rounded shapes, and show the real
@@ -195,7 +253,7 @@ switches the sign on.
 | hairline, border-strong | `#2f2722`, `#3f352e` | |
 | a lit panel, which keeps its light | `#fff4e6` | ink 13.91, ink-muted 7.47 |
 
-**Coral's four rules.**
+**Coral's five rules.**
 
 1. Coral is a fill, never text. As text (`#ad3f19`, hue 38°, lightness 0.52)
    it sits 10° from danger (`#b91c1c`, 28°, 0.51) and would read as an error.
@@ -207,6 +265,10 @@ switches the sign on.
    1.47:1.
 4. A brand tag is a solid coral fill with ink text, never a 15% wash that
    could pass for warn.
+5. Nothing else on a screen is a warm fill. A warning's amber is its words
+   and its icon, on a plain panel: `#92400e` on a lit panel (6.98:1),
+   `#fcd34d` on an unlit one at night (11.80:1). Added in step 1.3, where an
+   amber wash beside the coral read as one family.
 
 **Type.** Rubik for display and the interface (500 for headlines, 400 and 500
 for controls), Assistant for running text (400 and 600). No family to add:
@@ -239,18 +301,25 @@ Operate is comfortable: a 16px gutter on a phone, 20–24px inside panels,
 
 **Motion: lights on.** Things arrive by light, not by travel. A panel's light
 layer fades up (opacity, 240ms, ease-out cubic-bezier(0.23, 1, 0.32, 1)) while
-the panel moves 8px at most. The stamp lands on the overshoot in 340ms. In
+the panel moves 8px at most. The stamp lands on the overshoot in 340ms. At
+the counter a scan's answer arrives as a photo snap instead, a flash of
+light (Scan at 375px, below). In
 Persuade, a pinned chapter panel after Calendly's carousel swaps its product
 piece per chapter with a 300ms crossfade, and the hero's warm light breathes
 once every 14 seconds: the only loop on the site. Activation is the one
 ceremony, the owner's card panel going from unlit to lit in 600ms, once. At
 night nothing breathes. Under reduced motion light arrives at full strength in
-150ms with no travel, the stamp appears at its final size, and the hero's
-light holds still.
+150ms with no travel, the stamp appears at its final size, the hero's light
+holds still, and a scan's flash softens to a 0.3 glow.
 
 **How it frames a pass.** In a warm lit panel. Warm light flatters warm cards
 and cools a blue one a little (research B's caveat). In the owner's own
-dashboard, the panel that stages their pass is lit in their card's colour at
+dashboard their pass stands on a wallpaper made from its own colours, under
+the message it brings shown as a lock-screen notification: the card's colour,
+a lighter tone of it (30% of the way to white) and a 28% hint of its stamp
+colour, blurred 44px, with the notification and its label as lit panels. It
+looks the same at night, being the customer's phone. Taken from Lock screen
+in step 1.3 and made gentler; it replaces a panel lit in the card's colour at
 low strength (a raise from the roll, §11).
 
 **Persuade.** The hero is one big lit panel, with the headline on the wall
@@ -286,8 +355,13 @@ ink. The icon: ink cards on coral (5.50:1).
   figures ("3/8", isolated left to right), and the stamp row. On a full card,
   the reward in Assistant 600 at 18px, "Reward given" as an ink pill with a
   cream label (14.88:1), and "Not now" as a text button.
-- **Motion:** the panel's light comes up in 120ms, and the newest stamp lands
-  on the overshoot.
+- **Motion: a photo snap** (step 1.3, in place of a 120ms light-up). A flash
+  of `#fff4e6` over the whole frame, clearing from 0.85 in 220ms (from 0.6
+  at night); the panel there at once under it, settling from scale 1.04 in
+  180ms on cubic-bezier(0.23, 1, 0.32, 1); the newest stamp landing in 240ms
+  after 60ms, from scale 1.45 on the overshoot. The answer is complete at
+  300ms. Under reduced motion: a 150ms fade, the flash a 0.3 glow, no settle,
+  the stamp still.
 - **Below the frame:** the tally as one line, and "Type the code instead" as
   a pill.
 - **At night** the page is the dark street and the viewfinder dark glass, so
@@ -302,7 +376,8 @@ ink. The icon: ink cards on coral (5.50:1).
 first, a warm cream ground with a warm accent. What keeps it out of that
 cluster is no serif, no paper texture, light instead of paper, and coral only
 ever as a fill. Coral also shares a band of hue with warn (46°) and danger
-(28°), kept apart only by lightness and by always being a solid fill. And the
+(28°), kept apart by lightness, by always being a solid fill, and since step
+1.3 by a warning never being one (rule 5). And the
 metaphor has to stay in the light: no neon tubes, no brick, no drawn
 shopfronts.
 
@@ -634,7 +709,7 @@ on the viewfinder rather than under it.
 | The answer | An inset panel lights up, the camera visible around it | A sheet rises over the lower 70% | The whole frame turns one flat colour |
 | What carries the signal | The panel's light | A 72px badge, and a gold band for a full card | The fill itself, with a 64px glyph |
 | The count | 64px Rubik | 56px Google Sans | 88px Heebo |
-| Motion | Light in 120ms; the stamp overshoots | A 300ms rise on the drawer curve | 120ms; nothing travels |
+| Motion | A photo snap: a 220ms flash, a 180ms settle, the stamp in 240ms (step 1.3; was light in 120ms) | A 300ms rise on the drawer curve | 120ms; nothing travels |
 | "Reward given" | An ink pill on gold | A violet button under the gold band | A black pill on gold |
 | Scan in the phone bar | A raised coral circle, an ink icon | A violet capsule, not raised | A raised black circle |
 | At night | The answer is the only lit thing | A dark sheet, night badges | The signal is the only light |
@@ -658,8 +733,9 @@ on the viewfinder rather than under it.
   filed under children's apps; and Frank Ruhl Libre with IBM Plex Sans
   Hebrew, because all four sites are set in sans serifs and Google Sans is
   nearer CleanShot than Plex.
-- **Not decided here:** which direction wins (step 1.3), the dashboard
-  shell's layout (Phase 2), and any copy. Lightbox's "switch the sign on" is
+- **Not decided here:** the dashboard shell's layout (Phase 2) and any
+  copy. Which direction wins was step 1.3's to decide: Lightbox (see "The
+  choice"). Lightbox's "switch the sign on" is
   a picture for activation, not new wording; any new string goes through
   `t()` in both languages, in its own phase.
 
@@ -757,6 +833,11 @@ this brief could not settle without seeing it:
 - **All three:** Hebrew display weights at real size; the pass in each hero
   at 300px, and scaled if a hero wants it bigger; whether the pass looks at
   home.
+
+What step 1.3 found is under "The choice": Lightbox won, the warning beside
+coral was answered with rule 5, the cream was kept over a plaster wall, and
+the inset answer at arm's length on a real phone is still to be checked.
+Every hero staged the pass at 300px, unscaled.
 
 ## 13. Appendix: the measurements
 
