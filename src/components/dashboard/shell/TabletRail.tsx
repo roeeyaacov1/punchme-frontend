@@ -21,7 +21,9 @@ import { ScanCircle } from "./ScanCircle";
  * the account sheet, which comes in from the end edge.
  *
  * In landscape the rail takes the start edge's safe-area inset, so nothing
- * on it sits under a phone's notch.
+ * on it sits under a phone's notch, and the top's, beside the masthead that
+ * already does. Its controls press like the bar's, without the long-press
+ * callout or a text selection.
  */
 export function TabletRail({
   frame,
@@ -46,12 +48,16 @@ export function TabletRail({
       className={cn(
         frame,
         // No scrollbar of its own: a classic one would take 15 of the rail's
-        // 88px and push "Card Studio" onto two lines. It still scrolls.
-        "flex h-dvh w-[calc(5.5rem+env(safe-area-inset-left))] flex-col overflow-y-auto border-e border-border bg-surface ps-[env(safe-area-inset-left)] text-ink [scrollbar-width:none] rtl:w-[calc(5.5rem+env(safe-area-inset-right))] rtl:ps-[env(safe-area-inset-right)]",
+        // 88px and push "Card Studio" onto two lines. It still scrolls, and
+        // reaching its end doesn't scroll the page behind it.
+        "flex h-dvh w-[calc(5.5rem+env(safe-area-inset-left))] flex-col overflow-y-auto overscroll-contain border-e border-border bg-surface ps-[env(safe-area-inset-left)] pt-[env(safe-area-inset-top)] text-ink [scrollbar-width:none] rtl:w-[calc(5.5rem+env(safe-area-inset-right))] rtl:ps-[env(safe-area-inset-right)]",
         className,
       )}
     >
-      <nav aria-label={t("dashboard.nav.label")} className="flex select-none flex-col [-webkit-touch-callout:none]">
+      <nav
+        aria-label={t("dashboard.nav.label")}
+        className="flex touch-manipulation select-none flex-col [-webkit-touch-callout:none]"
+      >
         {scan && (
           <NavLink
             to={scan.to}
@@ -93,7 +99,7 @@ export function TabletRail({
           aria-haspopup="dialog"
           aria-expanded={accountOpen}
           className={cn(
-            "flex size-14 items-center justify-center rounded-full transition-colors duration-gentle ease-out hover-fine:bg-ink/5 [-webkit-tap-highlight-color:transparent]",
+            "flex size-14 touch-manipulation select-none items-center justify-center rounded-full transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5 [-webkit-tap-highlight-color:transparent]",
             focusRing,
           )}
         >

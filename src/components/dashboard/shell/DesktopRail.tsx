@@ -42,7 +42,7 @@ export function DesktopRail({
     <div
       className={cn(
         frame,
-        "flex h-dvh w-[17rem] flex-col gap-6 overflow-y-auto border-e border-border bg-surface px-4 py-5 text-ink",
+        "flex h-dvh w-[17rem] flex-col gap-6 overflow-y-auto overscroll-contain border-e border-border bg-surface px-4 pb-5 pt-[max(1.25rem,env(safe-area-inset-top))] text-ink",
         className,
       )}
     >
@@ -56,7 +56,12 @@ export function DesktopRail({
         <Identity layout="stack" switchOn={switchOn} />
       </div>
 
-      <nav aria-label={t("dashboard.nav.label")} className="flex flex-col gap-5">
+      {/* A desk can be a touch screen too: the rows press, and a long press
+          neither opens a link's callout nor selects a word. */}
+      <nav
+        aria-label={t("dashboard.nav.label")}
+        className="flex touch-manipulation select-none flex-col gap-5 [-webkit-touch-callout:none]"
+      >
         {visibleGroups(role).map((group) => (
           <RailGroup key={group.key} group={group} />
         ))}
@@ -99,7 +104,7 @@ function RailRow({ item, label }: { item: NavItem; label: string }) {
       data-tour={`nav-${item.key}`}
       className={({ isActive }) =>
         cn(
-          "relative flex min-h-11 items-center gap-3 rounded-field px-3 font-heading text-base font-medium transition-colors duration-gentle ease-out",
+          "relative flex min-h-11 items-center gap-3 rounded-field px-3 font-heading text-base font-medium transition-colors duration-gentle ease-out active:bg-ink/[0.06] [-webkit-tap-highlight-color:transparent]",
           focusRing,
           isActive ? "text-ink" : "text-ink-muted hover-fine:bg-ink/5 hover-fine:text-ink",
         )

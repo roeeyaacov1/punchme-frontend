@@ -57,7 +57,7 @@ export const PersonRow = forwardRef<
       aria-haspopup="dialog"
       aria-expanded={expanded}
       className={cn(
-        "flex min-h-14 w-full items-center gap-3 rounded-field px-3 py-2 text-start transition-colors duration-gentle ease-out hover-fine:bg-ink/5 [-webkit-tap-highlight-color:transparent]",
+        "flex min-h-14 w-full touch-manipulation select-none items-center gap-3 rounded-field px-3 py-2 text-start transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5 [-webkit-tap-highlight-color:transparent]",
         focusRingInset,
         className,
       )}

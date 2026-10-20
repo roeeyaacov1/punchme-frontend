@@ -115,12 +115,15 @@ function Modal({
         <div
           ref={panel}
           className={cn(
-            "relative flex w-full flex-col bg-surface shadow-panel-lift",
+            "relative flex w-full touch-manipulation flex-col bg-surface shadow-panel-lift",
             sheet
               ? // On a phone the sheet's ground carries on 3rem below its
                 // edge, as a shadow so the scroller can't reach it, and a pull
-                // upward lifts more sheet rather than a gap.
-                "max-h-[90dvh] max-w-lg rounded-t-glass border border-b-0 border-border pb-[max(1.5rem,env(safe-area-inset-bottom))] max-md:shadow-[shadow:var(--shadow-panel-lift),0_3rem_0_rgb(var(--c-surface))] md:h-full md:max-h-none md:max-w-md md:rounded-none md:rounded-s-panel md:border-y-0 md:border-e-0 md:pb-6"
+                // upward lifts more sheet rather than a gap. From 768px it
+                // stands at the end edge, which on a phone in landscape is a
+                // notch's side, and over the home indicator: it takes both
+                // insets there.
+                "max-h-[90dvh] max-w-lg rounded-t-glass border border-b-0 border-border pb-[max(1.5rem,env(safe-area-inset-bottom))] max-md:shadow-[shadow:var(--shadow-panel-lift),0_3rem_0_rgb(var(--c-surface))] md:h-full md:max-h-none md:max-w-md md:rounded-none md:rounded-s-panel md:border-y-0 md:border-e-0 md:pe-[env(safe-area-inset-right)] md:rtl:pe-[env(safe-area-inset-left)]"
               : "max-w-md rounded-panel border border-border pb-6",
             panelMotion,
           )}

@@ -30,7 +30,10 @@ export interface ListRowProps {
 /**
  * A 56px row: leading, title and meta, trailing. When it does something, the
  * whole row is the one link or button, its ring drawn inside the edge so a
- * panel's rounded corner can't clip it.
+ * panel's rounded corner can't clip it. Then it is a control: it presses
+ * with the same 6% ink well as the bar, and a long press neither opens a
+ * link's callout nor selects its words. A row that does nothing keeps its
+ * text selectable.
  */
 export function ListRow({ leading, title, meta, trailing, chevron, to, current, onClick, className }: ListRowProps) {
   const content = (
@@ -45,7 +48,12 @@ export function ListRow({ leading, title, meta, trailing, chevron, to, current, 
     </>
   );
   const row = "flex min-h-14 w-full items-center gap-3 px-4 py-2";
-  const active = cn(row, "transition-colors duration-gentle ease-out hover-fine:bg-ink/5", noTapFlash, focusRingInset);
+  const active = cn(
+    row,
+    "touch-manipulation select-none transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5 [-webkit-touch-callout:none]",
+    noTapFlash,
+    focusRingInset,
+  );
   return (
     <li className={className}>
       {to !== undefined ? (
