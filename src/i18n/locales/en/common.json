@@ -581,7 +581,8 @@
     },
     "plan": {
       "free": "Free",
-      "pro": "Pro"
+      "pro": "Pro",
+      "notLive": "Not live yet"
     },
     "brief": {
       "title": "The last {{days}} days",
