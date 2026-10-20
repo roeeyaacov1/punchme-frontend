@@ -1,20 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../../auth/useAuth";
 import { useBusiness } from "../../business/useBusiness";
-import { listTemplates } from "../../api/businesses";
 import { focusRing } from "../../components/kit";
-import { CardChip } from "../../components/dashboard/CardChip";
 import { SidebarNav } from "../../components/dashboard/DashboardNav";
 import { inMore, moreGroups } from "../../components/dashboard/navigation";
-import { Tag } from "../../components/dashboard/primitives";
 import { DashboardTour } from "../../components/tour/DashboardTour";
 import { AccountSheet } from "../../components/dashboard/shell/AccountSheet";
+import { Identity } from "../../components/dashboard/shell/Identity";
+import { Masthead } from "../../components/dashboard/shell/Masthead";
 import { MoreSheet } from "../../components/dashboard/shell/MoreSheet";
 import { PersonRow } from "../../components/dashboard/shell/Person";
 import { PhoneBar } from "../../components/dashboard/shell/PhoneBar";
+import { hasSwitchedOn, rememberSwitchedOn } from "../../components/dashboard/shell/switchedOn";
 import { useShellViewport } from "../../components/dashboard/shell/useShellViewport";
 import { useDashboardTheme } from "../../theme/useDashboardTheme";
 import { cn } from "../../lib/cn";
@@ -93,36 +92,19 @@ export function DashboardLayout() {
     navigate("/login", { replace: true });
   };
 
-  // The card's real colours for the chip. Same query and same key as the
-  // overview, the studio and the standee, so this is a cache read on every
-  // page but the first.
-  const { data: templates } = useQuery({
-    queryKey: ["templates", business?.id],
-    queryFn: () => listTemplates(business!.id!),
-    enabled: !!business?.id,
-  });
-  const template = templates?.[0];
-
-  const name = business?.name ?? "";
-  const hasMore = moreGroups(role).length > 0;
-
-  const identity = (
-    <div className="flex min-w-0 items-center gap-2.5">
-      <CardChip
-        name={name}
-        backgroundColor={template?.background_color}
-        foregroundColor={template?.foreground_color}
-      />
-      <span className="min-w-0 flex-1">
-        <span className="block truncate font-heading text-sm font-bold text-ink">
-          {name}
-        </span>
-        <span className="block text-xs text-ink-subtle">
-          {isPro ? t("dashboard.plan.pro") : t("dashboard.plan.free")}
-        </span>
-      </span>
-    </div>
+  // The day the sign switches on: /billing/success brings the owner here
+  // with ?activated=1 once the plan has turned Pro. Decided once, as the
+  // shell mounts, and remembered per business, because the Overview keeps
+  // the parameter in the URL and a reload must not play the moment again.
+  const [searchParams] = useSearchParams();
+  const [switchOn] = useState(
+    () => isPro && searchParams.get("activated") === "1" && !hasSwitchedOn(business?.id),
   );
+  useEffect(() => {
+    if (switchOn) rememberSwitchedOn(business?.id);
+  }, [switchOn, business?.id]);
+
+  const hasMore = moreGroups(role).length > 0;
 
   return (
     <div className="min-h-screen bg-background text-ink">
@@ -151,7 +133,9 @@ export function DashboardLayout() {
                 >
                   <img src={logo} alt={t("app.name")} className="logo-mark h-7 w-auto" />
                 </Link>
-                {identity}
+                <div className={frame}>
+                  <Identity layout="stack" switchOn={switchOn} />
+                </div>
               </div>
             }
             footer={
@@ -166,17 +150,9 @@ export function DashboardLayout() {
         </aside>
 
         <div className="flex min-h-screen flex-col">
-          {/* The phone's masthead is identity only — every page carries its
-              own <h1> a few pixels below it, and repeating the title here
-              would just cost a line of a small screen. */}
-          <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
-            {identity}
-            {isPro && (
-              <Tag tone="accent" className="ms-auto">
-                {t("dashboard.plan.pro")}
-              </Tag>
-            )}
-          </header>
+          {/* Under 1024px for now, beside the old rail's own head, until the
+              new rails take 768 and up. */}
+          <Masthead frame={frame} switchOn={switchOn} className="lg:hidden" />
 
           {/* The page area takes focus itself (tabIndex -1) when a sheet
               closes because a row in it went somewhere. */}
