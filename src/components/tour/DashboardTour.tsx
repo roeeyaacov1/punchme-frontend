@@ -248,15 +248,24 @@ function Walk({
     onClose(away);
   }, [location.pathname, navigate, onClose]);
 
+  /** Whether the last move was a step forward, which presses a stamp. */
+  const forward = useRef(false);
+  /** The stop whose stamp has landed: set as its card first arrives after a
+   * step forward, so the stamp is pressed as the light comes up, and only
+   * once however often the card arrives at that stop. */
+  const [landed, setLanded] = useState<number | null>(null);
+
   // The lit element and its box go in the same update as the stop, or the
   // next stop's words are drawn for a frame over the last stop's hole.
   const go = useCallback(
     (move: number) => {
       const next = Math.min(steps.length - 1, Math.max(0, index + move));
       if (next === index) return;
+      forward.current = move > 0;
       setIndex(next);
       setTarget(null);
       setBox(null);
+      setLanded(null);
     },
     [index, steps.length],
   );
@@ -439,6 +448,7 @@ function Walk({
       // card's style was taken in between.
       void card.current?.offsetHeight;
       setArrived(arrival);
+      if (forward.current) setLanded(index);
     };
     if (lit) {
       arrive();
@@ -446,7 +456,7 @@ function Walk({
     }
     const timer = window.setTimeout(arrive, ARRIVE_WAIT_MS);
     return () => window.clearTimeout(timer);
-  }, [arrival, arrived, lit, leaving]);
+  }, [arrival, arrived, lit, leaving, index]);
   const here = arrived === arrival;
 
   // ---- keyboard, focus, and the lock --------------------------------------
@@ -676,8 +686,15 @@ function Walk({
         <div className="flex items-center justify-between gap-3 border-t border-border pt-3">
           {/* The card filling up, which is the one form this product already
               means something by. Decorative — the line above says it in
-              words. */}
-          <StampRow total={steps.length} filled={index + 1} className="max-w-[8.5rem] justify-start" />
+              words. Each step forward presses its stamp with the product's
+              one gesture, the kit's landing on the overshoot; a step back
+              just takes it off. */}
+          <StampRow
+            total={steps.length}
+            filled={index + 1}
+            land={landed === index ? "stamp" : undefined}
+            className="max-w-[8.5rem] justify-start"
+          />
 
           <div className="flex items-center gap-2">
             {index > 0 && (
