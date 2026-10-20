@@ -14,9 +14,10 @@ import { useCallback, useEffect, useLayoutEffect, useState } from "react";
  *   `theme-night` after dark. `color-scheme` has to be there for the native
  *   selects, scrollbars and the caret to agree with the page, and the ground
  *   has to be there or a short page shows white under the iOS bounce. Every
- *   page still waiting for its phase renders exactly as it did. The classes
- *   are removed on unmount, which is what keeps the landing page light after
- *   the owner signs out.
+ *   page still waiting for its phase renders exactly as it did; a page that
+ *   has moved claims Lightbox for <html> instead (`lightboxPage.ts`). The
+ *   classes are removed on unmount, which is what keeps the landing page
+ *   light after the owner signs out.
  * - **The frame wears Lightbox on its own elements**: the masthead, the bar,
  *   the rails, the sheets, the toasts and the tour each carry `frame`. The
  *   night rule is a compound class, so `theme-night` goes on the same element
@@ -75,7 +76,12 @@ export interface DashboardTheme {
   frame: string;
 }
 
-export function useDashboardTheme(): DashboardTheme {
+/**
+ * `lightbox`: a page that has moved to Lightbox is on screen (see
+ * `lightboxPage.ts`), so <html> wears `theme-lightbox` in place of the old
+ * pair, with `theme-night` beside it after dark as before.
+ */
+export function useDashboardTheme({ lightbox = false }: { lightbox?: boolean } = {}): DashboardTheme {
   const [mode, setModeState] = useState<ThemeMode>(storedMode);
   const [prefersDark, setPrefersDark] = useState(systemPrefersDark);
 
@@ -96,7 +102,8 @@ export function useDashboardTheme(): DashboardTheme {
   // in index.html covers the gap before React mounts at all.
   useLayoutEffect(() => {
     const root = document.documentElement;
-    root.classList.add(...THEME_CLASSES);
+    if (lightbox) root.classList.add(FRAME_CLASS);
+    else root.classList.add(...THEME_CLASSES);
     root.classList.toggle(NIGHT_CLASS, isDark);
 
     // Installed on a phone, the dashboard owns the status bar behind it, and
@@ -126,10 +133,10 @@ export function useDashboardTheme(): DashboardTheme {
     if (ground) meta.content = ground;
 
     return () => {
-      root.classList.remove(...THEME_CLASSES, NIGHT_CLASS);
+      root.classList.remove(...THEME_CLASSES, FRAME_CLASS, NIGHT_CLASS);
       meta?.remove();
     };
-  }, [isDark, frame]);
+  }, [isDark, frame, lightbox]);
 
   const setMode = useCallback((next: ThemeMode) => {
     setModeState(next);

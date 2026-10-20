@@ -1,8 +1,6 @@
-import { Link, Outlet } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { Outlet } from "react-router-dom";
 import type { Role } from "../api/team";
-import { ctaClasses } from "../components/marketing/primitives";
-import { Panel, PanelHeader } from "../components/dashboard/primitives";
+import { RoleLoading, RoleRefusal } from "../components/dashboard/shell/RoleRefusal";
 import { atLeast } from "./gating";
 import { useBusiness } from "./useBusiness";
 
@@ -15,32 +13,14 @@ import { useBusiness } from "./useBusiness";
  * `RequireStaff` does: a silent bounce back to the overview is
  * indistinguishable from a broken link, which is how it gets reported. It
  * renders inside the dashboard shell — the person is signed in and in the
- * right place, they just aren't the owner — so this is a panel, not a
- * full-screen block.
+ * right place, they just can't open this page — so it is a panel in the
+ * page area, not a full-screen block, and the page it guards makes none of
+ * its calls.
  */
 export function RequireRole({ minimum }: { minimum: Role }) {
-  const { t } = useTranslation();
   const { role, isLoading } = useBusiness();
 
-  if (isLoading) {
-    return (
-      <p className="font-mono text-sm text-ink-subtle">{t("auth.loadingSession")}</p>
-    );
-  }
-
-  if (!atLeast(role, minimum)) {
-    return (
-      <Panel className="p-5 sm:p-6">
-        <PanelHeader
-          title={t("team.denied.title")}
-          hint={t(`team.denied.${minimum}`)}
-        />
-        <Link to="/dashboard" className={ctaClasses("secondary", "sm", "mt-4")}>
-          {t("team.denied.back")}
-        </Link>
-      </Panel>
-    );
-  }
-
+  if (isLoading) return <RoleLoading />;
+  if (!atLeast(role, minimum)) return <RoleRefusal minimum={minimum} />;
   return <Outlet />;
 }
