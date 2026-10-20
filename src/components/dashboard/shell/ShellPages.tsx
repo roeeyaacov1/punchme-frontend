@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Button, EmptyState, LinkButton } from "../../kit";
 import { useLightboxPage } from "../../../theme/lightboxPage";
+import { usePageTitle } from "./pageTitle";
 
 /**
  * No page here: an address under /dashboard that names no page, an old link
@@ -11,6 +12,7 @@ import { useLightboxPage } from "../../../theme/lightboxPage";
 export function DashboardNotFound() {
   const { t } = useTranslation();
   useLightboxPage();
+  usePageTitle(t("dashboard.notFound.title"));
   return (
     <EmptyState
       titleAs="h1"
@@ -35,6 +37,7 @@ export function DashboardNotFound() {
 export function DashboardPageError() {
   const { t } = useTranslation();
   useLightboxPage();
+  usePageTitle(t("dashboard.pageError.title"));
   return (
     <EmptyState
       titleAs="h1"

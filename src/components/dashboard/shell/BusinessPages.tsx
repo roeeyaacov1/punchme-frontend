@@ -43,6 +43,15 @@ export function BusinessLoadFailed() {
   const { refetch, isFetching } = useBusiness();
   const signOut = useSignOut();
   useDashboardTheme({ lightbox: true });
+  // Outside the shell, so it names itself; the heading already says PunchMe.
+  const title = t("dashboard.loadFailed.title");
+  useEffect(() => {
+    const previous = document.title;
+    document.title = title;
+    return () => {
+      document.title = previous;
+    };
+  }, [title]);
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background p-4 text-ink">
       <LitPanel as="section" className="flex w-full max-w-md flex-col items-center gap-3 px-6 py-10 text-center">

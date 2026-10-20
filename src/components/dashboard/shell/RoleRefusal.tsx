@@ -7,6 +7,7 @@ import { useBusiness } from "../../../business/useBusiness";
 import { LinkButton, LitPanel, Loading, Skeleton } from "../../kit";
 import { useLightboxPage } from "../../../theme/lightboxPage";
 import { pageFor } from "../navigation";
+import { usePageTitle } from "./pageTitle";
 import { personName } from "./personName";
 
 /**
@@ -24,6 +25,7 @@ export function RoleRefusal({ minimum }: { minimum: Role }) {
   const { user } = useAuth();
   const { role } = useBusiness();
   useLightboxPage();
+  usePageTitle(t("team.denied.title"));
   const page = pageFor(pathname);
 
   return (
