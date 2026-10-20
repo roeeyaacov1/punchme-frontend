@@ -284,7 +284,7 @@ Lightbox sits close to the warm cream look AI tools reach for first, and it stay
 A warm wall, lit acrylic and soft ink, with one coral fill and a set of lights that keep their glow after dark.
 
 ### Primary
-- **Sign Coral** (#f67748, hover #f2683a; at night #ff8a5c, hover #ff9e78): the sign's one warm colour. It fills the main action (one per screen), a brand tag, and the raised Scan button in the phone bar, and nothing else. It carries Soft Ink: 5.50:1, 4.90:1 on hover; at night it carries #1a120d at 7.95:1 and 9.16:1. As an edge it measures 2.45:1 on the wall and 2.70:1 on a panel, which a control's own label makes up for.
+- **Sign Coral** (#f67748, hover #f2683a; at night #ff8a5c, hover #ff9e78): the sign's one warm colour. It fills the main action (one per screen), a brand tag, the raised Scan button in the phone bar and the Scan circle at the head of the tablet's rail, and nothing else. It carries Soft Ink: 5.50:1, 4.90:1 on hover; at night it carries #1a120d at 7.95:1 and 9.16:1. As an edge it measures 2.45:1 on the wall and 2.70:1 on a panel, which a control's own label makes up for.
 
 ### Neutral
 - **Warm Wall** (#f6f2eb): the page. Never pure white; the warmth is the room the sign hangs in.

@@ -1,0 +1,145 @@
+import { Fragment, type Ref } from "react";
+import { useTranslation } from "react-i18next";
+import { NavLink } from "react-router-dom";
+import { useBusiness } from "../../../business/useBusiness";
+import { focusRing, focusRingInset } from "../../kit";
+import { cn } from "../../../lib/cn";
+import { visibleGroups, type NavItem } from "../navigation";
+import { PersonLine, PersonMark } from "./Person";
+import { ScanCircle } from "./ScanCircle";
+
+/**
+ * The tablet's rail, from 768 to 1279px: 88px at the start edge, the
+ * screen's full height, lit acrylic with a hairline at its end edge. It
+ * scrolls on its own when a landscape tablet is too short for it.
+ *
+ * Top to bottom: the Scan circle with its word, the same as the phone's,
+ * because a tablet on the counter does the phone's job; the other counter
+ * pages; then, past a hairline each, what customers see and the business,
+ * for whoever can open them. No group headings: there is no room for them,
+ * and every entry carries its word. The person's initial at the foot opens
+ * the account sheet, which comes in from the end edge.
+ *
+ * In landscape the rail takes the start edge's safe-area inset, so nothing
+ * on it sits under a phone's notch.
+ */
+export function TabletRail({
+  frame,
+  accountOpen,
+  onAccount,
+  personRef,
+  className,
+}: {
+  frame: string;
+  accountOpen: boolean;
+  onAccount: () => void;
+  personRef?: Ref<HTMLButtonElement>;
+  className?: string;
+}) {
+  const { t } = useTranslation();
+  const { role } = useBusiness();
+  const groups = visibleGroups(role);
+  const scan = groups[0]?.items.find((item) => item.key === "scan");
+
+  return (
+    <div
+      className={cn(
+        frame,
+        // No scrollbar of its own: a classic one would take 15 of the rail's
+        // 88px and push "Card Studio" onto two lines. It still scrolls.
+        "flex h-dvh w-[calc(5.5rem+env(safe-area-inset-left))] flex-col overflow-y-auto border-e border-border bg-surface ps-[env(safe-area-inset-left)] text-ink [scrollbar-width:none] rtl:w-[calc(5.5rem+env(safe-area-inset-right))] rtl:ps-[env(safe-area-inset-right)]",
+        className,
+      )}
+    >
+      <nav aria-label={t("dashboard.nav.label")} className="flex select-none flex-col [-webkit-touch-callout:none]">
+        {scan && (
+          <NavLink
+            to={scan.to}
+            end={scan.end}
+            data-tour={`nav-${scan.key}`}
+            className={({ isActive }) =>
+              cn(
+                "group relative flex flex-col items-center gap-1 px-1 pb-2 pt-4 outline-none [-webkit-tap-highlight-color:transparent]",
+                isActive ? "text-ink" : "text-ink-muted hover-fine:text-ink",
+              )
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <StartRule on={isActive} />
+                <ScanCircle />
+                <span className="type-tag w-full text-center">{t(`dashboard.nav.${scan.key}`)}</span>
+              </>
+            )}
+          </NavLink>
+        )}
+        {groups.map((group, index) => (
+          <Fragment key={group.key}>
+            {index > 0 && <hr className="mx-4 my-2 border-border" />}
+            {group.items
+              .filter((item) => item.key !== "scan")
+              .map((item) => (
+                <RailEntry key={item.key} item={item} label={t(`dashboard.nav.${item.key}`)} />
+              ))}
+          </Fragment>
+        ))}
+      </nav>
+
+      <div className="mt-auto flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
+        <button
+          ref={personRef}
+          type="button"
+          onClick={onAccount}
+          aria-haspopup="dialog"
+          aria-expanded={accountOpen}
+          className={cn(
+            "flex size-14 items-center justify-center rounded-full transition-colors duration-gentle ease-out hover-fine:bg-ink/5 [-webkit-tap-highlight-color:transparent]",
+            focusRing,
+          )}
+        >
+          <PersonMark className="size-10" />
+          <span className="sr-only">
+            {t("dashboard.groups.account")} · <PersonLine />
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** An icon over its word, 56px tall at least: a long word, such as "Customer
+ * messages", takes a second line rather than being cut. */
+function RailEntry({ item, label }: { item: NavItem; label: string }) {
+  return (
+    <NavLink
+      to={item.to}
+      end={item.end}
+      data-tour={`nav-${item.key}`}
+      className={({ isActive }) =>
+        cn(
+          "relative flex min-h-14 w-full flex-col items-center justify-center gap-1 px-1 py-2 text-center transition-colors duration-press ease-out active:bg-ink/[0.06] [-webkit-tap-highlight-color:transparent]",
+          focusRingInset,
+          isActive ? "text-ink" : "text-ink-muted hover-fine:text-ink",
+        )
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <StartRule on={isActive} />
+          <item.Icon aria-hidden className="size-6" strokeWidth={isActive ? 2.25 : 1.75} />
+          <span className="type-tag line-clamp-2 w-full break-words">{label}</span>
+        </>
+      )}
+    </NavLink>
+  );
+}
+
+/** The current entry's 2px ink rule at the rail's start edge, lit at once. */
+function StartRule({ on }: { on: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={cn("absolute inset-y-3 start-0 w-0.5 rounded-e-full bg-ink", !on && "opacity-0")}
+    />
+  );
+}

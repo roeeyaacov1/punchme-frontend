@@ -13,6 +13,7 @@ import { Masthead } from "../../components/dashboard/shell/Masthead";
 import { MoreSheet } from "../../components/dashboard/shell/MoreSheet";
 import { PersonRow } from "../../components/dashboard/shell/Person";
 import { PhoneBar } from "../../components/dashboard/shell/PhoneBar";
+import { TabletRail } from "../../components/dashboard/shell/TabletRail";
 import { hasSwitchedOn, rememberSwitchedOn } from "../../components/dashboard/shell/switchedOn";
 import { useShellViewport } from "../../components/dashboard/shell/useShellViewport";
 import { useDashboardTheme } from "../../theme/useDashboardTheme";
@@ -119,8 +120,18 @@ export function DashboardLayout() {
         {t("landing.nav.skipToContent")}
       </a>
 
-      <div className="lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
-        <aside className="sticky top-0 hidden h-screen lg:block">
+      {/* Three widths: the bar under 768px, the tablet's compact rail from
+          768 to 1279, and the full rail from 1280. The rail's column is as
+          wide as whichever rail is showing, its safe-area inset included. */}
+      <div className="md:grid md:grid-cols-[auto_minmax(0,1fr)]">
+        <aside className="sticky top-0 hidden h-dvh md:block xl:hidden">
+          <TabletRail
+            frame={frame}
+            accountOpen={sheet === "account"}
+            onAccount={() => openSheet("account")}
+          />
+        </aside>
+        <aside className="sticky top-0 hidden h-screen w-[17rem] xl:block">
           <SidebarNav
             header={
               <div className="flex flex-col gap-4">
@@ -149,10 +160,12 @@ export function DashboardLayout() {
           />
         </aside>
 
-        <div className="flex min-h-screen flex-col">
-          {/* Under 1024px for now, beside the old rail's own head, until the
-              new rails take 768 and up. */}
-          <Masthead frame={frame} switchOn={switchOn} className="lg:hidden" />
+        {/* In landscape the rail takes the start edge's safe-area inset and
+            this column the end edge's, so neither runs under a notch. */}
+        <div className="flex min-h-dvh min-w-0 flex-col pe-[env(safe-area-inset-right)] rtl:pe-[env(safe-area-inset-left)]">
+          {/* Under 1280px: beside the tablet's rail, and over the phone's
+              page. The full rail carries the shop's name itself. */}
+          <Masthead frame={frame} switchOn={switchOn} className="xl:hidden" />
 
           {/* The page area takes focus itself (tabIndex -1) when a sheet
               closes because a row in it went somewhere. */}
@@ -160,7 +173,7 @@ export function DashboardLayout() {
             ref={main}
             id="dashboard-main"
             tabIndex={-1}
-            className="flex-1 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-5 outline-none sm:px-6 lg:px-8 lg:pb-12 lg:pt-8"
+            className="flex-1 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-5 outline-none sm:px-6 md:pb-12 lg:px-8 lg:pt-8"
           >
             <div className="mx-auto w-full max-w-5xl">
               <Outlet />
@@ -172,8 +185,6 @@ export function DashboardLayout() {
       {/* Over everything, and only on a first arrival — see DashboardTour. */}
       <DashboardTour replay={tourAsks} />
 
-      {/* Under 1024px for now, as the old bar was, until the tablet's rail
-          takes 768 to 1279. */}
       <PhoneBar
         frame={frame}
         fifth={hasMore ? "more" : "account"}
@@ -181,7 +192,7 @@ export function DashboardLayout() {
         fifthOpen={sheet === (hasMore ? "more" : "account")}
         fifthLit={inMore(location.pathname, role)}
         onFifth={() => openSheet(hasMore ? "more" : "account")}
-        className="lg:hidden"
+        className="md:hidden"
       />
 
       {/* The sheets render where they are written, so this keeps them in the
