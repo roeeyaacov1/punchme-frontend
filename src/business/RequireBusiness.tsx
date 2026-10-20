@@ -1,22 +1,22 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import {
+  BusinessLoadFailed,
+  BusinessLoading,
+  SessionEnded,
+} from "../components/dashboard/shell/BusinessPages";
 import { useBusiness } from "./useBusiness";
 
+/**
+ * The business behind every dashboard page. Onboarding only for an account
+ * that has none (a 404): a 500, or no connection, says so and offers to try
+ * again instead of sending a live shop back to the wizard.
+ */
 export function RequireBusiness() {
-  const { t } = useTranslation();
-  const { isLoading, hasBusiness } = useBusiness();
+  const { status } = useBusiness();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-slate font-mono text-sm">
-        {t("auth.loadingSession")}
-      </div>
-    );
-  }
-
-  if (!hasBusiness) {
-    return <Navigate to="/onboarding" replace />;
-  }
-
+  if (status === "loading") return <BusinessLoading />;
+  if (status === "none") return <Navigate to="/onboarding" replace />;
+  if (status === "signedOut") return <SessionEnded />;
+  if (status === "failed") return <BusinessLoadFailed />;
   return <Outlet />;
 }

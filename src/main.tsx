@@ -32,6 +32,10 @@ import { InvitePage } from "./routes/invite/InvitePage";
 import { CardStatusPage } from "./routes/public/CardStatusPage";
 import { PublicCardPage } from "./routes/public/PublicCardPage";
 import { DashboardLayout } from "./routes/dashboard/DashboardLayout";
+import {
+  DashboardNotFound,
+  DashboardPageError,
+} from "./components/dashboard/shell/ShellPages";
 import { DashboardOverview } from "./routes/dashboard/DashboardOverview";
 import { ScanPage } from "./routes/dashboard/ScanPage";
 import { DesignPage } from "./routes/dashboard/DesignPage";
@@ -135,40 +139,52 @@ const router = createBrowserRouter([
                     path: "dashboard",
                     element: <DashboardLayout />,
                     children: [
-                      // The counter — everyone on the team, staff included.
-                      { index: true, element: <DashboardOverview /> },
-                      { path: "scan", element: <ScanPage /> },
-                      { path: "customers", element: <CustomersPage /> },
-                      { path: "activity", element: <ActivityPage /> },
                       {
-                        // Anything that changes what customers see. The nav
-                        // already hides these from a hire; this is what
-                        // answers when one types the URL anyway — and it
-                        // says so, rather than bouncing them somewhere and
-                        // looking like a broken link.
-                        element: <RequireRole minimum="manager" />,
+                        // Between the shell and the pages, so a page that
+                        // throws shows inside the shell, with the bar or the
+                        // rail still there.
+                        errorElement: <DashboardPageError />,
                         children: [
-                          { path: "design", element: <DesignPage /> },
-                          { path: "standee", element: <StandeePage /> },
-                          { path: "messages", element: <MessagesPage /> },
-                          { path: "messages/new", element: <BroadcastComposerPage /> },
+                          // The counter — everyone on the team, staff included.
+                          { index: true, element: <DashboardOverview /> },
+                          { path: "scan", element: <ScanPage /> },
+                          { path: "customers", element: <CustomersPage /> },
+                          { path: "activity", element: <ActivityPage /> },
                           {
-                            path: "messages/automations/new",
-                            element: <AutomationEditorPage />,
+                            // Anything that changes what customers see. The nav
+                            // already hides these from a hire; this is what
+                            // answers when one types the URL anyway — and it
+                            // says so, rather than bouncing them somewhere and
+                            // looking like a broken link.
+                            element: <RequireRole minimum="manager" />,
+                            children: [
+                              { path: "design", element: <DesignPage /> },
+                              { path: "standee", element: <StandeePage /> },
+                              { path: "messages", element: <MessagesPage /> },
+                              { path: "messages/new", element: <BroadcastComposerPage /> },
+                              {
+                                path: "messages/automations/new",
+                                element: <AutomationEditorPage />,
+                              },
+                              {
+                                path: "messages/automations/:automationId",
+                                element: <AutomationEditorPage />,
+                              },
+                              { path: "referrals", element: <ReferralsPage /> },
+                            ],
                           },
                           {
-                            path: "messages/automations/:automationId",
-                            element: <AutomationEditorPage />,
+                            // Money and the team.
+                            element: <RequireRole minimum="owner" />,
+                            children: [
+                              { path: "team", element: <TeamPage /> },
+                              { path: "billing", element: <BillingSettingsPage /> },
+                            ],
                           },
-                          { path: "referrals", element: <ReferralsPage /> },
-                        ],
-                      },
-                      {
-                        // Money and the team.
-                        element: <RequireRole minimum="owner" />,
-                        children: [
-                          { path: "team", element: <TeamPage /> },
-                          { path: "billing", element: <BillingSettingsPage /> },
+                          // No page here: an old or mistyped link, said
+                          // inside the shell rather than on the router's
+                          // English developer page.
+                          { path: "*", element: <DashboardNotFound /> },
                         ],
                       },
                     ],

@@ -844,6 +844,18 @@
     },
     "close": "Close",
     "toOverview": "To the Overview",
+    "notFound": {
+      "title": "There's no page here",
+      "body": "The link may be old or mistyped."
+    },
+    "pageError": {
+      "title": "This page didn't load",
+      "body": "Try again, or go back to the Overview."
+    },
+    "loadFailed": {
+      "title": "We couldn't reach PunchMe",
+      "body": "Check the connection and try again."
+    },
     "week": {
       "title": "This week",
       "stamps_one": "stamp",
