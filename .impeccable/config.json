@@ -26,6 +26,12 @@
         "value": "cubic-bezier(0.34, 1.4, 0.64, 1)",
         "createdAt": "2026-10-18T16:43:04.840Z",
         "reason": "User confirmed: the step 1.4 prompt names it as the stamp's overshoot, the product's one gesture (docs/redesign/briefs/visual-world.md §3)"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "roboto",
+        "createdAt": "2026-10-20T15:36:06.724Z",
+        "reason": "CLAUDE.md: Roboto stays for the Google Wallet preview and never sets running text; step A's critique (docs/redesign/briefs/dashboard-shell.md §3) marked this finding a false positive"
       }
     ]
   }
