@@ -89,7 +89,7 @@ const STEPS: readonly Entry[] = [
   {
     key: "join",
     Icon: Printer,
-    group: "setup",
+    group: "facing",
     nav: "standee",
     to: "/dashboard/standee",
     anchor: "standee-sheet",
@@ -100,7 +100,7 @@ const STEPS: readonly Entry[] = [
   {
     key: "design",
     Icon: Palette,
-    group: "setup",
+    group: "facing",
     nav: "design",
     to: "/dashboard/design",
     anchor: "design-studio",
@@ -112,7 +112,7 @@ const STEPS: readonly Entry[] = [
   {
     key: "activate",
     Icon: CreditCard,
-    group: "setup",
+    group: "business",
     nav: "billing",
     to: "/dashboard/billing",
     anchor: "billing-activate",

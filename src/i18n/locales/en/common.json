@@ -825,6 +825,8 @@
     },
     "groups": {
       "counter": "Counter",
+      "facing": "What customers see",
+      "business": "The business",
       "setup": "Setup",
       "account": "Account",
       "marketing": "Marketing"
