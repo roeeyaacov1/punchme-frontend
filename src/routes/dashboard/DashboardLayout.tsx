@@ -1,24 +1,21 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../auth/useAuth";
 import { useBusiness } from "../../business/useBusiness";
 import { focusRing } from "../../components/kit";
-import { SidebarNav } from "../../components/dashboard/DashboardNav";
 import { inMore, moreGroups } from "../../components/dashboard/navigation";
 import { DashboardTour } from "../../components/tour/DashboardTour";
 import { AccountSheet } from "../../components/dashboard/shell/AccountSheet";
-import { Identity } from "../../components/dashboard/shell/Identity";
+import { DesktopRail } from "../../components/dashboard/shell/DesktopRail";
 import { Masthead } from "../../components/dashboard/shell/Masthead";
 import { MoreSheet } from "../../components/dashboard/shell/MoreSheet";
-import { PersonRow } from "../../components/dashboard/shell/Person";
 import { PhoneBar } from "../../components/dashboard/shell/PhoneBar";
 import { TabletRail } from "../../components/dashboard/shell/TabletRail";
 import { hasSwitchedOn, rememberSwitchedOn } from "../../components/dashboard/shell/switchedOn";
 import { useShellViewport } from "../../components/dashboard/shell/useShellViewport";
 import { useDashboardTheme } from "../../theme/useDashboardTheme";
 import { cn } from "../../lib/cn";
-import logo from "../../assets/logo.png";
 
 type OpenSheet = "more" | "account" | null;
 
@@ -131,32 +128,12 @@ export function DashboardLayout() {
             onAccount={() => openSheet("account")}
           />
         </aside>
-        <aside className="sticky top-0 hidden h-screen w-[17rem] xl:block">
-          <SidebarNav
-            header={
-              <div className="flex flex-col gap-4">
-                <Link
-                  to="/"
-                  className={cn(
-                    "inline-flex min-h-[44px] w-fit items-center rounded-lg",
-                    focusRing,
-                  )}
-                >
-                  <img src={logo} alt={t("app.name")} className="logo-mark h-7 w-auto" />
-                </Link>
-                <div className={frame}>
-                  <Identity layout="stack" switchOn={switchOn} />
-                </div>
-              </div>
-            }
-            footer={
-              <div className={frame}>
-                <PersonRow
-                  onClick={() => openSheet("account")}
-                  expanded={sheet === "account"}
-                />
-              </div>
-            }
+        <aside className="sticky top-0 hidden h-dvh xl:block">
+          <DesktopRail
+            frame={frame}
+            switchOn={switchOn}
+            accountOpen={sheet === "account"}
+            onAccount={() => openSheet("account")}
           />
         </aside>
 
