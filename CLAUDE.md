@@ -25,8 +25,8 @@ honesty costs more than any conversion it buys.
 
 The same goes for what the product does. Sends are capped, so nothing is
 "unlimited". Joining takes a mobile number and an SMS code, so the promise is
-no app, no account, no password, never "no signup" (the standee and the
-dashboard tour still say it). A quote goes on the page only when a real
+no app, no account, no password, never "no signup" (the standee still says
+it, until Phase 6). A quote goes on the page only when a real
 customer said it and agreed to its use, and a figure only with a source in
 `src/components/marketing/sources.ts`. One line on the landing page is still
 wrong: the FAQ's "message us" doesn't say how, because no page carries the
