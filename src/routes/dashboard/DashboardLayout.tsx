@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../../auth/useAuth";
 import { useBusiness } from "../../business/useBusiness";
 import { listTemplates } from "../../api/businesses";
-import { focusRing } from "../../components/marketing/primitives";
+import { focusRing } from "../../components/kit";
 import { AccountControls } from "../../components/dashboard/AccountControls";
 import { CardChip } from "../../components/dashboard/CardChip";
 import {
@@ -17,6 +17,7 @@ import {
 } from "../../components/dashboard/DashboardNav";
 import { Tag } from "../../components/dashboard/primitives";
 import { DashboardTour } from "../../components/tour/DashboardTour";
+import { useShellViewport } from "../../components/dashboard/shell/useShellViewport";
 import { useDashboardTheme } from "../../theme/useDashboardTheme";
 import { cn } from "../../lib/cn";
 import logo from "../../assets/logo.png";
@@ -31,14 +32,17 @@ import logo from "../../assets/logo.png";
  * their name on it and the dashboard used to hand them a generic white app
  * the moment they finished.
  *
- * Dark is decided here too — on <html>, so the ground survives overscroll
- * and the native controls agree with it. See `useDashboardTheme`.
+ * Dark is decided here too — on <html> for the pages, so the ground survives
+ * overscroll and the native controls agree with it, and as `frame` for the
+ * frame's own elements, which wear Lightbox ahead of the pages. See
+ * `useDashboardTheme`.
  */
 export function DashboardLayout() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const { business, isPro } = useBusiness();
-  const { mode, setMode } = useDashboardTheme();
+  const { mode, setMode, frame } = useDashboardTheme();
+  useShellViewport();
   const location = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
   // Bumped by the account menu's "show the tour again". A counter rather
@@ -101,7 +105,8 @@ export function DashboardLayout() {
       <a
         href="#dashboard-main"
         className={cn(
-          "sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2 focus:text-sm focus:font-semibold",
+          frame,
+          "sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:inline-flex focus:min-h-11 focus:items-center focus:rounded-full focus:border focus:border-border-strong focus:bg-surface focus:px-5 focus:font-heading focus:text-base focus:font-medium focus:text-ink focus:shadow-panel-lift",
           focusRing,
         )}
       >

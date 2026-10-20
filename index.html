@@ -72,10 +72,19 @@
          a white page flashing first on a hard load. So the ground is decided
          here, before the first paint, from the same key and the same class
          names src/theme/useDashboardTheme.ts uses — keep the two in step.
-         Every other route is light and gets nothing. -->
+         Every other route is light and gets nothing.
+
+         The dashboard also runs edge to edge on a phone (viewport-fit=cover),
+         which useShellViewport sets while it is mounted and takes away when
+         it goes. It is set here as well, so a cold launch from the home
+         screen doesn't open letterboxed and then jump. -->
     <script>
       (function () {
         if (!/^\/dashboard(\/|$)/.test(location.pathname)) return;
+        var viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport && viewport.content.indexOf("viewport-fit") === -1) {
+          viewport.setAttribute("content", viewport.content + ", viewport-fit=cover");
+        }
         var mode;
         try {
           mode = localStorage.getItem("punchme.theme");
