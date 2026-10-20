@@ -62,6 +62,9 @@ const ANCHOR_MS = 5_000;
  * card, and shorter than the card's own arrival: Escape and the arrows work
  * throughout. */
 const ARRIVE_WAIT_MS = 150;
+/** The dark's way out, `exit-fade`: the walk stays drawn this long once it
+ * has ended. */
+const EXIT_MS = 180;
 
 /** The first element carrying this anchor that is actually on screen. The
  * bar and the rails all answer to `nav-scan`, and the roster is a table on a
@@ -107,6 +110,9 @@ export function DashboardTour({
   const { user } = useAuth();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  /** The walk has ended and its dark is fading: still drawn, no longer
+   * walking, and taking neither a tap nor a key. */
+  const [leaving, setLeaving] = useState(false);
 
   // Read once. A page cannot stop being standalone while it is running, and
   // pinning it means the context that opened the tour is the context that
@@ -125,6 +131,7 @@ export function DashboardTour({
   const begin = useCallback(() => {
     const active = document.activeElement;
     returnTo.current = active instanceof HTMLElement && active !== document.body ? active : null;
+    setLeaving(false);
     setOpen(true);
   }, []);
 
@@ -161,9 +168,20 @@ export function DashboardTour({
     };
   }, [replay, begin]);
 
+  // Over as far as the shell is concerned the moment it ends: the fading
+  // dark takes nothing, so the page's own focus and announcements go ahead.
   useEffect(() => {
-    onOpenChange?.(open);
-  }, [open, onOpenChange]);
+    onOpenChange?.(open && !leaving);
+  }, [open, leaving, onOpenChange]);
+
+  useEffect(() => {
+    if (!leaving) return;
+    const timer = window.setTimeout(() => {
+      setOpen(false);
+      setLeaving(false);
+    }, EXIT_MS + 40);
+    return () => window.clearTimeout(timer);
+  }, [leaving]);
 
   // `toPage`: the walk ended somewhere other than where it began (it brought
   // them back to the Overview, or the last stop's tap took them to Scan), so
@@ -171,7 +189,7 @@ export function DashboardTour({
   // <body>.
   const close = useCallback(
     (toPage: boolean) => {
-      setOpen(false);
+      setLeaving(true);
       if (user) markTourSeen(user.id, context.current);
       const back = returnTo.current;
       returnTo.current = null;
@@ -186,12 +204,20 @@ export function DashboardTour({
   // run stopped.
   return (
     <div className={cn(frame, "contents")}>
-      <Walk key={replay} steps={steps} onClose={close} />
+      <Walk key={replay} steps={steps} leaving={leaving} onClose={close} />
     </div>
   );
 }
 
-function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean) => void }) {
+function Walk({
+  steps,
+  leaving,
+  onClose,
+}: {
+  steps: TourStep[];
+  leaving: boolean;
+  onClose: (toPage: boolean) => void;
+}) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -252,7 +278,10 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean
   }, [index]);
 
   // ---- finding the thing --------------------------------------------------
+  // Not once it has ended: the walk back to the Overview mustn't cut a new
+  // hole in the dark that is fading.
   useEffect(() => {
+    if (leaving) return;
     let stop = false;
     const started = performance.now();
     const look = () => {
@@ -272,7 +301,7 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean
     return () => {
       stop = true;
     };
-  }, [step.anchor, location.pathname]);
+  }, [step.anchor, location.pathname, leaving]);
 
   // ---- measuring ----------------------------------------------------------
   useEffect(() => {
@@ -403,7 +432,7 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean
   const arrival = `${index}:${lit ? "lit" : "centred"}`;
   const [arrived, setArrived] = useState<string | null>(null);
   useEffect(() => {
-    if (arrived === arrival) return;
+    if (leaving || arrived === arrival) return;
     const arrive = () => {
       // Read once while dark, or the light can't come up a second time:
       // the keyframe it already had isn't played again unless the dark
@@ -417,11 +446,14 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean
     }
     const timer = window.setTimeout(arrive, ARRIVE_WAIT_MS);
     return () => window.clearTimeout(timer);
-  }, [arrival, arrived, lit]);
+  }, [arrival, arrived, lit, leaving]);
   const here = arrived === arrival;
 
   // ---- keyboard, focus, and the lock --------------------------------------
+  // Let go of the moment the walk ends, so Tab and Escape belong to the page
+  // again while the dark fades.
   useEffect(() => {
+    if (leaving) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         finish();
@@ -463,7 +495,7 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [finish, go, rtl, target]);
+  }, [finish, go, rtl, target, leaving]);
 
   // Focus moves to the card on every stop, so a screen reader is handed the
   // new sentence rather than left on a button that has just changed meaning.
@@ -480,14 +512,14 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean
   // be left with the tour over the scanner. Their navigation stands; the
   // walk doesn't haul them back to the Overview behind it.
   useEffect(() => {
-    if (!last || !target) return;
+    if (!last || !target || leaving) return;
     const onClick = (event: MouseEvent) => {
       if (!target.contains(event.target as Node)) return;
       onClose(true);
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
-  }, [last, target, onClose]);
+  }, [last, target, leaving, onClose]);
 
   // A rotate or a keyboard opening moves everything, including the card,
   // and a stop with no lit element has no other reason to re-render.
@@ -499,12 +531,13 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean
   }, []);
 
   // The kit's scrim, ink at 40% by day and black at 60% at night, with no
-  // blur: the page behind stays readable as the page it is.
-  const scrim = "pointer-events-auto fixed bg-scrim";
+  // blur: the page behind stays readable as the page it is. Fading out, it
+  // takes no taps.
+  const scrim = cn("fixed bg-scrim", leaving ? "pointer-events-none" : "pointer-events-auto");
   const { w: vw, h: vh } = view;
   // Centred with no box, or with none of it on screen: the dark below never
-  // stands without the card standing over it. Placed inside the safe areas,
-  // clear of the notch and the home indicator.
+  // stands for long without the card standing over it. Placed inside the
+  // safe areas, clear of the notch and the home indicator.
   const placed = cardSize
     ? placeCard(
         { width: vw, height: vh - view.top - view.bottom },
@@ -524,54 +557,67 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean
       }
     : { top: 0, bottom: 0, left: 0, right: 0 };
 
+  // Dark, and not to be pressed, until it has arrived; and fading with the
+  // dark, untouchable, once the walk has ended.
+  let cardMotion: string;
+  if (!here) cardMotion = "pointer-events-none opacity-0";
+  else if (leaving) cardMotion = cn("pointer-events-none", reduced ? "animate-gentle-out" : "animate-exit-fade");
+  else cardMotion = cn("pointer-events-auto", reduced ? "animate-gentle-in" : "animate-lights-on");
+
   return (
     // Transparent to the pointer, so that only what is drawn inside it — the
     // four dark panes and the card — takes a click. The gap between them is
     // the lit element, and it must feel like nothing is there.
     <div className="pointer-events-none fixed inset-0 z-50 text-ink">
-      {/* Four panes rather than one sheet with a hole punched in it. A hole
-          made of shadow still swallows the taps aimed at what it reveals; a
-          gap between four rectangles has nothing over it at all. */}
-      {box ? (
-        <>
-          {/* The panes are the box seen through the screen: a thing that runs
-              past an edge simply has no dark on that side. The rim below is
-              drawn at the box's true bounds instead, so its edges land on the
-              element and the ones off screen are not drawn at all. */}
-          <div className={scrim} style={{ top: 0, left: 0, width: vw, height: edge.top }} />
-          <div
-            className={scrim}
-            style={{ top: edge.bottom, left: 0, width: vw, height: vh - edge.bottom }}
-          />
-          <div
-            className={scrim}
-            style={{
-              top: edge.top,
-              left: 0,
-              width: edge.left,
-              height: edge.bottom - edge.top,
-            }}
-          />
-          <div
-            className={scrim}
-            style={{
-              top: edge.top,
-              left: edge.right,
-              width: vw - edge.right,
-              height: edge.bottom - edge.top,
-            }}
-          />
-          {/* The rim, in ink, and nothing else — pointer-events-none, or it
-              would be the very thing the four panes were arranged to avoid. */}
-          <div
-            aria-hidden
-            className="pointer-events-none fixed rounded-field ring-2 ring-ink"
-            style={box}
-          />
-        </>
-      ) : (
-        <div className={cn(scrim, "inset-0")} style={{ width: vw, height: vh }} />
-      )}
+      {/* The dark comes up once, as the walk opens, and goes once, as it
+          ends: the kit scrim's 150ms in and 180ms out, opacity only, so the
+          same with reduced motion. Between stops the panes inside are cut
+          again at once; the card is what arrives. */}
+      <div className={leaving ? "animate-exit-fade" : "animate-gentle-in"}>
+        {/* Four panes rather than one sheet with a hole punched in it. A hole
+            made of shadow still swallows the taps aimed at what it reveals; a
+            gap between four rectangles has nothing over it at all. */}
+        {box ? (
+          <>
+            {/* The panes are the box seen through the screen: a thing that runs
+                past an edge simply has no dark on that side. The rim below is
+                drawn at the box's true bounds instead, so its edges land on the
+                element and the ones off screen are not drawn at all. */}
+            <div className={scrim} style={{ top: 0, left: 0, width: vw, height: edge.top }} />
+            <div
+              className={scrim}
+              style={{ top: edge.bottom, left: 0, width: vw, height: vh - edge.bottom }}
+            />
+            <div
+              className={scrim}
+              style={{
+                top: edge.top,
+                left: 0,
+                width: edge.left,
+                height: edge.bottom - edge.top,
+              }}
+            />
+            <div
+              className={scrim}
+              style={{
+                top: edge.top,
+                left: edge.right,
+                width: vw - edge.right,
+                height: edge.bottom - edge.top,
+              }}
+            />
+            {/* The rim, in ink, and nothing else — pointer-events-none, or it
+                would be the very thing the four panes were arranged to avoid. */}
+            <div
+              aria-hidden
+              className="pointer-events-none fixed rounded-field ring-2 ring-ink"
+              style={box}
+            />
+          </>
+        ) : (
+          <div className={cn(scrim, "inset-0")} style={{ width: vw, height: vh }} />
+        )}
+      </div>
 
       <div
         ref={card}
@@ -581,10 +627,7 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean
         tabIndex={-1}
         className={cn(
           "fixed flex flex-col gap-3 rounded-panel border border-border bg-surface p-5 shadow-panel-lift outline-none",
-          // Dark, and not to be pressed, until it has arrived.
-          here
-            ? cn("pointer-events-auto", reduced ? "animate-gentle-in" : "animate-lights-on")
-            : "pointer-events-none opacity-0",
+          cardMotion,
           !place && "invisible",
         )}
         style={{
