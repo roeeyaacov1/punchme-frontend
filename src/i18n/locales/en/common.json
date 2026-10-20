@@ -833,9 +833,13 @@
     },
     "theme": {
       "label": "Appearance",
-      "light": "Light",
-      "dark": "Dark",
-      "system": "System"
+      "light": "Day",
+      "dark": "Night",
+      "system": "Automatic",
+      "hint": "Automatic follows your device."
+    },
+    "account": {
+      "signedInAs": "You're signed in as <who>{{name}}</who>, {{role}}."
     },
     "close": "Close",
     "week": {
