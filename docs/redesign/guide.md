@@ -1345,7 +1345,7 @@ as it is.
 
 - [x] §3 decisions filled in (9 Oct)
 - [x] Billing-step key bug fixed (9 Oct)
-- [ ] Seed command and test accounts on the backend
+- [x] Seed command and test accounts on the backend (19 Oct): `seed_demo`, on the backend's `tooling/seed-demo` branch, not merged yet
 - [x] §4 skills installed, checked, committed (9 Oct)
 - [x] 0.1 `redesign-start` tag (9 Oct)
 - [x] 0.2 CLAUDE.md updated (9 Oct)
@@ -1358,7 +1358,8 @@ as it is.
 - [x] 1.2 Visual-world brief (17 Oct)
 - [x] 1.3 Prototypes, direction chosen: Lightbox (18 Oct)
 - [x] 1.4 Foundation built, DESIGN.md replaced (18 Oct)
-- [ ] Phase 2, dashboard shell: A · B · C · D · merged
+- [x] 1.5 Checked and merged (19 Oct)
+- [ ] Phase 2, dashboard shell: A done (20 Oct) · B · C · D · merged
 - [ ] Phase 3, card studio: A · B · C · D · merged
 - [ ] Phase 4, onboarding: A · B · C · D · merged
 - [ ] Phase 5, counter pages: A · B · C · D · merged

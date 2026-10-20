@@ -13,9 +13,11 @@ shell's code; and the shell itself, walked live as the four accounts in
 owner of Demo Barbershop on Free), Hebrew first at 375px, then at 768px and
 1280px, and in English. Two reviewers ran apart for the critique: one read and
 walked the shell, the other ran Impeccable's detector and injected its overlay
-into the live shell. Five questions went to Roee on the way (§6).
+into the live shell. Five questions went to Roee on the way, and three more
+at the review (§6).
 
-Read "In short" first. Sections 7 to 11 are what step B builds.
+Read "In short" first. Sections 7 to 11 are what step B builds, and §13 adds
+the review's notes.
 
 1. In short
 2. The shell today
@@ -29,6 +31,7 @@ Read "In short" first. Sections 7 to 11 are what step B builds.
 10. Copy
 11. What step B keeps, touches and checks
 12. Left for other phases, and still open
+13. Review notes for step B
 
 ---
 
@@ -298,6 +301,9 @@ Check on a phone, installed, in Hebrew:
 | 3 | `/dashboard/nope` | **Both:** a catch-all under `/dashboard` and an error element, inside the shell. No route is removed or renamed (§7.10) |
 | 4 | The tour | **One walk, true copy,** per role and plan, held back on the day of activation, remembered per person (§9) |
 | 5 | The structure | **Counter bar and rail.** Impeccable's roll (seed `d85c436b`) dealt three structures: Scan dock, App bar with a Scan button, and this one. The decision page closed before Roee saw it, so the choice was made through the question tool |
+| 6 | Messages leaving the phone bar | **Yes.** Activity takes its slot, and Messages comes first in More (§7.4) |
+| 7 | The coral Scan circle on the tablet rail | **Yes.** Step B adds it to DESIGN.md's Primary line (§7.12) |
+| 8 | The unlit sign on Free | **Yes,** unlit until the day of activation. Step D judges it on screen; if it reads as broken rather than "not yet", the chip goes back to full strength (§7.8) |
 
 ## 7. The new shell
 
@@ -565,7 +571,7 @@ The three questions, answered again:
 - **Coral** fills the Scan circle on the phone bar and on the tablet rail, and
   nothing else in the frame. The tablet's circle is one more place than
   DESIGN.md's list ("the raised Scan button in the phone bar"). Step B adds it
-  to DESIGN.md's Primary line, unless §12 overturns it.
+  to DESIGN.md's Primary line (§6).
 - **No new colour.** Every pair here is already measured in DESIGN.md and on
   `/style-guide`; step B adds none without measuring it.
 - **Type:**
@@ -838,15 +844,41 @@ As with the pages, it builds one piece of the frame per commit.
   - Every route ships in one bundle. Lazy routes in `main.tsx` would cut the
     first load at the counter; ask before doing it.
 
-**Open, and what this brief assumes until you say otherwise:**
-- **The wordmark:** the rail keeps today's logo image until the logo is
-  decided (visual-world §9), so the product never shows two logos at once.
-  The rail's mark and the PWA icons change together, later.
-- **The coral circle on the tablet rail** (§7.12) is a change to DESIGN.md. If
-  you overturn it, the tablet's Scan becomes an ink row.
-- **The unlit sign on Free** shows the owner's colours at half strength. If
-  that reads as "broken" rather than "not yet", the words stay and the chip
-  goes back to full strength.
-- **Messages leaving the bar for More:** if owners miss it, the fifth slot
-  could become Messages, with More moving into the masthead, at the cost of
-  More's thumb reach.
+**Settled at the review** (§6): the coral circle on the tablet rail, the
+unlit sign on Free, and Messages leaving the bar, all as this brief draws
+them.
+
+**Still open:** the wordmark. The rail keeps today's logo image until the
+logo is decided (visual-world §9), so the product never shows two logos at
+once. The rail's mark and the PWA icons change together, later.
+
+## 13. Review notes for step B
+
+Checked against the code on 20 Oct. The brief's claims hold; these are the
+gaps.
+
+- **The tour is remembered per context too.** `seen.ts` keeps "web" and
+  "app" apart on purpose: the installed app is learned on a different day
+  from the browser tab, and on iPhone the two can't read each other's
+  storage. The per-person key adds the person and keeps both contexts. The
+  device-wide value moves to the owner's key with its contexts.
+- **`viewport-fit=cover` reaches every page,** because `index.html` is
+  shared.
+  - The landing calculator's bar (`RevenueCalculator.tsx:540`) is fixed to
+    the bottom with no safe-area padding.
+  - In landscape, every page's sides run under the notch.
+  - Either the shell sets it while it is mounted and puts it back after, or
+    it stays global and that bar gets its inset. The plan says which.
+  - A phone in landscape is 768px or wider, so it gets the compact rail. The
+    rail, the masthead and the page's sides take the side insets.
+- **A manager on Free hears the owner's line.** `overview.bodyFree` says
+  "the card you designed", and the Free checklist's Activate refuses a
+  manager. A manager on Free gets the hire's line, or one of their own.
+- **Two keys are shared.** `dashboard.groups.setup` still heads a section of
+  the Overview (`DashboardOverview.tsx:323`) until Phase 5, so it stays.
+  `dashboard.theme.*` also labels `/style-guide`'s specimens, which will say
+  Day, Night and Automatic too.
+- **The critique snapshot** in `.impeccable/critique/` gets committed, so step
+  D's `/impeccable polish` finds it from any session.
+- **For Phase 8:** an unknown URL outside `/dashboard` (`/nope`) still shows
+  React Router's developer page.
