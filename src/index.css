@@ -429,6 +429,9 @@ html.theme-lightbox {
   --duration-exit: 180ms; /* things leave faster than they arrive */
   --duration-crossfade: 300ms;
   --duration-ceremony: 600ms; /* activation: the card's panel from unlit to lit, once */
+  /* The shop's sign stays unlit this long on the day it switches on, so the
+     owner sees it dark before it catches. */
+  --delay-switch-on: 400ms;
   --duration-breathe: 14s; /* the hero's light; the only loop, and never at night */
   --duration-gentle: 150ms; /* every reduced-motion stand-in */
 
@@ -578,6 +581,43 @@ html.theme-lightbox {
   to {
     opacity: 0;
     transform: scale(0.96);
+  }
+}
+
+/* The shop's sign on the day it switches on, once: a tube that strikes
+   twice and warms up to full, over the ceremony's 600ms, linear between the
+   stops. From the unlit sign's half strength, held there through
+   --delay-switch-on. Opacity only, on a sign of 36 by 24 pixels, far under
+   any flash threshold. */
+@keyframes sign-catch {
+  0% {
+    opacity: 0.5;
+  }
+  8.33% {
+    opacity: 0.9; /* 50ms: it strikes */
+  }
+  16.67% {
+    opacity: 0.55; /* 100ms: and drops */
+  }
+  33.33% {
+    opacity: 0.95; /* 200ms: strikes again */
+  }
+  43.33% {
+    opacity: 0.7; /* 260ms: wavers */
+  }
+  70%,
+  100% {
+    opacity: 1; /* 420ms: and holds */
+  }
+}
+
+/* The same day with reduced motion: no strikes, the light comes up. */
+@keyframes sign-on {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
   }
 }
 

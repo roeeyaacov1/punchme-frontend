@@ -282,6 +282,10 @@ export default {
         "drawer-out": "drawer-out var(--duration-exit) var(--ease-drawer) both",
         "dialog-in": "dialog-in var(--duration-lights) var(--ease-out-strong) both",
         "dialog-out": "dialog-out var(--duration-exit) var(--ease-out-strong) both",
+        // The shop's sign, the day it switches on: unlit for a beat, then a
+        // tube catching over the ceremony's 600ms, or the gentle fade.
+        "sign-catch": "sign-catch var(--duration-ceremony) linear var(--delay-switch-on) both",
+        "sign-on": "sign-on var(--duration-gentle) ease-out var(--delay-switch-on) both",
         skeleton: "skeleton 1.6s ease-in-out infinite",
       },
       // Lightbox's curves and durations, as the :root tokens in

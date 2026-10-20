@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useReducedMotion } from "../../kit";
 import { cn } from "../../../lib/cn";
 import { initialOf } from "./personName";
@@ -17,8 +16,11 @@ export type SignState = "loading" | "lit" | "unlit";
  * - **Loading**: the wall with a hairline while the templates load, never a
  *   stand-in colour.
  *
- * `switchOn` is the day of activation: the sign lights once, from half
- * strength to full in 600ms, or in a 150ms fade with reduced motion.
+ * `switchOn` is the day of activation. The sign is drawn unlit and stays so
+ * for a 400ms beat, so the owner sees it dark first, then catches like a
+ * tube over 600ms: two strikes, and a warm-up to full (`sign-catch`). With
+ * reduced motion, the same beat and a 150ms fade. Both start when the sign
+ * itself is drawn, so the moment never plays out under the loading wall.
  *
  * Decoration: the words beside it carry the state and the light only
  * repeats it, so it is hidden from screen readers.
@@ -39,24 +41,6 @@ export function ShopSign({
   className?: string;
 }) {
   const reduced = useReducedMotion();
-  // On the day it switches on, the unlit sign is painted first and the light
-  // comes up from there: two frames after the card's colours arrive, so the
-  // unlit sign is on screen before the transition starts, rather than over
-  // while the templates were still loading.
-  const [warming, setWarming] = useState(switchOn);
-  const drawn = state !== "loading";
-  useEffect(() => {
-    if (!warming || !drawn) return;
-    let second = 0;
-    const first = requestAnimationFrame(() => {
-      second = requestAnimationFrame(() => setWarming(false));
-    });
-    return () => {
-      cancelAnimationFrame(first);
-      cancelAnimationFrame(second);
-    };
-  }, [warming, drawn]);
-
   const base = "inline-flex h-6 w-9 shrink-0 items-center justify-center rounded-md";
   // Keyed apart, so the sign arrives as a new element at its own strength
   // instead of fading there from the placeholder's.
@@ -65,7 +49,7 @@ export function ShopSign({
       <span key="wall" aria-hidden className={cn(base, "border border-border bg-background", className)} />
     );
   }
-  const lit = state === "lit" && !warming;
+  const lit = state === "lit";
   return (
     <span
       key="sign"
@@ -76,10 +60,7 @@ export function ShopSign({
         // card visible on the wall and a near-black one on the street.
         "font-heading text-[0.9375rem] font-medium leading-none ring-1 ring-inset ring-rim/10",
         lit ? "opacity-100" : "opacity-50",
-        switchOn &&
-          (reduced
-            ? "transition-opacity duration-gentle ease-out"
-            : "transition-opacity duration-ceremony ease-out-strong"),
+        switchOn && lit && (reduced ? "animate-sign-on" : "animate-sign-catch"),
         className,
       )}
       style={{ backgroundColor: background ?? undefined, color: foreground ?? undefined }}
