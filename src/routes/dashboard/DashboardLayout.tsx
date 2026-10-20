@@ -3,7 +3,7 @@ import { Outlet, ScrollRestoration, useLocation, useNavigate, useSearchParams } 
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../auth/useAuth";
 import { useBusiness } from "../../business/useBusiness";
-import { focusRing } from "../../components/kit";
+import { focusRing, ToastProvider } from "../../components/kit";
 import { inMore, moreGroups, pageFor } from "../../components/dashboard/navigation";
 import { DashboardTour } from "../../components/tour/DashboardTour";
 import { AccountSheet } from "../../components/dashboard/shell/AccountSheet";
@@ -168,110 +168,117 @@ export function DashboardLayout() {
   return (
     <LightboxClaim.Provider value={claim}>
       <PageTitleOverride.Provider value={setOverride}>
-        <div className="min-h-dvh bg-background text-ink">
-          {/* It focuses the page itself: a bare #fragment is a history step to
-              the router, which would put the old scroll position back and undo
-              the jump. */}
-          <a
-            href="#dashboard-main"
-            onClick={(event) => {
-              event.preventDefault();
-              main.current?.focus();
-            }}
-            className={cn(
-              frame,
-              "sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:inline-flex focus:min-h-11 focus:items-center focus:rounded-full focus:border focus:border-border-strong focus:bg-surface focus:px-5 focus:font-heading focus:text-base focus:font-medium focus:text-ink focus:shadow-panel-lift",
-              focusRing,
-            )}
-          >
-            {t("landing.nav.skipToContent")}
-          </a>
+        {/* Toasts have their place in the frame now, in its scope, so the
+            pages that move to Lightbox can confirm what the owner did. On a
+            phone they rise clear of the bar and of the Scan circle standing
+            out of it (64 + 20 + a gap); the region adds the safe area
+            itself. */}
+        <ToastProvider className={cn(frame, "[--toast-offset:5.75rem] md:[--toast-offset:1rem]")}>
+          <div className="min-h-dvh bg-background text-ink">
+            {/* It focuses the page itself: a bare #fragment is a history step to
+                the router, which would put the old scroll position back and undo
+                the jump. */}
+            <a
+              href="#dashboard-main"
+              onClick={(event) => {
+                event.preventDefault();
+                main.current?.focus();
+              }}
+              className={cn(
+                frame,
+                "sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:inline-flex focus:min-h-11 focus:items-center focus:rounded-full focus:border focus:border-border-strong focus:bg-surface focus:px-5 focus:font-heading focus:text-base focus:font-medium focus:text-ink focus:shadow-panel-lift",
+                focusRing,
+              )}
+            >
+              {t("landing.nav.skipToContent")}
+            </a>
 
-          {/* Back and forward return to where the page was; anything new opens
-              at its top. */}
-          <ScrollRestoration />
-          <p aria-live="polite" className="sr-only">
-            {announcement}
-          </p>
+            {/* Back and forward return to where the page was; anything new opens
+                at its top. */}
+            <ScrollRestoration />
+            <p aria-live="polite" className="sr-only">
+              {announcement}
+            </p>
 
-          {/* Three widths: the bar under 768px, the tablet's compact rail from
-              768 to 1279, and the full rail from 1280. The rail's column is as
-              wide as whichever rail is showing, its safe-area inset included. */}
-          <div className="md:grid md:grid-cols-[auto_minmax(0,1fr)]">
-            <aside className="sticky top-0 hidden h-dvh md:block xl:hidden">
-              <TabletRail
-                frame={frame}
-                accountOpen={sheet === "account"}
-                onAccount={() => openSheet("account")}
+            {/* Three widths: the bar under 768px, the tablet's compact rail from
+                768 to 1279, and the full rail from 1280. The rail's column is as
+                wide as whichever rail is showing, its safe-area inset included. */}
+            <div className="md:grid md:grid-cols-[auto_minmax(0,1fr)]">
+              <aside className="sticky top-0 hidden h-dvh md:block xl:hidden">
+                <TabletRail
+                  frame={frame}
+                  accountOpen={sheet === "account"}
+                  onAccount={() => openSheet("account")}
+                />
+              </aside>
+              <aside className="sticky top-0 hidden h-dvh xl:block">
+                <DesktopRail
+                  frame={frame}
+                  switchOn={switchOn}
+                  accountOpen={sheet === "account"}
+                  onAccount={() => openSheet("account")}
+                />
+              </aside>
+
+              {/* In landscape the rail takes the start edge's safe-area inset and
+                  this column the end edge's, so neither runs under a notch. */}
+              <div className="flex min-h-dvh min-w-0 flex-col pe-[env(safe-area-inset-right)] rtl:pe-[env(safe-area-inset-left)]">
+                {/* Under 1280px: beside the tablet's rail, and over the phone's
+                    page. The full rail carries the shop's name itself. */}
+                <Masthead frame={frame} switchOn={switchOn} className="xl:hidden" />
+
+                {/* The page area takes focus itself (tabIndex -1) when a sheet
+                    closes because a row in it went somewhere. */}
+                <main
+                  ref={main}
+                  id="dashboard-main"
+                  tabIndex={-1}
+                  className="flex-1 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-5 outline-none sm:px-6 md:pb-12 lg:px-8 lg:pt-8"
+                >
+                  <div className="mx-auto w-full max-w-5xl">
+                    <Outlet />
+                  </div>
+                </main>
+              </div>
+            </div>
+
+            {/* Over everything, and only on a first arrival — see DashboardTour. */}
+            <DashboardTour replay={tourAsks} frame={frame} onOpenChange={onTourOpenChange} />
+
+            <PhoneBar
+              frame={frame}
+              fifth={hasMore ? "more" : "account"}
+              fifthRef={fifthSlot}
+              fifthOpen={sheet === (hasMore ? "more" : "account")}
+              fifthLit={inMore(location.pathname, role)}
+              onFifth={() => openSheet(hasMore ? "more" : "account")}
+              className="md:hidden"
+            />
+
+            {/* The sheets render where they are written, so this keeps them in the
+                frame's scope; `contents` gives the wrapper no box of its own. */}
+            <div className={cn(frame, "contents")}>
+              <MoreSheet
+                open={sheet === "more"}
+                onClose={() => setSheet(null)}
+                onAccount={() => openSheet("account", true)}
+                returnFocus={leftForPage ? main : undefined}
               />
-            </aside>
-            <aside className="sticky top-0 hidden h-dvh xl:block">
-              <DesktopRail
-                frame={frame}
-                switchOn={switchOn}
-                accountOpen={sheet === "account"}
-                onAccount={() => openSheet("account")}
+              <AccountSheet
+                open={sheet === "account"}
+                onClose={() => setSheet(null)}
+                returnFocus={leftForPage ? main : accountFromMore ? fifthSlot : undefined}
+                mode={mode}
+                onModeChange={setMode}
+                onShowTour={() => {
+                  setSheet(null);
+                  setTourAsks((n) => n + 1);
+                }}
+                onSignOut={signOut}
               />
-            </aside>
-
-            {/* In landscape the rail takes the start edge's safe-area inset and
-                this column the end edge's, so neither runs under a notch. */}
-            <div className="flex min-h-dvh min-w-0 flex-col pe-[env(safe-area-inset-right)] rtl:pe-[env(safe-area-inset-left)]">
-              {/* Under 1280px: beside the tablet's rail, and over the phone's
-                  page. The full rail carries the shop's name itself. */}
-              <Masthead frame={frame} switchOn={switchOn} className="xl:hidden" />
-
-              {/* The page area takes focus itself (tabIndex -1) when a sheet
-                  closes because a row in it went somewhere. */}
-              <main
-                ref={main}
-                id="dashboard-main"
-                tabIndex={-1}
-                className="flex-1 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-5 outline-none sm:px-6 md:pb-12 lg:px-8 lg:pt-8"
-              >
-                <div className="mx-auto w-full max-w-5xl">
-                  <Outlet />
-                </div>
-              </main>
             </div>
           </div>
-
-          {/* Over everything, and only on a first arrival — see DashboardTour. */}
-          <DashboardTour replay={tourAsks} frame={frame} onOpenChange={onTourOpenChange} />
-
-          <PhoneBar
-            frame={frame}
-            fifth={hasMore ? "more" : "account"}
-            fifthRef={fifthSlot}
-            fifthOpen={sheet === (hasMore ? "more" : "account")}
-            fifthLit={inMore(location.pathname, role)}
-            onFifth={() => openSheet(hasMore ? "more" : "account")}
-            className="md:hidden"
-          />
-
-          {/* The sheets render where they are written, so this keeps them in the
-              frame's scope; `contents` gives the wrapper no box of its own. */}
-          <div className={cn(frame, "contents")}>
-            <MoreSheet
-              open={sheet === "more"}
-              onClose={() => setSheet(null)}
-              onAccount={() => openSheet("account", true)}
-              returnFocus={leftForPage ? main : undefined}
-            />
-            <AccountSheet
-              open={sheet === "account"}
-              onClose={() => setSheet(null)}
-              returnFocus={leftForPage ? main : accountFromMore ? fifthSlot : undefined}
-              mode={mode}
-              onModeChange={setMode}
-              onShowTour={() => {
-                setSheet(null);
-                setTourAsks((n) => n + 1);
-              }}
-              onSignOut={signOut}
-            />
-          </div>
-        </div>
+        </ToastProvider>
       </PageTitleOverride.Provider>
     </LightboxClaim.Provider>
   );
