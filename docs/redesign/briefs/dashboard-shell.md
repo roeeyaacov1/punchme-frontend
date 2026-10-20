@@ -304,6 +304,7 @@ Check on a phone, installed, in Hebrew:
 | 6 | Messages leaving the phone bar | **Yes.** Activity takes its slot, and Messages comes first in More (§7.4) |
 | 7 | The coral Scan circle on the tablet rail | **Yes.** Step B adds it to DESIGN.md's Primary line (§7.12) |
 | 8 | The unlit sign on Free | **Yes,** unlit until the day of activation. Step D judges it on screen; if it reads as broken rather than "not yet", the chip goes back to full strength (§7.8) |
+| 9 | The Scan circle's size (asked in step B's plan) | **56px, not 64px.** A 64px circle raised 16px sits 48px deep in the 64px bar, and its 4px ring leaves about 12px for a 17px word. The bar's height and the rise stay (§7.4) |
 
 ## 7. The new shell
 
@@ -390,8 +391,9 @@ The three questions, answered again:
     `aria-current="page"`.
   - **Pressed:** an ink well at 6% behind the icon, for 120ms.
 - **Scan:**
-  - **The circle:** 64px coral, with the ink `ScanLine` icon at 28px
-    (5.50:1; at night `#ff8a5c` with `#1a120d`, 7.95:1).
+  - **The circle:** 56px coral, with the ink `ScanLine` icon at 28px
+    (5.50:1; at night `#ff8a5c` with `#1a120d`, 7.95:1). It was drawn at
+    64px, which left no room for its word (§6).
   - **Raised:** 16px out of the bar, inside a 4px ring of the bar's own
     ground, so it reads as cut out of the bar rather than floating over it.
     No halo, no shadow.

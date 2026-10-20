@@ -1,66 +1,18 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
-import { Ellipsis, Store, X } from "lucide-react";
-import type { Role } from "../../api/team";
-import { atLeast } from "../../business/gating";
+import { Store, X } from "lucide-react";
 import { useBusiness } from "../../business/useBusiness";
 import { focusRing } from "../marketing/primitives";
 import { cn } from "../../lib/cn";
 import { GroupLabel } from "./primitives";
-import { NAV_GROUPS, visibleGroups, type NavItem, type NavKey } from "./navigation";
+import { moreGroups, visibleGroups } from "./navigation";
 
 /**
- * The old frame's bar, sheet and rail, built from `NAV_GROUPS` in
- * `navigation.ts`. Each goes as its replacement in `shell/` lands.
- *
- * Which of these get a tab on the phone is not decided by the groups — see
- * `TAB_START` / `TAB_CENTER` / `TAB_END` below.
+ * What is left of the old frame: the desktop rail and the More sheet, both
+ * built from `NAV_GROUPS` in `navigation.ts`. Each goes as its replacement
+ * in `shell/` lands.
  */
-
-/**
- * What the phone's bar carries, and in what order.
- *
- * It used to be "the first group", which was true for exactly as long as the
- * counter was what fitted. It isn't any more: Messages is on the bar and
- * Activity is not, and neither of those is a thing the groups can say. The
- * groups are about what a route *is*; this is about what an owner reaches
- * for with a customer standing in front of them. So the bar gets its own
- * list, and everything not on it falls behind "More" automatically.
- *
- * Scan is the middle because it is the only entry here that is an action
- * rather than a reading, and the only screen anyone opens mid-transaction.
- * The rest read outwards from it: what the shop did (Overview) and who it
- * did it with (Customers) on the leading side, what to say to them (Push)
- * and everything else (More) on the trailing side. In Hebrew that whole row
- * mirrors, which is why it is written as start-and-end and never as
- * left-and-right.
- *
- * Typed off `NAV_GROUPS` rather than as loose strings, so a rename over
- * there is a compile error here instead of a tab that silently vanishes.
- */
-const TAB_START: readonly NavKey[] = ["overview", "customers"];
-const TAB_CENTER: NavKey = "scan";
-const TAB_END: readonly NavKey[] = ["messages"];
-
-const TAB_KEYS: readonly NavKey[] = [...TAB_START, TAB_CENTER, ...TAB_END];
-
-const ALL_ITEMS = NAV_GROUPS.flatMap((group): readonly NavItem[] => group.items);
-
-function itemByKey(key: NavKey): NavItem {
-  return ALL_ITEMS.find((item) => item.key === key)!;
-}
-
-/** Everything the bar doesn't carry lives behind "More" — Activity included,
- * now that it is off the bar. Sub-routes (`/dashboard/messages/new`) count as
- * their parent, so the tab lights up on them too. */
-export const MORE_PATHS: readonly string[] = ALL_ITEMS.filter(
-  (item) => !TAB_KEYS.includes(item.key as NavKey),
-).map((item) => item.to);
-
-export function isMorePath(pathname: string): boolean {
-  return MORE_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-}
 
 const ROW_BASE =
   "inline-flex w-full min-h-[44px] items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors";
@@ -159,168 +111,6 @@ export function SidebarNav({
   );
 }
 
-/** The bar's own word for a destination, where the rail's is too long to sit
- * under a 22px icon. "Customer messages" is the right name in a list of
- * nine; on a tab it truncates to "Customer m..." and says nothing. */
-const TAB_LABEL: Partial<Record<NavKey, string>> = {
-  messages: "dashboard.nav.messagesTab",
-};
-
-const TAB_BASE =
-  "flex min-h-[56px] w-full flex-col items-center justify-center gap-1 px-1 pb-2 pt-2.5 text-[0.6875rem] font-semibold transition-colors";
-
-function tabClasses(active: boolean) {
-  return cn(
-    TAB_BASE,
-    focusRing,
-    active ? "text-primary-text" : "text-ink-subtle",
-  );
-}
-
-/**
- * One tab's face: icon over label, the active one marked by a filled ground
- * behind the icon as well as by colour.
- *
- * The design draws its active state as a filled icon against an outlined
- * one, which lucide cannot do — it ships strokes only. The ground is the
- * stand-in, and it is the honest one: it changes the icon's silhouette at a
- * glance, which is the whole job the filled variant was doing, and it does
- * it in the accent already measured rather than in a second colour that
- * would need measuring.
- */
-function TabFace({
-  Icon,
-  label,
-  active,
-}: {
-  Icon: typeof Store;
-  label: string;
-  active: boolean;
-}) {
-  return (
-    <>
-      <span
-        aria-hidden
-        className={cn(
-          "flex h-8 w-12 shrink-0 items-center justify-center rounded-full transition-colors",
-          active ? "bg-primary/10" : "bg-transparent",
-        )}
-      >
-        <Icon size={22} strokeWidth={active ? 2.4 : 1.8} />
-      </span>
-      <span className="w-full truncate text-center">{label}</span>
-    </>
-  );
-}
-
-/**
- * The phone's bar, at the bottom where the thumb is.
- *
- * Five slots, and the middle one is a raised button rather than a tab. Scan
- * is not a place you go to look at something; it is the one thing an owner
- * does with a person waiting, so it is drawn as the button it is, lifted
- * clear of the bar's own edge and sized well past a thumb.
- *
- * A slot whose role can't reach it stays in the row, empty. The bar is two
- * equal halves either side of that button, and dropping a slot outright
- * would slide the button off centre — so a staff member, who has no
- * Messages, gets a gap on the trailing side rather than a bar that is
- * visibly a different shape from everyone else's.
- */
-export function BottomBar({
-  onMore,
-  moreActive,
-}: {
-  onMore: () => void;
-  moreActive: boolean;
-}) {
-  const { t } = useTranslation();
-  const { role } = useBusiness();
-  const scan = itemByKey(TAB_CENTER);
-
-  // The rail's filter, with one difference that only matters on a phone: a
-  // tab asking for no more than the floor is drawn before the role lands.
-  // `staff` is what anyone with a dashboard at all already is, and a bar
-  // that empties itself for the length of a fetch is a bar that flickers.
-  const slot = (key: NavKey) => {
-    const item = itemByKey(key);
-    const shown = item.min === "staff" || atLeast(role, item.min as Role);
-    if (!shown) return <li key={key} aria-hidden className="flex-1 basis-0" />;
-    return (
-      <li key={key} className="flex-1 basis-0">
-        <NavLink
-          to={item.to}
-          end={item.end}
-          data-tour={`nav-${item.key}`}
-          className={({ isActive }) => tabClasses(isActive)}
-        >
-          {({ isActive }) => (
-            <TabFace
-              Icon={item.Icon}
-              label={t(TAB_LABEL[key] ?? `dashboard.nav.${key}`)}
-              active={isActive}
-            />
-          )}
-        </NavLink>
-      </li>
-    );
-  };
-
-  return (
-    <nav
-      aria-label={t("dashboard.nav.label")}
-      className="fixed inset-x-0 bottom-0 z-30 lg:hidden"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-    >
-      <div className="mx-auto max-w-lg rounded-t-[28px] border border-b-0 border-border bg-surface/95 shadow-panel-lift backdrop-blur">
-        <ul className="flex items-stretch">
-          {TAB_START.map(slot)}
-
-          {/* Scan keeps its place in the row — same reading order, same tab
-              order — and only its own box climbs out of it. */}
-          <li className="flex w-[5.5rem] shrink-0 items-start justify-center">
-            <NavLink
-              to={scan.to}
-              end={scan.end}
-              data-tour={`nav-${scan.key}`}
-              aria-label={t(`dashboard.nav.${scan.key}`)}
-              className={({ isActive }) =>
-                cn(
-                  "-mt-4 flex h-[4.625rem] w-[4.625rem] items-center justify-center rounded-full border-[5px] bg-primary bg-clip-padding text-primary-on shadow-lift transition-colors",
-                  focusRing,
-                  // The halo is the fill again at low alpha, so it reads as
-                  // the button's own light in either theme rather than as a
-                  // colour of its own.
-                  isActive ? "border-primary/45" : "border-primary/20",
-                )
-              }
-            >
-              <scan.Icon size={26} aria-hidden strokeWidth={2} />
-            </NavLink>
-          </li>
-
-          {TAB_END.map(slot)}
-
-          <li className="flex-1 basis-0">
-            <button
-              type="button"
-              onClick={onMore}
-              aria-haspopup="dialog"
-              className={tabClasses(moreActive)}
-            >
-              <TabFace
-                Icon={Ellipsis}
-                label={t("dashboard.nav.more")}
-                active={moreActive}
-              />
-            </button>
-          </li>
-        </ul>
-      </div>
-    </nav>
-  );
-}
-
 /** What "More" opens: the setup routes and the account rows, on a sheet that
  * comes up from the same edge the bar sits on. */
 export function MoreSheet({
@@ -394,26 +184,14 @@ export function MoreSheet({
   );
 }
 
-/** The groups behind "More" (everything but the counter), laid out for the
- * sheet. */
+/** The viewer's More groups, laid out for the sheet: everything they can
+ * open that the bar doesn't carry. */
 export function SetupRows({ onNavigate }: { onNavigate: () => void }) {
   const { t } = useTranslation();
   const { role } = useBusiness();
-  // By tab rather than by group: Activity is a counter route that no longer
-  // has a tab, so "every group but the counter" would leave it with nowhere
-  // to be reached from on a phone. The sheet is the complement of the bar,
-  // which is the same sentence `MORE_PATHS` is written in.
-  const groups = visibleGroups(role)
-    .map((group) => ({
-      key: group.key,
-      items: group.items.filter(
-        (item) => !TAB_KEYS.includes(item.key as NavKey),
-      ),
-    }))
-    .filter((group) => group.items.length > 0);
   return (
     <div className="flex flex-col gap-4">
-      {groups.map((group) => (
+      {moreGroups(role).map((group) => (
         <div key={group.key} className="flex flex-col gap-1">
           <GroupLabel className="px-3 pb-1">
             {t(`dashboard.groups.${group.key}`)}

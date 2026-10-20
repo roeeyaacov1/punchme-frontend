@@ -8,15 +8,11 @@ import { listTemplates } from "../../api/businesses";
 import { focusRing } from "../../components/kit";
 import { AccountControls } from "../../components/dashboard/AccountControls";
 import { CardChip } from "../../components/dashboard/CardChip";
-import {
-  BottomBar,
-  MoreSheet,
-  isMorePath,
-  SidebarNav,
-  SetupRows,
-} from "../../components/dashboard/DashboardNav";
+import { MoreSheet, SidebarNav, SetupRows } from "../../components/dashboard/DashboardNav";
+import { inMore, moreGroups } from "../../components/dashboard/navigation";
 import { Tag } from "../../components/dashboard/primitives";
 import { DashboardTour } from "../../components/tour/DashboardTour";
+import { PhoneBar } from "../../components/dashboard/shell/PhoneBar";
 import { useShellViewport } from "../../components/dashboard/shell/useShellViewport";
 import { useDashboardTheme } from "../../theme/useDashboardTheme";
 import { cn } from "../../lib/cn";
@@ -40,7 +36,7 @@ import logo from "../../assets/logo.png";
 export function DashboardLayout() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
-  const { business, isPro } = useBusiness();
+  const { business, isPro, role } = useBusiness();
   const { mode, setMode, frame } = useDashboardTheme();
   useShellViewport();
   const location = useLocation();
@@ -65,7 +61,6 @@ export function DashboardLayout() {
     setMoreOpen(false);
   }, [location.pathname]);
 
-  const onSetupRoute = isMorePath(location.pathname);
   const name = business?.name ?? "";
 
   const identity = (
@@ -149,7 +144,7 @@ export function DashboardLayout() {
 
           <main
             id="dashboard-main"
-            className="flex-1 px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-12 lg:pt-8"
+            className="flex-1 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-12 lg:pt-8"
           >
             <div className="mx-auto w-full max-w-5xl">
               <Outlet />
@@ -161,7 +156,16 @@ export function DashboardLayout() {
       {/* Over everything, and only on a first arrival — see DashboardTour. */}
       <DashboardTour replay={tourAsks} />
 
-      <BottomBar onMore={() => setMoreOpen(true)} moreActive={onSetupRoute} />
+      {/* Under 1024px for now, as the old bar was, until the tablet's rail
+          takes 768 to 1279. */}
+      <PhoneBar
+        frame={frame}
+        fifth={moreGroups(role).length > 0 ? "more" : "account"}
+        fifthOpen={moreOpen}
+        fifthLit={inMore(location.pathname, role)}
+        onFifth={() => setMoreOpen(true)}
+        className="lg:hidden"
+      />
 
       <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)}>
         <div className="flex flex-col gap-5">
