@@ -1,99 +1,22 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
-import {
-  CreditCard,
-  Ellipsis,
-  Handshake,
-  Palette,
-  Printer,
-  ScanLine,
-  Send,
-  Stamp,
-  Store,
-  UserPlus,
-  Users,
-  X,
-} from "lucide-react";
+import { Ellipsis, Store, X } from "lucide-react";
 import type { Role } from "../../api/team";
 import { atLeast } from "../../business/gating";
 import { useBusiness } from "../../business/useBusiness";
 import { focusRing } from "../marketing/primitives";
 import { cn } from "../../lib/cn";
 import { GroupLabel } from "./primitives";
+import { NAV_GROUPS, visibleGroups, type NavItem, type NavKey } from "./navigation";
 
 /**
- * Nine destinations, in the three groups they actually fall into.
+ * The old frame's bar, sheet and rail, built from `NAV_GROUPS` in
+ * `navigation.ts`. Each goes as its replacement in `shell/` lands.
  *
- * The old header listed them in one row of pills, which said they were
- * equal things to keep an eye on. They are not: four of them are the
- * counter — what an owner does and reads between customers, possibly daily —
- * one is marketing (messages to customers: set a rule once, send a broadcast
- * on a slow day), and four are setup, which is done once and then revisited
- * when something changes. Saying so is the difference between a dashboard
- * you can scan and a menu you have to read.
- *
- * Scan leads the counter group and is the only entry there that is an
- * action rather than a reading: it is the only screen an owner opens with a
- * customer standing in front of them, which is why it is never behind
- * "More" and why on a phone it is a button rather than a tab.
- *
- * Which of these get a tab on the phone is no longer "the first group", and
- * is not decided here — see `TAB_START` / `TAB_CENTER` / `TAB_END` below.
- *
- * `min` is the lowest role a destination is worth showing to. It is not the
- * security boundary — the API is, and it answers 403 either way — it is what
- * keeps a hire from being shown a Billing tab that refuses them. Note how it
- * falls out: the counter group is exactly the staff role, which is not a
- * coincidence but the definition of the job.
+ * Which of these get a tab on the phone is not decided by the groups — see
+ * `TAB_START` / `TAB_CENTER` / `TAB_END` below.
  */
-export const NAV_GROUPS = [
-  {
-    key: "counter",
-    items: [
-      { to: "/dashboard/scan", end: false, key: "scan", Icon: ScanLine, min: "staff" },
-      { to: "/dashboard", end: true, key: "overview", Icon: Store, min: "staff" },
-      { to: "/dashboard/customers", end: false, key: "customers", Icon: Users, min: "staff" },
-      { to: "/dashboard/activity", end: false, key: "activity", Icon: Stamp, min: "staff" },
-    ],
-  },
-  {
-    key: "marketing",
-    items: [
-      { to: "/dashboard/messages", end: false, key: "messages", Icon: Send, min: "manager" },
-      { to: "/dashboard/referrals", end: false, key: "referrals", Icon: Handshake, min: "manager" },
-    ],
-  },
-  {
-    key: "setup",
-    items: [
-      { to: "/dashboard/design", end: false, key: "design", Icon: Palette, min: "manager" },
-      { to: "/dashboard/standee", end: false, key: "standee", Icon: Printer, min: "manager" },
-      { to: "/dashboard/team", end: false, key: "team", Icon: UserPlus, min: "owner" },
-      { to: "/dashboard/billing", end: false, key: "billing", Icon: CreditCard, min: "owner" },
-    ],
-  },
-] as const;
-
-type NavItem = {
-  to: string;
-  end: boolean;
-  key: string;
-  Icon: typeof Store;
-  min: string;
-};
-
-/** The groups this role has any business seeing, with empty ones dropped —
- * a staff member gets a rail of four rows and no headings for doors that
- * aren't there. */
-export function visibleGroups(role: Role | null) {
-  return NAV_GROUPS.map((group) => ({
-    key: group.key,
-    items: (group.items as readonly NavItem[]).filter((item) =>
-      atLeast(role, item.min as Role),
-    ),
-  })).filter((group) => group.items.length > 0);
-}
 
 /**
  * What the phone's bar carries, and in what order.
@@ -116,17 +39,13 @@ export function visibleGroups(role: Role | null) {
  * Typed off `NAV_GROUPS` rather than as loose strings, so a rename over
  * there is a compile error here instead of a tab that silently vanishes.
  */
-type NavKey = (typeof NAV_GROUPS)[number]["items"][number]["key"];
-
 const TAB_START: readonly NavKey[] = ["overview", "customers"];
 const TAB_CENTER: NavKey = "scan";
 const TAB_END: readonly NavKey[] = ["messages"];
 
 const TAB_KEYS: readonly NavKey[] = [...TAB_START, TAB_CENTER, ...TAB_END];
 
-const ALL_ITEMS = NAV_GROUPS.flatMap(
-  (group) => group.items as readonly NavItem[],
-);
+const ALL_ITEMS = NAV_GROUPS.flatMap((group): readonly NavItem[] => group.items);
 
 function itemByKey(key: NavKey): NavItem {
   return ALL_ITEMS.find((item) => item.key === key)!;

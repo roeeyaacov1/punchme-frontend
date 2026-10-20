@@ -849,6 +849,8 @@
     },
     "groups": {
       "counter": "דלפק",
+      "facing": "מה שהלקוחות רואים",
+      "business": "העסק",
       "setup": "הגדרה",
       "account": "חשבון",
       "marketing": "שיווק"

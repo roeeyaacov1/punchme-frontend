@@ -81,7 +81,7 @@ describe("tourSteps", () => {
       for (const step of tourSteps(role, canEnroll)) {
         expect(step.to).toMatch(/^\/dashboard(\/|$)/);
         expect(step.anchor).toBeTruthy();
-        expect(step.group).toMatch(/^(counter|marketing|setup)$/);
+        expect(step.group).toMatch(/^(counter|facing|business)$/);
         expect(step.nav).toBeTruthy();
       }
     }
