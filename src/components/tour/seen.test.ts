@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addSeen, parseSeen } from "./seen";
+import { addSeen, mergeSeen, parseSeen, seenKey } from "./seen";
 
 describe("parseSeen", () => {
   it("reads nothing out of nothing", () => {
@@ -41,5 +41,30 @@ describe("addSeen", () => {
 
   it("cleans up as it writes", () => {
     expect(addSeen("nonsense,web", "app")).toBe("web,app");
+  });
+});
+
+describe("seenKey", () => {
+  it("remembers each person apart", () => {
+    // A new hire on the shop's phone gets their own walk.
+    expect(seenKey(7)).toBe("punchme.tourSeen.7");
+    expect(seenKey(7)).not.toBe(seenKey(8));
+  });
+});
+
+describe("mergeSeen", () => {
+  it("moves the device-wide value to the owner with its contexts", () => {
+    // Seen on the web before memberships existed: the owner keeps that.
+    expect(mergeSeen(null, "web")).toBe("web");
+    expect(mergeSeen("app", "web")).toBe("web,app");
+  });
+
+  it("keeps what the owner already had", () => {
+    expect(mergeSeen("web,app", null)).toBe("web,app");
+    expect(mergeSeen("web", "web")).toBe("web");
+  });
+
+  it("drops what it does not recognise on the way", () => {
+    expect(mergeSeen("nonsense", "app")).toBe("app");
   });
 });
