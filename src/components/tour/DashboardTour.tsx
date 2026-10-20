@@ -19,6 +19,7 @@ import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
 import { cn } from "../../lib/cn";
 import { tourSteps, type TourStep } from "./steps";
 import { hasSeenTour, markTourSeen, type TourContext } from "./seen";
+import { GAP, MARGIN, cardWidth, placeCard, type Box, type Size } from "./placement";
 
 /**
  * The dashboard, walked.
@@ -45,24 +46,12 @@ import { hasSeenTour, markTourSeen, type TourContext } from "./seen";
 
 /** Breathing room between the lit element and the dark. */
 const HALO = 8;
-/** Between the lit element and the card that explains it. */
-const GAP = 12;
-/** Keeps the card off the screen edges. */
-const MARGIN = 16;
-const CARD_MAX = 380;
 /** Where the top of a thing too long to hold in one screen is parked, as a
  * share of the screen. Enough dark above it to read as a frame. */
 const LIT_TOP = 0.08;
 /** How long to wait for a stop's element before giving up and just talking.
  * A cold customers page has a request to finish first. */
 const ANCHOR_MS = 5_000;
-
-interface Box {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-}
 
 /** The first element carrying this anchor that is actually on screen. The
  * rail and the tab bar both answer to `nav-scan`, and the roster is a table
@@ -140,7 +129,8 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
   const [target, setTarget] = useState<HTMLElement | null>(null);
   /** The element's box on screen, or null while the tour is only talking. */
   const [box, setBox] = useState<Box | null>(null);
-  const [place, setPlace] = useState<{ top: number; left: number } | null>(null);
+  /** The card's own size, measured after every render that could change it. */
+  const [cardSize, setCardSize] = useState<Size | null>(null);
 
   const card = useRef<HTMLDivElement>(null);
   const [view, setView] = useState(() => ({
@@ -173,7 +163,6 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
   useEffect(() => {
     setTarget(null);
     setBox(null);
-    setPlace(null);
     if (window.location.pathname !== step.to) {
       navigate(step.to, { replace: true });
     }
@@ -209,28 +198,30 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
 
     // Instantly, not smoothly: a smooth scroll is still travelling when the
     // first measurement lands, and the hole ends up cut around where the
-    // element used to be.
+    // element used to be. Said on every call, because the landing page sets
+    // `scroll-behavior: smooth` on <html> and a call that names no behaviour
+    // inherits it.
     // Its own function: every branch below ends the *scrolling*, not the
     // effect, which still has a measurement and three listeners to set up.
     const settle = () => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const litHeight = target.getBoundingClientRect().height + HALO * 2;
-      // The card is already laid out — invisible until it is placed, but
-      // measurable — so the scroll can be chosen knowing what has to fit.
+      // The card is already laid out, so the scroll can be chosen knowing
+      // what has to fit.
       const cardH = card.current?.offsetHeight ?? 220;
-      const cardW = Math.min(CARD_MAX, vw - MARGIN * 2);
+      const cardW = cardWidth(vw);
 
       if (litHeight > vh - MARGIN * 2) {
         // Longer than the screen. Park its top rather than centring it, so
         // what shows is the beginning of the thing — the first rows of a
         // roster, not its middle — with dark above it to frame it.
-        target.scrollIntoView({ block: "start", inline: "center" });
-        window.scrollBy(0, -Math.round(vh * LIT_TOP));
+        target.scrollIntoView({ behavior: "instant", block: "start", inline: "center" });
+        window.scrollBy({ top: -Math.round(vh * LIT_TOP), behavior: "instant" });
         return;
       }
 
-      target.scrollIntoView({ block: "center", inline: "center" });
+      target.scrollIntoView({ behavior: "instant", block: "center", inline: "center" });
 
       // Centred is only right if the card can stand clear of it. Where a
       // flank is wide enough the card goes beside it and centred is right;
@@ -247,7 +238,7 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
 
       const room = vh - litHeight - GAP - cardH - MARGIN;
       const top = rect.top - HALO;
-      if (room >= MARGIN && top > room) window.scrollBy(0, top - room);
+      if (room >= MARGIN && top > room) window.scrollBy({ top: top - room, behavior: "instant" });
     };
     settle();
 
@@ -291,61 +282,33 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
   }, [target]);
 
   // ---- placing the card ---------------------------------------------------
-  // Before paint, so it never shows up in the wrong place first.
+  // The place itself is worked out while rendering (`placeCard`, below), from
+  // the box, the screen and the card's size, so no effect can leave the card
+  // without one. Only its size needs the DOM, and it is stored only when it
+  // changed.
+  const measureCard = useCallback(() => {
+    const el = card.current;
+    if (!el) return;
+    const width = cardWidth(window.innerWidth);
+    const height = el.offsetHeight;
+    setCardSize((size) =>
+      size && size.width === width && size.height === height ? size : { width, height },
+    );
+  }, []);
+  // Before paint, whenever what the card holds could have changed: the stop,
+  // the "tap it" line that comes with a found element, the language, the
+  // screen. The first of these is the one moment the card has no place yet,
+  // and this gives it one before anything is drawn.
+  useLayoutEffect(measureCard, [measureCard, index, target, view, i18n.resolvedLanguage]);
+  // And whatever else moves its edges, such as a webfont arriving late. An
+  // observer reports a frame later, which is why it isn't the only measure.
   useLayoutEffect(() => {
     const el = card.current;
     if (!el) return;
-    const width = Math.min(CARD_MAX, window.innerWidth - MARGIN * 2);
-    const height = el.offsetHeight;
-    const vh = window.innerHeight;
-    const vw = window.innerWidth;
-
-    if (!box) {
-      setPlace({
-        top: Math.max(MARGIN, (vh - height) / 2),
-        left: Math.max(MARGIN, (vw - width) / 2),
-      });
-      return;
-    }
-
-    const clampX = (x: number) =>
-      Math.min(Math.max(MARGIN, x), Math.max(MARGIN, vw - width - MARGIN));
-    const clampY = (y: number) =>
-      Math.min(Math.max(MARGIN, y), Math.max(MARGIN, vh - height - MARGIN));
-
-    const middleX = clampX(box.left + box.width / 2 - width / 2);
-    // The middle of however much of it is on screen — a list running off the
-    // bottom must not drag the card off with it.
-    const middleY = clampY(
-      (Math.max(0, box.top) + Math.min(vh, box.top + box.height)) / 2 -
-        height / 2,
-    );
-
-    const below = box.top + box.height + GAP;
-    const above = box.top - GAP - height;
-    const endSide = box.left + box.width + GAP;
-    const startSide = box.left - GAP - width;
-    // Whichever flank has more room, which is the same question in either
-    // writing direction — the geometry is measured, not assumed.
-    const roomEnd = vw - endSide - MARGIN;
-    const roomStart = box.left - GAP - MARGIN;
-
-    if (below + height + MARGIN <= vh) {
-      setPlace({ top: below, left: middleX });
-    } else if (above >= MARGIN) {
-      setPlace({ top: above, left: middleX });
-    } else if (Math.max(roomEnd, roomStart) >= width) {
-      setPlace({
-        top: middleY,
-        left: roomEnd >= roomStart ? endSide : startSide,
-      });
-    } else {
-      // Nothing fits around it. Sit as low as the screen allows, which covers
-      // the least of it — the page could not be scrolled far enough to open a
-      // gap, so some overlap is the honest outcome rather than a bug.
-      setPlace({ top: Math.max(MARGIN, vh - height - MARGIN), left: middleX });
-    }
-  }, [box, index, view, i18n.resolvedLanguage]);
+    const observer = new ResizeObserver(measureCard);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [measureCard]);
 
   // ---- keyboard, focus, and the lock --------------------------------------
   useEffect(() => {
@@ -426,6 +389,9 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
 
   const scrim = "pointer-events-auto fixed bg-navy-deep/70 backdrop-blur-[1px]";
   const { w: vw, h: vh } = view;
+  // Centred with no box, or with none of it on screen: the dark below never
+  // stands without the card standing over it.
+  const place = cardSize ? placeCard({ width: vw, height: vh }, cardSize, box) : null;
   /** The box clipped to the screen — what the dark is laid out against. */
   const clip = (n: number, max: number) => Math.min(Math.max(0, n), max);
   const edge = box
@@ -500,7 +466,7 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
         style={{
           top: place?.top ?? 0,
           left: place?.left ?? 0,
-          width: Math.min(CARD_MAX, vw - MARGIN * 2),
+          width: cardWidth(vw),
         }}
       >
         <div className="flex items-center justify-between gap-3">

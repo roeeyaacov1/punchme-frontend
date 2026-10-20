@@ -207,9 +207,10 @@ Already in place and must survive any redesign: skip link, visible focus rings
 
 ## Verification
 
-There are **no component or render tests** — the 21 test files cover pure logic
+There are **no component or render tests** — the 22 test files cover pure logic
 only: the API client, the calculator, the onboarding draft, the language a
-first visit opens in, the tour, the Overview and Activity logic, the kit's
+first visit opens in, the tour and where its card stands, the Overview and
+Activity logic, the kit's
 wallpaper and arrow keys, the kit's copy in both languages, and ten helpers in
 `src/lib`. The browser is the safety net, so use it.
 
