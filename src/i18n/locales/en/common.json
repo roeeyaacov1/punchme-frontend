@@ -883,7 +883,12 @@
     "steps": {
       "overview": {
         "title": "Is it working?",
-        "body": "This is the answer, and it is the first thing on the page every morning."
+        "body": "This is the answer, and it is the first thing on the page every morning.",
+        "titleHire": "How the shop is doing",
+        "bodyHire": "Who came back this month, and what happened this week.",
+        "titleFree": "Not live yet",
+        "bodyFree": "These are the steps between the card you designed and a customer holding it.",
+        "bodyFreeHire": "The card isn't live yet. Once it is, this page shows the shop's day."
       },
       "customers": {
         "title": "Your customers",
@@ -891,7 +896,8 @@
       },
       "join": {
         "title": "How customers join",
-        "body": "This goes on the counter. One scan and your card is in their wallet — no app, no signup."
+        "body": "This goes on the counter. They scan it, confirm their mobile number with a text, and your card is in their wallet: no app, no account, no password.",
+        "bodyFree": "Once the card is live, this goes on the counter: they scan it, confirm their number with a text, and your card is in their wallet."
       },
       "design": {
         "title": "The card stays yours",
@@ -899,10 +905,13 @@
       },
       "activate": {
         "title": "When you're ready",
-        "body": "Designing and previewing is free. This is the button that lets real customers start joining."
+        "body": "Designing and previewing is free. Activating costs <ltr>₪{{price}}</ltr> a month and lets real customers start joining."
       },
       "scan": {
-        "act": "Tap it — the camera opens and you are ready for the first customer."
+        "act": "Tap it and the camera opens.",
+        "title": "Scan a card",
+        "body": "Hold the customer's pass up to the camera; the stamp lands the moment it reads. When a card is full, hand over the reward and mark it given.",
+        "bodyFree": "Once the card is live, this is where you stamp cards."
       }
     }
   },

@@ -169,7 +169,7 @@ export function DashboardLayout() {
         </div>
 
         {/* Over everything, and only on a first arrival — see DashboardTour. */}
-        <DashboardTour replay={tourAsks} />
+        <DashboardTour replay={tourAsks} frame={frame} />
 
         <PhoneBar
           frame={frame}

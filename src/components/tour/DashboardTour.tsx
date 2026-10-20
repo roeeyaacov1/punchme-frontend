@@ -6,16 +6,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { PunchMark } from "../marketing/PunchMark";
-import { ctaClasses, focusRing } from "../marketing/primitives";
-import { GroupLabel } from "../dashboard/primitives";
+import { useAuth } from "../../auth/useAuth";
 import { useBusiness } from "../../business/useBusiness";
-import { canEnrollRealCustomers } from "../../business/gating";
+import { canEnrollRealCustomers, isOwner } from "../../business/gating";
 import { isStandalone } from "../../pwa/installPrompt";
-import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion";
+import { Button, StampRow, useReducedMotion } from "../kit";
 import { cn } from "../../lib/cn";
 import { tourSteps, type TourStep } from "./steps";
 import { hasSeenTour, markTourSeen, type TourContext } from "./seen";
@@ -37,11 +35,17 @@ import { GAP, MARGIN, cardWidth, placeCard, type Box, type Size } from "./placem
  * them open it, and it is why the last stop can simply say "tap it".
  *
  * Two moments earn it: the redirect out of the wizard, and the first launch
- * from the home-screen icon. `seen.ts` remembers those separately.
+ * from the home-screen icon. `seen.ts` remembers those separately, for each
+ * person. It holds back on the day of activation, so "You're live!" and the
+ * sign switching on aren't covered; it opens on the next arrival instead.
  *
  * It only ever *starts* on the overview. The installed app carries a "Scan a
  * card" shortcut, and a tour that opens over the scanner is a tour that opens
  * with a customer waiting.
+ *
+ * It wears the frame's Lightbox: the kit's scrim with no blur, an ink rim
+ * around what is lit, and a kit panel with kit buttons, its progress the
+ * card filling up.
  */
 
 /** Breathing room between the lit element and the dark. */
@@ -52,11 +56,13 @@ const LIT_TOP = 0.08;
 /** How long to wait for a stop's element before giving up and just talking.
  * A cold customers page has a request to finish first. */
 const ANCHOR_MS = 5_000;
+/** At most this long for a closing sheet to finish before opening anyway. */
+const MODAL_WAIT_MS = 1_500;
 
 /** The first element carrying this anchor that is actually on screen. The
- * rail and the tab bar both answer to `nav-scan`, and the roster is a table
- * on a desk and a stack of cards on a phone — in each pair one of the two is
- * `display: none` and measures zero. */
+ * bar and the rails all answer to `nav-scan`, and the roster is a table on a
+ * desk and a stack of cards on a phone — the ones not showing are
+ * `display: none` and measure zero. */
 function findAnchor(anchor: string): HTMLElement | null {
   const all = Array.from(
     document.querySelectorAll<HTMLElement>(`[data-tour="${anchor}"]`),
@@ -68,8 +74,50 @@ function findAnchor(anchor: string): HTMLElement | null {
   return null;
 }
 
-export function DashboardTour({ replay = 0 }: { replay?: number }) {
+/** Resolves once no modal dialog is open. A sheet that is closing keeps the
+ * rest of the page inert until its exit ends, so a card opened meanwhile
+ * could take neither focus nor a tap. */
+function whenNothingModal(): Promise<void> {
+  return new Promise((resolve) => {
+    const started = performance.now();
+    const check = () => {
+      if (!document.querySelector("dialog:modal") || performance.now() - started > MODAL_WAIT_MS) {
+        resolve();
+      } else {
+        window.setTimeout(check, 50);
+      }
+    };
+    check();
+  });
+}
+
+/** The screen's safe areas at the top and the bottom, as numbers: the card
+ * keeps clear of the notch and the home indicator. */
+function safeInsets(): { top: number; bottom: number } {
+  const probe = document.createElement("div");
+  probe.style.cssText =
+    "position:fixed;visibility:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)";
+  document.body.appendChild(probe);
+  const style = getComputedStyle(probe);
+  const insets = { top: parseFloat(style.paddingTop) || 0, bottom: parseFloat(style.paddingBottom) || 0 };
+  probe.remove();
+  return insets;
+}
+
+export function DashboardTour({
+  replay = 0,
+  frame,
+  onOpenChange,
+}: {
+  replay?: number;
+  /** The frame's theme classes: the tour is part of the frame. */
+  frame: string;
+  /** Told when the walk opens and closes, so the shell leaves the focus and
+   * the announcements of its own navigations to it. */
+  onOpenChange?: (open: boolean) => void;
+}) {
   const { business, role } = useBusiness();
+  const { user } = useAuth();
   const location = useLocation();
   const [open, setOpen] = useState(false);
 
@@ -78,51 +126,89 @@ export function DashboardTour({ replay = 0 }: { replay?: number }) {
   // gets marked when it closes.
   const context = useRef<TourContext>(isStandalone() ? "app" : "web");
   const decided = useRef(false);
+  /** Where focus was when the walk opened, to give it back on closing. */
+  const returnTo = useRef<HTMLElement | null>(null);
 
   const steps = useMemo(
     () => tourSteps(role, canEnrollRealCustomers(business)),
     [role, business],
   );
+  const activated = new URLSearchParams(location.search).get("activated") === "1";
+
+  const begin = useCallback(() => {
+    const active = document.activeElement;
+    returnTo.current = active instanceof HTMLElement && active !== document.body ? active : null;
+    setOpen(true);
+  }, []);
 
   useEffect(() => {
     if (decided.current) return;
     // `business` carries both the role and the plan the walk is built from,
-    // so an early run would build the wrong one.
-    if (!business) return;
+    // and `user` whose walk it is, so an early run would build the wrong one.
+    if (!business || !user) return;
     if (location.pathname !== "/dashboard") return;
+    // The day of activation: not opened and not marked seen, so it opens on
+    // the next arrival instead of over "You're live!".
+    if (activated) return;
     decided.current = true;
     if (steps.length === 0) return;
-    if (hasSeenTour(context.current)) return;
-    setOpen(true);
-  }, [business, location.pathname, steps.length]);
+    if (hasSeenTour(user.id, context.current, isOwner(role))) return;
+    begin();
+  }, [business, user, role, location.pathname, activated, steps.length, begin]);
 
-  // Asked for from the account menu. The count only ever goes up; its
+  // Asked for from the account sheet. The count only ever goes up; its
   // starting value is whatever it was when this mounted, so the first render
-  // is not itself a request.
+  // is not itself a request. The sheet it was asked from is still closing,
+  // so the walk waits for it.
   const asked = useRef(replay);
   useEffect(() => {
     if (replay === asked.current) return;
     asked.current = replay;
     decided.current = true;
-    setOpen(true);
-  }, [replay]);
+    let cancelled = false;
+    void whenNothingModal().then(() => {
+      if (!cancelled) begin();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [replay, begin]);
 
-  const close = useCallback(() => {
-    setOpen(false);
-    markTourSeen(context.current);
-  }, []);
+  useEffect(() => {
+    onOpenChange?.(open);
+  }, [open, onOpenChange]);
+
+  // `toPage`: the walk ended somewhere other than where it began (it brought
+  // them back to the Overview, or the last stop's tap took them to Scan), so
+  // focus goes to the page. Otherwise it goes back where it was. Never to
+  // <body>.
+  const close = useCallback(
+    (toPage: boolean) => {
+      setOpen(false);
+      if (user) markTourSeen(user.id, context.current);
+      const back = returnTo.current;
+      returnTo.current = null;
+      const target = !toPage && back?.isConnected ? back : document.getElementById("dashboard-main");
+      target?.focus({ preventScroll: true });
+    },
+    [user],
+  );
 
   if (!open || steps.length === 0) return null;
   // Keyed so a replay starts at the first stop rather than wherever the last
   // run stopped.
-  return <Walk key={replay} steps={steps} onClose={close} />;
+  return (
+    <div className={cn(frame, "contents")}>
+      <Walk key={replay} steps={steps} onClose={close} />
+    </div>
+  );
 }
 
-function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
+function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean) => void }) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const reduced = usePrefersReducedMotion();
+  const reduced = useReducedMotion();
   const rtl = i18n.dir() === "rtl";
 
   const [index, setIndex] = useState(0);
@@ -136,6 +222,7 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
   const [view, setView] = useState(() => ({
     w: typeof window === "undefined" ? 0 : window.innerWidth,
     h: typeof window === "undefined" ? 0 : window.innerHeight,
+    ...safeInsets(),
   }));
   const step = steps[index];
   const last = index === steps.length - 1;
@@ -143,8 +230,9 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
   const finish = useCallback(() => {
     // Back where the walk began. It moved them through five pages to get
     // here; leaving them on the last one would be leaving them lost.
-    if (location.pathname !== "/dashboard") navigate("/dashboard", { replace: true });
-    onClose();
+    const away = location.pathname !== "/dashboard";
+    if (away) navigate("/dashboard", { replace: true });
+    onClose(away);
   }, [location.pathname, navigate, onClose]);
 
   const go = useCallback(
@@ -182,7 +270,7 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
       }
       // Gave up: the page is one this business does not have (an empty
       // roster, a panel behind a plan), or the request is still out. Say the
-      // sentence anyway rather than hanging on a dark screen.
+      // sentence anyway, centred, rather than hanging on a dark screen.
       if (performance.now() - started > ANCHOR_MS) return;
       requestAnimationFrame(look);
     };
@@ -312,10 +400,6 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
 
   // ---- keyboard, focus, and the lock --------------------------------------
   useEffect(() => {
-    // Nothing to restore focus to on the way out: the walk moves through five
-    // pages, so whatever was focused when it opened is long unmounted.
-    card.current?.focus();
-
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         finish();
@@ -361,37 +445,52 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
 
   // Focus moves to the card on every stop, so a screen reader is handed the
   // new sentence rather than left on a button that has just changed meaning.
+  // Not before the card has its place: until then it is hidden, and a hidden
+  // element can't take focus.
+  const shown = cardSize !== null;
   useEffect(() => {
-    card.current?.focus();
-  }, [index]);
+    if (shown) card.current?.focus();
+  }, [index, shown]);
 
   // ---- the tap that ends it ----------------------------------------------
+  // The last stop lights Scan. A tap on it ends the walk on every plan, not
+  // only where the copy asks for one: a Free owner who taps it anyway mustn't
+  // be left with the tour over the scanner. Their navigation stands; the
+  // walk doesn't haul them back to the Overview behind it.
   useEffect(() => {
-    if (!step.act || !target) return;
+    if (!last || !target) return;
     const onClick = (event: MouseEvent) => {
       if (!target.contains(event.target as Node)) return;
-      // They went where the tour pointed. Their navigation stands; do not
-      // haul them back to the overview behind it.
-      onClose();
+      onClose(true);
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
-  }, [step.act, target, onClose]);
+  }, [last, target, onClose]);
 
   // A rotate or a keyboard opening moves everything, including the card,
   // and a stop with no lit element has no other reason to re-render.
   useEffect(() => {
     const onResize = () =>
-      setView({ w: window.innerWidth, h: window.innerHeight });
+      setView({ w: window.innerWidth, h: window.innerHeight, ...safeInsets() });
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const scrim = "pointer-events-auto fixed bg-navy-deep/70 backdrop-blur-[1px]";
+  // The kit's scrim, ink at 40% by day and black at 60% at night, with no
+  // blur: the page behind stays readable as the page it is.
+  const scrim = "pointer-events-auto fixed bg-scrim";
   const { w: vw, h: vh } = view;
   // Centred with no box, or with none of it on screen: the dark below never
-  // stands without the card standing over it.
-  const place = cardSize ? placeCard({ width: vw, height: vh }, cardSize, box) : null;
+  // stands without the card standing over it. Placed inside the safe areas,
+  // clear of the notch and the home indicator.
+  const placed = cardSize
+    ? placeCard(
+        { width: vw, height: vh - view.top - view.bottom },
+        cardSize,
+        box && { ...box, top: box.top - view.top },
+      )
+    : null;
+  const place = placed && { top: placed.top + view.top, left: placed.left };
   /** The box clipped to the screen — what the dark is laid out against. */
   const clip = (n: number, max: number) => Math.min(Math.max(0, n), max);
   const edge = box
@@ -407,7 +506,7 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
     // Transparent to the pointer, so that only what is drawn inside it — the
     // four dark panes and the card — takes a click. The gap between them is
     // the lit element, and it must feel like nothing is there.
-    <div className="pointer-events-none fixed inset-0 z-50">
+    <div className="pointer-events-none fixed inset-0 z-50 text-ink">
       {/* Four panes rather than one sheet with a hole punched in it. A hole
           made of shadow still swallows the taps aimed at what it reveals; a
           gap between four rectangles has nothing over it at all. */}
@@ -440,11 +539,11 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
               height: edge.bottom - edge.top,
             }}
           />
-          {/* The rim, and nothing else — pointer-events-none, or it would be
-              the very thing the four panes were arranged to avoid. */}
+          {/* The rim, in ink, and nothing else — pointer-events-none, or it
+              would be the very thing the four panes were arranged to avoid. */}
           <div
             aria-hidden
-            className="pointer-events-none fixed rounded-2xl ring-2 ring-primary"
+            className="pointer-events-none fixed rounded-field ring-2 ring-ink"
             style={box}
           />
         </>
@@ -459,8 +558,8 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
         aria-label={t("tour.label")}
         tabIndex={-1}
         className={cn(
-          "pointer-events-auto fixed flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 shadow-panel-lift outline-none sm:p-5",
-          !reduced && "animate-sheet-up",
+          "pointer-events-auto fixed flex flex-col gap-3 rounded-panel border border-border bg-surface p-5 shadow-panel-lift outline-none",
+          reduced ? "animate-gentle-in" : "animate-lights-on",
           !place && "invisible",
         )}
         style={{
@@ -469,44 +568,40 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
           width: cardWidth(vw),
         }}
       >
-        <div className="flex items-center justify-between gap-3">
-          <GroupLabel>{t("tour.title")}</GroupLabel>
-          <button
-            type="button"
-            onClick={finish}
-            className={cn(
-              "-me-2 inline-flex min-h-[44px] items-center rounded-xl px-3 text-sm font-semibold text-ink-subtle transition-colors hover:text-ink",
-              focusRing,
-            )}
-          >
+        <div className="-mt-1 flex items-center justify-between gap-3">
+          <p className="type-label text-ink-muted">{t("tour.title")}</p>
+          <Button variant="quiet" onClick={finish} className="-me-3">
             {t("tour.skip")}
-          </button>
+          </Button>
         </div>
 
         {/* One live region per stop, so moving on is announced as the
             sentence it is rather than as three unrelated changes — position
-            first, because how much is left is the thing the marks show and
+            first, because how much is left is the thing the stamps show and
             speech cannot. */}
         <div aria-live="polite" className="flex flex-col gap-2">
           <p className="sr-only">
             {t("tour.progress", { step: index + 1, total: steps.length })}
           </p>
 
-          <h2 className="t-card-title flex items-center gap-2 text-ink">
-            <step.Icon size={18} aria-hidden className="shrink-0 text-primary-text" />
+          <h2 className="type-card-title flex items-center gap-2 text-ink">
+            <step.Icon aria-hidden className="size-5 shrink-0" />
             {t(step.title)}
           </h2>
 
-          {/* Where it lives, in the rail's own words and off the rail's own
-              keys — the rail itself is under the dark at this moment. */}
-          <GroupLabel>
+          {/* Where it lives, in the navigation's own words — the navigation
+              itself is under the dark at this moment. */}
+          <p className="type-label text-ink-muted">
             {t(`dashboard.groups.${step.group}`)} · {t(`dashboard.nav.${step.nav}`)}
-          </GroupLabel>
+          </p>
 
-          <p className="text-sm text-ink-muted">{t(step.body)}</p>
+          <p className="type-body text-ink-muted">
+            {/* The price reads left to right inside Hebrew. */}
+            <Trans i18nKey={step.body} values={step.values} components={{ ltr: <bdi dir="ltr" /> }} />
+          </p>
 
           {step.act && target && (
-            <p className="text-sm font-semibold text-primary-text">{t(step.act)}</p>
+            <p className="type-body font-semibold text-ink">{t(step.act)}</p>
           )}
         </div>
 
@@ -514,36 +609,20 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: () => void }) {
           {/* The card filling up, which is the one form this product already
               means something by. Decorative — the line above says it in
               words. */}
-          <span aria-hidden className="flex items-center gap-1.5">
-            {steps.map((s, i) => (
-              <PunchMark
-                key={s.key}
-                state={i <= index ? "stamped" : "empty"}
-                size={13}
-              />
-            ))}
-          </span>
+          <StampRow total={steps.length} filled={index + 1} className="max-w-[8.5rem] justify-start" />
 
           <div className="flex items-center gap-2">
             {index > 0 && (
-              <button
-                type="button"
-                onClick={() => go(-1)}
-                className={ctaClasses("secondary", "sm")}
-              >
+              <Button variant="secondary" onClick={() => go(-1)}>
                 {t("common.back")}
-              </button>
+              </Button>
             )}
-            <button
-              type="button"
+            <Button
               onClick={last ? finish : () => go(1)}
-              className={ctaClasses("primary", "sm")}
+              iconEnd={last ? undefined : <ArrowRight aria-hidden className="rtl:-scale-x-100" />}
             >
               {last ? t("tour.done") : t("common.next")}
-              {!last && (
-                <ArrowRight size={15} aria-hidden className="rtl:-scale-x-100" />
-              )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
