@@ -5,6 +5,7 @@ import { cn } from "../../lib/cn";
 import { Button } from "./Button";
 import { useReducedMotion } from "./motion";
 import { useModal } from "./useModal";
+import { useSheetDrag } from "./useSheetDrag";
 
 export interface ModalProps {
   open: boolean;
@@ -45,8 +46,9 @@ export function Dialog(props: ModalProps) {
 
 /**
  * Work beside the page: a filter, a short form, a choice. On a phone it
- * rises from the bottom on the drawer curve; from 768px up it comes in from
- * the end edge, the left in Hebrew. With reduced motion, a crossfade.
+ * rises from the bottom on the drawer curve, and its handle and title row
+ * drag it back down (`useSheetDrag`); from 768px up it comes in from the end
+ * edge, the left in Hebrew. With reduced motion, a crossfade.
  */
 export function Sheet(props: ModalProps) {
   return <Modal {...props} kind="sheet" />;
@@ -68,6 +70,8 @@ function Modal({
   const titleId = useId();
   const descriptionId = useId();
   const heading = useRef<HTMLHeadingElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const scrim = useRef<HTMLDivElement>(null);
   const { shown, leaving, dialogProps } = useModal({
     open,
     onClose,
@@ -75,6 +79,8 @@ function Modal({
     initialFocus: initialFocus ?? heading,
     returnFocus,
   });
+  const sheet = kind === "sheet";
+  const drag = useSheetDrag({ panel, scrim, enabled: sheet && open, reduced, onClose });
   if (!shown) return null;
 
   // A press outside the panel closes it, as the scrim promises.
@@ -82,7 +88,6 @@ function Modal({
     if (event.target === event.currentTarget) onClose();
   };
 
-  const sheet = kind === "sheet";
   let panelMotion: string;
   if (reduced) panelMotion = leaving ? "animate-gentle-out" : "animate-gentle-in";
   else if (sheet) panelMotion = leaving ? "animate-sheet-fall md:animate-drawer-out" : "animate-sheet-rise md:animate-drawer-in";
@@ -95,10 +100,11 @@ function Modal({
       aria-describedby={description ? descriptionId : undefined}
       className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-hidden bg-transparent p-0 text-ink backdrop:bg-transparent"
     >
-      <div
-        aria-hidden
-        className={cn("fixed inset-0 bg-scrim", leaving ? "animate-exit-fade" : "animate-gentle-in")}
-      />
+      {/* The scrim fades inside a layer of its own, which a sheet's drag
+          lightens as it goes down. */}
+      <div ref={scrim} aria-hidden className="fixed inset-0">
+        <div className={cn("size-full bg-scrim", leaving ? "animate-exit-fade" : "animate-gentle-in")} />
+      </div>
       <div
         onClick={onBackdrop}
         className={cn(
@@ -107,32 +113,43 @@ function Modal({
         )}
       >
         <div
+          ref={panel}
           className={cn(
             "relative flex w-full flex-col bg-surface shadow-panel-lift",
             sheet
-              ? "max-h-[90dvh] max-w-lg rounded-t-glass border border-b-0 border-border pb-[max(1.5rem,env(safe-area-inset-bottom))] md:h-full md:max-h-none md:max-w-md md:rounded-none md:rounded-s-panel md:border-y-0 md:border-e-0 md:pb-6"
+              ? // On a phone the sheet's ground carries on 3rem below its
+                // edge, as a shadow so the scroller can't reach it, and a pull
+                // upward lifts more sheet rather than a gap.
+                "max-h-[90dvh] max-w-lg rounded-t-glass border border-b-0 border-border pb-[max(1.5rem,env(safe-area-inset-bottom))] max-md:shadow-[shadow:var(--shadow-panel-lift),0_3rem_0_rgb(var(--c-surface))] md:h-full md:max-h-none md:max-w-md md:rounded-none md:rounded-s-panel md:border-y-0 md:border-e-0 md:pb-6"
               : "max-w-md rounded-panel border border-border pb-6",
             panelMotion,
           )}
         >
-          {sheet && <span aria-hidden className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-border-strong md:hidden" />}
-          <div className="flex items-start gap-4 px-6 pt-5">
-            <h2
-              ref={heading}
-              id={titleId}
-              tabIndex={-1}
-              className="type-card-title min-w-0 flex-1 pt-2.5 text-ink outline-none"
-            >
-              {title}
-            </h2>
-            <Button
-              variant="quiet"
-              size="icon"
-              aria-label={t("common.close")}
-              icon={<X aria-hidden />}
-              onClick={onClose}
-              className="-me-2.5"
-            />
+          {/* The head: on a phone, the handle and the title row drag the
+              sheet down, and nothing else in it does. */}
+          <div
+            {...(sheet ? drag : {})}
+            className={cn("shrink-0", sheet && "max-md:touch-none max-md:select-none")}
+          >
+            {sheet && <span aria-hidden className="mx-auto mt-2.5 block h-1 w-10 rounded-full bg-border-strong md:hidden" />}
+            <div className="flex items-start gap-4 px-6 pt-5">
+              <h2
+                ref={heading}
+                id={titleId}
+                tabIndex={-1}
+                className="type-card-title min-w-0 flex-1 pt-2.5 text-ink outline-none"
+              >
+                {title}
+              </h2>
+              <Button
+                variant="quiet"
+                size="icon"
+                aria-label={t("common.close")}
+                icon={<X aria-hidden />}
+                onClick={onClose}
+                className="-me-2.5"
+              />
+            </div>
           </div>
           <div className={cn("flex flex-col px-6", sheet && "min-h-0 flex-1 overflow-y-auto")}>
             {description && (
