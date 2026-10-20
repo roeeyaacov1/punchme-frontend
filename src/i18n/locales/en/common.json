@@ -843,6 +843,7 @@
       "signedInAs": "You're signed in as <who>{{name}}</who>, {{role}}."
     },
     "close": "Close",
+    "toOverview": "To the Overview",
     "week": {
       "title": "This week",
       "stamps_one": "stamp",
@@ -1457,9 +1458,11 @@
       "revoke": "Cancel this invite"
     },
     "denied": {
-      "title": "This page isn't yours to open",
-      "manager": "Only a manager or the owner can change the card, the poster and the messages.",
+      "title": "This page isn't open to you",
+      "manager": "Only a manager or the owner can change what customers see: the card, the standee, the messages and Refer a friend.",
       "owner": "Only the owner can open billing and the team.",
+      "askOwner": "If you need something here, ask the owner.",
+      "askManager": "If you need something here, ask a manager or the owner.",
       "back": "Back to the dashboard"
     },
     "error": {
