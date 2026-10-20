@@ -8,8 +8,9 @@ export interface EmptyStateProps {
   body?: ReactNode;
   /** The one thing to do about it. */
   action?: ReactNode;
-  /** A heading when it stands for a whole section; plain text by default. */
-  titleAs?: "h2" | "h3" | "h4" | "p";
+  /** A heading when it stands for a whole section, or the page's own h1 when
+   * it is all the page has to say; plain text by default. */
+  titleAs?: "h1" | "h2" | "h3" | "h4" | "p";
   /** Drawn as its own lit panel, or bare when it already sits inside one. */
   framed?: boolean;
   className?: string;
