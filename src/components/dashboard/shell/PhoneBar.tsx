@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 import { CircleUserRound, Ellipsis, type LucideIcon } from "lucide-react";
@@ -28,6 +29,7 @@ export type FifthSlot = "more" | "account";
 export function PhoneBar({
   frame,
   fifth,
+  fifthRef,
   fifthOpen,
   fifthLit,
   onFifth,
@@ -36,6 +38,9 @@ export function PhoneBar({
   /** The frame's theme classes, from `useDashboardTheme`. */
   frame: string;
   fifth: FifthSlot;
+  /** Where focus comes back to when the account sheet was reached through
+   * More, whose own row is gone by the time it closes. */
+  fifthRef?: Ref<HTMLButtonElement>;
   /** The sheet the fifth slot opens is showing. */
   fifthOpen: boolean;
   /** The page on screen is one the More sheet holds. */
@@ -62,6 +67,7 @@ export function PhoneBar({
         ))}
         <li className="relative flex min-w-0 flex-1 basis-0">
           <button
+            ref={fifthRef}
             type="button"
             onClick={onFifth}
             aria-haspopup="dialog"

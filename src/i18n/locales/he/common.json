@@ -857,9 +857,13 @@
     },
     "theme": {
       "label": "מראה",
-      "light": "בהיר",
-      "dark": "כהה",
-      "system": "מערכת"
+      "light": "יום",
+      "dark": "לילה",
+      "system": "אוטומטי",
+      "hint": "אוטומטי עובר ליום וללילה לפי המכשיר."
+    },
+    "account": {
+      "signedInAs": "נכנסתם בתור <who>{{name}}</who>, {{role}}."
     },
     "close": "סגירה",
     "week": {
