@@ -22,7 +22,9 @@ export function Masthead({
     <header
       className={cn(
         frame,
-        "sticky top-0 z-20 flex min-h-14 items-center border-b border-border bg-background px-4 pt-[env(safe-area-inset-top)] text-ink sm:px-6",
+        // 56px below the top inset rather than including it, or a status bar
+        // drawn over the page would eat the row the shop's name sits in.
+        "sticky top-0 z-20 flex min-h-[calc(3.5rem+env(safe-area-inset-top))] items-center border-b border-border bg-background px-4 pt-[env(safe-area-inset-top)] text-ink sm:px-6",
         className,
       )}
     >
