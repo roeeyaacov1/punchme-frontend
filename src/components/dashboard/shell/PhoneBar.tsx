@@ -3,9 +3,10 @@ import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 import { CircleUserRound, Ellipsis, type LucideIcon } from "lucide-react";
 import { useBusiness } from "../../../business/useBusiness";
-import { focusRingInset, useReducedMotion } from "../../kit";
+import { focusRingInset } from "../../kit";
 import { cn } from "../../../lib/cn";
 import { barItems, type NavItem } from "../navigation";
+import { ScanCircle } from "./ScanCircle";
 
 /** What the fifth slot opens: More for a manager or an owner, the account
  * for staff, whose More would hold nothing but account rows. */
@@ -137,13 +138,10 @@ function TabFace({ Icon, label, current }: { Icon: LucideIcon; label: string; cu
  * is, and it keeps its place in the reading order.
  *
  * The link runs from the circle's top to the bar's foot, so the whole
- * circle is its target and what the tour lights. A press sinks the circle
- * to 0.97 in 120ms; with reduced motion, it darkens to coral's hover
- * instead.
+ * circle is its target and what the tour lights.
  */
 function ScanTab({ item }: { item: NavItem }) {
   const { t } = useTranslation();
-  const reduced = useReducedMotion();
   return (
     <NavLink
       to={item.to}
@@ -162,17 +160,7 @@ function ScanTab({ item }: { item: NavItem }) {
         aria-hidden
         className="flex size-16 shrink-0 items-center justify-center rounded-full border-t border-border bg-surface"
       >
-        <span
-          className={cn(
-            // Coral carries its icon in ink (5.50:1; 7.95:1 at night).
-            "flex size-14 items-center justify-center rounded-full bg-primary text-primary-on group-focus-visible:outline group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-ink",
-            reduced
-              ? "transition-colors duration-press ease-out group-active:bg-primary-hover"
-              : "transition-transform duration-press ease-out group-active:scale-[0.97]",
-          )}
-        >
-          <item.Icon className="size-7" strokeWidth={2} />
-        </span>
+        <ScanCircle />
       </span>
       <span className="type-tag w-full truncate px-1 text-center">{t(`dashboard.nav.${item.key}`)}</span>
     </NavLink>
