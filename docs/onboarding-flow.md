@@ -209,3 +209,10 @@ Known gaps, for the rework to fix:
 - **`OnboardingGate`'s comment is wrong.** It says the gate requires a
   business, but it only checks for an account. The wallet and billing steps
   check for the business themselves.
+- **A hire can land in the wizard** (found in Phase 2's check, 20 Oct).
+  With a draft in progress on the device, the login page sends every
+  sign-in to `/onboarding`, and `SignedInIndex` in `OnboardingIndex.tsx`
+  resumes the draft for anyone with a business, whatever their role. Staff
+  signing in on a device that held someone's draft landed on
+  `/onboarding/reward`. Only an owner should resume a draft; anyone else
+  goes to `/dashboard`.
