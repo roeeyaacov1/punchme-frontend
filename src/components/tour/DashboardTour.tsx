@@ -15,6 +15,7 @@ import { canEnrollRealCustomers, isOwner } from "../../business/gating";
 import { isStandalone } from "../../pwa/installPrompt";
 import { Button, StampRow, useReducedMotion } from "../kit";
 import { cn } from "../../lib/cn";
+import { whenNothingModal } from "../dashboard/shell/whenNothingModal";
 import { tourSteps, type TourStep } from "./steps";
 import { hasSeenTour, markTourSeen, type TourContext } from "./seen";
 import { GAP, MARGIN, cardWidth, placeCard, type Box, type Size } from "./placement";
@@ -56,8 +57,6 @@ const LIT_TOP = 0.08;
 /** How long to wait for a stop's element before giving up and just talking.
  * A cold customers page has a request to finish first. */
 const ANCHOR_MS = 5_000;
-/** At most this long for a closing sheet to finish before opening anyway. */
-const MODAL_WAIT_MS = 1_500;
 
 /** The first element carrying this anchor that is actually on screen. The
  * bar and the rails all answer to `nav-scan`, and the roster is a table on a
@@ -72,23 +71,6 @@ function findAnchor(anchor: string): HTMLElement | null {
     if (r.width > 0 && r.height > 0) return el;
   }
   return null;
-}
-
-/** Resolves once no modal dialog is open. A sheet that is closing keeps the
- * rest of the page inert until its exit ends, so a card opened meanwhile
- * could take neither focus nor a tap. */
-function whenNothingModal(): Promise<void> {
-  return new Promise((resolve) => {
-    const started = performance.now();
-    const check = () => {
-      if (!document.querySelector("dialog:modal") || performance.now() - started > MODAL_WAIT_MS) {
-        resolve();
-      } else {
-        window.setTimeout(check, 50);
-      }
-    };
-    check();
-  });
 }
 
 /** The screen's safe areas at the top and the bottom, as numbers: the card
