@@ -17,18 +17,22 @@ import { lockScroll } from "./scrollLock";
  *   gesture arrives that way, so whenever the dialog closes by itself the
  *   state follows it.
  * - Focus goes to `initialFocus` (or the heading) once it's open, and back
- *   to whatever opened it once it has closed.
+ *   to whatever opened it once it has closed, or to `returnFocus` when the
+ *   caller names somewhere else. Until then the page is inert, so nothing
+ *   outside the dialog could take it any earlier.
  */
 export function useModal({
   open,
   onClose,
   exitMs,
   initialFocus,
+  returnFocus,
 }: {
   open: boolean;
   onClose: () => void;
   exitMs: number;
   initialFocus: RefObject<HTMLElement>;
+  returnFocus?: RefObject<HTMLElement>;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLElement | null>(null);
@@ -37,11 +41,18 @@ export function useModal({
   if (open && !shown) setShown(true);
   const leaving = shown && !open;
 
+  // The latest choice, read when the exit ends rather than when it began.
+  const returnTo = useRef(returnFocus);
+  useLayoutEffect(() => {
+    returnTo.current = returnFocus;
+  });
+
   const finish = useCallback(() => {
     const element = dialog.current;
     if (element?.open) element.close();
     setShown(false);
-    const back = opener.current;
+    const named = returnTo.current?.current;
+    const back = named?.isConnected ? named : opener.current;
     opener.current = null;
     if (back?.isConnected) back.focus({ preventScroll: true });
   }, []);

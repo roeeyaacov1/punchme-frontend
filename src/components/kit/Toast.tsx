@@ -34,7 +34,15 @@ interface LiveToast extends ToastInput {
  * Both live regions are there, empty, for the provider's whole life, so a
  * screen reader is listening before the first toast arrives.
  */
-export function ToastProvider({ children }: { children: ReactNode }) {
+export function ToastProvider({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  /** On the region: the theme scope a frame wears while the pages inside it
+   * keep their own, or anything else the region needs. */
+  className?: string;
+}) {
   const { t } = useTranslation();
   const reduced = useReducedMotion();
   const [toasts, setToasts] = useState<LiveToast[]>([]);
@@ -103,7 +111,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <section
         aria-label={t("kit.toast.region")}
-        className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--toast-offset,1rem)_+_env(safe-area-inset-bottom))] z-50 flex flex-col items-center gap-2 px-4 sm:items-end sm:px-6"
+        className={cn(
+          "pointer-events-none fixed inset-x-0 bottom-[calc(var(--toast-offset,1rem)_+_env(safe-area-inset-bottom))] z-50 flex flex-col items-center gap-2 px-4 sm:items-end sm:px-6",
+          className,
+        )}
       >
         <div role="status" aria-live="polite" className="flex w-full flex-col items-center gap-2 sm:items-end">
           {polite.map(item)}

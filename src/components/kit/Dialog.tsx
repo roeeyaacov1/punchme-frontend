@@ -16,6 +16,13 @@ export interface ModalProps {
   footer?: ReactNode;
   /** What takes focus on opening. The title, if nothing is given, so it is read first. */
   initialFocus?: RefObject<HTMLElement>;
+  /**
+   * Where focus goes once it has closed, when not back to what opened it:
+   * the page, after a row inside it went somewhere, or another control when
+   * the opener has gone. Read when the exit ends, so it can be chosen as the
+   * close begins.
+   */
+  returnFocus?: RefObject<HTMLElement>;
 }
 
 /** 180ms out, or the 150ms gentle fade; the hook waits this long before closing. */
@@ -53,6 +60,7 @@ function Modal({
   children,
   footer,
   initialFocus,
+  returnFocus,
   kind,
 }: ModalProps & { kind: "dialog" | "sheet" }) {
   const { t } = useTranslation();
@@ -65,6 +73,7 @@ function Modal({
     onClose,
     exitMs: reduced ? GENTLE_MS : EXIT_MS,
     initialFocus: initialFocus ?? heading,
+    returnFocus,
   });
   if (!shown) return null;
 

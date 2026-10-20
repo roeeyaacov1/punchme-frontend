@@ -20,6 +20,8 @@ export interface ListRowProps {
   chevron?: boolean;
   /** The whole row is the link... */
   to?: To;
+  /** ...to the page already being shown, said with `aria-current`. */
+  current?: boolean;
   /** ...or the whole row is the button. Never a button inside a link. */
   onClick?: () => void;
   className?: string;
@@ -30,7 +32,7 @@ export interface ListRowProps {
  * whole row is the one link or button, its ring drawn inside the edge so a
  * panel's rounded corner can't clip it.
  */
-export function ListRow({ leading, title, meta, trailing, chevron, to, onClick, className }: ListRowProps) {
+export function ListRow({ leading, title, meta, trailing, chevron, to, current, onClick, className }: ListRowProps) {
   const content = (
     <>
       {leading && <span className="flex shrink-0 items-center">{leading}</span>}
@@ -47,7 +49,7 @@ export function ListRow({ leading, title, meta, trailing, chevron, to, onClick, 
   return (
     <li className={className}>
       {to !== undefined ? (
-        <Link to={to} className={active}>
+        <Link to={to} aria-current={current ? "page" : undefined} className={active}>
           {content}
         </Link>
       ) : onClick ? (
