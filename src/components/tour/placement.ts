@@ -7,8 +7,9 @@
  * be seen under it is a phone that can't be used until a rotation or a
  * keyboard's Escape lets it go. A stop's element can fail to turn up for
  * many reasons (a panel a plan doesn't have, a request still out, a page
- * that changed), so the card never waits for it: it stands in the middle
- * while the element is looked for, and stays there if it never comes.
+ * that changed), so the card barely waits for it: after at most 150ms in
+ * the dark (DashboardTour's ARRIVE_WAIT_MS) it stands in the middle while
+ * the element is looked for, and stays there if it never comes.
  *
  * Coordinates are the screen's, as `getBoundingClientRect` gives them, so
  * "left" here is a measured position rather than a writing direction: the

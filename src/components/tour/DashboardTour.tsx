@@ -57,6 +57,11 @@ const LIT_TOP = 0.08;
 /** How long to wait for a stop's element before giving up and just talking.
  * A cold customers page has a request to finish first. */
 const ANCHOR_MS = 5_000;
+/** How long a stop's card stays dark waiting for its element, before it
+ * arrives in the middle instead. The one moment the dark stands without a
+ * card, and shorter than the card's own arrival: Escape and the arrows work
+ * throughout. */
+const ARRIVE_WAIT_MS = 150;
 
 /** The first element carrying this anchor that is actually on screen. The
  * bar and the rails all answer to `nav-scan`, and the roster is a table on a
@@ -217,10 +222,17 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean
     onClose(away);
   }, [location.pathname, navigate, onClose]);
 
+  // The lit element and its box go in the same update as the stop, or the
+  // next stop's words are drawn for a frame over the last stop's hole.
   const go = useCallback(
-    (move: number) =>
-      setIndex((i) => Math.min(steps.length - 1, Math.max(0, i + move))),
-    [steps.length],
+    (move: number) => {
+      const next = Math.min(steps.length - 1, Math.max(0, index + move));
+      if (next === index) return;
+      setIndex(next);
+      setTarget(null);
+      setBox(null);
+    },
+    [index, steps.length],
   );
 
   // ---- driving ------------------------------------------------------------
@@ -379,6 +391,34 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean
     observer.observe(el);
     return () => observer.disconnect();
   }, [measureCard]);
+
+  // ---- arriving -----------------------------------------------------------
+  // Each stop's card arrives by light where it will stand: dark until its
+  // element is measured, then 240ms of `lights-on` beside it. Rather than
+  // flashing in the middle on the way there, it waits for the element up to
+  // ARRIVE_WAIT_MS, then arrives in the middle; and if the element turns up
+  // after all, a roster that was still loading, it arrives again beside it.
+  // Never by travel: moving it across the dark would cross what it explains.
+  const lit = box !== null;
+  const arrival = `${index}:${lit ? "lit" : "centred"}`;
+  const [arrived, setArrived] = useState<string | null>(null);
+  useEffect(() => {
+    if (arrived === arrival) return;
+    const arrive = () => {
+      // Read once while dark, or the light can't come up a second time:
+      // the keyframe it already had isn't played again unless the dark
+      // card's style was taken in between.
+      void card.current?.offsetHeight;
+      setArrived(arrival);
+    };
+    if (lit) {
+      arrive();
+      return;
+    }
+    const timer = window.setTimeout(arrive, ARRIVE_WAIT_MS);
+    return () => window.clearTimeout(timer);
+  }, [arrival, arrived, lit]);
+  const here = arrived === arrival;
 
   // ---- keyboard, focus, and the lock --------------------------------------
   useEffect(() => {
@@ -540,8 +580,11 @@ function Walk({ steps, onClose }: { steps: TourStep[]; onClose: (toPage: boolean
         aria-label={t("tour.label")}
         tabIndex={-1}
         className={cn(
-          "pointer-events-auto fixed flex flex-col gap-3 rounded-panel border border-border bg-surface p-5 shadow-panel-lift outline-none",
-          reduced ? "animate-gentle-in" : "animate-lights-on",
+          "fixed flex flex-col gap-3 rounded-panel border border-border bg-surface p-5 shadow-panel-lift outline-none",
+          // Dark, and not to be pressed, until it has arrived.
+          here
+            ? cn("pointer-events-auto", reduced ? "animate-gentle-in" : "animate-lights-on")
+            : "pointer-events-none opacity-0",
           !place && "invisible",
         )}
         style={{
