@@ -16,6 +16,12 @@
       "autoPort": true
     },
     {
+      "name": "punchme-phone",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:phone"],
+      "port": 5180
+    },
+    {
       "name": "punchme-backend",
       "runtimeExecutable": "uv",
       "runtimeArgs": ["run", "--directory", "../punchme-backend", "python", "manage.py", "runserver", "127.0.0.1:8000"],
