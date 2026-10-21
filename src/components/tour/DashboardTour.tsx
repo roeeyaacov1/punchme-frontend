@@ -251,8 +251,8 @@ function Walk({
   /** Whether the last move was a step forward, which presses a stamp. */
   const forward = useRef(false);
   /** The stop whose stamp has landed: set as its card first arrives after a
-   * step forward, so the stamp is pressed as the light comes up, and only
-   * once however often the card arrives at that stop. */
+   * step forward, so the stamp is pressed just after the light comes up,
+   * and only once however often the card arrives at that stop. */
   const [landed, setLanded] = useState<number | null>(null);
 
   // The lit element and its box go in the same update as the stop, or the
@@ -687,12 +687,14 @@ function Walk({
           {/* The card filling up, which is the one form this product already
               means something by. Decorative — the line above says it in
               words. Each step forward presses its stamp with the product's
-              one gesture, the kit's landing on the overshoot; a step back
-              just takes it off. */}
+              one gesture, the kit's landing on the overshoot, at the scan's
+              pace: 60ms after the card's light starts, then 240ms, so the
+              stop has settled by 300ms and the two never arrive in the same
+              frame. A step back just takes it off. */}
           <StampRow
             total={steps.length}
             filled={index + 1}
-            land={landed === index ? "stamp" : undefined}
+            land={landed === index ? "snap" : undefined}
             className="max-w-[8.5rem] justify-start"
           />
 
