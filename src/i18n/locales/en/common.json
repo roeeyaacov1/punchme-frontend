@@ -1733,7 +1733,9 @@
       "choices": "Checkbox and radio group",
       "tabs": "Tabs",
       "tabPanel": "This is the {{name}} view.",
-      "slider": "Slider"
+      "slider": "Slider",
+      "filterChips": "Filter chips",
+      "filterChipsLead": "One of several ways to narrow a list, each with its count. They wrap onto a second line rather than scroll sideways, the chosen one is filled, and one with nothing in it can't be picked."
     },
     "panels": {
       "title": "Panels",
@@ -1751,7 +1753,9 @@
       "figuresLead": "Printed, never counted up, and a figure that makes a claim carries its source.",
       "rows": "List rows",
       "empty": "Empty state",
-      "loading": "Loading"
+      "loading": "Loading",
+      "notice": "Notices",
+      "noticeLead": "What a page has to say in place: done, worth knowing, or wrong. An icon and words on a plain panel, never a warm fill. A lit one keeps its light at night."
     },
     "motion": {
       "title": "Motion",
@@ -1789,6 +1793,11 @@
   "kit": {
     "toast": {
       "region": "Notifications"
+    },
+    "notice": {
+      "ok": "Done",
+      "warn": "Note",
+      "danger": "Error"
     }
   }
 }

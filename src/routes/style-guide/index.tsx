@@ -49,9 +49,9 @@ export function StyleGuidePage() {
             <TypeSection version={view.version} />
             <ShapeSection version={view.version} />
             <MotionSection />
-            <ControlsSection />
+            <ControlsSection version={view.version} />
             <PanelsSection />
-            <ContentSection />
+            <ContentSection version={view.version} />
             <OverlaysSection />
             <StageSection />
             <SnapSection />

@@ -2,17 +2,29 @@ import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowRight, X } from "lucide-react";
 import { Button } from "../../components/kit/Button";
+import { FilterChips } from "../../components/kit/FilterChips";
 import { LinkButton } from "../../components/kit/LinkButton";
 import { SegmentedControl } from "../../components/kit/SegmentedControl";
 import { Switch } from "../../components/kit/Switch";
 import { FormSpecimens } from "./FormSpecimens";
 import { GuideSection, Specimen, TokenName } from "./GuideSection";
+import { RatioList, type PairSpec } from "./Ratio";
+
+// A chip's label and count, and the chosen chip.
+const CHIPS: PairSpec[] = [
+  { name: "ink · surface", sample: "bg-surface text-ink" },
+  { name: "ink-muted · surface", sample: "bg-surface text-ink-muted" },
+  { name: "surface · ink", sample: "bg-ink text-surface" },
+];
+
+type Show = "all" | "ready" | "oneAway" | "new" | "void";
 
 /** The controls, in the product's own words: every label here is a real key. */
-export function ControlsSection() {
+export function ControlsSection({ version }: { version: string }) {
   const { t } = useTranslation();
   const [ruleOn, setRuleOn] = useState(true);
   const [wallet, setWallet] = useState<"apple" | "google">("apple");
+  const [show, setShow] = useState<Show>("all");
 
   return (
     <GuideSection id="controls" title={t("styleGuide.controls.title")} lead={t("styleGuide.controls.lead")}>
@@ -72,6 +84,27 @@ export function ControlsSection() {
               ]}
             />
           </Row>
+        </div>
+      </Specimen>
+
+      <Specimen title={t("styleGuide.controls.filterChips")} lead={t("styleGuide.controls.filterChipsLead")}>
+        <div className="grid items-start gap-6 lg:grid-cols-2">
+          {/* The demo café's 300 customers, 22 with a reward waiting and 28 one
+              stamp away (the counter brief's §3); the last two are samples,
+              one of them empty to show a chip that can't be picked. */}
+          <FilterChips
+            label={t("dashboard.customers.filter.label")}
+            value={show}
+            onChange={setShow}
+            options={[
+              { value: "all", label: t("dashboard.customers.filter.all"), count: 300 },
+              { value: "ready", label: t("dashboard.customers.filter.ready"), count: 22 },
+              { value: "oneAway", label: t("dashboard.customers.filter.oneAway"), count: 28 },
+              { value: "new", label: t("dashboard.customers.filter.new"), count: 9 },
+              { value: "void", label: t("dashboard.customers.filter.void"), count: 0 },
+            ]}
+          />
+          <RatioList specs={CHIPS} version={version} />
         </div>
       </Specimen>
 
