@@ -58,7 +58,7 @@ export function ShopSign({
         base,
         // A hairline of the rim (black by day, white at night) keeps a white
         // card visible on the wall and a near-black one on the street.
-        "font-heading text-[0.9375rem] font-medium leading-none ring-1 ring-inset ring-rim/10",
+        "font-heading text-base font-medium leading-none ring-1 ring-inset ring-rim/10",
         lit ? "opacity-100" : "opacity-50",
         switchOn && lit && (reduced ? "animate-sign-on" : "animate-sign-catch"),
         className,
