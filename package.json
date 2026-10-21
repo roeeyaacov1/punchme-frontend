@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:phone": "vite --mode phone",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
