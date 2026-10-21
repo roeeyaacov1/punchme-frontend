@@ -267,7 +267,7 @@ components:
 
 **Creative North Star: "The Lit Sign"**
 
-The page is a lit sign. Panels are lightboxes on a warm wall: white acrylic with light behind it, soft dark letters on the front, and one warm colour on the thing to press. A wallet pass is a lit screen, so the world and the pass are made of the same stuff, light through a panel. It is the owner's own world, the lightbox over the door, the letter board in the café, the standee on the counter. At night the dashboard is the street after closing: the wall goes dark, and only what matters stays lit, which is the pass, the QR code, the brief and the scan's answer.
+The page is a lit sign. Panels are lightboxes on a warm wall: white acrylic with light behind it, soft dark letters on the front, and one warm colour on the thing to press. A wallet pass is a lit screen, so the world and the pass are made of the same stuff, light through a panel. It is the owner's own world, the lightbox over the door, the letter board in the café, the standee on the counter. At night the dashboard is the street after closing: the wall goes dark, and only what matters stays lit, which is the pass, the QR code, the Overview's verdict and the scan's answer.
 
 The voice is warm, calm and candid. Friendly without being cute, plain like the product's copy, never loud, because candour is the brand and the look must not oversell. It is the airiest of the directions that were tried: generous corners, comfortable density in the dashboard, and long, open spacing on the landing page. The signature move is lights on: things arrive by light, not by travel.
 
@@ -301,8 +301,8 @@ A warm wall, lit acrylic and soft ink, with one coral fill and a set of lights t
 - **Camera Glass** (#0e0c0a): the viewfinder, a hole in the wall that is never lit. What sits on it is Panel Light (17.97:1).
 
 ### The light
-- **Panel Light** (#fff4e6): the panels' own warm light. A panel that keeps its light at night, the scan's flash, the brief band's top, and a refusal's answer. Day ink on it: 13.91:1, ink-muted 7.47:1, ink-subtle 5.49:1.
-- **Deep Light** (#ffe9d4), **Bright Light** (#fff7ec) and **Edge Light** (#fddcc8): the brief band (Panel Light to Deep Light, top to bottom) and the landing page's field (Bright Light at the centre to Edge Light at the edges). Ink 12.85, 14.22 and 11.69:1.
+- **Panel Light** (#fff4e6): the panels' own warm light. A panel that keeps its light at night, the scan's flash, the band's top, and a refusal's answer. Day ink on it: 13.91:1, ink-muted 7.47:1, ink-subtle 5.49:1.
+- **Deep Light** (#ffe9d4), **Bright Light** (#fff7ec) and **Edge Light** (#fddcc8): the band (Panel Light to Deep Light, top to bottom), which lights the Overview's verdict tile and the lead of a shop not live yet and the landing page's field (Bright Light at the centre to Edge Light at the edges). Ink 12.85, 14.22 and 11.69:1.
 - **The answers**: Punched (#c9f0d9, ink 12.19:1), Full (#ffd36b, 10.63:1) and Failed (#ffc9c2, 10.35:1). A refusal answers on Panel Light, its word and icon in warn (6.53:1) and its reason in ink-muted (7.47:1). Answers carry ink, and each light's secondary line its own deep tint: its hue darkened in OKLCH to L 0.38, Punched Ink (#224c37, 7.86:1), Full Ink (#504019, 7.08:1) and Failed Ink (#66302a, 7.12:1). Ink-muted, ink-subtle and the state colours stay off the three lights.
 - **Reward Gold** (#f0b429): the reward's one fill, carrying Soft Ink at 8.10:1. Coral beside it is 1.47:1.
 
@@ -314,7 +314,7 @@ A warm wall, lit acrylic and soft ink, with one coral fill and a set of lights t
 
 **The Ink Label Rule.** A coral control always carries its label or icon in Soft Ink, and "on", "selected" and a slider's value are drawn in ink, because coral at 2.45:1 can't show a state on its own. On gold, the action is an ink pill.
 
-**The Lit Things Rule.** At night only what matters keeps its light: the pass, the QR code, the brief and the scan's answer, on Panel Light under day ink. Everything else goes unlit. The `.theme-lit` class does it, and it restores every day value.
+**The Lit Things Rule.** At night only what matters keeps its light: the pass, the QR code, the Overview's verdict and the scan's answer, on Panel Light under day ink. Everything else goes unlit. The `.theme-lit` class does it, and it restores every day value.
 
 ## Typography
 
@@ -438,7 +438,7 @@ Four curves: the ease-out (cubic-bezier(0.23, 1, 0.32, 1)) for anything arriving
 - **Do** stage the pass previews in their 300px slot; frame and animate them, never redraw them.
 - **Do** keep coral for the one thing to press, with its label in Soft Ink, and draw "on" and "selected" in ink.
 - **Do** say a warning or an error in its words and its icon on a plain panel, and give the reward the one gold fill.
-- **Do** put what keeps its light at night inside `.theme-lit`: the pass's stage, the QR code, the brief and the scan's answer.
+- **Do** put what keeps its light at night inside `.theme-lit`: the pass's stage, the QR code, the Overview's verdict and the scan's answer.
 - **Do** make reduced motion gentler, not none: light at full strength in 150ms with no travel, the stamp at its final size, the flash a 0.3 glow.
 - **Do** judge every screen in Hebrew at 375px first.
 
