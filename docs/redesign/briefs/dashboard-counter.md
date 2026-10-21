@@ -18,9 +18,10 @@ staff and as owner on both plans, Hebrew first at 375px, then in English and at
 apart for the critique: one walked and read the pages, the other ran
 Impeccable's detector and injected its overlay. Break-ui fed the roster and the
 feed their worst cases at the API boundary, in the browser only (Appendix A).
-Four questions went to Roee on the way (§7).
+Four questions went to Roee on the way, and three more at the review (§7).
 
-Read "In short" first. Sections 8 to 11 are what step B builds.
+Read "In short" first. Sections 8 to 11 are what step B builds, and §13 adds
+the review's notes, which win where they differ.
 
 1. In short
 2. The pages today
@@ -34,6 +35,7 @@ Read "In short" first. Sections 8 to 11 are what step B builds.
 10. Copy
 11. What step B keeps, touches and checks
 12. Left for other phases, and still open
+13. Review notes for step B
 - Appendix A: the worst-case data
 
 ---
@@ -371,6 +373,9 @@ every name.
 | 2 | Time on the charts in Hebrew | **Like the numbers.** Oldest at the left and today at the right in both languages, as a number line; the figures on a chart already read left to right inside Hebrew, and a rising fortnight now rises in both languages |
 | 3 | The answers' secondary text | **Every answer light takes its own deep tint,** not only the "not recorded" answer Roee asked for (§8.4, §8.8) |
 | 4 | The CSV export | **Managers and the owner.** Staff keep search, the filters and copying one customer's number |
+| 5 | Scan on Free (at the review) | **Keep it working.** The camera and the typed field stay on Free; §8.4's "On Free" is replaced by §13 |
+| 6 | A busy shop's comparison (at the review) | **Keep the Overview fast, and say so.** The walk keeps its guard; a busy shop gets its exact 30 days and the "no comparison" line. A backend summary endpoint is the real fix, later (§12) |
+| 7 | `Notice` and `FilterChips` (at the review) | **Both go into the kit,** each with a specimen on `/style-guide`; step B doesn't stop to ask (§8.7) |
 
 The six challengers the roll dealt (a split-flap board, an acetate manual, a
 design annual's plates, a zoo map, labanotation, a jet-age ticket wallet) were
@@ -609,13 +614,10 @@ farthest away to the nearest:
   field's text is the one place on this page that IBM Plex Mono may set
   (DESIGN.md: card codes).
 
-**On Free** the camera doesn't open: there is nobody to scan, and a
-permission asked for nothing is a permission refused later. The viewfinder
-stays dark glass with "הכרטיסייה עדיין לא פעילה" in Panel Light, and:
-- for the owner, "הפעלה" to Billing (a lit secondary button);
-- for a hire, "אחרי שהבעלים יפעיל/תפעיל אותה, מחתימים כאן." with no link.
-
-There is no typed field on Free.
+**On Free** Scan works as it does on Pro: the camera opens and the typed
+field is there (Roee, §7; the review's correction, §13). Above the
+viewfinder sits one quiet line saying what there is to stamp, with
+"הפעלה" to Billing for the owner.
 
 **At night** the page is the street and the viewfinder dark glass, so the
 answer is the only lit thing on the screen.
@@ -763,8 +765,9 @@ push the row.
   `SegmentedControl`, `RadioGroup`, `LitPanel`, `Badge`, `Figure`, `List`,
   `EmptyState`, `Skeleton`, `SkeletonRows`, `Loading`, `Dialog`, `Sheet`,
   `useToast`, `StampRow`, `SnapFlash`, `WallpaperStage`, `focusRing`.
-- **Two the kit lacks. Step B asks before adding either to the kit**, as the
-  shell brief said:
+- **Two the kit lacks. Roee approved both at the review (§7),** so step B
+  adds them to the kit, each with a specimen on `/style-guide`, without
+  stopping to ask:
   - `Notice`: an icon and words on a plain panel, in ok, warn or danger,
     with an optional action. For "you're live", the guards, the quiet
     counter and Free after Pro. Today's `Notice` paints warm washes.
@@ -968,8 +971,10 @@ change in the same commit and keep every case they have.
 - DESIGN.md: the three answer inks, the Don't line in §8.8, charts in ink
   running like numbers, and the brief's lead tile where it names the band;
 - `tailwind.config.js`: the three answer inks, with their ratios;
-- `src/components/kit`: only `Notice` and `FilterChips`, and only after
-  asking (§8.7).
+- `src/components/kit`: only `Notice` and `FilterChips` (approved, §7), and
+  `src/routes/style-guide` for their specimens;
+- `docs/dashboard-routes.md`: its line on the stamp buttons (§13);
+- `tour.steps.scan.bodyFree`, in `en` and `he` (§13).
 
 `useQrScanner.ts` and `feedback.ts` stay as they are. As in the shell's phase,
 one page per commit.
@@ -1025,14 +1030,15 @@ one page per commit.
 - **The activity feed names people by email.** `ActivityItemOut` carries
   `business_user_email` only. A display name on it would let Activity say
   "נועה" instead of "noa.m".
+- **A busy shop's comparison** (settled at the review, §7). The Overview's
+  60-day walk keeps its 1,500-event guard (`MAX_FETCH_PAGES` in
+  `activityWindow.ts`), so the counter's start page stays fast. A café past
+  about 25 stamps a day gets its 30 days exact (§8.3) and the "no
+  comparison" line. The real fix is a backend endpoint that returns the
+  counts per day in one request. That adds a call, so it is a contract
+  change to ask for, after the redesign.
 
 **Still open:**
-- **A busy shop's comparison.** The Overview's 60-day walk keeps its
-  1,500-event guard. A café past about 25 stamps a day has its 30 days
-  exact (§8.3) but not the 30 before them, so its tiles say there's no
-  comparison. `docs/dashboard-routes.md` gives the Overview's walk no page
-  limit and Activity's 15. Raising the Overview's guard costs about one
-  more request per 100 stamps; Roee decides at the review.
 - **"Is it paying for itself?" in shekels** would need the owner's average
   spend and the reward's cost, which only the landing calculator asks for
   and never stores. Nothing here invents them.
@@ -1042,6 +1048,51 @@ one page per commit.
 **For other phases:** the Standee still says "no signup" (Phase 6, CLAUDE.md);
 the Free Overview's "the standee prints" leans on Phase 7's Billing showing
 the same price and what it unlocks.
+
+## 13. Review notes for step B
+
+Checked against the code, the contract and the backend on 21 Oct. The
+calls in §8.1 match `docs/dashboard-routes.md`, and the three answer inks
+measure as §8.8 says. These notes win where they differ from §8 to §11.
+
+- **Scan works on Free** (Roee, §7). §8.4 had the camera off because
+  "there is nobody to scan". There is:
+  - **the trial pass.** The preview pass the Overview offers to add to a
+    wallet is built "to preview and test the full scan/stamp/redeem loop
+    before any real customer exists". It is fully functional and left out
+    of the customer and activity lists (`is_preview` in the backend's
+    `apps/loyalty/models.py`). It is one per business, so a hire can stamp
+    it too;
+  - **existing customers' cards,** for a shop that dropped back from Pro.
+    The backend's `add_stamp` checks no plan.
+
+  So on Free the camera opens and the typed field is there, as on Pro.
+  Above the viewfinder sits one quiet line, never a warn panel, saying
+  what there is to stamp:
+  - never activated: there are no customers yet, and the shop's own trial
+    pass can be stamped to try it;
+  - Free after Pro: new customers can't join until the card is activated
+    again, and existing cards stamp as usual.
+
+  The owner gets "הפעלה" to Billing beside it, as a link, not a coral
+  button. On the Free Overview, the trial pass's panel says it can be
+  scanned at Scan to watch a stamp land. The tour's Free Scan stop
+  (`tour.steps.scan.bodyFree`, "once the card is live, this is where you
+  stamp") changes to match, in both languages. The tour's steps stay as
+  they are.
+- **The stamp buttons' line in the contract.** `docs/dashboard-routes.md`
+  says they are disabled when `VITE_STAMP_ADJUST_ENABLED` isn't `true`.
+  §8.1 hides them instead, so that line changes in the same commit.
+- **The ratios, as measured:** `#224c37` on `#c9f0d9` is 7.86:1, `#504019`
+  on `#ffd36b` 7.08:1, `#66302a` on `#ffc9c2` 7.12:1, and warn `#92400e` on
+  Panel Light 6.53:1. §8.8 rounds them down; the comments in
+  `tailwind.config.js` carry these.
+- **`Notice` and `FilterChips` are kit pieces now** (Roee, §7):
+  - their copy goes through the kit's own keys, in both languages, and the
+    kit's copy test covers them;
+  - each gets a specimen on `/style-guide`, which measures its pairs live.
+- **The critique snapshot** in `.impeccable/critique/` is committed with
+  these notes, for step D's `/impeccable polish`.
 
 ## Appendix A: the worst-case data
 
