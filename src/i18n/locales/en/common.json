@@ -840,7 +840,7 @@
       "hint": "Automatic follows your device."
     },
     "account": {
-      "signedInAs": "You're signed in as <who>{{name}}</who>, {{role}}."
+      "signedInAs": "You're signed in as <who>{{name}}</who> ({{role}})."
     },
     "close": "Close",
     "toOverview": "To the Overview",
