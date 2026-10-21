@@ -10,8 +10,7 @@ import { ScanCircle } from "./ScanCircle";
 
 /**
  * The tablet's rail, from 768 to 1279px: 88px at the start edge, the
- * screen's full height, lit acrylic with a hairline at its end edge. It
- * scrolls on its own when a landscape tablet is too short for it.
+ * screen's full height, lit acrylic with a hairline at its end edge.
  *
  * Top to bottom: the Scan circle with its word, the same as the phone's,
  * because a tablet on the counter does the phone's job; the other counter
@@ -19,6 +18,10 @@ import { ScanCircle } from "./ScanCircle";
  * for whoever can open them. No group headings: there is no room for them,
  * and every entry carries its word. The person's initial at the foot opens
  * the account sheet, which comes in from the end edge.
+ *
+ * When the screen is too short for it, a landscape tablet or a phone on
+ * its side, the pages scroll on their own and the person stays put at the
+ * foot.
  *
  * In landscape the rail takes the start edge's safe-area inset, so nothing
  * on it sits under a phone's notch, and the top's, beside the masthead that
@@ -47,16 +50,20 @@ export function TabletRail({
     <div
       className={cn(
         frame,
-        // No scrollbar of its own: a classic one would take 15 of the rail's
-        // 88px and push "Card Studio" onto two lines. It still scrolls, and
-        // reaching its end doesn't scroll the page behind it.
-        "flex h-dvh w-[calc(5.5rem+env(safe-area-inset-left))] flex-col overflow-y-auto overscroll-contain border-e border-border bg-surface ps-[env(safe-area-inset-left)] pt-[env(safe-area-inset-top)] text-ink [scrollbar-width:none] rtl:w-[calc(5.5rem+env(safe-area-inset-right))] rtl:ps-[env(safe-area-inset-right)]",
+        "flex h-dvh w-[calc(5.5rem+env(safe-area-inset-left))] flex-col border-e border-border bg-surface ps-[env(safe-area-inset-left)] pt-[env(safe-area-inset-top)] text-ink rtl:w-[calc(5.5rem+env(safe-area-inset-right))] rtl:ps-[env(safe-area-inset-right)]",
         className,
       )}
     >
+      {/* Only the pages scroll, so the person stays at the foot: a phone in
+          landscape is 390px tall and the rail is twice that, and the way to
+          sign out must never be two screens down. No scrollbar of its own:
+          a classic one would take 15 of the rail's 88px and push "Card
+          Studio" onto two lines. Its foot fades instead, so an entry cut
+          off there reads as more to come; the padding under the last one
+          clears the fade once it is reached. */}
       <nav
         aria-label={t("dashboard.nav.label")}
-        className="flex touch-manipulation select-none flex-col [-webkit-touch-callout:none]"
+        className="flex min-h-0 flex-1 touch-manipulation select-none flex-col overflow-y-auto overscroll-contain pb-4 [-webkit-touch-callout:none] [mask-image:linear-gradient(to_bottom,#000_calc(100%-1.5rem),transparent)] [scrollbar-width:none]"
       >
         {scan && (
           <NavLink
@@ -91,7 +98,7 @@ export function TabletRail({
         ))}
       </nav>
 
-      <div className="mt-auto flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
+      <div className="flex shrink-0 justify-center pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
         <button
           ref={personRef}
           type="button"
