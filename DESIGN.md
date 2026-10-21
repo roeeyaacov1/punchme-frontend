@@ -411,6 +411,9 @@ Scan answers like a photo snap. A flash of Panel Light covers the whole viewfind
 ### The wallpaper stage
 The owner's card on the customer's phone: a wallpaper made from the card's own colour, a tone of it 30% of the way to white and a hint 28% of the way to its stamp colour, blurred 44px, with no saturation boost, under the message the pass brings as a lock-screen notification, and "Roughly how it looks on the lock screen" beneath. The blur is written into gradient stops, so nothing blurs at runtime. It is the customer's phone, so it looks the same at night.
 
+### Charts
+One series in ink, never coral: a 2px line with round joins over an 8% area of itself, on a 1px baseline one step off the panel; bars at most 24px wide with 4px tops, square at the base, 2px apart. Time runs like the numbers in both languages, oldest at the left and today at the right, so a plot and its axis sit in a `dir="ltr"` box while the title, the readout and the panel around them follow the page. Only two values are printed on the line, the peak once and today at its end, in ink-muted and ink at 13px, Rubik's tabular figures; nothing under 13px and no Plex Mono. One hit surface snaps to the nearest day, and the readout above the plot leads with the value. A day that wasn't loaded is drawn as not loaded, never as zero, and every chart has a twin for a screen reader: a one-line summary and the days as a list.
+
 ### Dialogs, sheets and toasts
 A dialog asks a question that must be answered first and rises from 0.96; a sheet holds work beside the page, rising on the drawer curve or coming in from the end edge. Both are the native `<dialog>`, a real focus trap, and crossfade with reduced motion. A toast confirms what the owner just did, arrives by light, and stays 4 seconds counted only while it can be read; an error stays until dismissed.
 

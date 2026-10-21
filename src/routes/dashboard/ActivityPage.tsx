@@ -1,512 +1,461 @@
-import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
-import { Search, X } from "lucide-react";
-import { ctaClasses, focusRing } from "../../components/marketing/primitives";
+import { useMemo, useState, type ReactNode } from "react";
+import { Trans, useTranslation } from "react-i18next";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { CalendarX, Search, SlidersHorizontal, Stamp, X } from "lucide-react";
 import {
-  Figure,
+  Button,
+  EmptyState,
+  Input,
+  LinkButton,
+  List,
+  ListRow,
+  LitPanel,
   Notice,
-  Panel,
-  PanelHeader,
   SegmentedControl,
-  fieldClasses,
-} from "../../components/dashboard/primitives";
-import {
-  ActivityChart,
-  type ChartDay,
-} from "../../components/dashboard/ActivityChart";
+  Select,
+  Sheet,
+  Skeleton,
+  SkeletonRows,
+} from "../../components/kit";
+import { DayChart, type ChartDay } from "../../components/dashboard/DayChart";
 import { useBusiness } from "../../business/useBusiness";
-import { canEnrollRealCustomers } from "../../business/gating";
-import { fetchActivityWindow } from "./activityWindow";
+import { canEnrollRealCustomers, isOwner } from "../../business/gating";
 import { useDebounce } from "../../hooks/useDebounce";
 import { cn } from "../../lib/cn";
+import { useLightboxPage } from "../../theme/lightboxPage";
+import { fetchActivityWindow } from "./activityWindow";
 import {
   AUTOMATIC,
   KINDS,
   NO_FILTERS,
   actorsOf,
   buildRows,
+  countByDay,
   dayTotals,
   hasAutomatic,
-  isFiltered,
   markDayOpeners,
   matches,
   startOfDay,
+  wholeDaysFrom,
+  type ActivityRow,
   type Filters,
   type Kind,
 } from "./activityFilters";
+import { formatCount, relativeDay, shortDate, timeOfDay, weekdayDate } from "./format";
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 /** How far back the page can look. The chart draws the whole window and the
- * filters run over it, so this is the page's contract: everything in here,
- * and nothing older. */
-const PERIODS = [7, 14, 30] as const;
+ * filters run over it: everything in here, and nothing older. */
+const PERIODS = ["7", "14", "30"] as const;
 type Period = (typeof PERIODS)[number];
-const DEFAULT_PERIOD: Period = 14;
+const DEFAULT_PERIOD: Period = "14";
 
-/** Rows per page of the table, applied after filtering. */
+/** Rows drawn at a time; the list grows by this much on request. */
 const PAGE_SIZE = 50;
 
-/** How each action is coloured. The word carries the meaning on its own —
- * colour only reinforces it, so nothing here is said in colour alone. */
-const KIND_TONES: Record<Kind, string> = {
-  stamp: "text-ink",
-  gift: "text-primary-text",
-  manual: "text-ink",
-  removed: "text-warn",
-  import: "text-ink-muted",
-};
-
+/** Local midnight `days` before today's: calendar days, so a clock change
+ * can't shift the window by an hour. */
+function midnightBefore(days: number): number {
+  const d = new Date(startOfDay(Date.now()));
+  d.setDate(d.getDate() - days);
+  return d.getTime();
+}
 
 /**
- * The activity page.
+ * The record: what happened at the counter, a day at a time.
  *
- * A line, a filter bar, and a table. The line is the period — the only
- * question an owner has about a run of days is whether it is going up, and
- * that is a shape rather than a number. The table is the record: one row per
- * event, four labelled columns, nothing derived and nothing hidden.
+ * Filters sit in one row above everything they scope, the period first. The
+ * chart is stamps a day, and the page's coarsest filter: picking a day
+ * narrows the list to it and leaves the line whole. The list is grouped by
+ * day under headings that count the day.
  *
- * Every filter runs client-side, because `/activity` takes `page` and
- * `page_size` and nothing else. That is what fixes the window: filtering one
- * server page of fifty would quietly mean "gifts among the last fifty
- * events", which looks identical to "gifts" and is not it. So the page fetches
- * a period, and the period is stated on the screen.
- *
- * The chart is also the coarsest filter. Picking a day narrows the table to
- * it and leaves the line whole, so the shape you clicked into stays on screen
- * beside what it was made of.
+ * Every filter runs in the browser, because `/activity` takes `page` and
+ * `page_size` and nothing else: the page fetches a period and says which.
+ * A new period keeps the last chart and list on screen, dimmed, until it
+ * lands, and a day the walk didn't load whole is drawn as not loaded, never
+ * as zero.
  */
 export function ActivityPage() {
+  useLightboxPage();
   const { t, i18n } = useTranslation();
-  const { business } = useBusiness();
+  const language = i18n.resolvedLanguage;
+  const { business, role } = useBusiness();
   const canEnroll = canEnrollRealCustomers(business);
-  const lang = i18n.resolvedLanguage;
+  const owns = isOwner(role);
 
   const [period, setPeriod] = useState<Period>(DEFAULT_PERIOD);
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
-  const [page, setPage] = useState(1);
+  const [shown, setShown] = useState(PAGE_SIZE);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const searchTerm = useDebounce(filters.search, 200);
 
-  /** Every change to what is being shown puts the table back on page one —
-   * page four of an unfiltered week is not page four of anything else. */
+  /** Anything that changes what is shown starts the list at its top. */
   function change(update: Partial<Filters>) {
     setFilters((current) => ({ ...current, ...update }));
-    setPage(1);
+    setShown(PAGE_SIZE);
   }
 
-  // Local midnight, so a day on the chart is the day an owner means and the
-  // window is a whole number of days rather than a rolling 336 hours.
-  const windowStart = useMemo(
-    () => startOfDay(Date.now()) - (period - 1) * DAY_MS,
-    [period],
-  );
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["activity", business?.id, "window", period],
-    queryFn: () => fetchActivityWindow(business!.id!, windowStart),
+  const days = Number(period);
+  const since = midnightBefore(days - 1);
+  const { data, isPending, isError, isPlaceholderData, refetch } = useQuery({
+    queryKey: ["activity", business?.id, "window", days],
+    // The window carries the period it was fetched for, so a period still
+    // loading keeps drawing the last one whole rather than mixing the two.
+    queryFn: async () => ({ ...(await fetchActivityWindow(business!.id!, since)), days, since }),
     enabled: !!business?.id && canEnroll,
     staleTime: 15_000,
+    placeholderData: keepPreviousData,
   });
 
   const rows = useMemo(() => buildRows(data?.items ?? []), [data]);
   const actors = useMemo(() => actorsOf(rows), [rows]);
   const automatic = useMemo(() => hasAutomatic(rows), [rows]);
+  const people = actors.length > 1 || (actors.length === 1 && automatic);
+  const active = useMemo(() => ({ ...filters, search: searchTerm }), [filters, searchTerm]);
 
-  const active = useMemo(
-    () => ({ ...filters, search: searchTerm }),
-    [filters, searchTerm],
-  );
-
-  // The chart answers to every filter except the day, which is expressed *on*
-  // it — narrowing the line to the day you picked would collapse it to a
-  // single point and take away the thing you were reading.
-  const charted = useMemo(
-    () => rows.filter((r) => matches(r, { ...active, day: null })),
-    [rows, active],
-  );
-  const visible = useMemo(
-    () => markDayOpeners(rows.filter((r) => matches(r, active))),
-    [rows, active],
-  );
+  // The chart answers to every filter but the day, which is picked on it:
+  // narrowing the line to one day would take away what was being read.
+  const charted = useMemo(() => rows.filter((r) => matches(r, { ...active, day: null })), [rows, active]);
+  const visible = useMemo(() => markDayOpeners(rows.filter((r) => matches(r, active))), [rows, active]);
+  const perDay = useMemo(() => countByDay(visible), [visible]);
 
   const chart = useMemo(() => {
-    // Signed only when no single kind is chosen: unfiltered the line is the
-    // net a shop handed out, so a removal subtracts; with "removed" picked it
-    // is how many were taken back, which signed would draw as a flat zero.
-    const totals = dayTotals(charted, windowStart, period, active.kind === "all");
-    const days: ChartDay[] = totals.map((stamps, i) => ({
-      date: new Date(windowStart + i * DAY_MS),
-      stamps,
-    }));
-    return { days, total: totals.reduce((sum, n) => sum + n, 0) };
-  }, [charted, windowStart, period, active.kind]);
+    if (!data) return null;
+    const firstWhole = wholeDaysFrom(data.items, data.truncated);
+    // Signed only when no single kind is chosen: unfiltered, the line is the
+    // net the shop handed out; with "taken off" picked, it is how many.
+    const totals = dayTotals(charted, data.since, data.days, active.kind === "all");
+    const series: ChartDay[] = totals.map((value, i) => {
+      const d = new Date(data.since);
+      d.setDate(d.getDate() + i);
+      const day = d.getTime();
+      return { day, value: firstWhole !== null && day < firstWhole ? null : value };
+    });
+    const total = totals.reduce((sum, n) => sum + n, 0);
+    const loaded = series.filter((d): d is { day: number; value: number } => d.value !== null);
+    const busiest = loaded.reduce<{ day: number; value: number } | null>(
+      (best, d) => (!best || d.value > best.value ? d : best),
+      null,
+    );
+    return { series, total, busiest, truncated: data.truncated };
+  }, [data, charted, active.kind]);
 
-  const pageRows = visible.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const hasNext = page * PAGE_SIZE < visible.length;
-  const columns = ["date", "customer", "action", "by"] as const;
+  const words = { today: t("dashboard.activity.today"), yesterday: t("dashboard.activity.yesterday") };
+  const dayName = (day: number) => relativeDay(day, language, words);
+  const activeFilters = [active.kind !== "all", active.who !== "all", active.search.trim() !== ""].filter(Boolean).length;
+  const list = visible.slice(0, shown);
+  const more = Math.min(PAGE_SIZE, visible.length - list.length);
+  const loadingNext = isPlaceholderData;
+
+  if (!canEnroll) {
+    return (
+      <Page>
+        <EmptyState
+          icon={<Stamp />}
+          title={t("dashboard.plan.notLive")}
+          body={t(owns ? "dashboard.activity.emptyFree" : "dashboard.activity.emptyFreeHire")}
+          action={
+            owns ? (
+              <LinkButton to="/dashboard/billing" variant="primary">
+                {t("billing.activateCta")}
+              </LinkButton>
+            ) : undefined
+          }
+        />
+      </Page>
+    );
+  }
+
+  const chartTitle = t(active.kind === "removed" ? "dashboard.activity.chartTitleRemoved" : "dashboard.activity.chartTitle");
+
+  const filterFields = (inSheet: boolean) => (
+    <>
+      <Input
+        type="search"
+        label={t("dashboard.activity.searchLabel")}
+        placeholder={t("dashboard.activity.searchPlaceholder")}
+        leading={<Search />}
+        value={filters.search}
+        dir="auto"
+        autoComplete="off"
+        onChange={(event) => change({ search: event.target.value })}
+        className={inSheet ? undefined : "min-w-0 flex-1"}
+      />
+      <Select
+        label={t("dashboard.activity.columns.action")}
+        value={filters.kind}
+        onChange={(event) => change({ kind: event.target.value as Kind | "all" })}
+        className={inSheet ? undefined : "w-48"}
+      >
+        <option value="all">{t("dashboard.activity.allActions")}</option>
+        {KINDS.map((kind) => (
+          <option key={kind} value={kind}>
+            {t(`dashboard.activity.action.${kind}`, { count: 1 })}
+          </option>
+        ))}
+      </Select>
+      {/* Only where there is more than one answer: on a one-person shop it
+          would be the owner's own name, once. */}
+      {people && (
+        <Select
+          label={t("dashboard.activity.columns.by")}
+          value={filters.who}
+          onChange={(event) => change({ who: event.target.value })}
+          className={inSheet ? undefined : "w-48"}
+        >
+          <option value="all">{t("dashboard.activity.allPeople")}</option>
+          {actors.map((who) => (
+            <option key={who} value={who}>
+              {who}
+            </option>
+          ))}
+          {automatic && <option value={AUTOMATIC}>{t("dashboard.activity.automatic")}</option>}
+        </Select>
+      )}
+    </>
+  );
+
+  let body: ReactNode;
+  if (isPending && !data) {
+    body = (
+      <>
+        <LitPanel className="flex flex-col gap-4 p-4 sm:p-5">
+          <Skeleton className="h-6 w-40 rounded-full" />
+          <Skeleton className="h-36 w-full rounded-field" />
+        </LitPanel>
+        <LitPanel className="overflow-hidden">
+          <SkeletonRows rows={5} />
+        </LitPanel>
+      </>
+    );
+  } else if (isError && !data) {
+    body = (
+      <Notice tone="danger" title={t("dashboard.activity.loadFailed")} action={<Button variant="secondary" onClick={() => void refetch()}>{t("common.retry")}</Button>} />
+    );
+  } else if (rows.length === 0) {
+    body = (
+      <EmptyState
+        icon={<CalendarX />}
+        title={t("dashboard.activity.emptyPeriod", { count: data?.days ?? days })}
+        action={
+          period !== "30" ? (
+            <Button variant="secondary" onClick={() => setPeriod("30")}>
+              {t("dashboard.activity.period.days", { count: 30 })}
+            </Button>
+          ) : undefined
+        }
+      />
+    );
+  } else {
+    body = (
+      <div className={cn("flex flex-col gap-5 transition-opacity duration-gentle", loadingNext && "opacity-55")} aria-busy={loadingNext || undefined}>
+        {chart?.truncated && (
+          <Notice tone="warn">
+            {t("dashboard.activity.truncated", {
+              shown: formatCount(rows.length, language),
+              since: shortDate(Date.parse(rows[rows.length - 1].event.created_at), language),
+            })}
+          </Notice>
+        )}
+
+        {chart && (
+          <LitPanel className="flex flex-col gap-1 p-4 sm:p-5">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <h2 className="type-card-title text-ink">{chartTitle}</h2>
+              <p className="type-label text-ink-muted">
+                {t(chart.truncated ? "dashboard.activity.totalAtLeast" : "dashboard.activity.stampsCount", { count: chart.total })}
+              </p>
+            </div>
+            <p className="text-sm text-ink-muted">{t("dashboard.activity.chartHint")}</p>
+            <DayChart
+              className="mt-3"
+              days={chart.series}
+              label={chartTitle}
+              summary={t("dashboard.activity.chartSummary", {
+                count: chart.series.length,
+                total: formatCount(chart.total, language),
+                peakDay: chart.busiest ? weekdayDate(chart.busiest.day, language) : "",
+                peak: chart.busiest ? formatCount(chart.busiest.value, language) : "",
+              })}
+              valueLabel={(value) => t("dashboard.activity.stampsCount", { count: value })}
+              dayLabel={dayName}
+              axisLabel={(day) => shortDate(day, language)}
+              selectedDay={filters.day}
+              onSelectDay={(day) => change({ day })}
+            />
+          </LitPanel>
+        )}
+
+        {visible.length === 0 ? (
+          <EmptyState
+            icon={<Search />}
+            title={t("dashboard.activity.noMatches")}
+            action={
+              <Button variant="secondary" onClick={() => change(NO_FILTERS)}>
+                {t("dashboard.activity.clearAll")}
+              </Button>
+            }
+          />
+        ) : (
+          <LitPanel className="overflow-hidden">
+            {groupByDay(list).map((group) => (
+              <section key={group.day} aria-labelledby={`day-${group.day}`}>
+                <h2 id={`day-${group.day}`} className="type-label border-b border-border bg-background/60 px-4 py-2 text-ink-muted">
+                  {t("dashboard.activity.dayHeading", {
+                    day: dayName(group.day),
+                    count: formatCount(perDay.get(group.day) ?? group.rows.length, language),
+                  })}
+                </h2>
+                <List>
+                  {group.rows.map((row, i) => (
+                    <EventRow key={`${row.event.card_serial}-${row.event.created_at}-${i}`} row={row} />
+                  ))}
+                </List>
+              </section>
+            ))}
+          </LitPanel>
+        )}
+
+        {more > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-ink-muted">
+              {t("dashboard.activity.showing", {
+                shown: formatCount(list.length, language),
+                total: formatCount(visible.length, language),
+              })}
+            </p>
+            <Button variant="secondary" onClick={() => setShown((n) => n + PAGE_SIZE)}>
+              {t("dashboard.activity.more", { count: more })}
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-5">
-      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
-        <div>
-          <h1 className="t-h3 text-ink">{t("dashboard.activity.title")}</h1>
-          {rows.length > 0 && (
-            <p className="mt-1 max-w-prose text-sm text-ink-muted">
-              {t("dashboard.activity.body")}
-            </p>
-          )}
-        </div>
-        {canEnroll && (
-          <SegmentedControl
-            value={period}
-            onChange={(next) => {
-              setPeriod(next);
-              // A day outside the new window would filter the table to
-              // nothing with no visible cause.
-              change({ day: null });
-            }}
-            label={t("dashboard.activity.period.label")}
-            options={PERIODS.map((days) => ({
-              value: days,
-              label: t("dashboard.activity.period.days", { count: days }),
-            }))}
-          />
+    <Page>
+      {/* One row of filters above everything they scope, the period first.
+          On a phone the rest wait in a sheet; from 1024px they sit here. */}
+      <div className="flex flex-wrap items-end gap-3">
+        <SegmentedControl
+          label={t("dashboard.activity.period.label")}
+          hideLabel
+          value={period}
+          onChange={(next) => {
+            setPeriod(next);
+            // A day outside the new window would empty the list for no
+            // reason anyone could see.
+            change({ day: null });
+          }}
+          options={PERIODS.map((value) => ({
+            value,
+            label: t("dashboard.activity.period.days", { count: Number(value) }),
+          }))}
+        />
+        <Button variant="secondary" icon={<SlidersHorizontal aria-hidden />} onClick={() => setSheetOpen(true)} className="lg:hidden">
+          {activeFilters ? t("dashboard.activity.filtersOn", { count: activeFilters }) : t("dashboard.activity.filters")}
+        </Button>
+        <div className="hidden min-w-0 flex-1 items-end gap-3 lg:flex">{filterFields(false)}</div>
+        {filters.day !== null && (
+          <Button
+            variant="secondary"
+            iconEnd={<X aria-hidden />}
+            aria-label={t("dashboard.activity.clearDay", { day: weekdayDate(filters.day, language) })}
+            onClick={() => change({ day: null })}
+          >
+            {weekdayDate(filters.day, language)}
+          </Button>
         )}
       </div>
 
-      {!canEnroll ? (
-        <Panel className="p-5 sm:p-6">
-          <Link
-            to="/dashboard/billing"
-            className={cn(
-              "inline-flex min-h-[44px] items-center font-semibold text-primary-text underline hover:no-underline",
-              focusRing,
-            )}
-          >
-            {t("dashboard.activity.emptyFree")}
-          </Link>
-        </Panel>
-      ) : isLoading ? (
-        <p className="font-mono text-sm text-ink-subtle">{t("common.loading")}</p>
-      ) : rows.length === 0 ? (
-        <Panel className="p-5 sm:p-6">
-          <p className="text-ink-muted">
-            {t("dashboard.activity.emptyPeriod", { count: period })}
-          </p>
-        </Panel>
-      ) : (
-        <>
-          {data?.truncated && (
-            <Notice tone="warn">
-              {/* `shown`, not `count` — i18next reserves `count` for plurals. */}
-              {t("dashboard.activity.truncated", { shown: rows.length })}
-            </Notice>
-          )}
+      <p role="status" className="sr-only">
+        {loadingNext ? t("common.loading") : ""}
+      </p>
 
-          <Panel className="p-4 sm:p-6">
-            <PanelHeader
-              title={
-                active.kind === "removed"
-                  ? t("dashboard.activity.chartTitleRemoved")
-                  : t("dashboard.activity.chartTitle")
-              }
-              hint={t("dashboard.activity.chartHint")}
-              action={
-                <p className="text-sm text-ink-muted">
-                  <Figure className="text-ink">{chart.total}</Figure>{" "}
-                  {t("dashboard.week.stamps", { count: chart.total })}
-                </p>
-              }
-            />
-            <ActivityChart
-              days={chart.days}
-              selectedDay={filters.day}
-              onSelectDay={(day) => change({ day })}
-              unitLabel={t("dashboard.week.stamps", { count: 2 })}
-              className="mt-5"
-            />
-          </Panel>
+      {body}
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative min-w-[13rem] flex-1 sm:max-w-sm">
-              <Search
-                className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-subtle"
-                aria-hidden
-              />
-              <input
-                type="search"
-                className={cn(fieldClasses, "ps-10")}
-                value={filters.search}
-                aria-label={t("dashboard.activity.searchLabel")}
-                placeholder={t("dashboard.activity.searchPlaceholder")}
-                onChange={(e) => change({ search: e.target.value })}
-              />
-            </div>
+      <Sheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        title={t("dashboard.activity.filters")}
+        footer={
+          <Button variant="quiet" onClick={() => change(NO_FILTERS)}>
+            {t("dashboard.activity.clearAll")}
+          </Button>
+        }
+      >
+        <div className="flex flex-col gap-4">{filterFields(true)}</div>
+      </Sheet>
+    </Page>
+  );
+}
 
-            <select
-              className={cn(fieldClasses, "sm:!w-auto")}
-              value={filters.kind}
-              aria-label={t("dashboard.activity.columns.action")}
-              onChange={(e) =>
-                change({ kind: e.target.value as Filters["kind"] })
-              }
-            >
-              <option value="all">{t("dashboard.activity.allActions")}</option>
-              {KINDS.map((kind) => (
-                <option key={kind} value={kind}>
-                  {t(`dashboard.activity.action.${kind}`, { count: 1 })}
-                </option>
-              ))}
-            </select>
-
-            {/* Only where there is more than one answer. On a one-person shop
-                this select is the owner's own name, once. */}
-            {(actors.length > 1 || (actors.length === 1 && automatic)) && (
-              <select
-                className={cn(fieldClasses, "sm:!w-auto")}
-                value={filters.who}
-                aria-label={t("dashboard.activity.columns.by")}
-                onChange={(e) => change({ who: e.target.value })}
-              >
-                <option value="all">{t("dashboard.activity.allPeople")}</option>
-                {actors.map((who) => (
-                  <option key={who} value={who}>
-                    {who}
-                  </option>
-                ))}
-                {automatic && (
-                  <option value={AUTOMATIC}>
-                    {t("dashboard.activity.automatic")}
-                  </option>
-                )}
-              </select>
-            )}
-
-            {/* The chart's selection, wearing the same shape as the other
-                filters so it is obviously one of them and obviously
-                removable. */}
-            {filters.day !== null && (
-              <button
-                type="button"
-                onClick={() => change({ day: null })}
-                // Named rather than described: an `sr-only` span inside the
-                // button would run into the date and make the accessible
-                // name "19 AugClear this day".
-                aria-label={t("dashboard.activity.clearDay", {
-                  day: new Date(filters.day).toLocaleDateString(lang, {
-                    day: "numeric",
-                    month: "long",
-                  }),
-                })}
-                className={ctaClasses("secondary", "sm")}
-              >
-                {new Date(filters.day).toLocaleDateString(lang, {
-                  day: "numeric",
-                  month: "short",
-                })}
-                <X size={15} aria-hidden />
-              </button>
-            )}
-          </div>
-
-          {visible.length === 0 ? (
-            <Panel className="flex flex-col items-start gap-3 p-5 sm:p-6">
-              <p className="text-ink-muted">
-                {t("dashboard.activity.noMatches")}
-              </p>
-              <button
-                type="button"
-                onClick={() => change(NO_FILTERS)}
-                className={ctaClasses("secondary", "sm")}
-              >
-                {t("dashboard.customers.clearFilters")}
-              </button>
-            </Panel>
-          ) : (
-            <Panel className="overflow-hidden">
-              {/* Four columns will not fit a 375px phone as a table, so below
-                  `sm` each event is two lines instead — the name and what
-                  happened on the first, when and by whom on the second. The
-                  same four facts, in the same order. */}
-              <ul className="divide-y divide-border sm:hidden">
-                {pageRows.map((row, i) => (
-                  <li
-                    key={`${row.event.card_serial}-${row.event.created_at}-${i}`}
-                    className={cn(
-                      "flex flex-col gap-1 px-4 py-3",
-                      // No column to align against here, so the date stays on
-                      // every row; the day still gets a heavier rule so a
-                      // thumb can find where yesterday started.
-                      row.opensDay && i > 0 && "border-t border-border-strong",
-                    )}
-                  >
-                    <div className="flex items-baseline justify-between gap-3">
-                      <Who row={row} />
-                      <Action row={row} />
-                    </div>
-                    <p className="text-xs text-ink-subtle">
-                      <When row={row} lang={lang} />
-                      {row.actor && (
-                        <>
-                          {" · "}
-                          {t("dashboard.activity.by", { who: row.actor })}
-                        </>
-                      )}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="hidden overflow-x-auto sm:block">
-                <table className="w-full text-start text-sm">
-                  <thead>
-                    <tr className="border-b border-border text-xs text-ink-subtle">
-                      {columns.map((key) => (
-                        <th
-                          key={key}
-                          className="px-4 py-2.5 text-start font-medium"
-                        >
-                          {t(`dashboard.activity.columns.${key}`)}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pageRows.map((row, i) => (
-                      <tr
-                        key={`${row.event.card_serial}-${row.event.created_at}-${i}`}
-                        className={cn(
-                          i === 0
-                            ? "border-t-0"
-                            : row.opensDay
-                              ? "border-t border-border-strong"
-                              : "border-t border-border",
-                        )}
-                      >
-                        <td className="whitespace-nowrap px-4 py-2.5 text-ink-muted">
-                          <When row={row} lang={lang} showDate={row.opensDay} />
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <Who row={row} />
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <Action row={row} />
-                        </td>
-                        <td className="px-4 py-2.5 text-ink-muted">
-                          {row.actor ?? (
-                            <span className="text-ink-subtle">—</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Panel>
-          )}
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-            {/* What the filters left, against what the window holds. Without
-                it a narrowed table looks like a quiet fortnight. Silent when
-                nothing is narrowed and it all fits — "430 of 430" is noise. */}
-            {(isFiltered(active) || visible.length > PAGE_SIZE) && (
-              <p className="text-sm text-ink-subtle">
-                {t("dashboard.activity.showing", {
-                  shown: visible.length,
-                  total: rows.length,
-                })}
-              </p>
-            )}
-            {visible.length > PAGE_SIZE && (
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => p - 1)}
-                  className={ctaClasses("secondary", "sm")}
-                >
-                  {t("common.back")}
-                </button>
-                <button
-                  type="button"
-                  disabled={!hasNext}
-                  onClick={() => setPage((p) => p + 1)}
-                  className={ctaClasses("secondary", "sm")}
-                >
-                  {t("common.next")}
-                </button>
-              </div>
-            )}
-          </div>
-        </>
-      )}
+function Page({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
+  return (
+    <div className="mx-auto flex w-full max-w-[52rem] flex-col gap-5">
+      <h1 className="type-title text-ink">{t("dashboard.activity.title")}</h1>
+      {children}
     </div>
   );
 }
 
 type Row = ReturnType<typeof markDayOpeners>[number];
 
+/** The rows on screen in runs of one day, newest first, as they arrive. */
+function groupByDay(rows: Row[]): { day: number; rows: Row[] }[] {
+  const groups: { day: number; rows: Row[] }[] = [];
+  for (const row of rows) {
+    const last = groups[groups.length - 1];
+    if (last && last.day === row.day) last.rows.push(row);
+    else groups.push({ day: row.day, rows: [row] });
+  }
+  return groups;
+}
+
 /**
- * The date column.
- *
- * The day is words and the time is a figure, kept apart because Plex Mono
- * carries no Hebrew and a month set in it drops to whatever face the OS
- * picks. "Today" and "Yesterday" over a numeral for the two days an owner is
- * actually looking at.
- *
- * `showDate` hides the day where the table has already said it one row above.
- * The `<time>` element still carries every row's full timestamp.
+ * One event: who, what in one word, and when and by whom. The person is the
+ * staff email's local part, because the feed carries nothing else; it is
+ * set left to right and wraps rather than pushing the row.
  */
-function When({
-  row,
-  lang,
-  showDate = true,
-}: {
-  row: Row;
-  lang: string | undefined;
-  showDate?: boolean;
-}) {
-  const { t } = useTranslation();
-  const at = new Date(row.event.created_at);
-  const today = startOfDay(Date.now());
-  const day =
-    row.day === today
-      ? t("dashboard.activity.today")
-      : row.day === today - DAY_MS
-        ? t("dashboard.activity.yesterday")
-        : at.toLocaleDateString(lang, { day: "numeric", month: "short" });
-
+function EventRow({ row }: { row: ActivityRow }) {
+  const { t, i18n } = useTranslation();
+  const time = timeOfDay(Date.parse(row.event.created_at), i18n.resolvedLanguage);
   return (
-    <time dateTime={row.event.created_at}>
-      {showDate ? day : <span className="sr-only">{day}</span>}
-      <Figure className={showDate ? "ms-2" : undefined}>
-        {at.toLocaleTimeString(lang, { hour: "2-digit", minute: "2-digit" })}
-      </Figure>
-    </time>
-  );
-}
-
-/** The customer column, or the nearest thing the endpoint can support. */
-function Who({ row }: { row: Row }) {
-  const { t } = useTranslation();
-  if (row.name) return <span className="font-medium text-ink">{row.name}</span>;
-  return (
-    <Figure dir="ltr" className="text-ink-subtle">
-      <span className="sr-only">{t("dashboard.activity.cardSerial")} </span>
-      {row.code || "—"}
-    </Figure>
-  );
-}
-
-/** The action column, in one plain word. */
-function Action({ row }: { row: Row }) {
-  const { t } = useTranslation();
-  return (
-    <span className={cn("whitespace-nowrap", KIND_TONES[row.kind])}>
-      {t(`dashboard.activity.action.${row.kind}`, {
-        count: Math.abs(row.event.stamps),
-      })}
-    </span>
+    <ListRow
+      title={
+        row.name ? (
+          <span className="line-clamp-2 whitespace-normal [overflow-wrap:anywhere]">
+            <bdi>{row.name}</bdi>
+          </span>
+        ) : (
+          <span className="text-ink-muted">
+            {t("dashboard.activity.cardSerial")} <bdi dir="ltr">{row.code || "—"}</bdi>
+          </span>
+        )
+      }
+      meta={
+        <span className="whitespace-normal [overflow-wrap:anywhere]">
+          {row.actor ? (
+            <Trans
+              i18nKey="dashboard.activity.meta"
+              values={{ time, who: row.actor }}
+              components={{ at: <bdi dir="ltr" className="type-figure" />, who: <bdi dir="ltr" /> }}
+            />
+          ) : (
+            <Trans
+              i18nKey="dashboard.activity.metaAutomatic"
+              values={{ time }}
+              components={{ at: <bdi dir="ltr" className="type-figure" /> }}
+            />
+          )}
+        </span>
+      }
+      trailing={
+        <span className={cn("type-label whitespace-nowrap", row.kind === "removed" ? "text-warn" : "text-ink")}>
+          {t(`dashboard.activity.action.${row.kind}`, { count: Math.abs(row.event.stamps) })}
+        </span>
+      }
+    />
   );
 }

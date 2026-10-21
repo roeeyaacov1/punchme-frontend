@@ -6,6 +6,7 @@ import {
   actorsOf,
   buildRows,
   codesFor,
+  countByDay,
   dayTotals,
   hasAutomatic,
   isFiltered,
@@ -13,6 +14,7 @@ import {
   markDayOpeners,
   matches,
   startOfDay,
+  wholeDaysFrom,
 } from "./activityFilters";
 
 function event(over: Partial<ActivityItem> = {}): ActivityItem {
@@ -269,5 +271,51 @@ describe("markDayOpeners", () => {
 
   it("handles an empty list", () => {
     expect(markDayOpeners([])).toEqual([]);
+  });
+});
+
+describe("wholeDaysFrom", () => {
+  const start = startOfDay(Date.parse("2026-08-22T12:00:00Z"));
+  const at = (ms: number) => ({ created_at: new Date(ms).toISOString() });
+
+  it("is null when the walk reached the start of its window", () => {
+    expect(wholeDaysFrom([at(start + 9 * 3600_000)], false)).toBeNull();
+  });
+
+  it("starts the midnight after the oldest event, since that day was cut short", () => {
+    const items = [at(start + 15 * 3600_000), at(start + 11 * 3600_000), at(start + 9 * 3600_000)];
+    const next = new Date(start);
+    next.setDate(next.getDate() + 1);
+    expect(wholeDaysFrom(items, true)).toBe(next.getTime());
+  });
+
+  it("reads the oldest event whatever order the items come in", () => {
+    const items = [at(start + 9 * 3600_000), at(start + 30 * 3600_000)];
+    const next = new Date(start);
+    next.setDate(next.getDate() + 1);
+    expect(wholeDaysFrom(items, true)).toBe(next.getTime());
+  });
+
+  it("is null for a walk that stopped with nothing in hand", () => {
+    expect(wholeDaysFrom([], true)).toBeNull();
+  });
+});
+
+describe("countByDay", () => {
+  it("counts every row of a day, not only the ones on screen", () => {
+    const DAY = 86_400_000;
+    const start = startOfDay(Date.parse("2026-08-22T12:00:00Z"));
+    const rows = buildRows([
+      event({ created_at: new Date(start + 20 * 3600_000).toISOString() }),
+      event({ created_at: new Date(start + 9 * 3600_000).toISOString() }),
+      event({ created_at: new Date(start - DAY + 9 * 3600_000).toISOString() }),
+    ]);
+    const counts = countByDay(rows);
+    expect(counts.get(start)).toBe(2);
+    expect(counts.get(rows[2].day)).toBe(1);
+  });
+
+  it("is empty for no rows", () => {
+    expect(countByDay([]).size).toBe(0);
   });
 });
