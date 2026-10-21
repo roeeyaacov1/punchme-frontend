@@ -720,13 +720,18 @@ Run template D from §7 on `/style-guide`, then merge `redesign/foundation`.
 
 **Why this order**
 
+The phases keep their numbers, but since 21 Oct they run in the order 2, 5,
+6, 7, 3, 4, 8, 9. Once the shell was in, Roee chose to finish the dashboard
+first.
+
 1. **The shell comes first** because it decides how much room every page
    gets, the card studio included.
-2. **The card studio comes before onboarding.** Onboarding's design steps
+2. **The dashboard's pages come next** (5, 6 and 7, then the card studio,
+   3), so the whole dashboard matches the frame as soon as possible. The
+   counter pages lead because they are used most.
+3. **The card studio comes before onboarding.** Onboarding's design steps
    are second copies of the studio's controls, so the shared controls get
    decided once.
-3. **The counter pages come before the manager and owner pages,** because
-   they are used most.
 4. **The public pages come before the landing page,** because a customer
    meets `/join` right after scanning a QR code.
 5. **The landing page comes last,** so it can show the real, finished
@@ -1359,12 +1364,12 @@ as it is.
 - [x] 1.3 Prototypes, direction chosen: Lightbox (18 Oct)
 - [x] 1.4 Foundation built, DESIGN.md replaced (18 Oct)
 - [x] 1.5 Checked and merged (19 Oct)
-- [ ] Phase 2, dashboard shell: A done (20 Oct) · B done (20 Oct) · C done (21 Oct) · D done (21 Oct) · merged
-- [ ] Phase 3, card studio: A · B · C · D · merged
-- [ ] Phase 4, onboarding: A · B · C · D · merged
+- [x] Phase 2, dashboard shell: A (20 Oct) · B (20 Oct) · C (21 Oct) · D (21 Oct) · merged (21 Oct)
 - [ ] Phase 5, counter pages: A · B · C · D · merged
 - [ ] Phase 6, manager pages: A · B · C · D · merged
 - [ ] Phase 7, owner pages: A · B · C · D · merged
+- [ ] Phase 3, card studio: A · B · C · D · merged
+- [ ] Phase 4, onboarding: A · B · C · D · merged
 - [ ] Phase 8, public pages: contract · A · B · C · D · merged
 - [ ] Phase 9, landing page: A · B · C · D · merged
 - [ ] Phase 10, cleanup
