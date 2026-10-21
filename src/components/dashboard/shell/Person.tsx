@@ -27,16 +27,18 @@ export function PersonMark({ className }: { className?: string }) {
 
 /** Who is signed in, as one line: "דנה לוי · בעלים". The name sits in a
  * `<bdi>`, because a Latin name inside Hebrew (or the reverse) must keep its
- * own direction. */
+ * own direction. A long name, or the email that stands in for a missing one,
+ * truncates inside it, at its own end, and the role always stays: on a
+ * shared phone the role is what says whose hands it is in. */
 export function PersonLine() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { role } = useBusiness();
   return (
-    <>
-      <bdi>{personName(user)}</bdi>
-      {role && <> · {t(`team.role.${role}`)}</>}
-    </>
+    <span className="flex min-w-0 gap-1">
+      <bdi className="min-w-0 truncate">{personName(user)}</bdi>
+      {role && <span className="shrink-0">· {t(`team.role.${role}`)}</span>}
+    </span>
   );
 }
 
