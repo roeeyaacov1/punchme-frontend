@@ -34,6 +34,9 @@ colors:
   answer-punched: "#c9f0d9"
   answer-full: "#ffd36b"
   answer-failed: "#ffc9c2"
+  answer-punched-ink: "#224c37"
+  answer-full-ink: "#504019"
+  answer-failed-ink: "#66302a"
   reward-gold: "#f0b429"
   # ── States ──
   ok: "#047857"
@@ -300,7 +303,7 @@ A warm wall, lit acrylic and soft ink, with one coral fill and a set of lights t
 ### The light
 - **Panel Light** (#fff4e6): the panels' own warm light. A panel that keeps its light at night, the scan's flash, the brief band's top, and a refusal's answer. Day ink on it: 13.91:1, ink-muted 7.47:1, ink-subtle 5.49:1.
 - **Deep Light** (#ffe9d4), **Bright Light** (#fff7ec) and **Edge Light** (#fddcc8): the brief band (Panel Light to Deep Light, top to bottom) and the landing page's field (Bright Light at the centre to Edge Light at the edges). Ink 12.85, 14.22 and 11.69:1.
-- **The answers**: Punched (#c9f0d9, ink 12.19:1), Full (#ffd36b, 10.63:1) and Failed (#ffc9c2, 10.35:1). A refusal answers on Panel Light. Answers carry ink only: ink-subtle and the state colours fail on them.
+- **The answers**: Punched (#c9f0d9, ink 12.19:1), Full (#ffd36b, 10.63:1) and Failed (#ffc9c2, 10.35:1). A refusal answers on Panel Light, its word and icon in warn (6.53:1) and its reason in ink-muted (7.47:1). Answers carry ink, and each light's secondary line its own deep tint: its hue darkened in OKLCH to L 0.38, Punched Ink (#224c37, 7.86:1), Full Ink (#504019, 7.08:1) and Failed Ink (#66302a, 7.12:1). Ink-muted, ink-subtle and the state colours stay off the three lights.
 - **Reward Gold** (#f0b429): the reward's one fill, carrying Soft Ink at 8.10:1. Coral beside it is 1.47:1.
 
 ### States
@@ -438,7 +441,7 @@ Four curves: the ease-out (cubic-bezier(0.23, 1, 0.32, 1)) for anything arriving
 
 ### Don't:
 - **Don't** set coral as text, as a wash or as a state; and don't add a second warm fill beside it.
-- **Don't** put ink-muted or ink-subtle on gold or coral, or anything but ink on a scan's answer light.
+- **Don't** put ink-muted or ink-subtle on gold or coral, or anything but ink or its light's own tint on a scan's answer light.
 - **Don't** switch a shadow off with `none`; use transparent layers.
 - **Don't** let a hover style set a property a state also sets: hover is held back from disabled, selected and invalid controls.
 - **Don't** use Tailwind's `dark:` variant; night is `.theme-night`, not the device's setting.

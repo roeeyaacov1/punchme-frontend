@@ -633,6 +633,19 @@ html.theme-lightbox {
   }
 }
 
+/* The scanner still looking, with reduced motion: the sweep holds still
+   across the middle of the frame and breathes instead of travelling. Status
+   too, so it loops, and slowly. */
+@keyframes scan-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
 /* ── Lightbox type ──────────────────────────────────────────────────────
    Rubik 500 for display and the interface, Assistant for running text. The
    old `.t-*` classes stay for the pages still wearing them. Every class sets
