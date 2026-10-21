@@ -611,15 +611,24 @@
     },
     "customers": {
       "title": "Customers",
-      "emptyFree": "Activate to start enrolling real customers",
-      "emptyPro": "Share your QR or standee to get your first one",
+      "emptyFree": "After activation, everyone who joins shows up here.",
+      "emptyFreeHire": "Once the owner activates the card, everyone who joins shows up here.",
+      "emptyProTitle": "No customers yet",
+      "emptyPro": "Whoever scans your QR to join shows up here.",
+      "freeAfterPro": "The card isn't live, so new customers can't join. Everyone here keeps their card and their stamps.",
       "searchLabel": "Search customers",
-      "searchPlaceholder": "Search by name, phone, or card",
-      "noMatches": "No customers match that search.",
-      "clearFilters": "Clear filters",
+      "searchPlaceholder": "Name or phone",
+      "noMatches": "No customers found",
+      "noMatchesNumber": "A number can be typed the way it's said, like 050-123-4567.",
+      "clearFilters": "Clear search and filters",
       "showing": "{{total}} customers",
       "showingFiltered": "{{shown}} of {{total}} customers",
-      "truncated": "Showing the first {{shown}} customers — search and export cover only these until the API gains a search parameter.",
+      "shown": "Showing {{shown}} of {{total}}",
+      "more_one": "1 more",
+      "more_other": "{{count, number}} more",
+      "countSpoken_one": "{{filled}} of 1 stamp",
+      "countSpoken_other": "{{filled}} of {{count}} stamps",
+      "truncated": "The list stopped at {{shown}} customers, so search, filters and the export cover only those.",
       "columns": {
         "customer": "Customer",
         "name": "Name",
@@ -628,73 +637,85 @@
         "status": "Status",
         "card": "Card",
         "stamps": "Stamps",
-        "required": "Stamps required",
+        "required": "Stamps for the reward",
         "joined": "Joined",
         "actions": "Actions"
       },
       "stats": {
         "total": "Customers",
-        "ready": "Reward ready",
+        "ready": "Reward waiting",
         "recent": "Joined in {{days}} days"
       },
       "filter": {
         "label": "Show",
         "all": "Everyone",
-        "ready": "Reward ready",
+        "ready": "Reward waiting",
         "oneAway": "One stamp away",
         "progress": "In progress",
         "new": "No stamps yet",
-        "void": "Void"
+        "void": "Cancelled"
       },
       "sort": {
         "label": "Sort by",
-        "progress": "Most stamps",
-        "recent": "Recently joined",
+        "progress": "Closest to the reward",
+        "recent": "Joined recently",
         "name": "Name"
       },
       "status": {
-        "ready": "Reward ready",
+        "ready": "Reward waiting",
+        "oneAway": "One more",
         "progress": "In progress",
         "new": "No stamps yet",
-        "void": "Void"
+        "void": "Cancelled"
       },
       "stamps": {
         "add": "Add a stamp",
-        "remove": "Remove a stamp",
+        "remove": "Take a stamp off",
         "atMax": "This card is already full",
-        "atZero": "No stamps to remove",
+        "atZero": "No stamps to take off",
         "pendingBackend": "Adding and removing stamps needs a backend endpoint that isn't deployed yet — see docs/customers-backend-issues.md",
-        "voided": "This card has been voided",
-        "conflict": "Someone else changed this card first — we've refreshed it to the current count, so check it and try again.",
-        "failed": "Couldn't update that card: {{reason}}"
+        "voided": "This card was cancelled",
+        "conflict": "Someone else changed this card first. It now shows the current count, so check it and try again.",
+        "failed": "The stamps didn't change",
+        "added": "Stamp added",
+        "removed": "Stamp taken off",
+        "now": "{{name}}: {{count}} of {{total}}",
+        "undo": "Undo"
+      },
+      "problem": {
+        "offline": "No connection. Check the network and try again.",
+        "server": "The server didn't answer. Try again in a moment.",
+        "refused": "This account can't do that here.",
+        "other": "Something went wrong. Try again."
       },
       "menu": {
         "label": "More for {{name}}",
-        "copyPhone": "Copy phone number",
-        "copied": "Phone number copied",
-        "remove": "Remove from list",
+        "copyPhone": "Copy the number",
+        "copied": "Number copied",
+        "remove": "Remove from the list",
         "unnamed": "this customer",
         "message": "Send a message"
       },
       "message": {
-        "title": "Message {{name}}",
+        "title": "Message to {{name}}",
         "placeholder": "Your order is ready — see you today!",
-        "hint": "Arrives as a notification on her wallet pass. Only she sees it.",
+        "hint": "Arrives as a notification on their wallet pass. Only they see it.",
         "send": "Send",
         "sent": "Message sent to {{name}}.",
         "remaining": "{{n}} characters left",
         "failed": "Couldn't send that message: {{reason}}"
       },
       "remove": {
-        "title": "Remove {{name}}?",
+        "title": "Remove <who>{{name}}</who>?",
         "body": "Their card, the stamps on it and their whole visit history are deleted permanently. This can't be undone.",
         "wallet": "The pass already in their wallet stops working, but stays on their phone until they delete it themselves — no business can remove it for them.",
-        "rejoin": "They can sign up again from your QR code or standee, as a new customer starting from zero.",
+        "rejoin": "They can join again from your QR code or standee, as a new customer starting from zero.",
         "confirm": "Remove",
-        "failed": "Couldn't remove that customer: {{reason}}"
+        "failed": "{{name}} wasn't removed",
+        "done": "{{name}} was removed from the list"
       },
       "export": {
-        "cta": "Export CSV",
+        "cta": "Download",
         "filename": "punchme-customers"
       }
     },

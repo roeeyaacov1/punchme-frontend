@@ -210,10 +210,11 @@ Already in place and must survive any redesign: skip link, visible focus rings
 
 ## Verification
 
-There are **no component or render tests** — the 24 test files cover pure logic
+There are **no component or render tests** — the 25 test files cover pure logic
 only: the API client, the calculator, the onboarding draft, the language a
 first visit opens in, the dashboard's navigation by role, the tour and where
-its card stands, the Overview and Activity logic, the scan's failure causes, the kit's
+its card stands, the Overview and Activity logic, the scan's failure causes,
+the customer search, the kit's
 wallpaper and arrow keys, the kit's copy in both languages, and ten helpers in
 `src/lib`. The browser is the safety net, so use it.
 

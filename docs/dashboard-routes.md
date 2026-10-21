@@ -78,7 +78,7 @@ Scan refusals: 404 unknown card, 429 scanned too soon, 409 full or void.
 
 Search, filters, sort and the CSV export run in the browser over the whole
 list. The endpoint also accepts `?search=` (name or phone), which no page uses
-yet. The stamp buttons are disabled unless the build sets
+yet. The stamp buttons aren't drawn at all unless the build sets
 `VITE_STAMP_ADJUST_ENABLED=true`.
 
 ### `/dashboard/activity`: Activity
