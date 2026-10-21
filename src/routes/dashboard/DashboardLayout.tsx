@@ -228,12 +228,15 @@ export function DashboardLayout() {
                 <Masthead frame={frame} switchOn={switchOn} className="xl:hidden" />
 
                 {/* The page area takes focus itself (tabIndex -1) when a sheet
-                    closes because a row in it went somewhere. */}
+                    closes because a row in it went somewhere. Focusing it
+                    scrolls it into view, so it keeps the masthead's height
+                    clear above it, or the skip link would tuck the page's h1
+                    under the masthead. */}
                 <main
                   ref={main}
                   id="dashboard-main"
                   tabIndex={-1}
-                  className="flex-1 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-5 outline-none sm:px-6 md:pb-12 lg:px-8 lg:pt-8"
+                  className="flex-1 scroll-mt-[calc(3.5rem+env(safe-area-inset-top))] px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-5 outline-none sm:px-6 md:pb-12 lg:px-8 lg:pt-8 xl:scroll-mt-0"
                 >
                   <div className="mx-auto w-full max-w-5xl">
                     <Outlet />
