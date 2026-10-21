@@ -842,7 +842,12 @@ As with the pages, it builds one piece of the frame per commit.
   shell's sign-out works around it.
 - **Outside the redesign:**
   - `src/auth` is frozen: an interrupted boot check signs the device out, and
-    every cold boot logs two 401s before the refresh.
+    every cold boot logs two 401s before the refresh. Step D found the
+    worst case of the first: a cold start with the backend unreachable
+    (offline, or the server down) signs the device out too, so the
+    installed app opened offline at the counter lands on the sign-in page.
+    The shell's "couldn't reach PunchMe" page only shows when the boot
+    check got through and the business load failed after it.
   - Every route ships in one bundle. Lazy routes in `main.tsx` would cut the
     first load at the counter; ask before doing it.
 

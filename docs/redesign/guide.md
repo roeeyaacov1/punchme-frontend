@@ -1359,7 +1359,7 @@ as it is.
 - [x] 1.3 Prototypes, direction chosen: Lightbox (18 Oct)
 - [x] 1.4 Foundation built, DESIGN.md replaced (18 Oct)
 - [x] 1.5 Checked and merged (19 Oct)
-- [ ] Phase 2, dashboard shell: A done (20 Oct) · B done (20 Oct) · C done (21 Oct) · D · merged
+- [ ] Phase 2, dashboard shell: A done (20 Oct) · B done (20 Oct) · C done (21 Oct) · D done (21 Oct) · merged
 - [ ] Phase 3, card studio: A · B · C · D · merged
 - [ ] Phase 4, onboarding: A · B · C · D · merged
 - [ ] Phase 5, counter pages: A · B · C · D · merged
