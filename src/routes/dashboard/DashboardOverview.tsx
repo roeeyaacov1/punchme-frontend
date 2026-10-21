@@ -1,417 +1,369 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useSearchParams } from "react-router-dom";
-import { QRCodeSVG } from "qrcode.react";
-import { ArrowRight, Copy } from "lucide-react";
-import { CardPreview } from "../../components/card-studio/CardPreviews";
-import { WalletAddButtons } from "../../components/wallet-actions/WalletAddButtons";
-import { PunchMark } from "../../components/marketing/PunchMark";
-import { ctaClasses, focusRing } from "../../components/marketing/primitives";
-import {
-  GroupLabel,
-  LitStage,
-  Notice,
-  Panel,
-  PanelHeader,
-} from "../../components/dashboard/primitives";
-import { BriefBand } from "../../components/dashboard/Brief";
+import { useSearchParams } from "react-router-dom";
+import { TrendingUp } from "lucide-react";
+import { Button, LinkButton, LitPanel, Notice, Skeleton } from "../../components/kit";
+import { DayChart } from "../../components/dashboard/DayChart";
 import { InstallApp } from "../../components/dashboard/InstallApp";
+import { StatTile, TileLink } from "../../components/dashboard/StatTile";
 import { WeekLedger } from "../../components/dashboard/WeekLedger";
 import { useBusiness } from "../../business/useBusiness";
-import { canEnrollRealCustomers, canManage, isOwner } from "../../business/gating";
+import { canEnrollRealCustomers, canManage } from "../../business/gating";
 import { listTemplates } from "../../api/businesses";
-import { designImageUrls, getTemplateDesign } from "../../api/designs";
+import { getTemplateDesign } from "../../api/designs";
 import { listAllCustomers, previewCard, type EnrollOut } from "../../api/loyalty";
-import { fetchActivityWindow } from "./activityWindow";
-import { BRIEF_DAYS, buildBrief } from "./overviewBrief";
 import { buildEnrollUrl } from "../../lib/enrollUrl";
-import { useWalletPass } from "../../hooks/useWalletPass";
 import { cn } from "../../lib/cn";
+import { useLightboxPage } from "../../theme/lightboxPage";
+import { fetchActivityWindow } from "./activityWindow";
+import { startOfDay } from "./activityFilters";
+import { formatCount, relativeDay, shortDate, weekdayDate } from "./format";
+import { BRIEF_DAYS, QUIET_DAYS, buildBrief } from "./overviewBrief";
+import { FreeLead } from "./overview/FreeLead";
+import { JoinQr, QrCode } from "./overview/JoinQr";
+import { OwnPass } from "./overview/OwnPass";
 
-const WEEK_DAYS = 7;
-const DAY_MS = 24 * 60 * 60 * 1000;
-/** How far back the page reads. Two brief windows, so the last thirty days
- * have the thirty before them to be measured against — one walk serves the
- * verdict, its comparison, and the week ledger underneath it. */
+/** How far back the page reads: two windows, so the last thirty days have the
+ * thirty before them to be measured against. One walk serves the tiles, the
+ * month, the week and its comparison. */
 const WINDOW_DAYS = BRIEF_DAYS * 2;
+
+/**
+ * The page the installed app opens on: is it working, and what happened.
+ *
+ * Stat tiles over a chart (Roee's pick, from Impeccable's roll): who came
+ * back in 30 days, on the band's light, then the customers, the new ones and
+ * the rewards waiting, each a door into Customers. Then the month's people a
+ * day, the week, and what customers see. Every figure is printed only once
+ * the reads that make it have settled, a floor says "at least" in words, and
+ * a comparison that can't be made says so.
+ *
+ * On Free none of the Pro reads runs: the lead is the activation panel, or
+ * one true line for a hire.
+ */
 export function DashboardOverview() {
-  const { t } = useTranslation();
+  useLightboxPage();
+  const { t, i18n } = useTranslation();
+  const language = i18n.resolvedLanguage;
   const { business, role } = useBusiness();
   const canEnroll = canEnrollRealCustomers(business);
-  // A hire sees the counter and nothing else on this page: the week, the two
-  // counts, and who is close to a reward. Everything below that is a setup
-  // job whose endpoint would answer them 403 anyway.
+  // A hire sees the counter: the figures, the week and the join QR. The
+  // owner's pass is a setup object whose call answers staff 403.
   const manages = canManage(role);
-  const owns = isOwner(role);
-  const [searchParams] = useSearchParams();
-  const justActivated = searchParams.get("activated") === "1";
+  const [params] = useSearchParams();
+  const justActivated = params.get("activated") === "1";
 
-  const { data: templates, isLoading: isLoadingTemplates } = useQuery({
+  const { data: templates, isPending: templatesPending } = useQuery({
     queryKey: ["templates", business?.id],
     queryFn: () => listTemplates(business!.id!),
     enabled: !!business?.id,
   });
   const template = templates?.[0];
 
-  // The effective design doc — what the wallet actually renders, so the
-  // preview here matches the Card Studio and the customer's real pass.
+  // What the wallet actually renders, so the pass here matches the studio.
   const { data: design } = useQuery({
     queryKey: ["design", template?.id],
     queryFn: () => getTemplateDesign(business!.id!, template!.id!),
     enabled: !!business?.id && !!template?.id,
   });
 
-  // The two reads behind "is it working". Both are off on the free plan,
-  // where there are no real customers to count and the page is a setup
-  // checklist instead.
-  const { data: customers } = useQuery({
+  const roster = useQuery({
     queryKey: ["customers", "all", business?.id],
     queryFn: () => listAllCustomers(business!.id!),
     enabled: !!business?.id && canEnroll,
     staleTime: 5_000,
   });
 
-  // Its own key rather than the activity page's `["activity", id, "window",
-  // period]`: same endpoint and the same walk, but a different window, and
-  // sharing a cache entry would hand that page a month it did not ask for.
-  //
-  // This used to be a single 200-row request. `page_size` is silently capped
-  // at 100, so "did I see the whole week" was answered by `100 < 200` — true
-  // for every shop, however busy — and any shop past about seven stamps a
-  // day was shown an under-reported week with no `+` on it and a delta
-  // measured against a previous week that was half missing.
-  const { data: activity } = useQuery({
+  // Its own key rather than Activity's: the same walk over a different
+  // window, which sharing a cache entry would hand that page by mistake.
+  const activity = useQuery({
     queryKey: ["activity", business?.id, "brief", WINDOW_DAYS],
     queryFn: () => {
-      const midnight = new Date();
-      midnight.setHours(0, 0, 0, 0);
-      return fetchActivityWindow(
-        business!.id!,
-        midnight.getTime() - (WINDOW_DAYS - 1) * DAY_MS,
-      );
+      const since = new Date(startOfDay(Date.now()));
+      since.setDate(since.getDate() - (WINDOW_DAYS - 1));
+      return fetchActivityWindow(business!.id!, since.getTime());
     },
     enabled: !!business?.id && canEnroll,
     staleTime: 5_000,
   });
 
-  const [previewResult, setPreviewResult] = useState<EnrollOut | null>(null);
+  // Manager and up: the business's own pass, minted once, then polled until
+  // the wallet has it (`useWalletPass`, inside `OwnPass`).
+  const [preview, setPreview] = useState<EnrollOut | null>(null);
   useEffect(() => {
-    // Manager and up: the preview card is the business's own demo pass, and
-    // minting one is a setup action the API scopes to the people who do
-    // setup.
-    if (business?.id && template?.id && manages) {
-      previewCard(business.id, template.id).then(setPreviewResult);
-    }
+    if (!business?.id || !template?.id || !manages) return;
+    let live = true;
+    previewCard(business.id, template.id)
+      .then((out) => live && setPreview(out))
+      .catch(() => {
+        // The stage still shows the card; only the add link waits.
+      });
+    return () => {
+      live = false;
+    };
   }, [business?.id, template?.id, manages]);
 
-  // Issued asynchronously — poll until the pass URL lands.
-  const ownerPass = useWalletPass(previewResult);
-
-  const [copied, setCopied] = useState(false);
-  async function handleCopyLink() {
-    if (!template?.id) return;
-    await navigator.clipboard.writeText(buildEnrollUrl(template.id));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  const week = useMemo(() => {
-    const items = activity?.items ?? [];
-    // Calendar days, not a rolling 168 hours: the ledger draws one row per
-    // day and the total above it has to be the sum of what it draws. It is
-    // also the question an owner actually asks — "was Tuesday quiet?".
-    const midnight = new Date();
-    midnight.setHours(0, 0, 0, 0);
-    const startOfToday = midnight.getTime();
-    const windowStart = startOfToday - (WEEK_DAYS - 1) * DAY_MS;
-    const prevStart = windowStart - WEEK_DAYS * DAY_MS;
-
-    // A stamp gifted by a messaging rule is not a visit — keep it out of
-    // the week, which is the owner's read on how busy the shop was.
-    const visits = items.filter((e) => e.source !== "automation");
-
-    const buckets = new Array<number>(WEEK_DAYS).fill(0);
-    let prevWeek = 0;
-    for (const event of visits) {
-      const at = Date.parse(event.created_at);
-      if (at >= windowStart) {
-        const index = Math.floor((at - windowStart) / DAY_MS);
-        if (index < WEEK_DAYS) buckets[index] += event.stamps;
-      } else if (at >= prevStart) {
-        prevWeek += event.stamps;
-      }
-    }
-
-    // The walk reaches back a whole two brief windows — far past both of
-    // these weeks — unless it hit its page guard. So there is exactly one
-    // question left, and `truncated` is it. Saying so beats printing a
-    // number we cannot stand behind.
-    const capped = activity?.truncated ?? false;
-    const prevKnown = !capped;
-
-    const total = buckets.reduce((sum, n) => sum + n, 0);
-    return {
-      total,
-      capped,
-      // Nothing this week against nothing last week is not a comparison, it
-      // is a shop that has not started yet — "same as last week" would be
-      // true and useless. The empty rows already say it.
-      delta: prevKnown && (total > 0 || prevWeek > 0) ? total - prevWeek : null,
-      // Oldest first, so the bars run in the reading direction and today is
-      // the one at the end. The same order `ActivityChart` and `buildBrief`
-      // take — three charts on this page, one direction between them.
-      days: buckets.map((stamps, i) => ({
-        date: new Date(windowStart + i * DAY_MS),
-        stamps,
-      })),
-    };
-  }, [activity]);
-
-  const all = useMemo(() => customers?.items ?? [], [customers]);
-
-  // The verdict and everything under it, off the two reads above. Nothing
-  // here costs a request the page was not already making.
   const brief = useMemo(
     () =>
       buildBrief({
-        activity: activity?.items ?? [],
-        customers: all,
+        activity: activity.data?.items ?? [],
+        customers: roster.data?.items ?? [],
         now: Date.now(),
-        truncated: activity?.truncated ?? false,
+        truncated: activity.data?.truncated ?? false,
+        rosterTruncated: roster.data?.truncated ?? false,
       }),
-    [activity, all],
+    [activity.data, roster.data],
   );
 
-  const images = designImageUrls(design);
+  const title = (
+    <h1 className="type-title text-ink">{t("dashboard.nav.overview")}</h1>
+  );
 
   if (!template) {
-    return isLoadingTemplates ? (
-      <p className="font-mono text-sm text-ink-subtle">{t("common.loading")}</p>
-    ) : null;
+    return (
+      <div className="flex flex-col gap-5">
+        {title}
+        {templatesPending && <Skeleton className="h-40 w-full rounded-panel" />}
+      </div>
+    );
   }
 
-  const enrollUrl = buildEnrollUrl(template.id!);
+  const n = (value: number) => formatCount(value, language);
+  const facing = manages && (
+    <h2 id="facing-title" className="type-card-title text-ink">
+      {t("dashboard.groups.facing")}
+    </h2>
+  );
+
+  if (!canEnroll) {
+    return (
+      <div className="flex flex-col gap-5">
+        {title}
+        <FreeLead role={role ?? "owner"} />
+        {manages && design !== undefined && (
+          <OwnPass businessName={business?.name ?? ""} template={template} design={design} preview={preview} trial className="max-w-xl" />
+        )}
+        <InstallApp />
+      </div>
+    );
+  }
+
+  const settled = roster.data && activity.data;
+  const failed = !settled && (roster.isError || activity.isError);
+  const empty = roster.data && roster.data.items.length === 0;
+
+  let lead;
+  if (failed) {
+    lead = (
+      <Notice
+        data-tour="overview-lead"
+        tone="danger"
+        title={t("dashboard.overview.loadFailed")}
+        action={
+          <Button
+            variant="secondary"
+            onClick={() => {
+              void roster.refetch();
+              void activity.refetch();
+            }}
+          >
+            {t("common.retry")}
+          </Button>
+        }
+      />
+    );
+  } else if (!settled) {
+    // Never a 0 or "nobody came back" before the reads that make them land.
+    lead = (
+      <div data-tour="overview-lead" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <LitPanel key={i} className="flex flex-col gap-3 p-4 sm:p-5">
+            <Skeleton className="h-4 w-20 rounded-full" />
+            <Skeleton className="h-10 w-16 rounded-field" />
+          </LitPanel>
+        ))}
+      </div>
+    );
+  } else if (empty) {
+    // The day of activation, and every day until the first join: the QR
+    // itself is the lead, large, with the way to print it.
+    lead = (
+      <LitPanel light="band" as="section" aria-labelledby="empty-lead" data-tour="overview-lead" className="flex flex-col items-center gap-4 p-5 text-center sm:p-6">
+        <p id="empty-lead" className="type-body max-w-md text-ink">
+          {t("dashboard.overview.emptyPro")}
+        </p>
+        <QrCode url={buildEnrollUrl(template.id!)} size={208} />
+        {manages && (
+          <LinkButton to="/dashboard/standee" variant="secondary">
+            {t("dashboard.nav.standee")}
+          </LinkButton>
+        )}
+      </LitPanel>
+    );
+  } else {
+    lead = (
+      <section aria-labelledby="tiles-title" className="flex flex-col gap-3">
+        <h2 id="tiles-title" className="type-label text-ink-muted">
+          {t("dashboard.brief.title", { days: BRIEF_DAYS })}
+        </h2>
+        <div data-tour="overview-lead" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <StatTile
+            lit
+            arrive
+            label={t("dashboard.overview.tiles.returned")}
+            value={n(brief.returned)}
+            floor={brief.capped}
+            line={<Comparison delta={brief.returnedDelta} unknown={!brief.previousLoaded} />}
+          />
+          <StatTile
+            arrive
+            label={t("dashboard.overview.tiles.customers")}
+            value={n(brief.customers)}
+            floor={brief.rosterCapped}
+            to="/dashboard/customers"
+          />
+          <StatTile
+            arrive
+            label={t("dashboard.overview.tiles.joined")}
+            value={n(brief.joined)}
+            floor={brief.joinedCapped}
+            to="/dashboard/customers?sort=recent"
+            line={<Comparison delta={brief.joinedDelta} />}
+          />
+          <StatTile
+            arrive
+            label={t("dashboard.overview.tiles.ready")}
+            value={n(brief.ready)}
+            floor={brief.rosterCapped}
+            to="/dashboard/customers?filter=ready"
+            line={
+              brief.oneAway > 0 && (
+                <TileLink to="/dashboard/customers?filter=oneAway">
+                  {t("dashboard.overview.oneAway", { count: brief.oneAway })}
+                </TileLink>
+              )
+            }
+          />
+        </div>
+      </section>
+    );
+  }
+
+  const quiet =
+    settled && !empty && brief.quietDays !== null && brief.quietDays >= QUIET_DAYS && brief.lastVisit !== null;
+  const rosterStopped = settled && !empty && roster.data?.truncated;
+  const words = { today: t("dashboard.activity.today"), yesterday: t("dashboard.activity.yesterday") };
+  const busiest = brief.days.reduce<{ date: Date; visits: number } | null>(
+    (best, d) => (d.loaded && (!best || d.visits > best.visits) ? d : best),
+    null,
+  );
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-5">
-      <h1 className="t-h3 text-ink">{t("dashboard.nav.overview")}</h1>
+    <div className="flex flex-col gap-5">
+      {title}
 
-      {justActivated && canEnroll && (
-        <Notice tone="ok">{t("billing.success.done")}</Notice>
+      {justActivated && (
+        <Notice tone="ok" lit>
+          {t("billing.success.done")}
+        </Notice>
       )}
 
-      {canEnroll ? (
-        <>
-          {/* The verdict first. Not stamps: a stamp counts a first-timer and
-              a tenth-visit regular the same, and the thing this product was
-              sold on — and the thing `calculator.ts` prices a year of it in —
-              is people coming back. */}
-          {/* Wrapped only so the tour has something to measure — BriefBand
-              draws its own band edge to edge and takes no props of ours. */}
-          <div data-tour="overview-lead">
-          <BriefBand
-            days={BRIEF_DAYS}
-            returned={brief.returned}
-            delta={brief.returnedDelta}
-            capped={brief.capped}
-            series={brief.days}
-            readouts={[
-              {
-                label: t("dashboard.customers.stats.total"),
-                value: brief.customers,
-                hue: "roster",
-              },
-              {
-                label: t("dashboard.brief.stats.joined"),
-                value: brief.joined,
-                hue: "growth",
-              },
-              {
-                label: t("dashboard.brief.stats.visits"),
-                value: brief.visits,
-                hue: "activity",
-                capped: brief.capped,
-              },
-              {
-                label: t("dashboard.customers.stats.ready"),
-                value: brief.ready,
-                hue: "reward",
-              },
-            ]}
-          />
+      {lead}
+
+      {rosterStopped && (
+        <Notice tone="warn">
+          {t("dashboard.overview.rosterStopped", { shown: n(roster.data?.items.length ?? 0) })}
+        </Notice>
+      )}
+
+      {quiet && brief.lastVisit !== null && (
+        <Notice tone="warn">
+          {t("dashboard.overview.quiet", {
+            // A weekday only within the week; past that, the date.
+            day:
+              (brief.quietDays ?? 0) <= 6
+                ? new Date(brief.lastVisit).toLocaleDateString(language, { weekday: "long" })
+                : shortDate(brief.lastVisit, language),
+          })}
+        </Notice>
+      )}
+
+      {settled && !empty && (
+        <div className="grid gap-5 lg:grid-cols-3">
+          <LitPanel as="section" aria-labelledby="month-title" className="flex flex-col gap-1 p-4 sm:p-5 lg:col-span-2">
+            <h2 id="month-title" className="type-card-title text-ink">
+              {t("dashboard.overview.chartTitle")}
+            </h2>
+            <DayChart
+              className="mt-2"
+              label={t("dashboard.overview.chartTitle")}
+              days={brief.days.map((d) => ({ day: d.date.getTime(), value: d.loaded ? d.visits : null }))}
+              summary={t("dashboard.overview.chartSummary", {
+                count: BRIEF_DAYS,
+                total: n(brief.visits),
+                peakDay: busiest ? weekdayDate(busiest.date.getTime(), language) : "",
+                peak: busiest ? n(busiest.visits) : "",
+              })}
+              valueLabel={(value) => t("dashboard.overview.people", { count: value })}
+              dayLabel={(day) => relativeDay(day, language, words)}
+              axisLabel={(day) => shortDate(day, language)}
+            />
+            <LinkButton to="/dashboard/activity" variant="quiet" className="mt-2 self-start">
+              {t("dashboard.scan.tally.seeAll")}
+            </LinkButton>
+          </LitPanel>
+
+          <LitPanel as="section" aria-labelledby="week-title" className="flex flex-col gap-4 p-4 sm:p-5">
+            <h2 id="week-title" className="type-card-title text-ink">
+              {t("dashboard.week.title")}
+            </h2>
+            <WeekLedger week={brief.week} cardLength={template.stamps_required} />
+          </LitPanel>
+        </div>
+      )}
+
+      {/* What customers see, for whoever looks after it. A hire sees the
+          join QR alone, with no group heading: it is the one thing here they
+          use, to show a customer who wants to join. When there are no
+          customers yet the QR is the lead already, so it isn't repeated. */}
+      {manages ? (
+        <section aria-labelledby="facing-title" className="flex flex-col gap-3">
+          {facing}
+          <div className={cn("grid items-start gap-5", !empty && "lg:grid-cols-2")}>
+            {!empty && <JoinQr templateId={template.id!} />}
+            <OwnPass businessName={business?.name ?? ""} template={template} design={design} preview={preview} trial={false} className={cn(empty && "max-w-xl")} />
           </div>
-
-          {/* The month says whether it is working; the week says how the
-              shop is running. Both, in that order. */}
-          <Panel className="p-5 sm:p-6">
-            <PanelHeader title={t("dashboard.week.title")} />
-            <div className="mt-4">
-              <WeekLedger
-                days={week.days}
-                total={week.total}
-                capped={week.capped}
-                delta={week.delta}
-                cardLength={template.stamps_required}
-              />
-            </div>
-          </Panel>
-        </>
-      ) : manages ? (
-        <Panel data-tour="overview-lead" className="p-5 sm:p-6">
-          <PanelHeader title={t("dashboard.start.title")} />
-          {/* Numbered, because this genuinely is an order: there is nothing
-              to print until the card exists, and nothing for a printed code
-              to do until the subscription is live. The numerals sit in the
-              same punch the wizard counts steps with. */}
-          <ol className="mt-5 flex flex-col gap-4">
-            {(
-              [
-                { n: 1, body: "designed", to: "/dashboard/design", nav: "design" },
-                { n: 2, body: "print", to: "/dashboard/standee", nav: "standee" },
-                { n: 3, body: "activate", to: "/dashboard/billing", nav: "billing" },
-              ] as const
-            ).map((step) => (
-              <li key={step.n} className="flex items-start gap-3">
-                <PunchMark state="stamped" size={22} className="mt-0.5">
-                  {step.n}
-                </PunchMark>
-                <div className="min-w-0">
-                  <p className="text-ink">{t(`dashboard.start.${step.body}`)}</p>
-                  <Link
-                    to={step.to}
-                    className={cn(
-                      "mt-1 inline-flex min-h-[36px] items-center gap-1 rounded-lg text-sm font-semibold text-primary-text hover:underline",
-                      focusRing,
-                    )}
-                  >
-                    {t(`dashboard.nav.${step.nav}`)}
-                    <ArrowRight size={15} aria-hidden className="rtl:-scale-x-100" />
-                  </Link>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </Panel>
+        </section>
       ) : (
-        // A hire on a business that hasn't activated yet: there is nothing
-        // for them to do, and every step of the checklist above is a door
-        // the API would close on them.
-        <Panel className="p-5 sm:p-6">
-          <PanelHeader title={t("dashboard.start.title")} hint={t("team.notReady")} />
-        </Panel>
+        !empty && <JoinQr templateId={template.id!} className="max-w-md" />
       )}
 
-      {/* The counter kit: the objects that leave the screen. The QR stays lit
-          at night because it has to be dark-on-light to scan. The pass does
-          not — neither wallet draws it on white, and its colours are the
-          owner's — so it is staged in a well, the way the studio stages it.
-
-          Labelled, and after everything above it, because these are not more
-          of the same: the panels above are today, these are the things set up
-          once. The label is the nav's own word for them, so the page and the
-          rail agree on what counts as setup.
-
-          The QR leads. It is the one an owner reaches for at the counter with
-          somebody standing there, where "try your card yourself" is a thing
-          they do once and never again — and on a phone the pass panel is tall
-          enough to bury whatever follows it. */}
-      {/* A hire is not setting anything up — the QR below is the only thing
-          in this section they can use, so the heading would name a group
-          that, for them, does not exist. */}
-      {manages && (
-        <GroupLabel className="mt-2">{t("dashboard.groups.setup")}</GroupLabel>
-      )}
-
-      {/* Putting the app on the phone is setup by the nav's own definition:
-          done once, then never thought about again. It renders nothing at
-          all where it cannot be done, so it costs a desktop owner no room. */}
       <InstallApp />
-
-      <div
-        className={cn(
-          "grid items-start gap-4 sm:gap-5",
-          // Two columns only when there is a second panel to put in one.
-          manages ? "lg:grid-cols-2" : "lg:max-w-md",
-        )}
-      >
-        <Panel className="flex min-w-0 flex-col gap-4 p-5 sm:p-6">
-          <PanelHeader title={t("dashboard.qr.title")} />
-          {canEnroll ? (
-            <>
-              <LitStage innerClassName="flex justify-center">
-                <div dir="ltr">
-                  <QRCodeSVG value={enrollUrl} size={160} />
-                </div>
-              </LitStage>
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className={ctaClasses("secondary", "sm", "self-center")}
-              >
-                <Copy size={15} aria-hidden />
-                {copied ? t("common.copied") : t("common.copyLink")}
-              </button>
-            </>
-          ) : (
-            owns && (
-              <Link
-                to="/dashboard/billing"
-                className={ctaClasses("primary", "sm", "self-start")}
-              >
-                {t("dashboard.qr.activateCta")}
-              </Link>
-            )
-          )}
-        </Panel>
-
-        {manages && (
-        <Panel className="flex min-w-0 flex-col gap-4 p-4 sm:p-6">
-          <PanelHeader
-            title={t("dashboard.preview.title")}
-            hint={t("dashboard.preview.body")}
-          />
-          {design && (
-            <>
-              {/* The well the pass sits in — the studio's, so the same card
-                  is staged the same way on both screens. The pass is a fixed
-                  300px by the wallets' own spec, and at 375px that leaves no
-                  room for a margin either side, so on a phone the well runs
-                  to the panel's edges rather than the pass being cropped or
-                  scaled; it shows above and below instead. */}
-              <div className="flex flex-col items-center rounded-xl bg-background px-0 py-5 sm:px-6">
-                <CardPreview
-                  businessName={business?.name ?? ""}
-                  cardName={template.name}
-                  stampsRequired={template.stamps_required}
-                  currentStamps={previewResult?.stamp_count ?? 0}
-                  rewardDescription={template.reward_description}
-                  backgroundColor={template.background_color}
-                  foregroundColor={template.foreground_color}
-                  labelColor={template.label_color}
-                  design={design.design}
-                  logoUrl={images.logo ?? template.logo_url ?? undefined}
-                  appleLogoUrl={images.apple_logo}
-                  stripBaseUrl={images.strip_base}
-                />
-              </div>
-              {/* Getting the pass onto your own phone is ours to offer, not
-                  part of the card — so it sits on the panel rather than in
-                  the well. The navy pill carries its own edge for the night
-                  ground; see WalletAddButtons. */}
-              <div className="flex justify-center">
-                <WalletAddButtons
-                  passUrl={ownerPass.passUrl}
-                  pending={ownerPass.pending}
-                  slow={ownerPass.slow}
-                  onRetry={ownerPass.retry}
-                />
-              </div>
-            </>
-          )}
-        </Panel>
-        )}
-      </div>
     </div>
+  );
+}
+
+/** A rise said out loud, a fall or no change said quietly, and a comparison
+ * that can't be made said plainly. A slow month is never red. */
+function Comparison({ delta, unknown }: { delta: number | null; unknown?: boolean }) {
+  const { t } = useTranslation();
+  if (delta === null) {
+    return unknown ? <span className="text-ink-muted">{t("dashboard.overview.noComparison")}</span> : null;
+  }
+  if (delta > 0) {
+    return (
+      <span className="inline-flex items-start gap-1.5 rounded-xl bg-ok/15 px-2.5 py-1 font-semibold text-ok-tag">
+        <TrendingUp aria-hidden className="mt-0.5 size-4 shrink-0" />
+        {t("dashboard.brief.moreThanBefore", { count: delta, days: BRIEF_DAYS })}
+      </span>
+    );
+  }
+  return (
+    <span className="text-ink-muted">
+      {delta < 0
+        ? t("dashboard.brief.fewerThanBefore", { count: -delta, days: BRIEF_DAYS })
+        : t("dashboard.brief.sameAsBefore", { days: BRIEF_DAYS })}
+    </span>
   );
 }

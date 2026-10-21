@@ -223,6 +223,121 @@ describe("customers", () => {
   });
 });
 
+describe("floors per window, not per walk", () => {
+  // A busy shop: the walk's guard stopped it 33 days back, inside the 30
+  // days before this window, after reading every event newer than that.
+  const busy = () =>
+    brief(
+      [
+        event({ card_serial: "a", created_at: at(1) }),
+        event({ card_serial: "a", created_at: at(3) }),
+        event({ card_serial: "b", created_at: at(33) }),
+      ],
+      [],
+      true,
+    );
+
+  it("keeps the 30 days exact when the walk stopped before them", () => {
+    const b = busy();
+    expect(b.capped).toBe(false);
+    expect(b.returned).toBe(1);
+    expect(b.days.every((d) => d.loaded)).toBe(true);
+  });
+
+  it("drops only the comparison, and says it couldn't be made", () => {
+    const b = busy();
+    expect(b.returnedDelta).toBeNull();
+    expect(b.previousLoaded).toBe(false);
+  });
+
+  it("marks the days the walk didn't load whole, the cut-short day included", () => {
+    const b = brief([event({ created_at: at(1) }), event({ created_at: at(5) })], [], true);
+    const loaded = b.days.map((d) => d.loaded);
+    // at(5) is the oldest event read: its own day was cut short.
+    expect(loaded.slice(0, BRIEF_DAYS - 5)).toEqual(new Array(BRIEF_DAYS - 5).fill(false));
+    expect(loaded.slice(BRIEF_DAYS - 4)).toEqual([true, true, true, true]);
+    expect(b.capped).toBe(true);
+  });
+});
+
+describe("the roster's own guard", () => {
+  it("makes the roster's counts floors", () => {
+    const b = buildBrief({
+      activity: [],
+      customers: [customer({ created_at: at(1) })],
+      now: NOW,
+      truncated: false,
+      rosterTruncated: true,
+    });
+    expect(b.rosterCapped).toBe(true);
+  });
+
+  it("keeps the joins exact while the roster reached past both windows", () => {
+    const b = buildBrief({
+      activity: [],
+      customers: [customer({ created_at: at(2) }), customer({ created_at: at(BRIEF_DAYS + 2) }), customer({ created_at: at(70) })],
+      now: NOW,
+      truncated: false,
+      rosterTruncated: true,
+    });
+    expect(b.joinedCapped).toBe(false);
+    expect(b.joinedDelta).toBe(0);
+  });
+
+  it("makes the joins a floor when the roster stopped inside the window", () => {
+    const b = buildBrief({
+      activity: [],
+      customers: [customer({ created_at: at(1) }), customer({ created_at: at(4) })],
+      now: NOW,
+      truncated: false,
+      rosterTruncated: true,
+    });
+    expect(b.joinedCapped).toBe(true);
+    expect(b.joinedDelta).toBeNull();
+  });
+});
+
+describe("the week", () => {
+  it("sums each day's stamps, oldest first and today last", () => {
+    const b = brief([event({ created_at: at(0), stamps: 2 }), event({ created_at: at(0) }), event({ created_at: at(6) })]);
+    expect(b.week.days).toHaveLength(7);
+    expect(b.week.days[6].stamps).toBe(3);
+    expect(b.week.days[0].stamps).toBe(1);
+    expect(b.week.total).toBe(4);
+  });
+
+  it("leaves out a rule's gift and nets a stamp taken back", () => {
+    const b = brief([
+      event({ created_at: at(1), source: "automation" }),
+      event({ created_at: at(1) }),
+      event({ created_at: at(1), source: "adjust", stamps: -1 }),
+      event({ created_at: at(2) }),
+    ]);
+    expect(b.week.total).toBe(1);
+  });
+
+  it("compares against last week", () => {
+    const b = brief([event({ created_at: at(1) }), event({ created_at: at(2) }), event({ created_at: at(8) })]);
+    expect(b.week.delta).toBe(1);
+  });
+
+  it("has no comparison when last week wasn't loaded whole", () => {
+    const b = brief([event({ created_at: at(1) }), event({ created_at: at(9) })], [], true);
+    expect(b.week.delta).toBeNull();
+    expect(b.week.capped).toBe(false);
+  });
+
+  it("is a floor when the walk stopped inside the week", () => {
+    const b = brief([event({ created_at: at(0) }), event({ created_at: at(2) })], [], true);
+    expect(b.week.capped).toBe(true);
+    expect(b.week.days.filter((d) => !d.loaded)).toHaveLength(5);
+  });
+
+  it("is no comparison for two empty weeks", () => {
+    expect(brief([]).week.delta).toBeNull();
+  });
+});
+
 describe("days — the band's ground", () => {
   it("always spans the whole window, quiet days included", () => {
     const b = brief([event({ created_at: at(3) })]);

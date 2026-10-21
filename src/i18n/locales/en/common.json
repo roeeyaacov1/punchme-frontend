@@ -602,12 +602,42 @@
       }
     },
     "qr": {
-      "title": "Your enrollment QR",
+      "title": "The join QR",
       "activateCta": "Activate to get your QR code"
     },
     "preview": {
       "title": "Try your card yourself",
       "body": "Add your own card to your wallet — free, no activation needed."
+    },
+    "overview": {
+      "tiles": {
+        "returned": "Came back",
+        "customers": "Customers",
+        "joined": "New",
+        "ready": "Reward waiting"
+      },
+      "atLeast": "At least",
+      "noComparison": "No comparison: the 30 days before couldn't all be loaded.",
+      "rosterStopped": "The customer list stopped at {{shown}}, so these counts are the least it can prove.",
+      "oneAway_one": "1 one stamp away",
+      "oneAway_other": "{{count, number}} one stamp away",
+      "quiet": "Nobody has been stamped since {{day}}. Is the standee still on the counter?",
+      "chartTitle": "People a day",
+      "people_one": "{{count, number}} person",
+      "people_other": "{{count, number}} people",
+      "chartSummary_one": "People a day over the last day, {{total}} visits in all. The busiest day was {{peakDay}}, with {{peak}}.",
+      "chartSummary_other": "People a day over the last {{count}} days, {{total}} visits in all. The busiest day was {{peakDay}}, with {{peak}}.",
+      "loadFailed": "The figures didn't load",
+      "emptyPro": "No customers yet. Put the QR by the counter: whoever scans it shows up here.",
+      "activate": {
+        "body": "Activating costs <ltr>₪{{price}}</ltr> a month. From then on real customers can join with your QR, your messages really send, the standee prints and Refer a friend opens.",
+        "ownerActivates": "The owner activates the card."
+      },
+      "hireFree": "Not live yet. Once the owner activates the card, this shows who came back, who is new and who has a reward waiting.",
+      "ownPass": "Your card",
+      "ownPassBody": "Add it to your wallet to see it the way customers do.",
+      "trialScan": "Add it to your wallet, then scan it on Scan to watch a stamp land.",
+      "passSummary": "Your card on a lock screen, with {{filled}} of {{total}} stamps."
     },
     "customers": {
       "title": "Customers",
@@ -944,7 +974,7 @@
         "titleHire": "How the shop is doing",
         "bodyHire": "Who came back this month, and what happened this week.",
         "titleFree": "Not live yet",
-        "bodyFree": "These are the steps between the card you designed and a customer holding it.",
+        "bodyFree": "What activating turns on, and what it costs.",
         "bodyFreeHire": "The card isn't live yet. Once it is, this page shows the shop's day."
       },
       "customers": {
