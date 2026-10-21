@@ -34,7 +34,7 @@ export function RoleRefusal({ minimum }: { minimum: Role }) {
         <Lock aria-hidden className="size-7 shrink-0" />
         {page ? t(`dashboard.nav.${page.key}`) : t("team.denied.title")}
       </h1>
-      <div className="type-body flex flex-col gap-2 text-ink-muted">
+      <div className="type-body flex flex-col gap-2 break-words text-ink-muted">
         <p className="font-semibold text-ink">{t("team.denied.title")}</p>
         <p>{t(`team.denied.${minimum}`)}</p>
         <p>

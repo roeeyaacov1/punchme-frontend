@@ -41,7 +41,7 @@ export function AccountSheet({
   return (
     <Sheet open={open} onClose={onClose} title={t("dashboard.groups.account")} returnFocus={returnFocus}>
       <div className="flex flex-col gap-6">
-        <p className="type-body text-ink">
+        <p className="type-body break-words text-ink">
           <Trans
             i18nKey="dashboard.account.signedInAs"
             values={{ name: personName(user), role: role ? t(`team.role.${role}`) : "" }}
