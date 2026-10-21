@@ -1,4 +1,12 @@
-import { useEffect, useLayoutEffect, useRef, type MouseEvent, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  type RefObject,
+} from "react";
 
 /** A drag starts past this many pixels, so a tap on the close button stays a tap. */
 const SLOP = 6;
@@ -42,16 +50,19 @@ function offsetOf(element: HTMLElement): number {
  * Drag a bottom sheet down to close it, by its handle and its title row.
  *
  * The panel follows the finger through `translate`, which composes with the
- * `transform` its keyframes animate, so a drag never fights the sheet rising
- * and the exit carries on from wherever the finger let go: `sheet-fall` runs
- * on top of the drag's offset. The scrim lightens as it goes, through a layer
- * of its own whose opacity multiplies the scrim's fade. Neither is set
- * through a variable on a parent, so nothing but those two restyles.
+ * `transform` its keyframes animate, so a drag never fights the sheet rising.
+ * The scrim lightens as it goes, through a layer of its own whose opacity
+ * multiplies the scrim's fade. Neither is set through a variable on a
+ * parent, so nothing but those two restyles.
  *
- * Let go past a quarter of its height, or flicked, and it closes the way it
- * would have anyway. Otherwise it goes back on the drawer curve, and can be
- * caught again on the way. Pulled up, it gives a little, less the further it
- * goes, rather than stopping at a wall.
+ * Let go past a quarter of its height, or flicked, and it is let go rather
+ * than snatched: it carries on from where the finger left it, the rest of
+ * the way down on the drawer curve in the sheet's own 300ms, and the scrim
+ * clears alongside. `draggedOut` tells the Modal to skip `sheet-fall` for
+ * that close and wait for it. With reduced motion it fades where it stands
+ * instead. Otherwise it goes back on the drawer curve, and can be caught
+ * again on the way. Pulled up, it gives a little, less the further it goes,
+ * rather than stopping at a wall.
  *
  * Only the head drags: the body keeps its own scroll and its rows their
  * taps. Once pressed, the window hears the pointer, so a mouse that leaves
@@ -77,6 +88,7 @@ export function useSheetDrag({
   const endedAt = useRef(-Infinity);
   const settling = useRef(0);
   const stopListening = useRef<(() => void) | null>(null);
+  const [draggedOut, setDraggedOut] = useState(false);
   // Read when the pointer moves, so a render mid-drag can't leave it stale.
   const latest = useRef({ reduced, onClose });
   useLayoutEffect(() => {
@@ -90,10 +102,31 @@ export function useSheetDrag({
     [],
   );
 
+  // Opened again, even halfway out after a drag: nothing of the last drag
+  // stays on the panel or the scrim.
+  useEffect(() => {
+    if (!enabled) return;
+    setDraggedOut(false);
+    window.clearTimeout(settling.current);
+    for (const element of [panel.current, scrim.current]) {
+      element?.style.removeProperty("transition");
+      element?.style.removeProperty("translate");
+      element?.style.removeProperty("opacity");
+    }
+  }, [enabled, panel, scrim]);
+
   const place = (offset: number, height: number) => {
     const y = offset < 0 ? -Math.min(GIVE, 2 * Math.sqrt(-offset)) : offset;
     if (panel.current) panel.current.style.translate = `0 ${y}px`;
     if (scrim.current) scrim.current.style.opacity = String(1 - Math.min(1, Math.max(0, y) / height));
+  };
+
+  // Where the finger let go is where the transition starts: the last move's
+  // place is taken before the transition is set, or it starts a move behind.
+  const release = (element: HTMLElement, layer: HTMLElement, timing: string) => {
+    void getComputedStyle(element).translate;
+    element.style.transition = `translate ${timing}`;
+    layer.style.transition = `opacity ${timing}`;
   };
 
   // Back where it rests: 300ms on the drawer curve, or 150ms with reduced
@@ -103,12 +136,12 @@ export function useSheetDrag({
     const layer = scrim.current;
     if (!element || !layer) return;
     const gentle = latest.current.reduced;
-    const timing = gentle
-      ? "var(--duration-gentle) var(--ease-out-strong)"
-      : "var(--duration-sheet) var(--ease-drawer)";
-    element.style.transition = `translate ${timing}`;
+    release(
+      element,
+      layer,
+      gentle ? "var(--duration-gentle) var(--ease-out-strong)" : "var(--duration-sheet) var(--ease-drawer)",
+    );
     element.style.translate = "0 0";
-    layer.style.transition = `opacity ${timing}`;
     layer.style.opacity = "1";
     settling.current = window.setTimeout(
       () => {
@@ -119,6 +152,21 @@ export function useSheetDrag({
       },
       (gentle ? 150 : 300) + 40,
     );
+  };
+
+  // Out the rest of the way: from where it was let go to its own height
+  // below, which is the bottom of the screen, on the drawer curve in the
+  // sheet's 300ms, the scrim clearing with it. The keyframe the Modal would
+  // otherwise play adds the sheet's whole height on top in 180ms, which
+  // after a slow drag snatched it away at many times the finger's speed.
+  const letGo = () => {
+    const element = panel.current;
+    const layer = scrim.current;
+    if (!element || !layer) return;
+    release(element, layer, "var(--duration-sheet) var(--ease-drawer)");
+    element.style.translate = "0 100%";
+    layer.style.opacity = "0";
+    setDraggedOut(true);
   };
 
   const onMove = (event: PointerEvent) => {
@@ -161,6 +209,9 @@ export function useSheetDrag({
     const velocity =
       first && event.timeStamp > first.t ? (event.clientY - first.y) / (event.timeStamp - first.t) : 0;
     if (current.offset > 0 && (current.offset >= current.height * CLOSE_SHARE || velocity > FLICK)) {
+      // With reduced motion there is no travel: the Modal's fade takes it
+      // where it stands.
+      if (!latest.current.reduced) letGo();
       latest.current.onClose();
     } else {
       settle();
@@ -210,5 +261,5 @@ export function useSheetDrag({
     event.stopPropagation();
   };
 
-  return { onPointerDown, onClickCapture };
+  return { draggedOut, handlers: { onPointerDown, onClickCapture } };
 }
