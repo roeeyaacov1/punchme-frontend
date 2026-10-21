@@ -88,6 +88,7 @@ function Body({ kind, word, filled }: { kind: Answer; word: string; filled: numb
       <>
         <CircleAlert aria-hidden className="size-8 text-ink" />
         <p className="type-answer text-ink">{word}</p>
+        <p className="type-body max-w-[16rem] font-semibold text-answer-failed-ink">{t("dashboard.scan.result.offline")}</p>
       </>
     );
   }
@@ -106,7 +107,7 @@ function Body({ kind, word, filled }: { kind: Answer; word: string; filled: numb
           </div>
         </>
       ) : (
-        <p className="type-body text-ink-muted">
+        <p className="type-body font-semibold text-answer-punched-ink">
           {t("dashboard.scan.result.toGo", { count: CAFE.stampsRequired - filled })}
         </p>
       )}

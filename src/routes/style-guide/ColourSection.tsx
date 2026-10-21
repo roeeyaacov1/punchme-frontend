@@ -51,7 +51,11 @@ const LIGHT: PairSpec[] = [
   { name: "ink · answer-punched", sample: "bg-answer-punched text-ink" },
   { name: "ink · answer-full", sample: "bg-answer-full text-ink" },
   { name: "ink · answer-failed", sample: "bg-answer-failed text-ink" },
-  { name: "ink-muted · answer-failed", sample: "bg-answer-failed text-ink-muted" },
+  { name: "answer-punched-ink · answer-punched", sample: "bg-answer-punched text-answer-punched-ink" },
+  { name: "answer-full-ink · answer-full", sample: "bg-answer-full text-answer-full-ink" },
+  { name: "answer-failed-ink · answer-failed", sample: "bg-answer-failed text-answer-failed-ink" },
+  { name: "warn · light", sample: "bg-light text-warn" },
+  { name: "ink-muted · light", sample: "bg-light text-ink-muted" },
   { name: "ink · gold", sample: "bg-gold text-ink" },
   { name: "light · glass", sample: "bg-glass text-light" },
 ];

@@ -112,12 +112,18 @@ export default {
           edge: "#fddcc8",
         },
         // The light a scan answer switches on in. Ink 12.19 / 10.63 /
-        // 10.35:1; ink-muted 5.56:1 or more. A refusal answers on the plain
-        // light above, its amber kept to its word and icon.
+        // 10.35:1. Each light's secondary line is set in its own hue,
+        // darkened in OKLCH to L 0.38: punched-ink 7.86:1, full-ink 7.08:1
+        // and failed-ink 7.12:1, each on its own light. A refusal answers on
+        // the plain light above, its amber kept to its word and icon (warn
+        // 6.53:1) and its reason in ink-muted (7.47:1).
         answer: {
           punched: "#c9f0d9",
           full: "#ffd36b",
           failed: "#ffc9c2",
+          "punched-ink": "#224c37",
+          "full-ink": "#504019",
+          "failed-ink": "#66302a",
         },
         // The camera's dark glass, a hole in the wall that is never lit.
         // What sits on it is `light` (17.97:1); ink would be 1.29:1.
@@ -287,6 +293,9 @@ export default {
         "sign-catch": "sign-catch var(--duration-ceremony) linear var(--delay-switch-on) both",
         "sign-on": "sign-on var(--duration-gentle) ease-out var(--delay-switch-on) both",
         skeleton: "skeleton 1.6s ease-in-out infinite",
+        // The scanner's sweep under reduced motion: it holds still and
+        // breathes instead of travelling.
+        "scan-pulse": "scan-pulse 2.4s ease-in-out infinite",
       },
       // Lightbox's curves and durations, as the :root tokens in
       // src/index.css. Tailwind's own `ease-out` is left as it is: the pages
