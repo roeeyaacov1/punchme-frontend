@@ -29,6 +29,8 @@ export interface ModalProps {
 /** 180ms out, or the 150ms gentle fade; the hook waits this long before closing. */
 const EXIT_MS = 180;
 const GENTLE_MS = 150;
+/** --duration-sheet: how long a sheet let go of mid-drag takes to leave. */
+const SHEET_MS = 300;
 
 /**
  * A question that has to be answered before anything else: a confirmation,
@@ -72,15 +74,18 @@ function Modal({
   const heading = useRef<HTMLHeadingElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const scrim = useRef<HTMLDivElement>(null);
+  const sheet = kind === "sheet";
+  const drag = useSheetDrag({ panel, scrim, enabled: sheet && open, reduced, onClose });
+  // Let go of mid-drag, the sheet carries on for its own 300ms (useSheetDrag):
+  // the dialog stays until it is out.
+  const draggedOut = sheet && drag.draggedOut;
   const { shown, leaving, dialogProps } = useModal({
     open,
     onClose,
-    exitMs: reduced ? GENTLE_MS : EXIT_MS,
+    exitMs: draggedOut ? SHEET_MS : reduced ? GENTLE_MS : EXIT_MS,
     initialFocus: initialFocus ?? heading,
     returnFocus,
   });
-  const sheet = kind === "sheet";
-  const drag = useSheetDrag({ panel, scrim, enabled: sheet && open, reduced, onClose });
   if (!shown) return null;
 
   // A press outside the panel closes it, as the scrim promises.
@@ -88,8 +93,12 @@ function Modal({
     if (event.target === event.currentTarget) onClose();
   };
 
+  // A drag-close needs no exit of its own: the drag's transition is taking
+  // the sheet down, and the scrim's layer is clearing with it.
+  const exitByDrag = leaving && draggedOut;
   let panelMotion: string;
   if (reduced) panelMotion = leaving ? "animate-gentle-out" : "animate-gentle-in";
+  else if (exitByDrag) panelMotion = "";
   else if (sheet) panelMotion = leaving ? "animate-sheet-fall md:animate-drawer-out" : "animate-sheet-rise md:animate-drawer-in";
   else panelMotion = leaving ? "animate-dialog-out" : "animate-dialog-in";
 
@@ -101,9 +110,14 @@ function Modal({
       className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-hidden bg-transparent p-0 text-ink backdrop:bg-transparent"
     >
       {/* The scrim fades inside a layer of its own, which a sheet's drag
-          lightens as it goes down. */}
+          lightens as it goes down and clears as a drag closes it. */}
       <div ref={scrim} aria-hidden className="fixed inset-0">
-        <div className={cn("size-full bg-scrim", leaving ? "animate-exit-fade" : "animate-gentle-in")} />
+        <div
+          className={cn(
+            "size-full bg-scrim",
+            leaving && !exitByDrag ? "animate-exit-fade" : "animate-gentle-in",
+          )}
+        />
       </div>
       <div
         onClick={onBackdrop}
@@ -131,7 +145,7 @@ function Modal({
           {/* The head: on a phone, the handle and the title row drag the
               sheet down, and nothing else in it does. */}
           <div
-            {...(sheet ? drag : {})}
+            {...(sheet ? drag.handlers : {})}
             className={cn("shrink-0", sheet && "max-md:touch-none max-md:select-none")}
           >
             {sheet && <span aria-hidden className="mx-auto mt-2.5 block h-1 w-10 rounded-full bg-border-strong md:hidden" />}
