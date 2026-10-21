@@ -24,6 +24,8 @@ export { Tabs, TabList, Tab, TabPanel } from "./Tabs";
 export { Slider, type SliderProps } from "./Slider";
 export { LitPanel, type Light, type LitPanelProps, type PanelRadius } from "./LitPanel";
 export { Badge, type BadgeTone } from "./Badge";
+export { Notice, type NoticeProps, type NoticeTone } from "./Notice";
+export { FilterChips, type FilterChip, type FilterChipsProps } from "./FilterChips";
 export { Figure, type FigureProps, type FigureSize } from "./Figure";
 export { List, ListRow, type ListRowProps } from "./ListRow";
 export { EmptyState, type EmptyStateProps } from "./EmptyState";
