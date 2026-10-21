@@ -195,6 +195,38 @@ export function dayTotals(
 }
 
 /**
+ * The first day the walk loaded whole, or null when it reached the start of
+ * its window.
+ *
+ * `fetchActivityWindow` walks back from the newest event and its guard can
+ * stop it part of the way into a day. Everything newer than the oldest event
+ * it holds was loaded, but that event's own day was cut short, so it is no
+ * more a whole day than the days before it: drawn, it would be a smaller copy
+ * of the false drop a missing day drawn as zero makes. Whole days start the
+ * next midnight.
+ */
+export function wholeDaysFrom(items: Pick<ActivityItem, "created_at">[], truncated: boolean): number | null {
+  if (!truncated || items.length === 0) return null;
+  let oldest = Infinity;
+  for (const event of items) oldest = Math.min(oldest, Date.parse(event.created_at));
+  const next = new Date(startOfDay(oldest));
+  // Calendar arithmetic rather than +24h, so a clock change can't move it.
+  next.setDate(next.getDate() + 1);
+  return next.getTime();
+}
+
+/**
+ * How many rows each day holds, over everything the filters let through, so
+ * a day's heading counts the whole day even when the list shows only the top
+ * of it.
+ */
+export function countByDay(rows: Pick<ActivityRow, "day">[]): Map<number, number> {
+  const counts = new Map<number, number>();
+  for (const row of rows) counts.set(row.day, (counts.get(row.day) ?? 0) + 1);
+  return counts;
+}
+
+/**
  * Marks the rows that open a new day, so the date column can print itself
  * once instead of twenty-five times. Runs over the *filtered* list, because
  * which row opens a day depends on which rows are showing.
