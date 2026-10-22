@@ -47,6 +47,10 @@ const FADE_MS = 150;
  * picture, focusable so the keyboard can read it the way a pointer does,
  * with the days as a list for a screen reader.
  *
+ * A finger reads it by dragging across: the surface keeps sideways drags
+ * for itself and leaves scrolling up and down, and pinch-zoom, to the
+ * browser. A long press selects nothing on the plot.
+ *
  * Nothing on it draws itself in. A new `crossfade` (Activity's period)
  * crossfades the last drawing into the next one in 150ms, opacity only, so
  * the same with reduced motion; anything else that changes the days, a
@@ -187,7 +191,7 @@ export function DayChart({
         {shownDay && <span className="text-ink">{readout(shown)}</span>}
       </p>
 
-      <div dir="ltr" className="flex flex-col gap-2">
+      <div dir="ltr" className="flex select-none flex-col gap-2">
         <div ref={box} className="relative w-full" style={{ height: PLOT_H }}>
           {drawable && (
             <>
@@ -224,7 +228,7 @@ export function DayChart({
                   aria-label={label}
                   aria-describedby={`${id}-summary`}
                   aria-activedescendant={`${id}-day-${active ?? shown}`}
-                  className="absolute inset-0 cursor-pointer rounded-field outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+                  className="absolute inset-0 cursor-pointer touch-pan-y touch-pinch-zoom rounded-field outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
                 >
                   {days.map((d, i) => (
                     <span
@@ -244,7 +248,7 @@ export function DayChart({
                   {...surface}
                   role="img"
                   aria-label={summary}
-                  className="absolute inset-0 rounded-field outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
+                  className="absolute inset-0 touch-pan-y touch-pinch-zoom rounded-field outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
                 />
               )}
             </>

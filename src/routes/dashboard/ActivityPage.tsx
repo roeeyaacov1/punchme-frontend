@@ -177,6 +177,11 @@ export function ActivityPage() {
         value={filters.search}
         dir="auto"
         autoComplete="off"
+        // A customer, a card's code or a member of staff: nothing for a
+        // phone to correct.
+        autoCorrect="off"
+        spellCheck={false}
+        enterKeyHint="search"
         onChange={(event) => change({ search: event.target.value })}
         className={inSheet ? undefined : "min-w-0 flex-1"}
       />

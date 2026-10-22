@@ -525,6 +525,10 @@ export function CustomersPage() {
           value={search}
           dir="auto"
           autoComplete="off"
+          // A name or a number, neither of them a dictionary word: a phone
+          // that "corrected" one would search for someone else.
+          autoCorrect="off"
+          spellCheck={false}
           enterKeyHint="search"
           onChange={(event) => narrow(() => setSearch(event.target.value))}
         />
