@@ -1,7 +1,7 @@
 import { useId, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
-import { noTapFlash } from "./classes";
+import { noTapFlash, pressWell } from "./classes";
 
 export interface FilterChip<T extends string> {
   value: T;
@@ -54,13 +54,13 @@ export function FilterChips<T extends string>({
             <label
               key={option.value}
               className={cn(
-                "inline-flex min-h-11 touch-manipulation select-none items-center gap-2 rounded-full border px-4 font-heading text-base font-medium leading-tight transition-colors duration-gentle ease-out has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
+                "inline-flex min-h-11 touch-manipulation select-none items-center gap-2 rounded-full border px-4 font-heading text-base font-medium leading-tight transition-[color,background-color,border-color,box-shadow] duration-gentle ease-out has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
                 noTapFlash,
                 chosen
                   ? "cursor-pointer border-ink bg-ink text-surface"
                   : empty
                     ? "cursor-not-allowed border-border bg-surface text-ink opacity-50"
-                    : "cursor-pointer border-border-strong bg-surface text-ink active:bg-ink/[0.06] hover-fine:bg-background",
+                    : cn("cursor-pointer border-border-strong bg-surface text-ink hover-fine:bg-background", pressWell),
               )}
             >
               <input

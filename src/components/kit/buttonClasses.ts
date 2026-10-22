@@ -1,4 +1,4 @@
-import { focusRing, noTapFlash } from "./classes";
+import { focusRing, noTapFlash, pressWell } from "./classes";
 
 export type ButtonVariant = "primary" | "secondary" | "ink" | "quiet" | "danger";
 export type ButtonSize = "md" | "lg" | "icon";
@@ -16,25 +16,21 @@ const BASE = `relative inline-flex select-none items-center justify-center gap-2
 /** A press sinks the button a little, unless motion is reduced. */
 const PRESS = "active:scale-[0.97]";
 
-/** The rows' 6% ink well, laid over the button's own fill as an inset rather
- * than in place of it, so a lit button on the camera's dark glass stays lit. */
-const WELL = "[&:not(:disabled)]:active:shadow-[inset_0_0_0_100vmax_rgb(var(--c-ink)/0.06)]";
-
 /**
  * With reduced motion a press doesn't sink: it tints where it stands, so a
  * finger still sees it land with the tap's own flash switched off. Measured
  * at the tightest ground each one stands on:
  * - coral takes its hover: ink on it 4.90:1, 9.16:1 at night;
  * - ink comes up to 90% over its ground: its label 10.31:1, on Panel Light;
- * - the rest take the well: ink 9.30:1, on the failed answer's light, and
- *   danger's words 5.34:1, on Panel Light.
+ * - the rest take the kit's `pressWell`: ink 9.30:1, on the failed answer's
+ *   light, and danger's words 5.34:1, on Panel Light.
  */
 const PRESS_TINT: Record<ButtonVariant, string> = {
   primary: "[&:not(:disabled)]:active:bg-primary-hover",
-  secondary: WELL,
+  secondary: pressWell,
   ink: "[&:not(:disabled)]:active:bg-ink/90",
-  quiet: WELL,
-  danger: WELL,
+  quiet: pressWell,
+  danger: pressWell,
 };
 
 const VARIANTS: Record<ButtonVariant, string> = {
