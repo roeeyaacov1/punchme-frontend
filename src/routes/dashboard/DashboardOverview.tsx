@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
@@ -116,6 +116,13 @@ export function DashboardOverview() {
     [activity.data, roster.data],
   );
 
+  const settled = roster.data && activity.data;
+  // The tiles arrive by light when they replace the placeholders the owner
+  // was watching: once, as the reads land. Figures already in the cache, a
+  // refetch and a return to the page show them as they are.
+  const [watched, setWatched] = useState(false);
+  if (!settled && !watched) setWatched(true);
+
   const title = (
     <h1 className="type-title text-ink">{t("dashboard.nav.overview")}</h1>
   );
@@ -149,9 +156,21 @@ export function DashboardOverview() {
     );
   }
 
-  const settled = roster.data && activity.data;
   const failed = !settled && (roster.isError || activity.isError);
   const empty = roster.data && roster.data.items.length === 0;
+
+  // The label stands over the placeholders as well as the tiles, so the
+  // tiles light up where the placeholders stood rather than a line lower.
+  const tiles = (content: ReactNode) => (
+    <section aria-labelledby="tiles-title" className="flex flex-col gap-3">
+      <h2 id="tiles-title" className="type-label text-ink-muted">
+        {t("dashboard.brief.title", { days: BRIEF_DAYS })}
+      </h2>
+      <div data-tour="overview-lead" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {content}
+      </div>
+    </section>
+  );
 
   let lead;
   if (failed) {
@@ -175,15 +194,20 @@ export function DashboardOverview() {
     );
   } else if (!settled) {
     // Never a 0 or "nobody came back" before the reads that make them land.
-    lead = (
-      <div data-tour="overview-lead" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[0, 1, 2, 3].map((i) => (
-          <LitPanel key={i} className="flex flex-col gap-3 p-4 sm:p-5">
-            <Skeleton className="h-4 w-20 rounded-full" />
-            <Skeleton className="h-10 w-16 rounded-field" />
-          </LitPanel>
-        ))}
-      </div>
+    // Each placeholder is a tile line for line: its label, its figure and
+    // the line under it.
+    lead = tiles(
+      [0, 1, 2, 3].map((i) => (
+        <LitPanel key={i} className="flex flex-col gap-2 p-4 sm:p-5">
+          <span className="flex h-5 items-center">
+            <Skeleton className="h-3.5 w-20 rounded-full" />
+          </span>
+          <Skeleton className="h-11 w-16 rounded-field" />
+          <span className="flex h-10 items-start pt-1">
+            <Skeleton className="h-3.5 w-28 rounded-full" />
+          </span>
+        </LitPanel>
+      )),
     );
   } else if (empty) {
     // The day of activation, and every day until the first join: the QR
@@ -202,51 +226,46 @@ export function DashboardOverview() {
       </LitPanel>
     );
   } else {
-    lead = (
-      <section aria-labelledby="tiles-title" className="flex flex-col gap-3">
-        <h2 id="tiles-title" className="type-label text-ink-muted">
-          {t("dashboard.brief.title", { days: BRIEF_DAYS })}
-        </h2>
-        <div data-tour="overview-lead" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatTile
-            lit
-            arrive
-            label={t("dashboard.overview.tiles.returned")}
-            value={n(brief.returned)}
-            floor={brief.capped}
-            line={<Comparison delta={brief.returnedDelta} unknown={!brief.previousLoaded} />}
-          />
-          <StatTile
-            arrive
-            label={t("dashboard.overview.tiles.customers")}
-            value={n(brief.customers)}
-            floor={brief.rosterCapped}
-            to="/dashboard/customers"
-          />
-          <StatTile
-            arrive
-            label={t("dashboard.overview.tiles.joined")}
-            value={n(brief.joined)}
-            floor={brief.joinedCapped}
-            to="/dashboard/customers?sort=recent"
-            line={<Comparison delta={brief.joinedDelta} />}
-          />
-          <StatTile
-            arrive
-            label={t("dashboard.overview.tiles.ready")}
-            value={n(brief.ready)}
-            floor={brief.rosterCapped}
-            to="/dashboard/customers?filter=ready"
-            line={
-              brief.oneAway > 0 && (
-                <TileLink to="/dashboard/customers?filter=oneAway">
-                  {t("dashboard.overview.oneAway", { count: brief.oneAway })}
-                </TileLink>
-              )
-            }
-          />
-        </div>
-      </section>
+    lead = tiles(
+      <>
+        <StatTile
+          lit
+          arrive={watched}
+          label={t("dashboard.overview.tiles.returned")}
+          value={n(brief.returned)}
+          floor={brief.capped}
+          line={<Comparison delta={brief.returnedDelta} unknown={!brief.previousLoaded} />}
+        />
+        <StatTile
+          arrive={watched}
+          label={t("dashboard.overview.tiles.customers")}
+          value={n(brief.customers)}
+          floor={brief.rosterCapped}
+          to="/dashboard/customers"
+        />
+        <StatTile
+          arrive={watched}
+          label={t("dashboard.overview.tiles.joined")}
+          value={n(brief.joined)}
+          floor={brief.joinedCapped}
+          to="/dashboard/customers?sort=recent"
+          line={<Comparison delta={brief.joinedDelta} />}
+        />
+        <StatTile
+          arrive={watched}
+          label={t("dashboard.overview.tiles.ready")}
+          value={n(brief.ready)}
+          floor={brief.rosterCapped}
+          to="/dashboard/customers?filter=ready"
+          line={
+            brief.oneAway > 0 && (
+              <TileLink to="/dashboard/customers?filter=oneAway">
+                {t("dashboard.overview.oneAway", { count: brief.oneAway })}
+              </TileLink>
+            )
+          }
+        />
+      </>,
     );
   }
 
@@ -289,26 +308,33 @@ export function DashboardOverview() {
         </Notice>
       )}
 
-      {settled && !empty && (
+      {/* While the reads load, the two panels stand with their titles and a
+          placeholder of the chart's and the week's own height, so nothing
+          below moves when the figures land. */}
+      {!failed && !empty && (
         <div className="grid gap-5 lg:grid-cols-3">
           <LitPanel as="section" aria-labelledby="month-title" className="flex flex-col gap-1 p-4 sm:p-5 lg:col-span-2">
             <h2 id="month-title" className="type-card-title text-ink">
               {t("dashboard.overview.chartTitle")}
             </h2>
-            <DayChart
-              className="mt-2"
-              label={t("dashboard.overview.chartTitle")}
-              days={brief.days.map((d) => ({ day: d.date.getTime(), value: d.loaded ? d.visits : null }))}
-              summary={t("dashboard.overview.chartSummary", {
-                count: BRIEF_DAYS,
-                total: n(brief.visits),
-                peakDay: busiest ? weekdayDate(busiest.date.getTime(), language) : "",
-                peak: busiest ? n(busiest.visits) : "",
-              })}
-              valueLabel={(value) => t("dashboard.overview.people", { count: value })}
-              dayLabel={(day) => relativeDay(day, language, words)}
-              axisLabel={(day) => shortDate(day, language)}
-            />
+            {settled ? (
+              <DayChart
+                className="mt-2"
+                label={t("dashboard.overview.chartTitle")}
+                days={brief.days.map((d) => ({ day: d.date.getTime(), value: d.loaded ? d.visits : null }))}
+                summary={t("dashboard.overview.chartSummary", {
+                  count: BRIEF_DAYS,
+                  total: n(brief.visits),
+                  peakDay: busiest ? weekdayDate(busiest.date.getTime(), language) : "",
+                  peak: busiest ? n(busiest.visits) : "",
+                })}
+                valueLabel={(value) => t("dashboard.overview.people", { count: value })}
+                dayLabel={(day) => relativeDay(day, language, words)}
+                axisLabel={(day) => shortDate(day, language)}
+              />
+            ) : (
+              <Skeleton className="mt-2 h-48 rounded-field" />
+            )}
             <LinkButton to="/dashboard/activity" variant="quiet" className="mt-2 self-start">
               {t("dashboard.scan.tally.seeAll")}
             </LinkButton>
@@ -318,7 +344,14 @@ export function DashboardOverview() {
             <h2 id="week-title" className="type-card-title text-ink">
               {t("dashboard.week.title")}
             </h2>
-            <WeekLedger week={brief.week} cardLength={template.stamps_required} />
+            {settled ? (
+              <WeekLedger week={brief.week} cardLength={template.stamps_required} />
+            ) : (
+              <div className="flex flex-col gap-5">
+                <Skeleton className="h-11 w-24 rounded-field" />
+                <Skeleton className="h-[9.375rem] rounded-field" />
+              </div>
+            )}
           </LitPanel>
         </div>
       )}
