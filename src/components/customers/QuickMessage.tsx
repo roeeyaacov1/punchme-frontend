@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Send } from "lucide-react";
-import { MESSAGE_LIMITS } from "../messaging/MessageForm";
+import { MESSAGE_LIMITS } from "../messaging/limits";
 import { Button } from "../kit/Button";
 import { Textarea } from "../kit/Textarea";
 
 /**
  * One message to one customer, written in their sheet.
  *
- * Deliberately not the `MessageForm` the rules and broadcasts share: that one
- * writes text for later and for people not yet known, with a title, a gift
+ * Deliberately not the `MessageFields` the rules and broadcasts share: those
+ * write text for later and for people not yet known, with a title, a gift
  * and placeholders. This is the owner answering one customer, and the whole
  * of it should be: type the sentence, send it. The limit is
  * `MESSAGE_LIMITS.body`, imported so it can't drift from the composer's and

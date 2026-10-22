@@ -8,7 +8,7 @@ import { Select } from "../../components/kit/Select";
 import { Slider } from "../../components/kit/Slider";
 import { Tab, TabList, TabPanel, Tabs } from "../../components/kit/Tabs";
 import { Textarea } from "../../components/kit/Textarea";
-import { MESSAGE_LIMITS } from "../../components/messaging/MessageForm";
+import { MESSAGE_LIMITS } from "../../components/messaging/limits";
 import { Specimen } from "./GuideSection";
 
 /** Fields, choices, tabs and the slider, in copy the product already uses. */
