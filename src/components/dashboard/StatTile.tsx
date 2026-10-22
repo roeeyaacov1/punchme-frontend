@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Figure } from "../kit/Figure";
 import { LitPanel } from "../kit/LitPanel";
 import { focusRingInset, linkText, noTapFlash } from "../kit/classes";
+import { useReducedMotion } from "../kit/motion";
 import { cn } from "../../lib/cn";
 
 /**
@@ -36,9 +37,16 @@ export function StatTile({
   to?: string;
   /** The band's light: the verdict, the dashboard's one loud surface. */
   lit?: boolean;
+  /**
+   * Its figures arrive by light: 240ms, rising 8px, or the 150ms fade with
+   * reduced motion. Only what it says arrives, never the panel, which
+   * already stood in the same place, lit the same way, as its placeholder.
+   */
   arrive?: boolean;
 }) {
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
+  const arriving = arrive ? (reduced ? "animate-gentle-in" : "animate-lights-on") : undefined;
   const head = (
     <>
       <span className="type-label text-ink-muted">{label}</span>
@@ -49,22 +57,24 @@ export function StatTile({
     </>
   );
   return (
-    <LitPanel light={lit ? "band" : "panel"} arrive={arrive} className="flex min-w-0 flex-col gap-2 p-4 sm:p-5">
-      {to ? (
-        <Link
-          to={to}
-          className={cn(
-            "-m-2 flex min-h-11 touch-manipulation select-none flex-col gap-2 rounded-field p-2 transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5 [-webkit-touch-callout:none]",
-            noTapFlash,
-            focusRingInset,
-          )}
-        >
-          {head}
-        </Link>
-      ) : (
-        <div className="flex flex-col gap-2">{head}</div>
-      )}
-      {line && <div className="text-sm leading-snug">{line}</div>}
+    <LitPanel light={lit ? "band" : "panel"} className="flex min-w-0 flex-col p-4 sm:p-5">
+      <div className={cn("flex min-w-0 flex-col gap-2", arriving)}>
+        {to ? (
+          <Link
+            to={to}
+            className={cn(
+              "-m-2 flex min-h-11 touch-manipulation select-none flex-col gap-2 rounded-field p-2 transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5 [-webkit-touch-callout:none]",
+              noTapFlash,
+              focusRingInset,
+            )}
+          >
+            {head}
+          </Link>
+        ) : (
+          <div className="flex flex-col gap-2">{head}</div>
+        )}
+        {line && <div className="text-sm leading-snug">{line}</div>}
+      </div>
     </LitPanel>
   );
 }
