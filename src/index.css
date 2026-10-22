@@ -262,14 +262,17 @@ html.theme-night .logo-mark {
   --c-danger-bg: 255 253 250; /* the panel: an error is its words and icon */
   --c-reward: 132 82 9; /* #845209  5.89:1 / 6.47:1 */
   --c-reward-bg: 255 253 250; /* the panel; gold is the reward's one fill */
-  /* The data's own colour: one series in teal, the complement of the sign's
-     coral, so a chart reads as data and never as the thing to press or a
-     state (ok's green is 30° of hue away). A line, a bar and a point need
-     3:1 (WCAG 1.4.11): #138282  4.14:1 on the wall, 4.55:1 on a panel. A
-     word that carries the series, such as Activity's "Stamp", is series-ink
-     #017272  5.15:1 / 5.66:1. */
-  --c-series: 19 130 130;
-  --c-series-ink: 1 114 114;
+  /* The data's own colour: the sign's light, warmed to apricot. Series
+     Light #f6c19a fills a chart's area and its bars, at 1.58:1 on a panel
+     never a mark's only edge; Series #b56c2d draws the line, the points and
+     a bar's cap, the edge a mark needs at 3:1 (WCAG 1.4.11): 3.65:1 on the
+     wall, 4.01:1 on a panel. Paler and yellower than the coral (OKLCH hue
+     58 against 40), and never on anything to press. The glow under a line
+     fades from 80% to 10% of the light. */
+  --c-series: 181 108 45;
+  --c-series-light: 246 193 154;
+  --series-glow-top: 0.8;
+  --series-glow-foot: 0.1;
   /* Behind a dialog or a sheet. A dimmer, not a surface; carries no text. */
   --c-scrim: 43 37 33;
   --scrim-alpha: 0.4;
@@ -321,10 +324,12 @@ html.theme-night .logo-mark {
   --c-danger-bg: 42 36 31;
   --c-reward: 255 216 117; /* #ffd875  12.68:1 / 11.18:1 */
   --c-reward-bg: 42 36 31;
-  /* The series after dark: the same teal, lit. #78d7d6  10.33:1 / 9.11:1;
-     its words #88e0df  11.39:1 / 10.05:1. */
-  --c-series: 120 215 214;
-  --c-series-ink: 136 224 223;
+  /* After dark the apricot is the light itself, line and fill alike:
+     #f6c19a  10.76:1 / 9.49:1. Its glow under a line is fainter. */
+  --c-series: 246 193 154;
+  --c-series-light: 246 193 154;
+  --series-glow-top: 0.3;
+  --series-glow-foot: 0.04;
   --c-scrim: 0 0 0;
   --scrim-alpha: 0.6;
   /* Panels lose the drop at night, and a lit one needs no glow: its own
@@ -378,8 +383,10 @@ html.theme-night .logo-mark {
   --c-danger-bg: var(--lit-ground);
   --c-reward: 132 82 9;
   --c-reward-bg: var(--lit-ground);
-  --c-series: 19 130 130;
-  --c-series-ink: 1 114 114;
+  --c-series: 181 108 45;
+  --c-series-light: 246 193 154;
+  --series-glow-top: 0.8;
+  --series-glow-foot: 0.1;
   --c-scrim: 43 37 33;
   --scrim-alpha: 0.4;
   --shadow-panel: var(--lit-shadow);

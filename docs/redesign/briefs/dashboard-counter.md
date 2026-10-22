@@ -1127,14 +1127,16 @@ measure as §8.8 says. These notes win where they differ from §8 to §11.
   names clamp at three lines. WCAG's 200% is met at 375px and up.
 - **Colour in the data, and a lighter night** (Roee, after step D's
   screenshots): the light pages lacked colour and the night read too dark.
-  The charts and the week's bars now draw in the data's own teal (Series,
-  `#138282`, at night `#78d7d6`), the complement of the coral and never a
-  state, over an area of their own light; Activity's "Stamp" wears its ink;
-  a customer one stamp away gets the ok badge beside the reward's gold. The
-  night's street and panels rise from `#16120f` and `#211b17` to
-  `#1f1916` and `#2a241f`, with its hairlines and field edge after them,
-  every ratio measured again. This replaces §6's "one series in ink" and
-  §8.8's "every chart is ink"; DESIGN.md carries both.
+  A teal came first; Roee preferred a light, orangey colour. The charts now
+  draw in the sign's own light warmed to apricot: an area and bars of Series
+  Light (`#f6c19a`), with the line, the points and each bar's 2px cap in
+  Series (`#b56c2d`, 4.01:1 on a panel), and at night the apricot itself
+  as the line (9.49:1). A customer one stamp away gets the ok badge beside
+  the reward's gold. The night's street and panels rise from `#16120f` and
+  `#211b17` to `#1f1916` and `#2a241f`, with its hairlines and field
+  edge after them, every ratio measured again. This replaces §6's "one
+  series in ink" and §8.8's "every chart is ink"; DESIGN.md carries both,
+  and its One Warm Thing Rule now keeps the apricot inside a chart.
 - **A Free manager** for the role checks joined Demo Barbershop through a
   Team page invitation: `manager-free@demo.punchme.test`. `seed_demo
   --reset` deletes only its own four users, so this one, and

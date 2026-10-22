@@ -97,13 +97,13 @@ export default {
         // Behind a dialog or a sheet: ink at 0.4 by day, black at 0.6 at
         // night. The strength is part of the token, so no opacity modifier.
         scrim: "rgb(var(--c-scrim) / var(--scrim-alpha))",
-        // The data's own colour: one series in teal, the complement of the
-        // sign's coral, never a state. A chart's line, area and bars, and a
-        // word that carries the series (series-ink). 4.55:1 and 5.66:1 on a
-        // panel by day, 9.11:1 and 10.05:1 at night.
+        // The data's own colour, the sign's light warmed to apricot: a
+        // chart's line, points and a bar's cap in DEFAULT (4.01:1 on a panel
+        // by day, 9.49:1 at night), its area and its bars in light, a fill
+        // that never stands as a mark's only edge.
         series: {
           DEFAULT: "rgb(var(--c-series) / <alpha-value>)",
-          ink: "rgb(var(--c-series-ink) / <alpha-value>)",
+          light: "rgb(var(--c-series-light) / <alpha-value>)",
         },
         //
         // And these are fixed, because lit things keep their light at
