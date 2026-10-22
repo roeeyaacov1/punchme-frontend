@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { cn } from "../../lib/cn";
 import { useReducedMotion } from "./motion";
 
@@ -21,7 +21,10 @@ export function SnapFlash({ snap }: { snap: string | number | null }) {
   const last = useRef(-Infinity);
   const [flash, setFlash] = useState<string | number | null>(null);
 
-  useEffect(() => {
+  // Before the browser paints, so the flash covers the answer from its
+  // first frame. A passive effect could land a task later, after the
+  // answer had been drawn alone.
+  useLayoutEffect(() => {
     if (snap === null) return;
     const now = performance.now();
     if (now - last.current < FLASH_GAP_MS) return;
