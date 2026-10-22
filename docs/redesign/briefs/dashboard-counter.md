@@ -1094,6 +1094,21 @@ measure as §8.8 says. These notes win where they differ from §8 to §11.
 - **The critique snapshot** in `.impeccable/critique/` is committed with
   these notes, for step D's `/impeccable polish`.
 
+**After step B** (checked in the browser on 22 Oct, for step D):
+- **The tour's Free Scan line speaks to the owner.** It says "stamp your own
+  card here", and staff on Free hear it too, though the trial pass is the
+  shop's, not theirs. Find a line that is true for every role on Free.
+- **Activity's two "today" figures differ.** In the demo, the chart's head
+  said 13 stamps today and the list's day header said 15. The likely cause
+  is net stamps against events, with a stamp taken back. Make them agree,
+  or have each say what it counts.
+- **The price in Hebrew:** check that "₪99" in the Free activation panel
+  reads as one isolated figure.
+- **The console during scans:** a scan answered before any tap on the page
+  logs "Blocked call to navigator.vibrate". Scripted scans do that, and so
+  will the first scan after the app opens straight into Scan from its home
+  screen shortcut. It is harmless, and not a failure of the console check.
+
 ## Appendix A: the worst-case data
 
 Paste it into the console of a signed-in dashboard tab on the dev server, or
