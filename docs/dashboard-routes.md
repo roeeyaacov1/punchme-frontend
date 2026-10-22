@@ -118,11 +118,14 @@ Printing uses the browser's print dialog and is Pro only. The QR is
 
 ### `/dashboard/messages`: Messages
 
+Takes `?tab=rules` (the default), `?tab=broadcast` or `?tab=sent`, which
+opens that tab.
+
 | When | Call | Wrapper |
 |---|---|---|
 | Load | `GET {biz}/messaging/summary` | `getMessagingSummary` |
 | Load | `GET {biz}/automations` | `listAutomations` |
-| Load, then every 3 s while a broadcast is sending | `GET {biz}/broadcasts?page=N&page_size=10` | `listBroadcasts` |
+| Load (page 1), the next page on "10 more", and every loaded page again every 3 s while a broadcast is sending | `GET {biz}/broadcasts?page=N&page_size=10` | `listBroadcasts` |
 | Load | `GET {biz}/templates`, then `GET {biz}/templates/{template_id}/design` for the card's language | `listTemplates`, `useCardLanguage` |
 | Load | `GET {biz}/messaging/recipes?language=HE` (or `EN`): starter rules | `listRecipes` |
 | Turn a rule on or off | `POST {biz}/automations/{id}/activate` or `…/pause` | `activateAutomation`, `pauseAutomation` |

@@ -2,7 +2,7 @@ import type { TFunction } from "i18next";
 import { ApiError } from "../../api/errors";
 import type { AutomationOut } from "../../api/messaging";
 import { daysPhrase, type MessageLanguage } from "../../lib/messageTemplate";
-import { MESSAGE_LIMITS } from "./MessageForm";
+import { MESSAGE_LIMITS } from "./limits";
 
 /** Day counts are phrased in code, not via plural keys: Hebrew needs
  * "3 ימים" but "30 יום", and Intl's Hebrew plural rules (one/two/other)
@@ -17,15 +17,49 @@ export function formatHour(hour: number): string {
   return `${String(hour).padStart(2, "0")}:00`;
 }
 
-/** A date-time in the UI's locale, short. */
-export function formatWhen(iso: string | null | undefined, lang: string): string {
+/**
+ * A date-time in the UI's locale, short: "23 Oct, 09:00". With the year
+ * whenever it isn't this one, so last October's broadcast never reads like
+ * next week's.
+ */
+export function formatWhen(iso: string | null | undefined, lang: string, now = Date.now()): string {
   if (!iso) return "";
-  return new Date(iso).toLocaleString(lang, {
+  const date = new Date(iso);
+  return new Intl.DateTimeFormat(lang, {
     day: "numeric",
     month: "short",
+    ...(date.getFullYear() !== new Date(now).getFullYear() && { year: "numeric" }),
     hour: "2-digit",
     minute: "2-digit",
-  });
+  }).format(date);
+}
+
+/** A date-time said whole, for a message read in full: "Thursday, 22 October 2026 at 09:12". */
+export function formatFull(iso: string, lang: string): string {
+  return new Intl.DateTimeFormat(lang, { dateStyle: "full", timeStyle: "short" }).format(new Date(iso));
+}
+
+/** Whole calendar days from `now`'s day to `date`'s, in local time, so a
+ * clock change can't move a day. */
+export function daysFrom(date: Date, now: Date): number {
+  const day = (d: Date) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  return Math.round((day(date) - day(now)) / 86_400_000);
+}
+
+/**
+ * Today, tomorrow and yesterday by name, with the hour ("tomorrow, 10:00"),
+ * and any other day as `formatWhen` says it. The words come from
+ * `messaging.when.*`, which carry the hour themselves, so each language puts
+ * it where it goes.
+ */
+export function relativeWhen(iso: string, t: TFunction, lang: string, now = Date.now()): string {
+  const date = new Date(iso);
+  const time = new Intl.DateTimeFormat(lang, { hour: "2-digit", minute: "2-digit" }).format(date);
+  const days = daysFrom(date, new Date(now));
+  if (days === 0) return t("messaging.when.today", { time });
+  if (days === 1) return t("messaging.when.tomorrow", { time });
+  if (days === -1) return t("messaging.when.yesterday", { time });
+  return formatWhen(iso, lang, now);
 }
 
 /** The rule in one breath — "לקוח שלא ביקר 30 יום · ניקוב במתנה · בשעה 10:00". */

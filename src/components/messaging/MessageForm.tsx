@@ -23,10 +23,9 @@ import {
 } from "../../lib/messageTemplate";
 import { cn } from "../../lib/cn";
 
-/** Product limits, mirrored from the backend's MESSAGING_* defaults. The
- * API is the real gate (422 automation_invalid); these keep the counters
- * honest while typing. */
-export const MESSAGE_LIMITS = { title: 40, body: 160, gift: 12 } as const;
+import { MESSAGE_LIMITS } from "./limits";
+
+export { MESSAGE_LIMITS };
 const GIFT_CHOICES = [1, 2, 3] as const;
 
 export interface MessageDraft {

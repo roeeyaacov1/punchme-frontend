@@ -1361,32 +1361,40 @@
   },
   "messaging": {
     "title": "Customer messages",
-    "lead": "A message that pops up in the customer's wallet — no app, no SMS. Set a rule once and it runs on its own.",
+    "reach_one": "<n>{{value}}</n> customer holds your card",
+    "reach_other": "<n>{{value}}</n> customers hold your card",
     "nav": "Customer messages",
     "guard": {
       "pro": "Messaging real customers is a Pro feature. You can write rules and send yourself a sample right now.",
       "proLink": "Go Pro",
-      "notEnabled": "Messaging isn't open for your business yet — we're rolling it out gradually.",
-      "schedulerStale": "The rules haven't run in the last hour. If this keeps up, write to us.",
+      "notEnabled": "Sending isn't open for your business yet. Rules you save now start when it opens.",
+      "schedulerStale": "The rules haven't run in the last hour. They catch up by themselves later today.",
       "dispatchOff": "Sending is paused on our side for a moment. Rules pick up where they stopped.",
-      "personalOnHold": "More than one customer holds your card design. The wallet publishes a message to a whole design at once, so a rule meant for one person would reach all of them — these rules stay saved, but they won't send. They work again when a wallet can address a single card."
+      "personalOnHold": "These rules are on hold: more than one customer holds your card design, and the wallet can only send to a whole design. They stay saved."
+    },
+    "free": {
+      "owner": "Messages reach real customers once the card is active, at <ltr>₪{{price}}</ltr> a month. You can set up rules and send a sample to your own card now.",
+      "hire": "Messages reach real customers once the owner activates the card. You can set up rules and send a sample to the shop's own card now."
+    },
+    "tabs": {
+      "label": "Customer messages",
+      "rules": "Rules",
+      "broadcast": "Message everyone",
+      "sent": "Sent"
+    },
+    "when": {
+      "today": "today, {{time}}",
+      "tomorrow": "tomorrow, {{time}}",
+      "yesterday": "yesterday, {{time}}"
     },
     "summary": {
-      "title": "Who you can reach",
-      "audienceNone": "Nobody has your card yet",
-      "audience_one": "customer has your card",
-      "audience_other": "customers have your card",
-      "inactive30": "No visit in 30 days",
-      "rewardWaiting": "Reward waiting",
-      "sentMonth": "Messages this month"
+      "audienceNone": "Nobody has your card yet"
     },
     "broadcast": {
-      "title": "Message everyone",
-      "hint": "A slow day? A special? One message to all your customers, now.",
-      "cta": "Message everyone",
       "left_one": "{{count}} send left this week",
       "left_other": "{{count}} sends left this week",
-      "nextAllowed": "Next send possible at {{when}}",
+      "leftNone": "No sends left this week",
+      "nextAllowed": "Next send: {{when}}",
       "composerTitle": "Message all customers",
       "composerLead": "Goes out now to every customer with a card. You can add a gift stamp.",
       "send_one": "Send to {{count}} customer",
@@ -1397,24 +1405,55 @@
       "confirmBody_other": "The message goes out now to {{count}} customers and cannot be undone.",
       "confirmYes": "Yes, send now",
       "sent": "Your message is on its way. Progress shows below.",
+      "sending": "Sending now: <n>{{sent}}</n> of <n>{{total}}</n>",
+      "settled_one": "The message went out to {{value}} customer.",
+      "settled_other": "The message went out to {{value}} customers.",
+      "what_one": "One message to the customer holding your card, now. Up to {{limit}} a week.",
+      "what_other": "One message to all <n>{{value}}</n> customers holding your card, now. Up to {{limit}} a week.",
+      "write": "Write a message",
+      "writeSample": "Write a sample to yourself",
+      "freeLine": "A sample goes to your own card now. Customers get messages once the card is active.",
+      "nobody": "Nobody holds your card yet, so there's no one to send to.",
+      "toStandee": "Print the sign",
+      "latest": "The latest",
       "quota": "To keep from flooding customers you can send up to {{max}} broadcasts a week. {{next}}"
     },
     "automations": {
-      "title": "Automatic rules",
-      "hint": "Set once, they run on their own — every day at the hour you pick.",
       "new": "New rule",
-      "empty": "No rules yet. Start from a ready one:",
-      "pickRecipe": "Which rule to add?",
-      "start": "Start",
-      "sentMonth_one": "Sent to {{count}} customer this month",
-      "sentMonth_other": "Sent to {{count}} customers this month",
-      "nextRun": "Next: {{when}}",
       "off": "Off",
       "on": "On",
       "switchLabel": "Rule is on",
       "deleted": "Rule removed.",
-      "onHold": "On hold",
-      "onHoldWhy": "Won't send while more than one customer holds the card design."
+      "onHold": "On hold"
+    },
+    "rules": {
+      "next": "Next: {{when}}",
+      "late": "Was due {{when}}",
+      "held": "On hold",
+      "sentMonth_one": "{{value}} sent this month",
+      "sentMonth_other": "{{value}} sent this month",
+      "sentNone": "None sent this month",
+      "reach": {
+        "now": "Match now: {{value}}",
+        "month": "Birthdays this month: {{value}}"
+      },
+      "switchedOn": "{{name}} is on. Next: {{when}}.",
+      "switchedOnNoRun": "{{name}} is on.",
+      "switchedOff": "{{name}} is off.",
+      "opensWithActivation": "Opens with activation",
+      "heldSwitch": "On hold",
+      "upgradeOwner": "Rules go live once the card is active.",
+      "upgradeHire": "Rules go live once the owner activates the card.",
+      "picker": "Which rule?",
+      "exists": "You already have one: {{name}}",
+      "emptyTitle": "No rules yet",
+      "emptyBody": "Most businesses start with a win-back."
+    },
+    "loadFailed": {
+      "rules": "The rules didn't load",
+      "sent": "The messages sent didn't load",
+      "figures": "The figures didn't load",
+      "recipes": "The starter rules didn't load"
     },
     "kinds": {
       "inactive": "Win-back",
@@ -1500,15 +1539,26 @@
       "audienceZeroNow": "No customers with a card to send to right now."
     },
     "history": {
-      "title": "Messages sent to everyone",
-      "empty": "Nothing sent yet. A quiet day at the shop is a good moment for the first one.",
-      "sentOf": "{{sent}} of {{total}}",
-      "failed_one": "{{count}} failed",
-      "failed_other": "{{count}} failed",
-      "status": {
-        "sending": "Sending…",
-        "sent": "Sent"
-      }
+      "empty": "No messages to everyone yet",
+      "sentOf": "<n>{{sent}}</n> of <n>{{total}}</n>",
+      "failed_one": "{{value}} failed",
+      "failed_other": "{{value}} failed",
+      "notSent_one": "{{value}} not sent",
+      "notSent_other": "{{value}} not sent",
+      "more_one": "{{count}} more",
+      "more_other": "{{count}} more"
+    },
+    "sheet": {
+      "when": "Sent {{when}}",
+      "sentTo_one": "Sent to {{value}} customer",
+      "sentTo_other": "Sent to {{value}} customers",
+      "skipped_one": "{{value}} skipped: no pass in the wallet yet, or the card was gone",
+      "skipped_other": "{{value}} skipped: no pass in the wallet yet, or the card was gone",
+      "pending_one": "{{value}} still on the way",
+      "pending_other": "{{value}} still on the way",
+      "gift": "With {{gift}}",
+      "optIn": "Only to customers who agreed to messages",
+      "stageSummary": "The message as it looks on a customer's lock screen"
     },
     "errors": {
       "name_required": "Give the rule a name.",

@@ -1,28 +1,30 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ArrowRight, Cake, Gift, Plus, Send, UserRoundX } from "lucide-react";
-import { ctaClasses, focusRing } from "../../components/marketing/primitives";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Trans, useTranslation } from "react-i18next";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { CircleAlert, Inbox, PenLine, Plus, Send } from "lucide-react";
 import {
-  BAND_INSET,
-  BAND_RULE,
-  Band,
-  Figure,
+  Button,
+  EmptyState,
+  LinkButton,
+  List,
+  LitPanel,
   Notice,
-  Panel,
-  PanelHeader,
-  Readouts,
-  Tag,
-  Toggle,
-} from "../../components/dashboard/primitives";
-import {
-  describeAutomation,
-  formatWhen,
-  messagingErrorMessage,
-} from "../../components/messaging/describe";
+  Skeleton,
+  SkeletonRows,
+  Tab,
+  TabList,
+  TabPanel,
+  Tabs,
+} from "../../components/kit";
+import { ReadProblem } from "../../components/dashboard/ReadProblem";
+import { PUNCHME_MONTHLY_PRICE } from "../../components/marketing/calculator";
+import { messagingErrorMessage, relativeWhen } from "../../components/messaging/describe";
 import { useBusiness } from "../../business/useBusiness";
+import { isOwner } from "../../business/gating";
 import { listTemplates } from "../../api/businesses";
+import { getTemplateDesign } from "../../api/designs";
+import { ApiError } from "../../api/errors";
 import {
   activateAutomation,
   getMessagingSummary,
@@ -32,41 +34,56 @@ import {
   pauseAutomation,
   type AutomationOut,
   type BroadcastOut,
-  type RecipeOut,
+  type MessagingSummary,
 } from "../../api/messaging";
 import { useCardLanguage } from "../../hooks/useCardLanguage";
-import { cn } from "../../lib/cn";
+import { useLightboxPage } from "../../theme/lightboxPage";
+import { formatCount } from "./format";
+import { problemKey } from "./problem";
+import { BroadcastRow, BroadcastSheet } from "./messages/Broadcasts";
+import { RecipeList, RecipeSheet } from "./messages/RecipeSheet";
+import { RuleRow } from "./messages/RuleRow";
+import { isLate, messagesNotice, orderRules, ruleName, ruleReach, ruleState, type MessagesNotice } from "./messages/rules";
 
+type TabKey = "rules" | "broadcast" | "sent";
+const TABS: readonly TabKey[] = ["rules", "broadcast", "sent"];
 const BROADCAST_PAGE = 10;
-const STALE_TICK_MS = 60 * 60 * 1000;
 
-const KIND_ICONS = {
-  inactive: UserRoundX,
-  birthday: Cake,
-  reward_waiting: Gift,
-  broadcast: Send,
-} as const;
+/** A number inside a sentence, in tabular figures with its own direction. */
+const figure = <span dir="ltr" className="type-figure" />;
 
+/**
+ * Messages: what reaches customers after they leave. Three tabs on one
+ * route, `?tab=rules` (the default), `?tab=broadcast` and `?tab=sent`, the
+ * way Customers reads `?filter=`: the composer comes back to Sent and the
+ * editor to Rules.
+ *
+ * Above the tabs, whichever is open: the one notice that matters most, a
+ * broadcast's progress while one is sending, and the result a composer or
+ * an editor handed back. While anything is sending the history is polled
+ * every 3 seconds, whatever tab is open.
+ */
 export function MessagesPage() {
+  useLightboxPage();
   const { t, i18n } = useTranslation();
-  const { business, isPro } = useBusiness();
+  const lang = i18n.resolvedLanguage ?? "he";
+  const { business, role, isPro } = useBusiness();
+  const owns = isOwner(role);
+  const businessId = business?.id ?? undefined;
+  const businessName = business?.name ?? "";
+  const queryClient = useQueryClient();
   const location = useLocation();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const businessId = business?.id ?? undefined;
-  const lang = i18n.resolvedLanguage ?? "he";
+  const [params, setParams] = useSearchParams();
+  const asked = params.get("tab") as TabKey | null;
+  const tab: TabKey = asked && TABS.includes(asked) ? asked : "rules";
 
-  const [picking, setPicking] = useState(false);
-  const [page, setPage] = useState(1);
-  const [toggleError, setToggleError] = useState<string | null>(null);
-  // The one-shot notice a composer/editor hands over on navigate. Captured
-  // into state once, then cleared from history so a refresh doesn't replay
-  // it — clearing alone would un-render it before anyone read it.
-  const [flash] = useState<string | null>(
-    () => (location.state as { flash?: string } | null)?.flash ?? null,
-  );
+  // The result a composer or an editor hands over on navigate, taken once
+  // and cleared from history so a refresh doesn't say it again; clearing
+  // alone would un-render it before anyone read it.
+  const [flash] = useState<string | null>(() => (location.state as { flash?: string } | null)?.flash ?? null);
   useEffect(() => {
-    if (flash) navigate(location.pathname, { replace: true, state: null });
+    if (flash) navigate({ pathname: location.pathname, search: location.search }, { replace: true, state: null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -81,21 +98,33 @@ export function MessagesPage() {
     queryFn: () => listAutomations(businessId!),
     enabled: !!businessId,
   });
-  const broadcasts = useQuery({
-    queryKey: ["broadcasts", businessId, page],
-    queryFn: () => listBroadcasts(businessId!, page, BROADCAST_PAGE),
+  const broadcasts = useInfiniteQuery({
+    queryKey: ["broadcasts", businessId],
+    queryFn: ({ pageParam }) => listBroadcasts(businessId!, pageParam, BROADCAST_PAGE),
+    initialPageParam: 1,
+    getNextPageParam: (last, pages) =>
+      pages.reduce((sum, page) => sum + page.items.length, 0) < last.count ? pages.length + 1 : undefined,
     enabled: !!businessId,
-    // A broadcast in flight reports progress: poll until it settles.
+    // A broadcast in flight reports its progress: poll until it settles.
     refetchInterval: (query) =>
-      query.state.data?.items.some((b) => b.status === "sending") ? 3_000 : false,
+      query.state.data?.pages.some((page) => page.items.some((b) => b.status === "sending")) ? 3_000 : false,
   });
-  const { data: templates } = useQuery({
+  const templates = useQuery({
     queryKey: ["templates", businessId],
     queryFn: () => listTemplates(businessId!),
     enabled: !!businessId,
   });
-  const template = templates?.[0];
-  const language = useCardLanguage(businessId, template?.id ?? undefined);
+  const template = templates.data?.[0];
+  const templateId = template?.id ?? undefined;
+  const language = useCardLanguage(businessId, templateId);
+  // The design `useCardLanguage` reads, under its own key: the pass a sent
+  // message is shown over.
+  const design = useQuery({
+    queryKey: ["design", templateId],
+    queryFn: () => getTemplateDesign(businessId!, templateId!),
+    enabled: !!businessId && !!templateId,
+    staleTime: 60_000,
+  });
   const recipes = useQuery({
     queryKey: ["recipes", businessId, language],
     queryFn: () => listRecipes(businessId!, language),
@@ -103,444 +132,464 @@ export function MessagesPage() {
     staleTime: Infinity,
   });
 
+  const rules = useMemo(() => automations.data ?? [], [automations.data]);
+  const facts = summary.data;
+  // Unknown reads as fine: a summary that hasn't loaded mustn't put every
+  // rule on hold.
+  const canReachOne = facts?.can_reach_one_customer ?? true;
+  const notice = messagesNotice({ isPro, owns, summary: facts, rules });
+  const sent = useMemo(() => broadcasts.data?.pages.flatMap((page) => page.items) ?? [], [broadcasts.data]);
+
+  // One polite voice for what changed out of sight: a switched rule, and a
+  // broadcast that has finished.
+  const [said, setSaid] = useState("");
+  const sending = sent.find((b) => b.status === "sending");
+  const sendingId = useRef<string | null>(null);
+  useEffect(() => {
+    const was = sendingId.current;
+    sendingId.current = sending?.id ?? null;
+    if (!was || sending) return;
+    const done = sent.find((b) => b.id === was);
+    if (done) setSaid(t("messaging.broadcast.settled", { count: done.sent_count, value: formatCount(done.sent_count, lang) }));
+    // The week's quota and the month's figures moved with it.
+    void queryClient.invalidateQueries({ queryKey: ["messaging", "summary", businessId] });
+  }, [sending, sent, t, lang, queryClient, businessId]);
+
+  // A switch shows the owner's choice at once and saves behind it; a
+  // refusal puts it back and is said under that rule.
+  const [optimistic, setOptimistic] = useState<Record<string, boolean>>({});
+  const [refusals, setRefusals] = useState<Record<string, unknown>>({});
   const toggle = useMutation({
-    mutationFn: ({ automation, on }: { automation: AutomationOut; on: boolean }) =>
-      on ? activateAutomation(businessId!, automation.id) : pauseAutomation(businessId!, automation.id),
-    onMutate: () => setToggleError(null),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["automations", businessId] });
-      queryClient.invalidateQueries({ queryKey: ["messaging", "summary", businessId] });
+    mutationFn: ({ rule, on }: { rule: AutomationOut; on: boolean }) =>
+      on ? activateAutomation(businessId!, rule.id) : pauseAutomation(businessId!, rule.id),
+    onMutate: ({ rule, on }) => {
+      setOptimistic((all) => ({ ...all, [rule.id]: on }));
+      setRefusals((all) => ({ ...all, [rule.id]: undefined }));
     },
-    onError: (error) => setToggleError(messagingErrorMessage(error, t, lang)),
+    onSuccess: (saved, { rule, on }) => {
+      queryClient.setQueryData<AutomationOut[]>(["automations", businessId], (list) =>
+        list?.map((item) => (item.id === saved.id ? saved : item)),
+      );
+      const name = ruleName(rule, t);
+      setSaid(
+        on
+          ? saved.next_run_at
+            ? t("messaging.rules.switchedOn", { name, when: relativeWhen(saved.next_run_at, t, lang) })
+            : t("messaging.rules.switchedOnNoRun", { name })
+          : t("messaging.rules.switchedOff", { name }),
+      );
+    },
+    onError: (error, { rule }) => setRefusals((all) => ({ ...all, [rule.id]: error })),
+    onSettled: (_data, _error, { rule }) => {
+      setOptimistic((all) => {
+        const next = { ...all };
+        delete next[rule.id];
+        return next;
+      });
+      void queryClient.invalidateQueries({ queryKey: ["automations", businessId] });
+      void queryClient.invalidateQueries({ queryKey: ["messaging", "summary", businessId] });
+    },
   });
 
-  // When a broadcast in flight settles, the month's figure and the quota
-  // line change too — refresh them once it does.
-  const anySending = broadcasts.data?.items.some((b) => b.status === "sending") ?? false;
-  const wasSending = useRef(false);
-  useEffect(() => {
-    if (wasSending.current && !anySending) {
-      queryClient.invalidateQueries({ queryKey: ["messaging", "summary", businessId] });
+  const [picking, setPicking] = useState(false);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const openBroadcast = sent.find((b) => b.id === openId) ?? null;
+  const openSheet = (id: string) => {
+    setOpenId(id);
+    setSheetOpen(true);
+  };
+
+  const activate = (
+    <LinkButton to="/dashboard/billing" variant="primary">
+      {t("billing.activateCta")}
+    </LinkButton>
+  );
+
+  function refusal(error: unknown): ReactNode {
+    if (error instanceof ApiError && error.code === "upgrade_required") {
+      return (
+        <div role="alert" className="flex flex-col items-start gap-2">
+          <p className="text-sm leading-snug text-ink">
+            {t(owns ? "messaging.rules.upgradeOwner" : "messaging.rules.upgradeHire")}
+          </p>
+          {owns && (
+            <LinkButton to="/dashboard/billing" variant="secondary">
+              {t("billing.activateCta")}
+            </LinkButton>
+          )}
+        </div>
+      );
     }
-    wasSending.current = anySending;
-  }, [anySending, businessId, queryClient]);
+    const words = error instanceof ApiError && error.code ? messagingErrorMessage(error, t, lang) : t(problemKey(error));
+    return (
+      <p role="alert" className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-danger">
+        <CircleAlert aria-hidden className="mt-px size-4 shrink-0" />
+        <span>{words}</span>
+      </p>
+    );
+  }
 
-  const rules = useMemo(() => automations.data ?? [], [automations.data]);
-  const canSend = summary.data?.can_send ?? false;
-  // Every rule on this page names one customer, and the wallet publishes to
-  // a whole card design — so once a second customer holds the design none of
-  // them can run. Unknown reads as fine: a summary that hasn't loaded must
-  // not put the page into its narrowest state.
-  const personalOk = summary.data?.can_reach_one_customer ?? true;
-  const activeRules = rules.filter((a) => a.is_active).length;
-  const lastTick = summary.data?.scheduler_last_tick_at;
-  const schedulerStale =
-    activeRules > 0 &&
-    personalOk &&
-    (!lastTick || Date.now() - new Date(lastTick).getTime() > STALE_TICK_MS);
-  const broadcastsLeft = summary.data
-    ? Math.max(0, summary.data.broadcasts_limit_7d - summary.data.broadcasts_used_7d)
-    : null;
+  const ordered = orderRules(rules, canReachOne);
+  const rulesPanel = (() => {
+    if (!automations.data && (automations.isError || automations.fetchStatus === "paused")) {
+      return (
+        <ReadProblem
+          title={t("messaging.loadFailed.rules")}
+          error={automations.error}
+          paused={!automations.isError}
+          onRetry={() => void automations.refetch()}
+        />
+      );
+    }
+    if (!automations.data) {
+      return (
+        <LitPanel className="overflow-hidden">
+          <SkeletonRows rows={3} />
+        </LitPanel>
+      );
+    }
+    const recipeList = {
+      recipes: recipes.data,
+      rules,
+      loading: recipes.isLoading,
+      failed: recipes.isError,
+      onRetry: () => void recipes.refetch(),
+    };
+    if (rules.length === 0) {
+      // Only on a read that answered "none": a read that failed never
+      // offers the starters, which would invite a duplicate.
+      return (
+        <LitPanel className="overflow-hidden">
+          <EmptyState framed={false} title={t("messaging.rules.emptyTitle")} body={t("messaging.rules.emptyBody")} className="pb-4" />
+          <div className="border-t border-border">
+            <RecipeList {...recipeList} />
+          </div>
+        </LitPanel>
+      );
+    }
+    return (
+      <div className="flex flex-col gap-3">
+        <LitPanel>
+          <List>
+            {ordered.map((rule) => {
+              const state = ruleState(rule, canReachOne);
+              const checked = optimistic[rule.id] ?? rule.is_active;
+              // Switching off is never gated. Switching on: not before the
+              // card is active, and not while the wallet can't address one
+              // card, which would only earn a refusal.
+              let disabledReason: string | undefined;
+              if (!checked && !isPro) disabledReason = t("messaging.rules.opensWithActivation");
+              else if (!checked && !canReachOne) disabledReason = t("messaging.rules.heldSwitch");
+              return (
+                <RuleRow
+                  key={rule.id}
+                  rule={rule}
+                  state={state}
+                  late={isLate(rule, canReachOne)}
+                  reach={ruleReach(rule, facts)}
+                  checked={checked}
+                  disabledReason={disabledReason}
+                  onToggle={(on) => {
+                    if (rule.id in optimistic) return;
+                    toggle.mutate({ rule, on });
+                  }}
+                  problem={refusals[rule.id] ? refusal(refusals[rule.id]) : undefined}
+                />
+              );
+            })}
+          </List>
+        </LitPanel>
+        <Button variant="secondary" icon={<Plus aria-hidden />} onClick={() => setPicking(true)} className="self-start">
+          {t("messaging.automations.new")}
+        </Button>
+        <RecipeSheet open={picking} onClose={() => setPicking(false)} {...recipeList} />
+      </div>
+    );
+  })();
 
-  const recipeRules = (recipes.data ?? []).filter((r) => r.kind !== "broadcast");
+  const sentPanel = (() => {
+    if (!broadcasts.data && (broadcasts.isError || broadcasts.fetchStatus === "paused")) {
+      return (
+        <ReadProblem
+          title={t("messaging.loadFailed.sent")}
+          error={broadcasts.error}
+          paused={!broadcasts.isError}
+          onRetry={() => void broadcasts.refetch()}
+        />
+      );
+    }
+    if (!broadcasts.data) {
+      return (
+        <LitPanel className="overflow-hidden">
+          <SkeletonRows rows={4} />
+        </LitPanel>
+      );
+    }
+    if (sent.length === 0) {
+      return <EmptyState icon={<Inbox />} title={t("messaging.history.empty")} />;
+    }
+    const total = broadcasts.data.pages[0]?.count ?? sent.length;
+    const more = Math.min(BROADCAST_PAGE, total - sent.length);
+    return (
+      <div className="flex flex-col gap-3">
+        <LitPanel className="overflow-hidden">
+          <List>
+            {sent.map((broadcast) => (
+              <BroadcastRow
+                key={broadcast.id}
+                broadcast={broadcast}
+                businessName={businessName}
+                onOpen={() => openSheet(broadcast.id)}
+              />
+            ))}
+          </List>
+        </LitPanel>
+        {broadcasts.hasNextPage && (
+          <Button
+            variant="secondary"
+            busy={broadcasts.isFetchingNextPage}
+            onClick={() => void broadcasts.fetchNextPage()}
+            className="self-start"
+          >
+            {t("messaging.history.more", { count: more })}
+          </Button>
+        )}
+      </div>
+    );
+  })();
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-5">
-      <div>
-        <h1 className="t-h3 text-ink">{t("messaging.title")}</h1>
-        <p className="mt-1 max-w-2xl text-sm text-ink-muted">{t("messaging.lead")}</p>
-      </div>
+    <div className="mx-auto flex w-full max-w-[45rem] flex-col gap-5">
+      <header className="flex flex-col gap-1">
+        <h1 className="type-title text-ink">{t("messaging.title")}</h1>
+        {isPro && <ReachLine summary={facts} loading={summary.isLoading} />}
+      </header>
 
-      {flash && <Notice tone="ok">{flash}</Notice>}
+      {isPro && !facts && (summary.isError || summary.fetchStatus === "paused") ? (
+        <ReadProblem
+          title={t("messaging.loadFailed.figures")}
+          error={summary.error}
+          paused={!summary.isError}
+          onRetry={() => void summary.refetch()}
+        />
+      ) : (
+        notice && <PageNotice notice={notice} action={notice === "freeOwner" ? activate : undefined} />
+      )}
 
-      {!isPro && (
-        <Notice tone="warn">
-          <span>{t("messaging.guard.pro")} </span>
-          <Link
-            to="/dashboard/billing"
-            className={cn("font-semibold underline hover:no-underline", focusRing)}
-          >
-            {t("messaging.guard.proLink")}
-          </Link>
+      {sending && (
+        // The count updates in place every 3 seconds and isn't read out
+        // each time; the end is said once, below.
+        <LitPanel light="lit" className="flex items-center gap-3 p-4">
+          <Send aria-hidden className="size-5 shrink-0 text-ink-muted rtl:-scale-x-100" />
+          <p className="type-body text-ink">
+            <Trans
+              i18nKey="messaging.broadcast.sending"
+              values={{ sent: formatCount(sending.sent_count, lang), total: formatCount(sending.audience_count, lang) }}
+              components={{ n: figure }}
+            />
+          </p>
+        </LitPanel>
+      )}
+
+      {flash && (
+        <Notice tone="ok" lit role="status">
+          {flash}
         </Notice>
       )}
-      {isPro && summary.data && !canSend && (
-        <Notice tone="warn">{t("messaging.guard.notEnabled")}</Notice>
-      )}
-      {summary.data && summary.data.dispatch_enabled === false && (
-        <Notice tone="warn">{t("messaging.guard.dispatchOff")}</Notice>
-      )}
-      {summary.data && canSend && schedulerStale && (
-        <Notice tone="warn">{t("messaging.guard.schedulerStale")}</Notice>
-      )}
-      {summary.data && !personalOk && (
-        <Notice tone="warn">{t("messaging.guard.personalOnHold")}</Notice>
-      )}
 
-      {/* The audience, on the overview's own ground.
+      <p role="status" className="sr-only">
+        {said}
+      </p>
 
-          This was a white panel holding four equal figures, and it opened a
-          page whose whole subject is *who you are talking to* with no answer
-          to that question louder than any other. The overview leads with the
-          one number its page is about; so does this one. Every rule below
-          picks from these people and every broadcast goes to all of them —
-          nothing else here means anything if this is zero.
-
-          The other three follow under the hairline, in the same strip the
-          brief spends, so a figure met on the front page is recognisable
-          here: amber is the one slipping away, gold is the reward somebody
-          is owed, violet is what has gone out. No emphasis colour on the
-          figures — on the band every one of them is white, because a hue
-          measured against a page ground cannot be trusted against a
-          gradient. */}
-      <Band>
-        <div className={BAND_INSET}>
-          <p className="t-eyebrow text-brand-on-band">
-            {t("messaging.summary.title")}
-          </p>
-
-          <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-2">
-            {!summary.data ? (
-              <p className="t-card-title text-white">{t("common.loading")}</p>
-            ) : summary.data.customers_with_card === 0 ? (
-              // A bare 0 beside "nobody has your card" says it twice, and the
-              // digit is the harsher half — the brief's own rule.
-              <p className="t-card-title text-white">
-                {t("messaging.summary.audienceNone")}
-              </p>
-            ) : (
-              <>
-                {/* `t-stat` bare: it already sets tabular figures, and
-                    wrapping it in `Figure` would quietly set it in mono. */}
-                <span className="t-stat text-white">
-                  {summary.data.customers_with_card}
-                </span>
-                <p className="text-white">
-                  {t("messaging.summary.audience", {
-                    count: summary.data.customers_with_card,
-                  })}
-                </p>
-              </>
-            )}
-          </div>
-
-          <Readouts
-            on="band"
-            className={BAND_RULE}
-            items={(
-              [
-                ["inactive30", summary.data?.inactive_counts?.["30"], "risk"],
-                ["rewardWaiting", summary.data?.reward_waiting_count, "reward"],
-                ["sentMonth", summary.data?.sent_this_month, "activity"],
-              ] as const
-            ).map(([key, value, hue]) => ({
-              label: t(`messaging.summary.${key}`),
-              value: value ?? "—",
-              hue,
-            }))}
+      <Tabs value={tab} onChange={(next) => setParams({ tab: next }, { replace: true })}>
+        <TabList label={t("messaging.tabs.label")}>
+          {TABS.map((key) => (
+            <Tab key={key} value={key}>
+              {t(`messaging.tabs.${key}`)}
+            </Tab>
+          ))}
+        </TabList>
+        <TabPanel value="rules" className="pt-4">
+          {rulesPanel}
+        </TabPanel>
+        <TabPanel value="broadcast" className="pt-4">
+          <BroadcastTab
+            isPro={isPro}
+            summary={facts}
+            summaryLoading={summary.isLoading}
+            latest={sent[0]}
+            businessName={businessName}
+            onOpen={openSheet}
           />
-        </div>
-      </Band>
+        </TabPanel>
+        <TabPanel value="sent" className="pt-4">
+          {sentPanel}
+        </TabPanel>
+      </Tabs>
 
-      {/* Broadcast */}
-      <Panel className="p-5 sm:p-6">
-        <PanelHeader
-          title={t("messaging.broadcast.title")}
-          hint={t("messaging.broadcast.hint")}
-          action={
-            <Link to="/dashboard/messages/new" className={ctaClasses("primary", "sm")}>
-              <Send size={15} aria-hidden className="rtl:-scale-x-100" />
-              {t("messaging.broadcast.cta")}
-            </Link>
-          }
-        />
-        {summary.data && (
-          <p className="mt-3 text-xs text-ink-subtle">
-            {summary.data.next_broadcast_allowed_at
-              ? t("messaging.broadcast.nextAllowed", {
-                  when: formatWhen(summary.data.next_broadcast_allowed_at, lang),
-                })
-              : t("messaging.broadcast.left", { count: broadcastsLeft ?? 0 })}
-          </p>
-        )}
-      </Panel>
-
-      {/* Automations */}
-      <Panel className="p-5 sm:p-6">
-        <PanelHeader
-          title={t("messaging.automations.title")}
-          hint={t("messaging.automations.hint")}
-          action={
-            rules.length > 0 && !picking ? (
-              <button
-                type="button"
-                onClick={() => setPicking(true)}
-                className={ctaClasses("secondary", "sm")}
-              >
-                <Plus size={15} aria-hidden />
-                {t("messaging.automations.new")}
-              </button>
-            ) : undefined
-          }
-        />
-
-        {toggleError && (
-          <Notice tone="danger" className="mt-4">
-            {toggleError}
-          </Notice>
-        )}
-
-        {automations.isLoading ? (
-          <p className="mt-4 font-mono text-sm text-ink-subtle">{t("common.loading")}</p>
-        ) : (
-          <>
-            {rules.length > 0 && (
-              <ul className="mt-4 flex flex-col divide-y divide-border">
-                {rules.map((a) => (
-                  <AutomationRow
-                    key={a.id}
-                    automation={a}
-                    lang={lang}
-                    onHold={!personalOk}
-                    pending={toggle.isPending && toggle.variables?.automation.id === a.id}
-                    onToggle={(on) => toggle.mutate({ automation: a, on })}
-                  />
-                ))}
-              </ul>
-            )}
-
-            {(rules.length === 0 || picking) && (
-              <div className="mt-4 flex flex-col gap-3">
-                <p className="text-sm text-ink-muted">
-                  {rules.length === 0
-                    ? t("messaging.automations.empty")
-                    : t("messaging.automations.pickRecipe")}
-                </p>
-                <ul className="grid gap-3 sm:grid-cols-3">
-                  {recipeRules.map((recipe) => (
-                    <RecipeCard key={recipe.key} recipe={recipe} />
-                  ))}
-                </ul>
-                {picking && (
-                  <button
-                    type="button"
-                    onClick={() => setPicking(false)}
-                    className={cn(
-                      "self-start text-sm font-semibold text-ink-muted underline hover:no-underline",
-                      focusRing,
-                    )}
-                  >
-                    {t("messaging.editor.cancel")}
-                  </button>
-                )}
-              </div>
-            )}
-          </>
-        )}
-      </Panel>
-
-      {/* History */}
-      <Panel className="p-5 sm:p-6">
-        <PanelHeader title={t("messaging.history.title")} />
-        {broadcasts.isLoading ? (
-          <p className="mt-4 font-mono text-sm text-ink-subtle">{t("common.loading")}</p>
-        ) : !broadcasts.data || broadcasts.data.items.length === 0 ? (
-          <p className="mt-3 text-sm text-ink-muted">{t("messaging.history.empty")}</p>
-        ) : (
-          <>
-            <ul className="mt-4 flex flex-col divide-y divide-border">
-              {broadcasts.data.items.map((b) => (
-                <BroadcastRow key={b.id} broadcast={b} lang={lang} businessName={business?.name ?? ""} />
-              ))}
-            </ul>
-            {broadcasts.data.count > BROADCAST_PAGE && (
-              <div className="mt-4 flex items-center gap-3">
-                <button
-                  type="button"
-                  className={ctaClasses("secondary", "sm")}
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  {t("common.back")}
-                </button>
-                <Figure className="text-sm text-ink-subtle">
-                  {page} / {Math.ceil(broadcasts.data.count / BROADCAST_PAGE)}
-                </Figure>
-                <button
-                  type="button"
-                  className={ctaClasses("secondary", "sm")}
-                  disabled={page * BROADCAST_PAGE >= broadcasts.data.count}
-                  onClick={() => setPage((p) => p + 1)}
-                >
-                  {t("common.next")}
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </Panel>
+      <BroadcastSheet
+        broadcast={openBroadcast}
+        open={sheetOpen && !!openBroadcast}
+        onClose={() => setSheetOpen(false)}
+        businessName={businessName}
+        template={template}
+        design={design.data}
+      />
     </div>
   );
 }
 
-function AutomationRow({
-  automation: a,
-  lang,
-  onHold,
-  pending,
-  onToggle,
-}: {
-  automation: AutomationOut;
-  lang: string;
-  onHold: boolean;
-  pending: boolean;
-  onToggle: (on: boolean) => void;
-}) {
-  const { t } = useTranslation();
-  const Icon = KIND_ICONS[a.kind as keyof typeof KIND_ICONS] ?? Send;
-  // Switched on but the design outgrew it: the rule will not send, so it
-  // must not read as running — a next-run time it will never keep is worse
-  // than saying nothing.
-  const held = a.is_active && onHold;
+/** How many hold the card, the figure isolated and grouped; nobody, in words. */
+function ReachLine({ summary, loading }: { summary: MessagingSummary | undefined; loading: boolean }) {
+  const { t, i18n } = useTranslation();
+  if (loading) return <Skeleton className="h-5 w-56" />;
+  if (!summary) return null;
+  const count = summary.customers_with_card;
   return (
-    <li className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4">
-      <div className="flex min-w-0 flex-1 items-start gap-3">
-        <span
-          aria-hidden
-          className={cn(
-            "mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
-            a.is_active && !held
-              ? "bg-primary/10 text-primary-text"
-              : "bg-ink/[0.06] text-ink-subtle",
-          )}
-        >
-          <Icon size={17} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              to={`/dashboard/messages/automations/${a.id}`}
-              className={cn("font-semibold text-ink hover:underline", focusRing)}
-            >
-              {a.name}
-            </Link>
-            <Tag tone={held ? "warn" : a.is_active ? "ok" : "neutral"}>
-              {t(
-                held
-                  ? "messaging.automations.onHold"
-                  : a.is_active
-                    ? "messaging.automations.on"
-                    : "messaging.automations.off",
-              )}
-            </Tag>
-          </div>
-          <p className="mt-0.5 text-sm text-ink-muted">
-            {describeAutomation(a, t, lang).join(" · ")}
-          </p>
-          <p className="mt-0.5 text-xs text-ink-subtle">
-            {t("messaging.automations.sentMonth", { count: a.sent_this_month })}
-            {held ? (
-              <> · {t("messaging.automations.onHoldWhy")}</>
-            ) : (
-              a.is_active &&
-              a.next_run_at && (
-                <>
-                  {" · "}
-                  {t("messaging.automations.nextRun", { when: formatWhen(a.next_run_at, lang) })}
-                </>
-              )
-            )}
-          </p>
-        </div>
-      </div>
-      <div className="flex items-center justify-between gap-3 sm:justify-end">
-        {/* Switching OFF is never gated — the owner must always be able to
-            stop a rule. Switching ON while the design is crowded only earns
-            a 422, so the switch says so instead of offering it. */}
-        <Toggle
-          checked={a.is_active}
-          disabled={pending || (onHold && !a.is_active)}
-          label={t("messaging.automations.switchLabel")}
-          onChange={onToggle}
+    <p className="type-body text-ink-muted">
+      {count === 0 ? (
+        t("messaging.summary.audienceNone")
+      ) : (
+        <Trans
+          i18nKey="messaging.reach"
+          count={count}
+          values={{ value: formatCount(count, i18n.resolvedLanguage) }}
+          components={{ n: figure }}
         />
-        <Link
-          to={`/dashboard/messages/automations/${a.id}`}
-          className={cn(
-            "inline-flex min-h-[44px] items-center gap-1 rounded-lg px-2 text-sm font-semibold text-primary-text hover:underline",
-            focusRing,
-          )}
-        >
-          {t("common.edit")}
-          <ArrowRight size={15} aria-hidden className="rtl:-scale-x-100" />
-        </Link>
-      </div>
-    </li>
+      )}
+    </p>
   );
 }
 
-function RecipeCard({ recipe }: { recipe: RecipeOut }) {
+/** The one notice: words and an icon, the owner's Activate where it is theirs. */
+function PageNotice({ notice, action }: { notice: MessagesNotice; action?: ReactNode }) {
   const { t } = useTranslation();
-  const Icon = KIND_ICONS[recipe.kind as keyof typeof KIND_ICONS] ?? Send;
-  const days = recipe.inactive_days ?? recipe.reward_waiting_days ?? 0;
+  let words: ReactNode;
+  if (notice === "freeOwner") {
+    words = (
+      <Trans
+        i18nKey="messaging.free.owner"
+        values={{ price: PUNCHME_MONTHLY_PRICE }}
+        components={{ ltr: <bdi dir="ltr" className="type-figure" /> }}
+      />
+    );
+  } else if (notice === "freeHire") words = t("messaging.free.hire");
+  else if (notice === "notOpen") words = t("messaging.guard.notEnabled");
+  else if (notice === "paused") words = t("messaging.guard.dispatchOff");
+  else if (notice === "onHold") words = t("messaging.guard.personalOnHold");
+  else words = t("messaging.guard.schedulerStale");
   return (
-    <li className="flex flex-col gap-3 rounded-xl border border-border bg-background p-4">
-      <div className="flex items-center gap-2">
-        <span
-          aria-hidden
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary-text"
-        >
-          <Icon size={17} />
-        </span>
-        <span className="font-semibold text-ink">{recipe.name}</span>
-      </div>
-      <p className="flex-1 text-sm text-ink-muted">
-        {recipe.summary.replace("{days}", String(days))}
-      </p>
-      <Link
-        to={`/dashboard/messages/automations/new?recipe=${recipe.key}`}
-        className={ctaClasses("secondary", "sm")}
-      >
-        {t("messaging.automations.start")}
-      </Link>
-    </li>
+    <Notice tone="warn" action={action}>
+      {words}
+    </Notice>
   );
 }
 
-function BroadcastRow({
-  broadcast: b,
-  lang,
+/**
+ * Message everyone: the week's quota first, what a broadcast is in one
+ * line, the latest one, and the door to the composer. Coral where it can
+ * go; disabled with its reason where the week is spent or sending isn't
+ * open. On Free the owner's Activate is already in the notice above, so
+ * this tab only offers a sample to the shop's own card, which works on
+ * every plan.
+ */
+function BroadcastTab({
+  isPro,
+  summary,
+  summaryLoading,
+  latest,
   businessName,
+  onOpen,
 }: {
-  broadcast: BroadcastOut;
-  lang: string;
+  isPro: boolean;
+  summary: MessagingSummary | undefined;
+  summaryLoading: boolean;
+  latest: BroadcastOut | undefined;
   businessName: string;
+  onOpen: (id: string) => void;
 }) {
-  const { t } = useTranslation();
-  const sending = b.status === "sending";
+  const { t, i18n } = useTranslation();
+  const lang = i18n.resolvedLanguage ?? "he";
+
+  if (!isPro) {
+    return (
+      <LitPanel className="flex flex-col items-start gap-4 p-5 sm:p-6">
+        <p className="type-body text-ink">{t("messaging.broadcast.freeLine")}</p>
+        <LinkButton to="/dashboard/messages/new" variant="secondary" icon={<PenLine aria-hidden />}>
+          {t("messaging.broadcast.writeSample")}
+        </LinkButton>
+      </LitPanel>
+    );
+  }
+  if (summaryLoading || !summary) {
+    return (
+      <LitPanel className="flex flex-col gap-3 p-5 sm:p-6">
+        <Skeleton className="h-6 w-2/3" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-11 w-40 rounded-full" />
+      </LitPanel>
+    );
+  }
+
+  const open = summary.can_send;
+  const left = Math.max(0, summary.broadcasts_limit_7d - summary.broadcasts_used_7d);
+  const spent = !!summary.next_broadcast_allowed_at || left === 0;
+  const nobody = summary.customers_with_card === 0;
+  const quota = summary.next_broadcast_allowed_at
+    ? t("messaging.broadcast.nextAllowed", { when: relativeWhen(summary.next_broadcast_allowed_at, t, lang) })
+    : left === 0
+      ? t("messaging.broadcast.leftNone")
+      : t("messaging.broadcast.left", { count: left });
+
   return (
-    <li className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4">
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-medium text-ink" dir="auto">
-          {b.title || businessName}
-        </p>
-        <p className="truncate text-sm text-ink-muted" dir="auto">
-          {b.body}
-        </p>
-      </div>
-      <div className="flex flex-wrap items-center gap-3 text-xs text-ink-subtle sm:justify-end">
-        <time dateTime={b.created_at} className="font-mono tabular-nums">
-          {formatWhen(b.created_at, lang)}
-        </time>
-        <Figure>
-          {t("messaging.history.sentOf", { sent: b.sent_count, total: b.audience_count })}
-        </Figure>
-        {b.failed_count > 0 && (
-          <span className="text-warn">{t("messaging.history.failed", { count: b.failed_count })}</span>
+    <div className="flex flex-col gap-4">
+      <LitPanel className="flex flex-col items-start gap-3 p-5 sm:p-6">
+        {/* No quota where sending is closed: the notice above says why. */}
+        {open && (
+          <h2 id="broadcast-quota" className="type-card-title text-ink">
+            {quota}
+          </h2>
         )}
-        <Tag tone={sending ? "accent" : "neutral"}>
-          {t(`messaging.history.status.${sending ? "sending" : "sent"}`)}
-        </Tag>
-      </div>
-    </li>
+        <p className="type-body text-ink-muted">
+          {nobody ? (
+            t("messaging.broadcast.nobody")
+          ) : (
+            <Trans
+              i18nKey="messaging.broadcast.what"
+              count={summary.customers_with_card}
+              values={{ value: formatCount(summary.customers_with_card, lang), limit: summary.broadcasts_limit_7d }}
+              components={{ n: figure }}
+            />
+          )}
+        </p>
+        {nobody ? (
+          <LinkButton to="/dashboard/standee" variant="secondary">
+            {t("messaging.broadcast.toStandee")}
+          </LinkButton>
+        ) : open && !spent ? (
+          <LinkButton to="/dashboard/messages/new" variant="primary" icon={<PenLine aria-hidden />}>
+            {t("messaging.broadcast.write")}
+          </LinkButton>
+        ) : (
+          <Button variant="primary" icon={<PenLine aria-hidden />} disabled aria-describedby={open ? "broadcast-quota" : undefined}>
+            {t("messaging.broadcast.write")}
+          </Button>
+        )}
+      </LitPanel>
+
+      {latest && (
+        <section aria-labelledby="broadcast-latest" className="flex flex-col gap-2">
+          <h2 id="broadcast-latest" className="type-label text-ink">
+            {t("messaging.broadcast.latest")}
+          </h2>
+          <LitPanel className="overflow-hidden">
+            <List>
+              <BroadcastRow broadcast={latest} businessName={businessName} onOpen={() => onOpen(latest.id)} />
+            </List>
+          </LitPanel>
+        </section>
+      )}
+    </div>
   );
 }
