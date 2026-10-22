@@ -7,12 +7,13 @@ import type { Chime } from "./feedback";
  * `detail` is English and written for developers; it never reaches the
  * counter.
  */
-export type FailureCause = "offline" | "server" | "refused" | "other";
+export type FailureCause = "offline" | "server" | "busy" | "refused" | "other";
 
 /** The sentence each cause gets, under `dashboard.scan.result`. */
 export const CAUSE_KEYS: Record<FailureCause, string> = {
   offline: "dashboard.scan.result.offline",
   server: "dashboard.scan.result.failedServer",
+  busy: "dashboard.scan.result.failedBusy",
   refused: "dashboard.scan.result.failedRefused",
   other: "dashboard.scan.result.failedOther",
 };
@@ -68,6 +69,9 @@ export const CHIMES: Partial<Record<AnswerState["kind"], Chime>> = {
 export function failureCause(error: unknown): FailureCause {
   if (error instanceof ApiError) {
     if (error.status >= 500) return "server";
+    // The API's per-person throttle: every request in a minute counts, so
+    // a fast walk through the pages can meet it. Waiting is the whole fix.
+    if (error.status === 429) return "busy";
     if (error.status === 403) return "refused";
     return "other";
   }
