@@ -144,7 +144,8 @@ and `/dashboard/messages/automations/new?recipe={key}`.
 | Send a test to my own card | `POST {biz}/messaging/test` | `sendTestMessage` |
 | Send | `POST {biz}/broadcasts`; 429 `messaging_quota` with `next_allowed_at` when over the cap | `createBroadcast` |
 
-After sending, it returns to `/dashboard/messages` with a confirmation.
+After sending, it returns to `/dashboard/messages?tab=sent` with a
+confirmation.
 
 ### `/dashboard/messages/automations/new` and `/dashboard/messages/automations/:automationId`: Automation editor
 
