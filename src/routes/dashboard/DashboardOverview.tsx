@@ -194,11 +194,12 @@ export function DashboardOverview() {
     );
   } else if (!settled) {
     // Never a 0 or "nobody came back" before the reads that make them land.
-    // Each placeholder is a tile line for line: its label, its figure and
-    // the line under it.
+    // Each placeholder is a tile line for line, its label, its figure and
+    // the line under it, and the verdict's already wears the band's light,
+    // so when the reads land only the figures arrive.
     lead = tiles(
       [0, 1, 2, 3].map((i) => (
-        <LitPanel key={i} className="flex flex-col gap-2 p-4 sm:p-5">
+        <LitPanel key={i} light={i === 0 ? "band" : "panel"} className="flex flex-col gap-2 p-4 sm:p-5">
           <span className="flex h-5 items-center">
             <Skeleton className="h-3.5 w-20 rounded-full" />
           </span>
