@@ -641,6 +641,7 @@
     },
     "customers": {
       "title": "Customers",
+      "loadFailed": "The customer list didn't load",
       "emptyFree": "After activation, everyone who joins shows up here.",
       "emptyFreeHire": "Once the owner activates the card, everyone who joins shows up here.",
       "emptyProTitle": "No customers yet",
@@ -711,12 +712,6 @@
         "removed": "Stamp taken off",
         "now": "{{name}}: {{count}} of {{total}}",
         "undo": "Undo"
-      },
-      "problem": {
-        "offline": "No connection. Check the network and try again.",
-        "server": "The server didn't answer. Try again in a moment.",
-        "refused": "This account can't do that here.",
-        "other": "Something went wrong. Try again."
       },
       "menu": {
         "label": "More for {{name}}",
@@ -890,6 +885,7 @@
         "redeemFailed": "The reward wasn't recorded",
         "offline": "No connection. Check the network and scan again.",
         "failedServer": "The server didn't answer. Scan again in a moment.",
+        "failedBusy": "Too many requests in a short time. Wait a minute and scan again.",
         "failedRefused": "This account can't stamp cards here.",
         "failedOther": "Something went wrong. Scan again.",
         "dismiss": "Close"
@@ -942,6 +938,15 @@
     "loadFailed": {
       "title": "We couldn't reach PunchMe",
       "body": "Check the connection and try again."
+    },
+    "problem": {
+      "offline": "No connection. Check the network and try again.",
+      "server": "The server didn't answer. Try again in a moment.",
+      "busy": "Too many requests in a short time. Wait a minute and try again.",
+      "refused": "This account can't do that here.",
+      "other": "Something went wrong. Try again.",
+      "pausedTitle": "No connection",
+      "paused": "This loads by itself as soon as the connection is back."
     },
     "week": {
       "title": "This week",

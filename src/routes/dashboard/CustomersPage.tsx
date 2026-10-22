@@ -22,6 +22,7 @@ import {
 import { CustomerSheet, type SheetProblem } from "../../components/customers/CustomerSheet";
 import { Monogram } from "../../components/customers/Monogram";
 import { RemoveCustomerConfirm } from "../../components/customers/RemoveCustomerConfirm";
+import { ReadProblem } from "../../components/dashboard/ReadProblem";
 import { messagingErrorMessage } from "../../components/messaging/describe";
 import { useBusiness } from "../../business/useBusiness";
 import { canEnrollRealCustomers, canManage, isOwner } from "../../business/gating";
@@ -39,7 +40,7 @@ import { env } from "../../lib/env";
 import { useLightboxPage } from "../../theme/lightboxPage";
 import { matchesSearch, phoneForDisplay } from "./customerSearch";
 import { formatCount } from "./format";
-import { failureCause, type FailureCause } from "./scan/answer";
+import { isolate, problemKey } from "./problem";
 
 /** Rows drawn at a time. A long roster grows by this much on request rather
  * than paging, so nobody hunts for "Back" at the foot of a long list. */
@@ -98,13 +99,6 @@ function isStampConflict(error: unknown): boolean {
   return error instanceof ApiError && error.code === "stamp_adjust_conflict";
 }
 
-const CAUSES: Record<FailureCause, string> = {
-  offline: "dashboard.customers.problem.offline",
-  server: "dashboard.customers.problem.server",
-  refused: "dashboard.customers.problem.refused",
-  other: "dashboard.customers.problem.other",
-};
-
 export function CustomersPage() {
   useLightboxPage();
   const { t, i18n } = useTranslation();
@@ -152,7 +146,7 @@ export function CustomersPage() {
   });
   const canMessage = manages && !!messagingSummary?.can_send;
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, fetchStatus, refetch } = useQuery({
     queryKey: rosterKey,
     queryFn: () => listAllCustomers(businessId!),
     enabled: !!businessId,
@@ -168,8 +162,10 @@ export function CustomersPage() {
   const nameOf = (c: CustomerListItem) =>
     c.customer_display_name.trim() ||
     (c.customer_phone ? phoneForDisplay(c.customer_phone) : t("dashboard.customers.menu.unnamed"));
+  /** The same, for a sentence that is only a string: a toast's. */
+  const namedIn = (c: CustomerListItem | undefined) => (c ? isolate(nameOf(c)) : "");
 
-  const causeOf = (error: unknown) => t(CAUSES[failureCause(error)]);
+  const causeOf = (error: unknown) => t(problemKey(error));
 
   /** The latest count the page knows for a card, read when it is needed:
    * an Undo pressed after another change sends the count as it is now. */
@@ -204,7 +200,7 @@ export function CustomersPage() {
         tone: "ok",
         title: t(sent.delta > 0 ? "dashboard.customers.stamps.added" : "dashboard.customers.stamps.removed"),
         body: t("dashboard.customers.stamps.now", {
-          name: row ? nameOf(row) : "",
+          name: namedIn(row),
           count: out.stamp_count,
           total: out.stamps_required,
         }),
@@ -239,7 +235,7 @@ export function CustomersPage() {
       sendCustomerMessage(businessId!, cardId, { body }),
     onSuccess: (_out, sent) => {
       const row = all.find((c) => c.card_id === sent.cardId);
-      toast.show({ tone: "ok", title: t("dashboard.customers.message.sent", { name: row ? nameOf(row) : "" }) });
+      toast.show({ tone: "ok", title: t("dashboard.customers.message.sent", { name: namedIn(row) }) });
       setProblem(null);
       sent.done();
       // Queued, not delivered: the worker writes to the pass after this
@@ -267,7 +263,7 @@ export function CustomersPage() {
       setRemovedRef(headingRef);
       setRemoving(false);
       setOpenId(null);
-      toast.show({ tone: "ok", title: t("dashboard.customers.remove.done", { name: row ? nameOf(row) : "" }) });
+      toast.show({ tone: "ok", title: t("dashboard.customers.remove.done", { name: namedIn(row) }) });
       void queryClient.invalidateQueries({ queryKey: ["customers"] });
       // Their stamps leave the feed with them, and every audience a message
       // could reach is one person smaller.
@@ -279,7 +275,7 @@ export function CustomersPage() {
       setRemoving(false);
       setProblem({
         tone: "danger",
-        title: t("dashboard.customers.remove.failed", { name: row ? nameOf(row) : "" }),
+        title: t("dashboard.customers.remove.failed", { name: namedIn(row) }),
         body: causeOf(error),
       });
     },
@@ -374,7 +370,17 @@ export function CustomersPage() {
   );
 
   let body;
-  if (isLoading || !data) {
+  if (!data && (isError || fetchStatus === "paused")) {
+    body = (
+      <ReadProblem
+        data-tour="customers-roster"
+        title={t("dashboard.customers.loadFailed")}
+        error={error}
+        paused={!isError}
+        onRetry={() => void refetch()}
+      />
+    );
+  } else if (isLoading || !data) {
     body = (
       <LitPanel data-tour="customers-roster" className="overflow-hidden">
         <SkeletonRows rows={6} />
@@ -503,15 +509,22 @@ export function CustomersPage() {
   return (
     <div className="mx-auto flex w-full max-w-[45rem] flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-baseline gap-3">
+        <div className="flex flex-wrap items-baseline gap-x-3">
           <h1 ref={headingRef} tabIndex={-1} className="type-title text-ink outline-none">
             {t("dashboard.customers.title")}
           </h1>
-          {all.length > 0 && <Figure value={formatCount(all.length, language)} className="type-title text-ink-muted" />}
+          {all.length > 0 && (
+            // Where the roster stopped at its guard, the count is the least
+            // it holds, said in words as the Overview says it.
+            <span className="flex items-baseline gap-2">
+              {data?.truncated && <span className="type-label text-ink-muted">{t("dashboard.overview.atLeast")}</span>}
+              <Figure value={formatCount(all.length, language)} className="type-title text-ink-muted" />
+            </span>
+          )}
         </div>
         {manages && all.length > 0 && (
-          <Button variant="secondary" icon={<Download aria-hidden />} disabled={visible.length === 0} onClick={handleExport}>
-            {t("dashboard.customers.export.cta")}
+          <Button variant="secondary" icon={<Download aria-hidden />} disabled={visible.length === 0} onClick={handleExport} className="max-w-full">
+            <span className="whitespace-normal">{t("dashboard.customers.export.cta")}</span>
           </Button>
         )}
       </div>
@@ -523,7 +536,11 @@ export function CustomersPage() {
           placeholder={t("dashboard.customers.searchPlaceholder")}
           leading={<Search />}
           value={search}
-          dir="auto"
+          // Typed text takes its own direction, a name in Latin letters
+          // from the left, while the field keeps the page's, so the room
+          // kept for the magnifier stays on the magnifier's side. `dir="auto"`
+          // turned the whole field round, empty and Hebrew placeholder too.
+          className="[&_input]:[unicode-bidi:plaintext]"
           autoComplete="off"
           // A name or a number, neither of them a dictionary word: a phone
           // that "corrected" one would search for someone else.
@@ -576,21 +593,27 @@ function nameSortKey(c: CustomerListItem): string {
 
 /**
  * One customer, one button that opens them. The name wraps to two lines
- * before an ellipsis. It sits in a `<bdi>` inside a line that keeps the
- * page's direction, so "Bartholomew Fitzgerald-Montgomery III" reads left to
- * right and keeps its first name, yet lines up with the Hebrew names around
- * it (Chrome has no `text-align: match-parent`). With no name, the number is
- * the title. The count stands over the badge, so a name gets the width.
+ * before an ellipsis (three under 360px, where the column is two thirds as
+ * wide, so the same name fits on every phone), in its own direction, so "Bartholomew
+ * Fitzgerald-Montgomery III" reads left to right and is cut at its own end,
+ * not at the Hebrew line's, which took "Fit" off the surname. `match-parent`
+ * still lines it up with the Hebrew names around it (Chrome and Safari know
+ * it only as `-webkit-match-parent`). With no name, the number is the
+ * title. The count stands over the badge, so a name gets the width.
  */
 function Row({ customer: c, onOpen }: { customer: CustomerListItem; onOpen: () => void }) {
   const { t } = useTranslation();
   const named = c.customer_display_name.trim();
   const phone = c.customer_phone ? phoneForDisplay(c.customer_phone) : null;
   const ready = c.status !== "void" && c.stamps_required > 0 && c.stamp_count >= c.stamps_required;
+  // A badge's words may take two lines under large text, where one line
+  // would take the name's room: the column's cap is in px, so it holds
+  // still while the text grows.
+  const words = (key: string) => <span className="whitespace-normal text-center">{t(key)}</span>;
   let badge = null;
-  if (c.status === "void") badge = <Badge tone="warn">{t("dashboard.customers.status.void")}</Badge>;
-  else if (ready) badge = <Badge tone="reward">{t("dashboard.customers.status.ready")}</Badge>;
-  else if (isOneAway(c)) badge = <Badge>{t("dashboard.customers.status.oneAway")}</Badge>;
+  if (c.status === "void") badge = <Badge tone="warn">{words("dashboard.customers.status.void")}</Badge>;
+  else if (ready) badge = <Badge tone="reward">{words("dashboard.customers.status.ready")}</Badge>;
+  else if (isOneAway(c)) badge = <Badge>{words("dashboard.customers.status.oneAway")}</Badge>;
 
   return (
     <ListRow
@@ -598,13 +621,16 @@ function Row({ customer: c, onOpen }: { customer: CustomerListItem; onOpen: () =
       className="[&>button]:min-h-[3.75rem]"
       leading={<Monogram name={c.customer_display_name} />}
       title={
-        <span className="line-clamp-2 whitespace-normal [overflow-wrap:anywhere]">
-          <bdi dir={named ? "auto" : "ltr"}>{named || phone || t("dashboard.customers.menu.unnamed")}</bdi>
+        <span
+          dir={named ? "auto" : "ltr"}
+          className="line-clamp-3 whitespace-normal [overflow-wrap:anywhere] [text-align:-webkit-match-parent] [text-align:match-parent] min-[360px]:line-clamp-2"
+        >
+          {named || phone || t("dashboard.customers.menu.unnamed")}
         </span>
       }
       meta={named && phone ? <bdi dir="ltr">{phone}</bdi> : undefined}
       trailing={
-        <span className="flex flex-col items-end gap-1">
+        <span className="flex max-w-[128px] flex-col items-end gap-1">
           <span aria-hidden>
             <Figure value={`${c.stamp_count}/${c.stamps_required}`} />
           </span>

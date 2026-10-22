@@ -13,6 +13,10 @@ describe("failureCause", () => {
     }
   });
 
+  it("reads a 429 as too many requests, which waiting fixes", () => {
+    expect(failureCause(new ApiError(429, "Too Many Requests"))).toBe("busy");
+  });
+
   it("reads a 403 as this account being turned away", () => {
     expect(failureCause(new ApiError(403, "Insufficient role", "insufficient_role"))).toBe("refused");
   });
