@@ -11,10 +11,31 @@ export type ButtonSize = "md" | "lg" | "icon";
  * where a pointer hovers, and never on a disabled button: the hover variant
  * sorts after `disabled:`, so it is held back with `:not(:disabled)`.
  */
-const BASE = `relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-full border font-heading font-medium leading-tight transition-[transform,background-color,border-color,color] duration-press ease-out-strong disabled:cursor-not-allowed disabled:opacity-50 aria-busy:cursor-wait [&_svg]:size-5 [&_svg]:shrink-0 ${noTapFlash} ${focusRing}`;
+const BASE = `relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-full border font-heading font-medium leading-tight transition-[transform,background-color,border-color,color,box-shadow] duration-press ease-out-strong disabled:cursor-not-allowed disabled:opacity-50 aria-busy:cursor-wait [&_svg]:size-5 [&_svg]:shrink-0 ${noTapFlash} ${focusRing}`;
 
 /** A press sinks the button a little, unless motion is reduced. */
 const PRESS = "active:scale-[0.97]";
+
+/** The rows' 6% ink well, laid over the button's own fill as an inset rather
+ * than in place of it, so a lit button on the camera's dark glass stays lit. */
+const WELL = "[&:not(:disabled)]:active:shadow-[inset_0_0_0_100vmax_rgb(var(--c-ink)/0.06)]";
+
+/**
+ * With reduced motion a press doesn't sink: it tints where it stands, so a
+ * finger still sees it land with the tap's own flash switched off. Measured
+ * at the tightest ground each one stands on:
+ * - coral takes its hover: ink on it 4.90:1, 9.16:1 at night;
+ * - ink comes up to 90% over its ground: its label 10.31:1, on Panel Light;
+ * - the rest take the well: ink 9.30:1, on the failed answer's light, and
+ *   danger's words 5.34:1, on Panel Light.
+ */
+const PRESS_TINT: Record<ButtonVariant, string> = {
+  primary: "[&:not(:disabled)]:active:bg-primary-hover",
+  secondary: WELL,
+  ink: "[&:not(:disabled)]:active:bg-ink/90",
+  quiet: WELL,
+  danger: WELL,
+};
 
 const VARIANTS: Record<ButtonVariant, string> = {
   // Coral is a fill that always carries its label in ink (5.50:1, 4.90:1 on
@@ -44,5 +65,5 @@ const SIZES: Record<ButtonSize, string> = {
 };
 
 export function buttonClasses(variant: ButtonVariant, size: ButtonSize, reduced: boolean) {
-  return [BASE, VARIANTS[variant], SIZES[size], reduced ? "" : PRESS].join(" ");
+  return [BASE, VARIANTS[variant], SIZES[size], reduced ? PRESS_TINT[variant] : PRESS].join(" ");
 }
