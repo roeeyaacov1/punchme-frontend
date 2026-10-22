@@ -380,7 +380,7 @@ Generous and soft. Buttons, chips, segments and tags are full pills; stamps are 
 - **Primary:** Sign Coral with a Soft Ink label, one per screen. Hover darkens to #f2683a, only where a pointer hovers and never on a disabled button.
 - **Ink:** Soft Ink with a Lit Acrylic label (14.88:1): the action on a gold surface, and "Reward given" on a full card.
 - **Secondary, quiet and danger:** a lit panel with a soft edge; a text button; red words with a red edge and no fill.
-- **Press, busy, disabled:** a press sinks to 0.97 (not with reduced motion). Busy keeps the width and the focus, sets `aria-busy`, swaps the icon for a spinner and swallows presses. Disabled is at half strength.
+- **Press, busy, disabled:** a press sinks to 0.97. With reduced motion it tints where it stands instead, so a finger still sees it land: coral takes its hover, ink comes up to 90%, and the rest take the rows' 6% ink well over their own fill. Busy keeps the width and the focus, sets `aria-busy`, swaps the icon for a spinner and swallows presses. Disabled is at half strength.
 - **Focus:** the kit's `focusRing`: 2px of ink at a 2px offset, drawn as an outline, so a panel's shadow can't switch it off, its gap stays clear, and it survives Windows' high-contrast mode. Rows draw it inside the edge.
 
 ### Chips
@@ -439,7 +439,7 @@ Four curves: the ease-out (cubic-bezier(0.23, 1, 0.32, 1)) for anything arriving
 - **Do** keep coral for the one thing to press, with its label in Soft Ink, and draw "on" and "selected" in ink.
 - **Do** say a warning or an error in its words and its icon on a plain panel, and give the reward the one gold fill.
 - **Do** put what keeps its light at night inside `.theme-lit`: the pass's stage, the QR code, the Overview's verdict and the scan's answer.
-- **Do** make reduced motion gentler, not none: light at full strength in 150ms with no travel, the stamp at its final size, the flash a 0.3 glow.
+- **Do** make reduced motion gentler, not none: light at full strength in 150ms with no travel, the stamp at its final size, the flash a 0.3 glow, a press a tint instead of a sink.
 - **Do** judge every screen in Hebrew at 375px first.
 
 ### Don't:
