@@ -1365,7 +1365,7 @@ as it is.
 - [x] 1.4 Foundation built, DESIGN.md replaced (18 Oct)
 - [x] 1.5 Checked and merged (19 Oct)
 - [x] Phase 2, dashboard shell: A (20 Oct) · B (20 Oct) · C (21 Oct) · D (21 Oct) · merged (21 Oct)
-- [ ] Phase 5, counter pages: A (21 Oct) · B (22 Oct) · C · D · merged
+- [ ] Phase 5, counter pages: A (21 Oct) · B (22 Oct) · C (22 Oct) · D · merged
 - [ ] Phase 6, manager pages: A · B · C · D · merged
 - [ ] Phase 7, owner pages: A · B · C · D · merged
 - [ ] Phase 3, card studio: A · B · C · D · merged
