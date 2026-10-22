@@ -53,7 +53,7 @@ function systemPrefersDark(): boolean {
 /**
  * The frame's ground as a hex colour, read off the scope itself rather than
  * restated here, so the status bar can't drift from the palette: the wall
- * (#f6f2eb) by day and the street (#16120f) at night.
+ * (#f6f2eb) by day and the street (#1f1916) at night.
  */
 function groundOf(frame: string): string | null {
   const probe = document.createElement("span");
