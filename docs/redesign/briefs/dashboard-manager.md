@@ -24,10 +24,11 @@ apart for the critique: one walked and read the pages, the other ran
 Impeccable's detector and injected its overlay. Break-ui fed the broadcast
 list, the rule editor, the referrals list and the standee their worst cases
 at the API boundary, in the browser only (Appendix A). Three questions went
-to Roee on the way (§7).
+to Roee on the way, and §11's at the review (§7).
 
-Read "In short" first. Sections 8 to 10 are what step B builds; §11 is the
-open questions for Roee.
+Read "In short" first. Sections 8 to 10 are what step B builds; §11's
+questions are answered in §7, and §13 adds the review's notes, which win
+where they differ.
 
 1. In short
 2. The pages today
@@ -41,6 +42,7 @@ open questions for Roee.
 10. What step B keeps, touches and checks
 11. Open questions for Roee
 12. Left for other phases, and outside the redesign
+13. Review notes for step B
 - Appendix A: the worst-case data
 
 ---
@@ -481,6 +483,12 @@ UI UX Pro Max (`search.py --domain ux …`):
 | 1 | How Messages is laid out | **Tabs: Rules, Message everyone, Sent.** Impeccable's roll (`concept-seed --scope surface --mode operate`, seed `6c0ef4c0`) dealt positions 3, 6 and 1 of seven ranked structures: the week ahead (the dealt lead), tabs, and who you can reach as doors. Roee took tabs. The composer and the rule editor follow it |
 | 2 | How Refer a friend is laid out | **Decisions first.** The roll (seed `e6f41d57`) dealt positions 5, 2 and 3: today's sentences on the kit (the dealt lead), decisions first, and roster-led. Roee took decisions first |
 | 3 | Which language the printed standee speaks | **The owner picks,** starting on the card's language: a Hebrew and English choice above the paper, so a bilingual shop can print both |
+| 4 | The delivery log, `listDeliveries` (§11, at the review) | **Yes.** "Sent" holds the rules' sends and the messages to one customer as well as the broadcasts, and a rule's editor lists its last sends. Broadcasts stay counts, never names (§13) |
+| 5 | What referrals cost, `listReferralGrants` (§11) | **Yes.** The program's line says what it gave this month, and a referral's row its gifts (§13) |
+| 6 | `listReferrals`'s own parameters (§11) | **Yes.** `?status=flagged` makes the decisions complete however old, and `?page=` lets the list go past 100 (§13) |
+| 7 | `getBroadcast`, `testAutomation`, `revokeReferralGrant` (§11) | **Not used,** as the brief recommends |
+| 8 | A5, two to an A4 (§11) | **No.** The A5 stays an A5 sheet on A5 paper, with today's hint |
+| 9 | A two-language table tent (§11) | **Not now.** Each language prints on its own sheet |
 
 The decision page closes unseen in a hidden pane here, so the rolls came
 through the question tool, each structure with a wireframe at 375px. The
@@ -1216,6 +1224,10 @@ zone is a commit of its own.
 
 ## 11. Open questions for Roee
 
+**Answered at the review (§7, rows 4 to 9):** yes to 1, 2 and 6; no to 3, 4,
+5 and 7; not now to 8. Item 9 waits for the number. The rest of this section
+is the case as it was put.
+
 The last section of `docs/dashboard-routes.md` lists five wrappers no page
 calls yet. The brief makes the case for two, and none is used unless Roee
 agrees.
@@ -1274,6 +1286,43 @@ agrees.
   the friend's miniature on Refer a friend follows it.
 - **Billing** (Phase 7) is where every "הפעלה" here lands; it should name the
   same price and what it unlocks, as the Overview's activation panel does.
+
+## 13. Review notes for step B
+
+Checked against the code, the contract and the backend on 22 Oct. The calls
+in §8.1 match `docs/dashboard-routes.md`, and the wrappers §11 proposes exist
+and take the parameters it names. These notes win where they differ from §8
+to §10.
+
+- **The three calls Roee approved** (§7, rows 4 to 6) join the pages, and
+  `docs/dashboard-routes.md` changes in the same commit as each: the call in
+  its page's table, and out of "Calls no page makes yet".
+  - **`listDeliveries`:** "Sent" lists what went out, newest first: each
+    broadcast as today (counts, never names, as the model's own comment
+    asks), and the rules' sends and the one-customer messages from
+    Customers, which no page shows today. A rule's editor lists its last
+    sends under the fields. Step B reads the endpoint's own filters and
+    paging before building on them.
+  - **`listReferralGrants`:** the program's line adds what it gave this
+    month ("החודש: 14 חותמות ו-2 כרטיסיות מלאות"), and a referral's row its
+    gifts, granted or skipped.
+  - **`listReferrals` with its parameters:** the decisions panel reads
+    `?status=flagged`, so it is complete however old a flag is, and the list
+    pages with `?page=` ("עוד"). The line "מוצגות 100 ההפניות האחרונות" goes,
+    and §5 row 4 is fixed rather than said.
+- **The rule's sentence says "up to".** `count_audience` (the backend's
+  `apps/messaging/audience.py`) doesn't apply the per-customer gap between
+  two automated messages (`without_recent_automation_message`), so the live
+  count is a ceiling: a customer who just got another rule's message is
+  skipped at the run. The sentence reads "עד 86 הלקוחות שלא ביקרו…" (or
+  "86 מתאימים עכשיו"), never "the 86 get this". The rest of it holds, as
+  checked: once per lapse, or every `repeat_days` while they stay away, a
+  real visit re-arms it (`dedupe_key`), and a late tick still runs that
+  day (`local.hour >= send_hour`).
+- **The A5 stays as it is** (§7, row 8): an A5 sheet, with the hint that a
+  home printer needs A5 paper in the tray.
+- **The critique snapshots** in `.impeccable/critique/` are committed with
+  these notes, for step D's `/impeccable polish`.
 
 ## Appendix A: the worst-case data
 
