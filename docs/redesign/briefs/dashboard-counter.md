@@ -1109,6 +1109,28 @@ measure as §8.8 says. These notes win where they differ from §8 to §11.
   will the first scan after the app opens straight into Scan from its home
   screen shortcut. It is harmless, and not a failure of the console check.
 
+**After step D** (22 Oct, for after the redesign):
+- **A boot that can't reach the API signs the owner out.**
+  `src/auth/AuthProvider.tsx` clears the session whenever `/api/auth/me`
+  fails, not only on a refused refresh: a 429 from the anonymous throttle
+  (30 a minute per address, and every cold boot spends two), a dropped
+  connection, a server restart. Step D met it when a fast walk through the
+  pages ran into the throttle. `src/auth` is frozen; the fix is to clear the
+  tokens only when the refresh itself is refused.
+- **The per-person throttle meets a fast walk too:** 120 requests a minute,
+  and the Overview's 60-day walk alone can take 15. A read that meets it
+  now says so ("too many requests, wait a minute"), rather than "something
+  went wrong".
+- **320px with text at 200%** still runs a few pixels wide where a single
+  word can't wrap (the Customers title at 56px) and where a kit piece won't
+  (the pass's Apple/Google `SegmentedControl` on the Overview), and long
+  names clamp at three lines. WCAG's 200% is met at 375px and up.
+- **A Free manager** for the role checks joined Demo Barbershop through a
+  Team page invitation: `manager-free@demo.punchme.test`. `seed_demo
+  --reset` deletes only its own four users, so this one, and
+  `staff-free-2@demo.punchme.test` from an earlier check, stay until removed
+  by hand.
+
 ## Appendix A: the worst-case data
 
 Paste it into the console of a signed-in dashboard tab on the dev server, or
