@@ -28,7 +28,10 @@ export function WeekLedger({ week, cardLength }: { week: Week; cardLength: numbe
   const dir = i18n.dir();
   const number = new Intl.NumberFormat(language);
   // Hebrew writes its weekdays as letters, which also fit a 24px bar.
-  const weekday = language === "he" ? ("narrow" as const) : ("short" as const);
+  // English writes "Wed" where the plot has room, and a letter where it
+  // doesn't: a third of a desktop's row, or text at twice its size.
+  const short = (date: Date) => date.toLocaleDateString(language, { weekday: language === "he" ? "narrow" : "short" });
+  const letter = (date: Date) => date.toLocaleDateString(language, { weekday: "narrow" });
   const peak = Math.max(0, ...week.days.filter((d) => d.loaded).map((d) => d.stamps));
   const peakIndex = peak > 0 ? week.days.findIndex((d) => d.loaded && d.stamps === peak) : -1;
   const last = week.days.length - 1;
@@ -69,8 +72,11 @@ export function WeekLedger({ week, cardLength }: { week: Week; cardLength: numbe
         </div>
       ) : (
         <>
-          <div dir="ltr" aria-hidden className="flex flex-col gap-2">
-            <div className="flex gap-1" style={{ height: PLOT_H + 20 }}>
+          {/* The plot is a container: its labels choose a shorter form by
+              how many of its own em it is wide, so text at 200% picks the
+              letter where text at 100% had room for the name. */}
+          <div dir="ltr" aria-hidden className="flex flex-col gap-2 [container-type:inline-size]">
+            <div className="flex gap-1" style={{ height: `calc(${PLOT_H}px + 1.25rem)` }}>
               {week.days.map((day, i) => (
                 <div key={day.date.getTime()} className="flex flex-1 flex-col items-center justify-end gap-1">
                   {i === peakIndex && (
@@ -92,15 +98,30 @@ export function WeekLedger({ week, cardLength }: { week: Week; cardLength: numbe
               ))}
             </div>
             <div className="h-px bg-border-strong" />
-            <div className="flex gap-1">
+            <div className="relative flex gap-1">
               {week.days.map((day, i) => (
                 <span
                   key={day.date.getTime()}
-                  className={cn("type-tag flex-1 whitespace-nowrap text-center", i === last ? "text-ink" : "text-ink-muted")}
+                  className={cn("type-tag min-w-0 flex-1 whitespace-nowrap text-center", i === last ? "text-ink" : "text-ink-muted")}
                 >
-                  <bdi dir={dir}>
-                    {i === last ? t("dashboard.activity.today") : day.date.toLocaleDateString(language, { weekday })}
-                  </bdi>
+                  {i === last ? (
+                    // Today by name where it fits, standing from the plot's
+                    // right edge over the next day's single letter; else
+                    // its own letter, in ink.
+                    <>
+                      <bdi dir={dir} className="[@container(min-width:16em)]:hidden">
+                        {letter(day.date)}
+                      </bdi>
+                      <span className="absolute end-0 top-0 hidden [@container(min-width:16em)]:inline">
+                        <bdi dir={dir}>{t("dashboard.activity.today")}</bdi>
+                      </span>
+                    </>
+                  ) : (
+                    <bdi dir={dir}>
+                      <span className="[@container(min-width:19em)]:hidden">{letter(day.date)}</span>
+                      <span className="hidden [@container(min-width:19em)]:inline">{short(day.date)}</span>
+                    </bdi>
+                  )}
                 </span>
               ))}
             </div>

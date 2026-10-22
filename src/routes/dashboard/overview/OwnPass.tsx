@@ -98,8 +98,8 @@ export function OwnPass({
         </div>
         <div className="flex min-h-11 flex-col items-center justify-center gap-2 text-center">
           {pass.passUrl ? (
-            <LinkButton href={pass.passUrl} variant="ink" icon={<Wallet aria-hidden />}>
-              {t("wallet.addToWallet")}
+            <LinkButton href={pass.passUrl} variant="ink" icon={<Wallet aria-hidden />} className="max-w-full">
+              <span className="whitespace-normal">{t("wallet.addToWallet")}</span>
             </LinkButton>
           ) : pass.slow ? (
             <>

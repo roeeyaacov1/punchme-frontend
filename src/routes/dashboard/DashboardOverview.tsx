@@ -3,9 +3,10 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { TrendingUp } from "lucide-react";
-import { Button, LinkButton, LitPanel, Notice, Skeleton } from "../../components/kit";
+import { LinkButton, LitPanel, Notice, Skeleton } from "../../components/kit";
 import { DayChart } from "../../components/dashboard/DayChart";
 import { InstallApp } from "../../components/dashboard/InstallApp";
+import { ReadProblem } from "../../components/dashboard/ReadProblem";
 import { StatTile, TileLink } from "../../components/dashboard/StatTile";
 import { WeekLedger } from "../../components/dashboard/WeekLedger";
 import { useBusiness } from "../../business/useBusiness";
@@ -54,12 +55,12 @@ export function DashboardOverview() {
   const [params] = useSearchParams();
   const justActivated = params.get("activated") === "1";
 
-  const { data: templates, isPending: templatesPending } = useQuery({
+  const templates = useQuery({
     queryKey: ["templates", business?.id],
     queryFn: () => listTemplates(business!.id!),
     enabled: !!business?.id,
   });
-  const template = templates?.[0];
+  const template = templates.data?.[0];
 
   // What the wallet actually renders, so the pass here matches the studio.
   const { data: design } = useQuery({
@@ -128,10 +129,22 @@ export function DashboardOverview() {
   );
 
   if (!template) {
+    // Every part of the page hangs off the card, so a card that didn't
+    // load is said in its place rather than left as a bare title.
+    const held = templates.fetchStatus === "paused";
     return (
       <div className="flex flex-col gap-5">
         {title}
-        {templatesPending && <Skeleton className="h-40 w-full rounded-panel" />}
+        {templates.isError || held ? (
+          <ReadProblem
+            title={t("dashboard.overview.loadFailed")}
+            error={templates.error}
+            paused={held}
+            onRetry={() => void templates.refetch()}
+          />
+        ) : (
+          templates.isPending && <Skeleton className="h-40 w-full rounded-panel" />
+        )}
       </div>
     );
   }
@@ -157,6 +170,9 @@ export function DashboardOverview() {
   }
 
   const failed = !settled && (roster.isError || activity.isError);
+  // Offline before the reads landed: they wait for the connection rather
+  // than fail, so the page says so instead of standing on placeholders.
+  const held = !settled && !failed && (roster.fetchStatus === "paused" || activity.fetchStatus === "paused");
   const empty = roster.data && roster.data.items.length === 0;
 
   // The label stands over the placeholders as well as the tiles, so the
@@ -173,23 +189,18 @@ export function DashboardOverview() {
   );
 
   let lead;
-  if (failed) {
+  if (failed || held) {
     lead = (
-      <Notice
+      <ReadProblem
         data-tour="overview-lead"
-        tone="danger"
         title={t("dashboard.overview.loadFailed")}
-        action={
-          <Button
-            variant="secondary"
-            onClick={() => {
-              void roster.refetch();
-              void activity.refetch();
-            }}
-          >
-            {t("common.retry")}
-          </Button>
-        }
+        error={roster.error ?? activity.error}
+        paused={held}
+        onRetry={() => {
+          // Only what failed: a read that landed stays landed.
+          if (roster.isError) void roster.refetch();
+          if (activity.isError) void activity.refetch();
+        }}
       />
     );
   } else if (!settled) {
@@ -312,8 +323,8 @@ export function DashboardOverview() {
       {/* While the reads load, the two panels stand with their titles and a
           placeholder of the chart's and the week's own height, so nothing
           below moves when the figures land. */}
-      {!failed && !empty && (
-        <div className="grid gap-5 lg:grid-cols-3">
+      {!failed && !held && !empty && (
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
           <LitPanel as="section" aria-labelledby="month-title" className="flex flex-col gap-1 p-4 sm:p-5 lg:col-span-2">
             <h2 id="month-title" className="type-card-title text-ink">
               {t("dashboard.overview.chartTitle")}
@@ -364,7 +375,7 @@ export function DashboardOverview() {
       {manages ? (
         <section aria-labelledby="facing-title" className="flex flex-col gap-3">
           {facing}
-          <div className={cn("grid items-start gap-5", !empty && "lg:grid-cols-2")}>
+          <div className={cn("grid grid-cols-1 items-start gap-5", !empty && "lg:grid-cols-2")}>
             {!empty && <JoinQr templateId={template.id!} />}
             <OwnPass businessName={business?.name ?? ""} template={template} design={design} preview={preview} trial={false} className={cn(empty && "max-w-xl")} />
           </div>
