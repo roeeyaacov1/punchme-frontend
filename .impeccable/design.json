@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-18T17:48:57.278Z",
+  "generatedAt": "2026-10-22T14:36:22.077Z",
   "title": "Design System: PunchMe",
   "extensions": {
     "colorMeta": {
@@ -157,31 +157,31 @@
       "street": {
         "role": "neutral",
         "displayName": "Street",
-        "canonical": "oklch(18.6% 0.009 59.1)",
+        "canonical": "oklch(21.9% 0.011 48.2)",
         "tonalRamp": [
-          "#0e0a08",
-          "#272320",
-          "#433f3b",
-          "#625c59",
-          "#847f7b",
-          "#a9a39f",
-          "#cfc9c5",
-          "#f3ede9"
+          "#0f0a07",
+          "#29231f",
+          "#453e3b",
+          "#635c58",
+          "#867e7b",
+          "#aba39f",
+          "#d1c9c4",
+          "#f5ece8"
         ]
       },
       "unlit-panel": {
         "role": "neutral",
         "displayName": "Unlit Panel",
-        "canonical": "oklch(22.8% 0.012 55.7)",
+        "canonical": "oklch(26.5% 0.013 62.0)",
         "tonalRamp": [
-          "#0f0a07",
+          "#0f0a06",
           "#29231e",
-          "#453e3a",
-          "#635c57",
-          "#867e79",
-          "#aba39d",
-          "#d1c9c3",
-          "#f5ede7"
+          "#453e39",
+          "#635c56",
+          "#867f78",
+          "#aba39c",
+          "#d1c9c2",
+          "#f5ede6"
         ]
       },
       "night-ink": {
@@ -277,46 +277,46 @@
       "night-hairline": {
         "role": "neutral",
         "displayName": "Night Hairline",
-        "canonical": "oklch(28.0% 0.015 53.9)",
+        "canonical": "oklch(31.1% 0.013 57.8)",
         "tonalRamp": [
-          "#100906",
-          "#2a221d",
-          "#463e38",
-          "#655c56",
-          "#887e78",
-          "#ada29c",
-          "#d3c8c2",
-          "#f7ece5"
+          "#0f0a06",
+          "#29231e",
+          "#453e39",
+          "#645c57",
+          "#867e79",
+          "#aba39d",
+          "#d1c9c2",
+          "#f6ede6"
         ]
       },
       "night-hairline-strong": {
         "role": "neutral",
         "displayName": "Night Strong Hairline",
-        "canonical": "oklch(33.7% 0.019 57.0)",
+        "canonical": "oklch(37.1% 0.016 55.8)",
         "tonalRamp": [
-          "#110904",
-          "#2b221b",
-          "#483d36",
-          "#665b54",
-          "#897e76",
-          "#aea29a",
-          "#d4c8bf",
-          "#f9ece3"
+          "#100905",
+          "#2a221d",
+          "#473e38",
+          "#655b55",
+          "#887e77",
+          "#ada29b",
+          "#d3c8c1",
+          "#f7ece4"
         ]
       },
       "night-field-edge": {
         "role": "neutral",
         "displayName": "Night Field Edge",
-        "canonical": "oklch(55.4% 0.024 65.0)",
+        "canonical": "oklch(58.1% 0.030 61.7)",
         "tonalRamp": [
-          "#120902",
-          "#2c2217",
-          "#493d32",
-          "#685b4f",
-          "#8b7e71",
-          "#b0a295",
-          "#d6c8ba",
-          "#fbecde"
+          "#140801",
+          "#2f2115",
+          "#4c3c30",
+          "#6a5a4d",
+          "#8e7d6e",
+          "#b3a192",
+          "#dac7b7",
+          "#feebdb"
         ]
       },
       "camera-glass": {
@@ -439,6 +439,51 @@
           "#ffe9e6"
         ]
       },
+      "answer-punched-ink": {
+        "role": "tertiary",
+        "displayName": "Punched Ink",
+        "canonical": "oklch(38.0% 0.060 159.8)",
+        "tonalRamp": [
+          "#000f06",
+          "#002c1a",
+          "#1f4935",
+          "#3e6852",
+          "#608c74",
+          "#84b198",
+          "#a9d7bd",
+          "#cdfce1"
+        ]
+      },
+      "answer-full-ink": {
+        "role": "tertiary",
+        "displayName": "Full Ink",
+        "canonical": "oklch(38.0% 0.060 86.9)",
+        "tonalRamp": [
+          "#110a00",
+          "#2f2200",
+          "#4d3d16",
+          "#6c5c34",
+          "#907e56",
+          "#b5a379",
+          "#dbc99e",
+          "#ffedc4"
+        ]
+      },
+      "answer-failed-ink": {
+        "role": "tertiary",
+        "displayName": "Failed Ink",
+        "canonical": "oklch(38.0% 0.079 27.9)",
+        "tonalRamp": [
+          "#1f0000",
+          "#43100c",
+          "#632d27",
+          "#854b44",
+          "#aa6e66",
+          "#d29289",
+          "#fab7ae",
+          "#ffe9e5"
+        ]
+      },
       "reward-gold": {
         "role": "secondary",
         "displayName": "Reward Gold",
@@ -452,6 +497,51 @@
           "#d29a03",
           "#fcc03a",
           "#ffeccb"
+        ]
+      },
+      "series": {
+        "role": "secondary",
+        "displayName": "Series",
+        "canonical": "oklch(60.1% 0.120 57.9)",
+        "tonalRamp": [
+          "#160700",
+          "#3a1b00",
+          "#613100",
+          "#8c4a00",
+          "#b56c2d",
+          "#dc9054",
+          "#ffb984",
+          "#ffeadb"
+        ]
+      },
+      "series-light": {
+        "role": "secondary",
+        "displayName": "Series Light",
+        "canonical": "oklch(84.9% 0.080 57.8)",
+        "tonalRamp": [
+          "#160700",
+          "#3a1b00",
+          "#5e330c",
+          "#7f512d",
+          "#a4744f",
+          "#cb9872",
+          "#f3be97",
+          "#ffeadb"
+        ]
+      },
+      "night-series": {
+        "role": "secondary",
+        "displayName": "Night Series",
+        "canonical": "oklch(84.9% 0.080 57.8)",
+        "tonalRamp": [
+          "#160700",
+          "#3a1b00",
+          "#5e330c",
+          "#7f512d",
+          "#a4744f",
+          "#cb9872",
+          "#f3be97",
+          "#ffeadb"
         ]
       },
       "ok": {
@@ -884,6 +974,13 @@
       "css": ".ds-switch { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; font-family: Assistant, system-ui, sans-serif; font-size: 16px; color: #2b2521; } .ds-switch-input { position: absolute; opacity: 0; width: 1px; height: 1px; } .ds-switch-track { position: relative; display: inline-flex; align-items: center; width: 48px; height: 28px; border: 2px solid #8e8277; border-radius: 9999px; background: #fffdfa; box-sizing: border-box; transition: background-color 200ms cubic-bezier(0.77, 0, 0.175, 1), border-color 200ms cubic-bezier(0.77, 0, 0.175, 1); } .ds-switch-knob { position: absolute; left: 2px; width: 20px; height: 20px; border-radius: 9999px; background: #8e8277; transition: transform 200ms cubic-bezier(0.77, 0, 0.175, 1), background-color 200ms cubic-bezier(0.77, 0, 0.175, 1); } .ds-switch-input:checked + .ds-switch-track { background: #2b2521; border-color: #2b2521; } .ds-switch-input:checked + .ds-switch-track .ds-switch-knob { transform: translateX(20px); background: #fffdfa; } .ds-switch-input:focus-visible + .ds-switch-track { outline: 2px solid #2b2521; outline-offset: 2px; }"
     },
     {
+      "name": "Day Chart",
+      "kind": "custom",
+      "description": "The data in the sign's own light: a Series line over an area of Series Light, today's point lifted off the line, and the week's bars of light under a 2px Series cap. Time runs left to right in both languages.",
+      "html": "<div class=\"ds-wall\"><div class=\"ds-chart\"><p class=\"ds-chart-title\">People a day</p><p class=\"ds-chart-readout\">12 people · Today</p><svg class=\"ds-chart-plot\" viewBox=\"0 0 300 120\" aria-hidden=\"true\"><defs><linearGradient id=\"ds-glow\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#f6c19a\" stop-opacity=\"0.8\"/><stop offset=\"1\" stop-color=\"#f6c19a\" stop-opacity=\"0.1\"/></linearGradient></defs><path d=\"M10 70 L50 54 L90 62 L130 40 L170 48 L210 30 L250 44 L290 26 L290 118 L10 118 Z\" fill=\"url(#ds-glow)\"/><path d=\"M10 70 L50 54 L90 62 L130 40 L170 48 L210 30 L250 44 L290 26\" fill=\"none\" stroke=\"#b56c2d\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><line x1=\"0\" y1=\"118.5\" x2=\"300\" y2=\"118.5\" stroke=\"#d8ccbb\"/><circle cx=\"290\" cy=\"26\" r=\"5\" fill=\"#b56c2d\" stroke=\"#fffdfa\" stroke-width=\"2\"/></svg><div class=\"ds-week\" aria-hidden=\"true\"><span style=\"height:46%\"></span><span style=\"height:58%\"></span><span style=\"height:12%\"></span><span style=\"height:64%\"></span><span style=\"height:70%\"></span><span style=\"height:88%\"></span><span style=\"height:100%\"></span></div></div></div>",
+      "css": ".ds-wall { background: #f6f2eb; padding: 24px; } .ds-chart { background: #fffdfa; border: 1px solid #e9e1d5; border-radius: 24px; padding: 20px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 1px 2px rgb(43 37 33 / 0.05), 0 8px 24px rgb(43 37 33 / 0.06); color: #2b2521; } .ds-chart-title { margin: 0; font-family: Rubik, system-ui, sans-serif; font-weight: 500; font-size: 19px; line-height: 1.3; } .ds-chart-readout { margin: 6px 0 12px; font-family: Assistant, system-ui, sans-serif; font-weight: 600; font-size: 14px; line-height: 1.4; color: #2b2521; } .ds-chart-plot { display: block; width: 100%; height: auto; overflow: visible; } .ds-week { display: flex; align-items: flex-end; gap: 4px; height: 72px; margin-top: 20px; border-bottom: 1px solid #d8ccbb; } .ds-week span { flex: 1; max-width: 24px; margin: 0 auto; background: #f6c19a; border-top: 2px solid #b56c2d; border-radius: 4px 4px 0 0; transition: background 0.24s cubic-bezier(0.23, 1, 0.32, 1); } .ds-week span:hover { background: #f3b585; }"
+    },
+    {
       "name": "Scan Answer",
       "kind": "custom",
       "refersTo": "answer-punched",
@@ -894,9 +991,10 @@
   ],
   "narrative": {
     "northStar": "The Lit Sign",
-    "overview": "The page is a lit sign. Panels are lightboxes on a warm wall: white acrylic with light behind it, soft dark letters on the front, and one warm colour on the thing to press. A wallet pass is a lit screen, so the world and the pass are made of the same stuff, light through a panel. It is the owner's own world, the lightbox over the door, the letter board in the café, the standee on the counter. At night the dashboard is the street after closing: the wall goes dark, and only what matters stays lit, which is the pass, the QR code, the brief and the scan's answer.\n\nThe voice is warm, calm and candid. Friendly without being cute, plain like the product's copy, never loud, because candour is the brand and the look must not oversell. It is the airiest of the directions that were tried: generous corners, comfortable density in the dashboard, and long, open spacing on the landing page. The signature move is lights on: things arrive by light, not by travel.\n\nLightbox sits close to the warm cream look AI tools reach for first, and it stays out of it on purpose: no serif, no paper texture, light instead of paper, and coral only ever as a fill. The metaphor stays in the light, so there are no neon tubes, no brick and no drawn shopfronts, and light comes from lit panels, never from glass, glows or gradient text.",
+    "overview": "The page is a lit sign. Panels are lightboxes on a warm wall: white acrylic with light behind it, soft dark letters on the front, and one warm colour on the thing to press. A wallet pass is a lit screen, so the world and the pass are made of the same stuff, light through a panel. It is the owner's own world, the lightbox over the door, the letter board in the café, the standee on the counter. At night the dashboard is the street after closing: the wall goes dark, and only what matters stays lit, which is the pass, the QR code, the Overview's verdict and the scan's answer.\n\nThe voice is warm, calm and candid. Friendly without being cute, plain like the product's copy, never loud, because candour is the brand and the look must not oversell. It is the airiest of the directions that were tried: generous corners, comfortable density in the dashboard, and long, open spacing on the landing page. The signature move is lights on: things arrive by light, not by travel.\n\nLightbox sits close to the warm cream look AI tools reach for first, and it stays out of it on purpose: no serif, no paper texture, light instead of paper, and coral only ever as a fill. The metaphor stays in the light, so there are no neon tubes, no brick and no drawn shopfronts, and light comes from lit panels, never from glass, glows or gradient text.",
     "keyCharacteristics": [
-      "A warm wall (#f6f2eb) with lit panels (#fffdfa) on it; at night a street (#16120f) of unlit panels (#211b17), with a few things that keep their light (#fff4e6).",
+      "A warm wall (#f6f2eb) with lit panels (#fffdfa) on it; at night a street (#1f1916) of unlit panels (#2a241f), with a few things that keep their light (#fff4e6).",
+      "The data in the sign's own light, warmed to apricot, and only ever in a chart.",
       "One warm colour, Sign Coral, as a fill only, always carrying its label in Soft Ink.",
       "Ink, not coral, marks \"on\" and \"selected\".",
       "Rubik 500 for display and the interface, Assistant for running text, Rubik's tabular figures for every number.",
@@ -907,7 +1005,7 @@
     "rules": [
       {
         "name": "The One Warm Thing Rule",
-        "body": "Coral is the only warm fill on a screen, and it is a fill, never text: as text it lands 10° of hue from danger at the same lightness. A warning and an error are their words and their icon on a plain panel, and gold is the reward's one fill. In the scope, `warn-bg`, `danger-bg` and `reward-bg` are the panel itself.",
+        "body": "Coral is the only warm fill on anything to press, and it is a fill, never text: as text it lands 10° of hue from danger at the same lightness. A warning and an error are their words and their icon on a plain panel, and gold is the reward's one fill. The data's apricot is the one other warm colour, and it stays inside a chart: paler and yellower than the coral, never on a control. In the scope, `warn-bg`, `danger-bg` and `reward-bg` are the panel itself.",
         "section": "colors"
       },
       {
@@ -917,7 +1015,7 @@
       },
       {
         "name": "The Lit Things Rule",
-        "body": "At night only what matters keeps its light: the pass, the QR code, the brief and the scan's answer, on Panel Light under day ink. Everything else goes unlit. The `.theme-lit` class does it, and it restores every day value.",
+        "body": "At night only what matters keeps its light: the pass, the QR code, the Overview's verdict and the scan's answer, on Panel Light under day ink. Everything else goes unlit. The `.theme-lit` class does it, and it restores every day value.",
         "section": "colors"
       },
       {
@@ -970,13 +1068,13 @@
       "Do stage the pass previews in their 300px slot; frame and animate them, never redraw them.",
       "Do keep coral for the one thing to press, with its label in Soft Ink, and draw \"on\" and \"selected\" in ink.",
       "Do say a warning or an error in its words and its icon on a plain panel, and give the reward the one gold fill.",
-      "Do put what keeps its light at night inside `.theme-lit`: the pass's stage, the QR code, the brief and the scan's answer.",
-      "Do make reduced motion gentler, not none: light at full strength in 150ms with no travel, the stamp at its final size, the flash a 0.3 glow.",
+      "Do put what keeps its light at night inside `.theme-lit`: the pass's stage, the QR code, the Overview's verdict and the scan's answer.",
+      "Do make reduced motion gentler, not none: light at full strength in 150ms with no travel, the stamp at its final size, the flash a 0.3 glow, a press a tint instead of a sink.",
       "Do judge every screen in Hebrew at 375px first."
     ],
     "donts": [
-      "Don't set coral as text, as a wash or as a state; and don't add a second warm fill beside it.",
-      "Don't put ink-muted or ink-subtle on gold or coral, or anything but ink on a scan's answer light.",
+      "Don't set coral as text, as a wash or as a state; and don't add a second warm fill to anything a hand presses. The data's apricot stays inside a chart.",
+      "Don't put ink-muted or ink-subtle on gold or coral, or anything but ink or its light's own tint on a scan's answer light.",
       "Don't switch a shadow off with `none`; use transparent layers.",
       "Don't let a hover style set a property a state also sets: hover is held back from disabled, selected and invalid controls.",
       "Don't use Tailwind's `dark:` variant; night is `.theme-night`, not the device's setting.",
