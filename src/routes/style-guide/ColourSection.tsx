@@ -24,12 +24,9 @@ const STATES: PairSpec[] = [
   { name: "reward · surface", sample: "bg-surface text-reward" },
 ];
 
-// The data's teal: a line or a bar needs 3:1, a word that carries it 4.5:1.
-const DATA: PairSpec[] = [
-  { name: "series · background", sample: "border-series", kind: "edge" },
-  { name: "series-ink · background", sample: "bg-background text-series-ink" },
-  { name: "series-ink · surface", sample: "bg-surface text-series-ink" },
-];
+// The data's apricot: its line and a bar's cap carry the mark at 3:1; the
+// light under them is a fill, never the only edge.
+const DATA: PairSpec[] = [{ name: "series · background", sample: "border-series", kind: "edge" }];
 
 const EDGES: PairSpec[] = [
   { name: "field · background", sample: "border-field", kind: "edge" },

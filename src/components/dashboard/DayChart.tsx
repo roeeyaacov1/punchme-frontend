@@ -36,8 +36,8 @@ const FADE_MS = 150;
 type Layer = { key: string; days: ChartDay[] | null; fresh: boolean };
 
 /**
- * A value a day, as one line in the data's teal, and the dataviz rules the
- * counter brief settled for it.
+ * A value a day, as one line in the data's apricot, and the dataviz rules
+ * the counter brief settled for it.
  *
  * Time runs like the numbers in both languages: oldest at the left, today at
  * the right. So the plot and its axis sit in a `dir="ltr"` box and never
@@ -410,8 +410,8 @@ function Drawing({
       <svg width={width} height={PLOT_H} viewBox={`0 0 ${width} ${PLOT_H}`} aria-hidden className="block overflow-visible">
         <defs>
           <linearGradient id={glow} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" style={{ stopColor: "rgb(var(--c-series))", stopOpacity: 0.26 }} />
-            <stop offset="1" style={{ stopColor: "rgb(var(--c-series))", stopOpacity: 0.03 }} />
+            <stop offset="0" style={{ stopColor: "rgb(var(--c-series-light))", stopOpacity: "var(--series-glow-top)" }} />
+            <stop offset="1" style={{ stopColor: "rgb(var(--c-series-light))", stopOpacity: "var(--series-glow-foot)" }} />
           </linearGradient>
         </defs>
         {bandEnd > 0 && <rect x={0} y={0} width={bandEnd} height={PLOT_H} className="fill-ink/[0.05]" />}

@@ -12,8 +12,9 @@ const PLOT_H = 96;
 /**
  * The week, day by day: the total, against last week, and seven bars.
  *
- * Bars in the data's teal, never coral, at most 24px wide with a 4px top
- * and a square base, today at the right in both languages: the plot sits in
+ * Bars of the data's apricot under a 2px cap of its line colour, so the
+ * light fill never has to be the edge; never coral, at most 24px wide with a
+ * 4px top and a square base, today at the right in both languages: the plot sits in
  * a `dir="ltr"` box, like every chart on these pages, while the words around
  * it follow the page. The peak is labelled once, the weekdays at 13px. A day the walk
  * didn't load whole has a dashed slot, never an empty one that would read
@@ -87,7 +88,7 @@ export function WeekLedger({ week, cardLength }: { week: Week; cardLength: numbe
                   {day.loaded ? (
                     day.stamps > 0 && (
                       <span
-                        className="w-full max-w-6 rounded-t bg-series"
+                        className="w-full max-w-6 rounded-t border-t-2 border-series bg-series-light"
                         style={{ height: Math.max(4, (day.stamps / Math.max(1, peak)) * PLOT_H) }}
                       />
                     )

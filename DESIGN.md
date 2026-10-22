@@ -39,10 +39,9 @@ colors:
   answer-failed-ink: "#66302a"
   reward-gold: "#f0b429"
   # ── The data ──
-  series: "#138282"
-  series-ink: "#017272"
-  night-series: "#78d7d6"
-  night-series-ink: "#88e0df"
+  series: "#b56c2d"
+  series-light: "#f6c19a"
+  night-series: "#f6c19a"
   # ── States ──
   ok: "#047857"
   ok-tag: "#065f46"
@@ -280,7 +279,7 @@ Lightbox sits close to the warm cream look AI tools reach for first, and it stay
 
 **Key Characteristics:**
 - A warm wall (#f6f2eb) with lit panels (#fffdfa) on it; at night a street (#1f1916) of unlit panels (#2a241f), with a few things that keep their light (#fff4e6).
-- The data in its own teal, the complement of the coral, never a state.
+- The data in the sign's own light, warmed to apricot, and only ever in a chart.
 - One warm colour, Sign Coral, as a fill only, always carrying its label in Soft Ink.
 - Ink, not coral, marks "on" and "selected".
 - Rubik 500 for display and the interface, Assistant for running text, Rubik's tabular figures for every number.
@@ -313,14 +312,14 @@ A warm wall, lit acrylic and soft ink, with one coral fill and a set of lights t
 - **Reward Gold** (#f0b429): the reward's one fill, carrying Soft Ink at 8.10:1. Coral beside it is 1.47:1.
 
 ### The data
-- **Series** (#138282 by day, #78d7d6 at night): the data's one colour, a teal at OKLCH hue 195, the complement of the sign's coral and 30° of hue from ok's green, so a chart never reads as the thing to press or as a state. It draws a chart's line, its area and its points and the week's bars: 4.14:1 on the wall and 4.55:1 on a panel by day, 10.33:1 and 9.11:1 at night, over the 3:1 a mark needs.
-- **Series Ink** (#017272 by day, #88e0df at night): a word that carries the series, such as Activity's "Stamp" beside the chart drawn in it. 5.15:1 and 5.66:1 by day, 11.39:1 and 10.05:1 at night. A chart's own labels stay ink and ink-muted.
+- **Series Light** (#f6c19a): the data's own colour, the sign's light warmed to apricot (OKLCH hue 58, paler and yellower than the coral at 40). It fills a chart's area and its bars, by day and at night. At 1.58:1 on a panel it is a fill and never a mark's only edge.
+- **Series** (#b56c2d by day; at night the apricot itself): the edge that carries the mark at the 3:1 it needs: a chart's line and points, and a 2px cap on each bar. 3.65:1 on the wall and 4.01:1 on a panel by day, 10.76:1 and 9.49:1 at night. A chart's own labels stay ink and ink-muted.
 
 ### States
 - **Ok** (#047857, 4.91:1 on the wall; at night #6ee7b7) with its tag text **Ok Tag** (#065f46, 6.11:1 on ok's 15% wash over a panel), **Warn** (#92400e, 6.35:1; at night #fcd34d), **Danger** (#b91c1c, 5.79:1; at night #fca5a5) and **Reward** text (#845209; at night #ffd875). A state is said in words and an icon; its colour is the second signal.
 
 ### Named Rules
-**The One Warm Thing Rule.** Coral is the only warm fill on a screen, and it is a fill, never text: as text it lands 10° of hue from danger at the same lightness. A warning and an error are their words and their icon on a plain panel, and gold is the reward's one fill. In the scope, `warn-bg`, `danger-bg` and `reward-bg` are the panel itself.
+**The One Warm Thing Rule.** Coral is the only warm fill on anything to press, and it is a fill, never text: as text it lands 10° of hue from danger at the same lightness. A warning and an error are their words and their icon on a plain panel, and gold is the reward's one fill. The data's apricot is the one other warm colour, and it stays inside a chart: paler and yellower than the coral, never on a control. In the scope, `warn-bg`, `danger-bg` and `reward-bg` are the panel itself.
 
 **The Ink Label Rule.** A coral control always carries its label or icon in Soft Ink, and "on", "selected" and a slider's value are drawn in ink, because coral at 2.45:1 can't show a state on its own. On gold, the action is an ink pill.
 
@@ -422,7 +421,7 @@ Scan answers like a photo snap. A flash of Panel Light covers the whole viewfind
 The owner's card on the customer's phone: a wallpaper made from the card's own colour, a tone of it 30% of the way to white and a hint 28% of the way to its stamp colour, blurred 44px, with no saturation boost, under the message the pass brings as a lock-screen notification, and "Roughly how it looks on the lock screen" beneath. The blur is written into gradient stops, so nothing blurs at runtime. It is the customer's phone, so it looks the same at night.
 
 ### Charts
-One series in the data's teal (Series), never coral and never a state colour: a 2px line with round joins over an area of its own light, 26% under the line falling to 3% at the baseline, on a 1px baseline one step off the panel; bars in the series at most 24px wide with 4px tops, square at the base, 2px apart. A picked day is a band of the series at 12%. Time runs like the numbers in both languages, oldest at the left and today at the right, so a plot and its axis sit in a `dir="ltr"` box while the title, the readout and the panel around them follow the page. Only two values are printed on the line, the peak once and today at its end, in ink-muted and ink at 13px, Rubik's tabular figures; nothing under 13px and no Plex Mono. One hit surface snaps to the nearest day, and the readout above the plot leads with the value. A day that wasn't loaded is drawn as not loaded, never as zero, and every chart has a twin for a screen reader: a one-line summary and the days as a list.
+One series in the data's apricot, never coral and never a state colour: a 2px Series line with round joins over an area of Series Light that fades from 80% under the line to 10% at the baseline (30% to 4% at night), on a 1px baseline one step off the panel; bars of Series Light under a 2px Series cap, at most 24px wide with 4px tops, square at the base, 2px apart. A picked day is a band of Series at 12%. Time runs like the numbers in both languages, oldest at the left and today at the right, so a plot and its axis sit in a `dir="ltr"` box while the title, the readout and the panel around them follow the page. Only two values are printed on the line, the peak once and today at its end, in ink-muted and ink at 13px, Rubik's tabular figures; nothing under 13px and no Plex Mono. One hit surface snaps to the nearest day, and the readout above the plot leads with the value. A day that wasn't loaded is drawn as not loaded, never as zero, and every chart has a twin for a screen reader: a one-line summary and the days as a list.
 
 ### Dialogs, sheets and toasts
 A dialog asks a question that must be answered first and rises from 0.96; a sheet holds work beside the page, rising on the drawer curve or coming in from the end edge. Both are the native `<dialog>`, a real focus trap, and crossfade with reduced motion. A toast confirms what the owner just did, arrives by light, and stays 4 seconds counted only while it can be read; an error stays until dismissed.
@@ -453,7 +452,7 @@ Four curves: the ease-out (cubic-bezier(0.23, 1, 0.32, 1)) for anything arriving
 - **Do** judge every screen in Hebrew at 375px first.
 
 ### Don't:
-- **Don't** set coral as text, as a wash or as a state; and don't add a second warm fill beside it.
+- **Don't** set coral as text, as a wash or as a state; and don't add a second warm fill to anything a hand presses. The data's apricot stays inside a chart.
 - **Don't** put ink-muted or ink-subtle on gold or coral, or anything but ink or its light's own tint on a scan's answer light.
 - **Don't** switch a shadow off with `none`; use transparent layers.
 - **Don't** let a hover style set a property a state also sets: hover is held back from disabled, selected and invalid controls.
