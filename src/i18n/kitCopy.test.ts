@@ -13,7 +13,7 @@ import he from "./locales/he/common.json";
 type Tree = { [key: string]: string | Tree };
 
 const PLURAL = /_(zero|one|two|few|many|other)$/;
-const NAMESPACES = ["kit", "styleGuide", "standee", "messaging"] as const;
+const NAMESPACES = ["kit", "styleGuide", "standee", "messaging", "referrals"] as const;
 const SINGLE_KEYS = ["common.close", "language.he", "language.en"] as const;
 
 /** Leaf paths under a subtree, each mapped to the plural forms it carries. */
