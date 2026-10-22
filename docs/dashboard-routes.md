@@ -163,9 +163,11 @@ confirmation.
 | On or off, existing rule | `PATCH {biz}/automations/{id}` `{is_active}` | `patchAutomation` |
 | Send a test to my own card | `POST {biz}/messaging/test` | `sendTestMessage` |
 | Delete | `DELETE {biz}/automations/{id}` | `deleteAutomation` |
+| Load, existing rule: its last sends | `GET {biz}/messaging/deliveries?automation_id={id}&page=1&page_size=10` | `listDeliveries` |
 
 Rule kinds: `inactive` (win-back), `birthday`, `reward_waiting`. Switching a
-rule on needs Pro (403 `upgrade_required`).
+rule on needs Pro (403 `upgrade_required`). After saving or removing, it
+returns to `/dashboard/messages?tab=rules` with a confirmation.
 
 ### `/dashboard/referrals`: Referrals
 
@@ -232,7 +234,6 @@ Wrapped in `src/api/` but never called:
 |---|---|
 | `POST {biz}/automations/{id}/test`: send a saved rule to the owner's own card | `testAutomation` |
 | `GET {biz}/broadcasts/{id}`: one broadcast | `getBroadcast` |
-| `GET {biz}/messaging/deliveries?automation_id=`: the delivery log | `listDeliveries` |
 | `GET {biz}/referrals/grants?status=`: rewards that referrals granted | `listReferralGrants` |
 | `POST {biz}/referrals/grants/{id}/revoke` | `revokeReferralGrant` |
 
