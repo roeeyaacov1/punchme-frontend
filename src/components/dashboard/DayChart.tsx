@@ -30,6 +30,11 @@ const LABEL_ROOM = 64;
 /** --duration-gentle: one drawing crossfading into the next. */
 const FADE_MS = 150;
 
+/** A drawing on the plot. The current one has no days of its own and draws
+ * the chart's; one that was replaced keeps the days it had while it fades.
+ * A `fresh` one, added by a crossfade, fades in from nothing. */
+type Layer = { key: string; days: ChartDay[] | null; fresh: boolean };
+
 /**
  * A value a day, as one line in ink, and the dataviz rules the counter brief
  * settled for it.
@@ -54,7 +59,8 @@ const FADE_MS = 150;
  * Nothing on it draws itself in. A new `crossfade` (Activity's period)
  * crossfades the last drawing into the next one in 150ms, opacity only, so
  * the same with reduced motion; anything else that changes the days, a
- * filter or a picked day, redraws at once.
+ * filter or a picked day, redraws at once. The crossfade is a transition, so
+ * a second change mid-fade carries every drawing on from where it stands.
  *
  * Drawn at its measured pixel size rather than scaled from a viewBox, so the
  * stroke and the points stay round at 320px.
@@ -110,19 +116,33 @@ export function DayChart({
 
   const [active, setActive] = useState<number | null>(null);
 
-  // The days drawn under the current `crossfade`, and the drawing they
-  // replaced, kept for as long as it takes to fade.
-  const [drawn, setDrawn] = useState({ key: crossfade, days });
-  const [fading, setFading] = useState<typeof drawn | null>(null);
-  if (crossfade !== undefined && (drawn.key !== crossfade || drawn.days !== days)) {
-    if (drawn.key !== crossfade) setFading(drawn);
-    setDrawn({ key: crossfade, days });
+  // Every drawing on the plot, in the order each first appeared: the current
+  // one, and those it replaced while they fade. Opacity is a transition, not
+  // a keyframe, so a change mid-fade carries each drawing on from where it
+  // stands, and a period picked again mid-fade comes back up from there
+  // rather than starting over.
+  const key = String(crossfade);
+  const [drawn, setDrawn] = useState({ key, days });
+  const [layers, setLayers] = useState<Layer[]>(() => [{ key, days: null, fresh: false }]);
+  if (crossfade !== undefined && (drawn.key !== key || drawn.days !== days)) {
+    if (drawn.key !== key) {
+      const replaced = drawn;
+      setLayers((all) => {
+        const next = all.map((layer) => (layer.key === replaced.key ? { ...layer, days: replaced.days } : layer));
+        const back = next.findIndex((layer) => layer.key === key);
+        if (back >= 0) next[back] = { ...next[back], days: null };
+        else next.push({ key, days: null, fresh: true });
+        return next;
+      });
+    }
+    setDrawn({ key, days });
   }
+  // Whatever is still on its way out a fade after the last change has faded.
   useEffect(() => {
-    if (!fading) return;
-    const timer = window.setTimeout(() => setFading(null), FADE_MS + 40);
+    if (!layers.some((layer) => layer.days)) return;
+    const timer = window.setTimeout(() => setLayers((all) => all.filter((layer) => !layer.days)), FADE_MS + 40);
     return () => window.clearTimeout(timer);
-  }, [fading]);
+  }, [layers]);
 
   const at = layOut(days, width);
   const { last, inner, drawable } = at;
@@ -177,11 +197,22 @@ export function DayChart({
     onClick: (event: MouseEvent<HTMLDivElement>) => pick(indexAt(event.clientX)),
   };
 
-  // The drawing being replaced fades out under the new one fading in. Each
-  // new drawing is a new layer, so a second change mid-fade starts its own.
-  const leavingAt = fading && layOut(fading.days, width);
-  const leaving = fading && leavingAt?.drawable ? { ...fading, at: leavingAt } : null;
-  const arriving = leaving ? "animate-gentle-in" : undefined;
+  // Each drawing with its own days and layout. A replaced one goes to 0 and
+  // the current one to full, both on the gentle 150ms; a fresh one starts
+  // from 0 as it is added.
+  const drawings = layers
+    .map((layer) => {
+      const leaving = layer.days !== null;
+      const layerDays = layer.days ?? days;
+      return { layer, leaving, days: layerDays, at: leaving ? layOut(layerDays, width) : at };
+    })
+    .filter((drawing) => drawing.at.drawable);
+  const fade = (layer: Layer, leaving: boolean) =>
+    cn(
+      "transition-opacity duration-gentle ease-out",
+      layer.fresh && "[@starting-style]:opacity-0",
+      leaving && "opacity-0",
+    );
 
   return (
     <div className={cn("flex flex-col gap-3", className)}>
@@ -198,27 +229,19 @@ export function DayChart({
               {/* The baseline, one step off the panel. A flat fortnight
                   would float without it. It stays put under a crossfade. */}
               <span aria-hidden className="absolute inset-x-0 bottom-0 h-px bg-border-strong" />
-              {leaving && (
+              {drawings.map(({ layer, leaving, days: layerDays, at: layerAt }) => (
                 <Drawing
-                  key={`from-${leaving.key}`}
-                  days={leaving.days}
-                  at={leaving.at}
+                  key={layer.key}
+                  days={layerDays}
+                  at={layerAt}
                   width={width}
+                  selectedIndex={leaving ? -1 : selectedIndex}
+                  active={leaving ? null : active}
                   dayLabel={dayLabel}
-                  hidden
-                  className="animate-gentle-out"
+                  hidden={leaving}
+                  className={fade(layer, leaving)}
                 />
-              )}
-              <Drawing
-                key={String(crossfade)}
-                days={days}
-                at={at}
-                width={width}
-                selectedIndex={selectedIndex}
-                active={active}
-                dayLabel={dayLabel}
-                className={arriving}
-              />
+              ))}
 
               {onSelectDay ? (
                 <div
@@ -257,26 +280,17 @@ export function DayChart({
 
         {drawable && (
           <div aria-hidden className="relative h-5">
-            {leaving && (
+            {drawings.map(({ layer, leaving, days: layerDays, at: layerAt }) => (
               <Axis
-                key={`from-${leaving.key}`}
-                days={leaving.days}
-                at={leaving.at}
+                key={layer.key}
+                days={layerDays}
+                at={layerAt}
                 width={width}
                 dayLabel={dayLabel}
                 axisLabel={axisLabel}
-                className="animate-gentle-out"
+                className={fade(layer, leaving)}
               />
-            )}
-            <Axis
-              key={String(crossfade)}
-              days={days}
-              at={at}
-              width={width}
-              dayLabel={dayLabel}
-              axisLabel={axisLabel}
-              className={arriving}
-            />
+            ))}
           </div>
         )}
       </div>
