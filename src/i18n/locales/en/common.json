@@ -512,6 +512,7 @@
   "standee": {
     "title": "Print signage",
     "subtitle": "Pick a design, print it, and put it where people already stand still. The code never changes, so one print lasts.",
+    "loadFailed": "The sign didn't load",
     "print": "Print",
     "designLabel": "Design",
     "designHint": "Same code, same colours — four ways to say it.",
@@ -523,10 +524,10 @@
       },
       "counter": {
         "name": "Counter",
-        "hint": "Code first, read from across the room"
+        "hint": "Code first, for a till or a desk"
       },
       "card": {
-        "name": "The deal",
+        "name": "The stamps",
         "hint": "Shows what they collect, and for what"
       },
       "plain": {
@@ -534,6 +535,7 @@
         "hint": "White paper, barely any ink"
       }
     },
+    "languageLabel": "Language of the sign",
     "formats": {
       "a4": "A4",
       "a5": "A5",
@@ -541,26 +543,29 @@
     },
     "formatHints": {
       "a4": "A full page, for a wall or a window.",
-      "a5": "Half a page, for the counter.",
+      "a5": "A5 paper, for the counter. A home printer needs A5 paper in the tray.",
       "tent": "One page, folded in half — it stands on a table."
     },
-    "activateFirst": "Your card is ready, but the code isn’t live yet — activate your subscription and customers can join.",
+    "free": {
+      "owner": "The code goes live when you activate, at <ltr>₪{{price}}</ltr> a month. Then print it.",
+      "hire": "The code goes live once the owner activates the card. Then it prints."
+    },
     "inactiveCode": "Code not live yet",
-    "printLocked": "Printing opens when you activate — until then there is no code to print.",
-    "downloadHint": "To download a file: Print → Save as PDF.",
+    "downloadHint": "To keep a file, choose Save as PDF in the print window. On a phone, the share menu prints too.",
     "previewTitle": "What comes out of the printer",
-    "previewNote": "Printed at actual size, edge to edge. Set your printer to colour and to 100% — not “fit to page”.",
+    "previewNote": "Prints at actual size: choose 100%, not “fit to page”. A thin white edge from a home printer is normal.",
     "steps": {
       "scan": "Scan the code",
-      "join": "Join in half a minute",
+      "join": "Join with your mobile number",
       "collect": "Get a stamp every visit"
     },
     "scanCta": "Scan to join — no app, straight to your phone's wallet",
     "scanToJoin": "Scan to join",
-    "noApp": "No app. No sign-up.",
+    "noApp": "No app, no account, no password.",
     "stampsLine_one": "{{count}} stamp",
     "stampsLine_other": "{{count}} stamps",
-    "fold": "fold"
+    "fold": "fold",
+    "poweredBy": "powered by PunchMe"
   },
   "dashboard": {
     "nav": {

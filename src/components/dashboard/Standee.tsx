@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement, ReactNode } from "react";
+import { createContext, useContext, type CSSProperties, type ReactElement, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
 import { Lock } from "lucide-react";
@@ -37,6 +37,22 @@ export const STANDEE_DESIGNS: readonly StandeeDesign[] = [
 export type PrintFormat = "a4" | "a5" | "tent";
 
 export const PRINT_FORMATS: readonly PrintFormat[] = ["a4", "a5", "tent"] as const;
+
+/**
+ * The language the sign speaks, which the owner picks above the paper. It
+ * starts on the card's own language, not the dashboard's: a sign stays on
+ * the counter for months and speaks to customers, so a Hebrew dashboard can
+ * print an English sign, and a bilingual shop prints one of each.
+ */
+export type SignLanguage = "he" | "en";
+
+const SheetLanguage = createContext<SignLanguage>("he");
+
+/** Every word on the sheet comes through here, in the sign's language. */
+function useSheetT() {
+  const lng = useContext(SheetLanguage);
+  return useTranslation(undefined, { lng }).t;
+}
 
 /**
  * The paper, in millimetres, because that is the unit it is sold in.
@@ -150,7 +166,7 @@ function Qr({
   size: number;
   palette: StandeePalette;
 }) {
-  const { t } = useTranslation();
+  const t = useSheetT();
   return (
     // The tile is white and the same size either way — it is the footprint
     // the code will occupy, so activating changes what is in the slot and
@@ -276,7 +292,7 @@ function Steps({
   palette: StandeePalette;
   size: number;
 }) {
-  const { t } = useTranslation();
+  const t = useSheetT();
   const steps = [
     t("standee.steps.scan"),
     t("standee.steps.join"),
@@ -316,18 +332,17 @@ function Steps({
 }
 
 function Footer({ palette, size }: { palette: StandeePalette; size: number }) {
+  const t = useSheetT();
   return (
     <p
-      dir="ltr"
-      className="font-mono"
+      className="font-body"
       style={{
         fontSize: u(size),
-        letterSpacing: "0.08em",
         color: palette.ink,
         opacity: 0.55,
       }}
     >
-      powered by PunchMe
+      {t("standee.poweredBy")}
     </p>
   );
 }
@@ -391,7 +406,7 @@ function Band({
  * the room, the offer and the code hold the middle, and the three steps
  * close. */
 function Poster({ art, palette, wide }: Layout) {
-  const { t } = useTranslation();
+  const t = useSheetT();
   return (
     <Sheet pad={wide ? 5.5 : 8}>
       <Band gap={wide ? 2.4 : 3}>
@@ -399,6 +414,7 @@ function Poster({ art, palette, wide }: Layout) {
         {/* Not a heading. This is a picture of a sheet of paper, and four
             thumbnails of it would put four <h2>s into the page's outline. */}
         <p
+          dir="auto"
           className="font-heading font-bold"
           style={{
             fontSize: u(9.5),
@@ -422,6 +438,7 @@ function Poster({ art, palette, wide }: Layout) {
 
       <Band gap={wide ? 3 : 4.4}>
         <p
+          dir="auto"
           className="font-heading font-bold"
           style={{
             fontSize: u(5.8),
@@ -457,11 +474,12 @@ function Poster({ art, palette, wide }: Layout) {
 /** Code first. For a till, a reception desk, a bar — anywhere the customer is
  * already standing still and has about four seconds to spare. */
 function Counter({ art, palette, wide }: Layout) {
-  const { t } = useTranslation();
+  const t = useSheetT();
   return (
     <Sheet pad={wide ? 5.5 : 8}>
       <Band gap={0}>
         <p
+          dir="auto"
           className="font-heading font-bold"
           style={{
             fontSize: u(7),
@@ -489,6 +507,7 @@ function Counter({ art, palette, wide }: Layout) {
           {t("standee.noApp")}
         </p>
         <p
+          dir="auto"
           className="font-body font-bold"
           style={{ fontSize: u(2.6), opacity: 0.9 }}
         >
@@ -504,27 +523,28 @@ function Counter({ art, palette, wide }: Layout) {
  * that" before anyone reads a word, which is the entire argument for a punch
  * card and the one thing a bare QR code cannot make. */
 function CardDeal({ art, palette, wide }: Layout) {
-  const { t } = useTranslation();
+  const t = useSheetT();
   return (
     <Sheet pad={wide ? 5.5 : 7.5}>
       <Band gap={wide ? 2.6 : 3.6}>
         <p
+          dir="auto"
           className="font-heading font-bold"
           style={{ fontSize: u(4.4), lineHeight: 1.15, opacity: 0.9 }}
         >
           {art.businessName}
         </p>
         <PunchRow art={art} palette={palette} max={wide ? 8.5 : 9.5} />
-        <p
-          className="font-mono uppercase"
-          style={{ fontSize: u(2.3), letterSpacing: "0.14em", opacity: 0.7 }}
-        >
+        {/* Assistant, not Plex Mono, which has no Hebrew; and no capitals,
+            which Hebrew doesn't have either. */}
+        <p className="font-body font-semibold" style={{ fontSize: u(2.6), opacity: 0.75 }}>
           {t("standee.stampsLine", { count: art.stampsRequired })}
         </p>
       </Band>
 
       <Band gap={wide ? 2.8 : 4}>
         <p
+          dir="auto"
           className="font-heading font-bold"
           style={{
             fontSize: u(7.2),
@@ -560,7 +580,7 @@ function CardDeal({ art, palette, wide }: Layout) {
  * office inkjet and looks wrong on plenty of walls — this is the one an owner
  * can reprint every month without thinking about it. */
 function Plain({ art, palette, wide }: Layout) {
-  const { t } = useTranslation();
+  const t = useSheetT();
   return (
     <Sheet pad={wide ? 5.5 : 7.5}>
       <Band gap={wide ? 2.4 : 3.2}>
@@ -575,6 +595,7 @@ function Plain({ art, palette, wide }: Layout) {
         />
         {art.logoUrl ? <Logo url={art.logoUrl} height={8} /> : null}
         <p
+          dir="auto"
           className="font-heading font-bold"
           style={{ fontSize: u(7.6), lineHeight: 1.1, textWrap: "balance" }}
         >
@@ -584,6 +605,7 @@ function Plain({ art, palette, wide }: Layout) {
 
       <Band gap={wide ? 2.8 : 4}>
         <p
+          dir="auto"
           className="font-heading font-bold"
           style={{
             fontSize: u(5),
@@ -668,21 +690,27 @@ function StandeePanel({
  *
  * `single` is the chooser's thumbnail, which shows one face rather than a
  * folded pair — two 35px-tall halves say nothing about a design.
+ *
+ * It speaks `language` whatever the dashboard speaks, and says so with its
+ * own `lang` and `dir`, so the print copy in its portal does too and a
+ * screen reader reads it in the right voice.
  */
 export function StandeeSheet({
   design,
   art,
   format,
+  language,
   single = false,
   className,
 }: {
   design: StandeeDesign;
   art: StandeeArt;
   format: PrintFormat;
+  language: SignLanguage;
   single?: boolean;
   className?: string;
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(undefined, { lng: language });
   const spec = SHEET_SPECS[format];
   const folded = spec.panels === 2 && !single;
   const wide = spec.panels === 2;
@@ -690,28 +718,33 @@ export function StandeeSheet({
   const palette = standeePalette(design, art);
 
   return (
-    <div
-      className={cn("standee-sheet", className)}
-      style={{ aspectRatio: `${spec.width} / ${height}` }}
-    >
-      {folded && <StandeePanel design={design} art={art} wide className="rotate-180" />}
-      <StandeePanel design={design} art={art} wide={wide} />
-      {folded && (
-        // The fold, marked. A tent that is guessed at folds crooked, and the
-        // guide costs one hairline of ink.
-        <span
-          aria-hidden="true"
-          className="standee-fold"
-          style={{ color: palette.ink, borderColor: palette.ink }}
-        >
+    <SheetLanguage.Provider value={language}>
+      <div
+        lang={language}
+        dir={language === "he" ? "rtl" : "ltr"}
+        className={cn("standee-sheet", className)}
+        style={{ aspectRatio: `${spec.width} / ${height}` }}
+      >
+        {folded && <StandeePanel design={design} art={art} wide className="rotate-180" />}
+        <StandeePanel design={design} art={art} wide={wide} />
+        {folded && (
+          // The fold, marked. A tent that is guessed at folds crooked, and the
+          // guide costs one hairline of ink.
           <span
-            className="standee-fold-tag font-mono uppercase"
-            style={{ backgroundColor: palette.ground, color: palette.ink }}
+            aria-hidden="true"
+            className="standee-fold"
+            style={{ color: palette.ink, borderColor: palette.ink }}
           >
-            {t("standee.fold")}
+            <span
+              className="standee-fold-tag font-body font-semibold"
+              // Hebrew isn't letter-spaced, and the tag says "fold" in it.
+              style={{ backgroundColor: palette.ground, color: palette.ink, letterSpacing: "normal" }}
+            >
+              {t("standee.fold")}
+            </span>
           </span>
-        </span>
-      )}
-    </div>
+        )}
+      </div>
+    </SheetLanguage.Provider>
   );
 }
