@@ -59,7 +59,7 @@ export function OverlaysSection() {
         open={dialog}
         onClose={() => setDialog(false)}
         title={t("messaging.broadcast.confirmTitle")}
-        description={t("messaging.broadcast.confirmBody", { count: 1 })}
+        description={t("messaging.broadcast.confirmBody", { count: 1, value: "1" })}
         footer={
           <>
             <Button variant="quiet" onClick={() => setDialog(false)}>
