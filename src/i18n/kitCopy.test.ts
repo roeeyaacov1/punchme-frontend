@@ -3,16 +3,17 @@ import en from "./locales/en/common.json";
 import he from "./locales/he/common.json";
 
 /**
- * The copy the redesign's kit and style guide add, checked in both
- * languages at once: every key that exists in one exists in the other, and
- * every counted string has the plural forms its language needs. A missing
- * Hebrew key doesn't fail anything else — the page just prints the key.
+ * The copy the redesign's kit and style guide add, and the pages it has
+ * rebuilt whole, checked in both languages at once: every key that exists
+ * in one exists in the other, and every counted string has the plural
+ * forms its language needs. A missing Hebrew key doesn't fail anything
+ * else — the page just prints the key.
  */
 
 type Tree = { [key: string]: string | Tree };
 
 const PLURAL = /_(zero|one|two|few|many|other)$/;
-const NAMESPACES = ["kit", "styleGuide"] as const;
+const NAMESPACES = ["kit", "styleGuide", "standee", "messaging"] as const;
 const SINGLE_KEYS = ["common.close", "language.he", "language.en"] as const;
 
 /** Leaf paths under a subtree, each mapped to the plural forms it carries. */
