@@ -276,10 +276,12 @@ export function MessagesPage() {
               const state = ruleState(rule, canReachOne);
               const checked = optimistic[rule.id] ?? rule.is_active;
               // Switching off is never gated. Switching on: not before the
-              // card is active, and not while the wallet can't address one
-              // card, which would only earn a refusal.
+              // card is active, not before sending opens for this business
+              // (the API checks both, `assert_can_send`), and not while the
+              // wallet can't address one card; each would only earn a refusal.
               let disabledReason: string | undefined;
               if (!checked && !isPro) disabledReason = t("messaging.rules.opensWithActivation");
+              else if (!checked && facts && !facts.can_send) disabledReason = t("messaging.rules.opensWhenOpen");
               else if (!checked && !canReachOne) disabledReason = t("messaging.rules.heldSwitch");
               return (
                 <RuleRow

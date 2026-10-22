@@ -1367,7 +1367,7 @@
     "guard": {
       "pro": "Messaging real customers is a Pro feature. You can write rules and send yourself a sample right now.",
       "proLink": "Go Pro",
-      "notEnabled": "Sending isn't open for your business yet. Rules you save now start when it opens.",
+      "notEnabled": "Sending isn't open for your business yet. You can write rules and send a sample to your own card now.",
       "schedulerStale": "The rules haven't run in the last hour. They catch up by themselves later today.",
       "dispatchOff": "Sending is paused on our side for a moment. Rules pick up where they stopped.",
       "personalOnHold": "These rules are on hold: more than one customer holds your card design, and the wallet can only send to a whole design. They stay saved."
@@ -1462,6 +1462,7 @@
       "switchedOnNoRun": "{{name}} is on.",
       "switchedOff": "{{name}} is off.",
       "opensWithActivation": "Opens with activation",
+      "opensWhenOpen": "Opens when sending does",
       "heldSwitch": "On hold",
       "upgradeOwner": "Rules go live once the card is active.",
       "upgradeHire": "Rules go live once the owner activates the card.",
