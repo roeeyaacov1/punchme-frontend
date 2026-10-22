@@ -136,7 +136,7 @@ export function ActivityPage() {
       (best, d) => (!best || d.value > best.value ? d : best),
       null,
     );
-    return { series, total, busiest, truncated: data.truncated };
+    return { series, total, busiest, truncated: data.truncated, period: data.days };
   }, [data, charted, active.kind]);
 
   const words = { today: t("dashboard.activity.today"), yesterday: t("dashboard.activity.yesterday") };
@@ -281,6 +281,9 @@ export function ActivityPage() {
               axisLabel={(day) => shortDate(day, language)}
               selectedDay={filters.day}
               onSelectDay={(day) => change({ day })}
+              // The period the days were read for: a new one crossfades the
+              // line, while a filter or a picked day redraws it at once.
+              crossfade={chart.period}
             />
           </LitPanel>
         )}
