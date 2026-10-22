@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Figure } from "../kit/Figure";
@@ -47,12 +47,18 @@ export function StatTile({
   const { t } = useTranslation();
   const reduced = useReducedMotion();
   const arriving = arrive ? (reduced ? "animate-gentle-in" : "animate-lights-on") : undefined;
+  // The figure fits its tile however long it is: 2.75rem, or less where a
+  // narrow tile meets a long number ("2,472" at 320px ran past the edge).
+  // The tile is the container, and the share of its width each character
+  // takes is a digit's in Rubik's tabular figures, a separator's less.
+  const ems = Array.from(value).reduce((sum, char) => sum + (/\d/.test(char) ? 0.66 : 0.32), 0);
+  const fit = { "--fit": `${(100 / Math.max(ems, 1)).toFixed(2)}cqi` } as CSSProperties;
   const head = (
     <>
       <span className="type-label text-ink-muted">{label}</span>
-      <span className="flex flex-col">
+      <span className="flex flex-col [container-type:inline-size]" style={fit}>
         {floor && <span className="type-tag text-ink-muted">{t("dashboard.overview.atLeast")}</span>}
-        <Figure size="stat" value={value} />
+        <Figure size="stat" value={value} className="[&>span]:text-[length:min(2.75rem,var(--fit))]" />
       </span>
     </>
   );

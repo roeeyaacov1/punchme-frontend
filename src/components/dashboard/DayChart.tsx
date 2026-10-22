@@ -449,9 +449,11 @@ function Drawing({
           <bdi dir={dir}>{t("dashboard.chart.notLoaded")}</bdi>
         </span>
       )}
+      {/* The two labels stand on a patch of the panel, so a busy line
+          running under them can't cross out their figures. */}
       {showPeak && (
         <span
-          className="pointer-events-none absolute -translate-x-1/2 whitespace-nowrap font-heading text-[0.8125rem] font-medium tabular-nums text-ink-muted"
+          className="pointer-events-none absolute -translate-x-1/2 whitespace-nowrap rounded-sm bg-surface px-1 font-heading text-[0.8125rem] font-medium tabular-nums text-ink-muted"
           style={{ insetInlineStart: xAt(peakIndex), top: Math.max(0, yAt(peak) - 24) }}
         >
           {number.format(peak)}
@@ -459,7 +461,7 @@ function Drawing({
       )}
       {todayValue !== null && (
         <span
-          className="pointer-events-none absolute end-0 whitespace-nowrap font-heading text-[0.8125rem] font-medium tabular-nums text-ink"
+          className="pointer-events-none absolute end-0 whitespace-nowrap rounded-sm bg-surface px-1 font-heading text-[0.8125rem] font-medium tabular-nums text-ink"
           style={{ top: Math.max(0, yAt(todayValue) - 26) }}
         >
           <bdi dir={dir}>{t("dashboard.chart.end", { day: dayLabel(days[last].day), value: number.format(todayValue) })}</bdi>

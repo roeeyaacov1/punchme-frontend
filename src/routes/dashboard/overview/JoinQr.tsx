@@ -30,8 +30,8 @@ export function JoinQr({ templateId, className }: { templateId: string; classNam
           {t("dashboard.qr.title")}
         </h2>
         <QrCode url={url} size={168} />
-        <Button variant="secondary" icon={<Copy aria-hidden />} onClick={copy}>
-          {t("common.copyLink")}
+        <Button variant="secondary" icon={<Copy aria-hidden />} onClick={copy} className="max-w-full">
+          <span className="whitespace-normal">{t("common.copyLink")}</span>
         </Button>
       </div>
     </LitPanel>
