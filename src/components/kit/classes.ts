@@ -28,6 +28,15 @@ export const focusRingInset =
 export const noTapFlash = "[-webkit-tap-highlight-color:transparent]";
 
 /**
+ * A press as the rows' 6% ink well, laid over a control's own fill as an
+ * inset rather than in place of it. A see-through fill would show what is
+ * behind the control instead: at night that is nearly the control's own
+ * colour, so the press vanishes, and under a lit button on the camera's
+ * dark glass it is the dark. Never on a disabled control.
+ */
+export const pressWell = "[&:not(:disabled)]:active:shadow-[inset_0_0_0_100vmax_rgb(var(--c-ink)/0.06)]";
+
+/**
  * A link inside running text: ink, underlined, because Lightbox has no
  * accent colour for text — coral as text would read as an error. Its
  * underline thickens under a pointer, and under a finger as it presses,
