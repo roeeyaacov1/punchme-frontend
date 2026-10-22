@@ -2,17 +2,21 @@ import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import { Trans, useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { Check, Printer } from "lucide-react";
 import {
   Button,
   LinkButton,
   LitPanel,
   Loading,
+  Notice,
   RadioGroup,
   SegmentedControl,
   Skeleton,
+  linkText,
 } from "../../components/kit";
 import {
+  FIT_FLOOR,
   PRINT_FORMATS,
   SHEET_SPECS,
   STANDEE_DESIGNS,
@@ -54,6 +58,8 @@ export function StandeePage() {
   const [design, setDesign] = useState<StandeeDesign>("poster");
   const [format, setFormat] = useState<PrintFormat>("a4");
   const [chosenLanguage, setChosenLanguage] = useState<SignLanguage | null>(null);
+  // The on-screen sheet's own fit, which the print copy takes.
+  const [fit, setFit] = useState(1);
 
   const templates = useQuery({
     queryKey: ["templates", business?.id],
@@ -201,12 +207,27 @@ export function StandeePage() {
               art={art}
               format={format}
               language={language}
+              onFit={setFit}
+              measureAtPaper
               // Beside the choices the column holds still, so on a short
               // screen the sheet narrows until Print under it is in view.
               // Every paper is about 1.41 tall to 1 wide.
               className="mx-auto max-w-[27rem] rounded-md shadow-panel-lift ring-1 ring-rim/10 lg:max-w-[min(27rem,calc((100dvh_-_17rem)*0.707))]"
             />
           </LitPanel>
+
+          {fit < FIT_FLOOR && (
+            // The sheet still fits, at a size that's hard to read from the
+            // door: said under the sheet, with where the reward is changed.
+            // The A5 is the A4 drawn smaller, so only the tent has a bigger
+            // paper to go to.
+            <Notice tone="warn">
+              <Trans
+                i18nKey={format === "tent" ? "standee.tooLong.tent" : "standee.tooLong.sheet"}
+                components={{ studio: <Link to="/dashboard/design" className={linkText} /> }}
+              />
+            </Notice>
+          )}
 
           {canEnroll ? (
             <>
@@ -245,7 +266,7 @@ export function StandeePage() {
       {createPortal(
         <div className="standee-print" aria-hidden="true">
           <div className="standee-page" style={{ width: `${spec.width}mm`, height: `${spec.height}mm` }}>
-            <StandeeSheet design={design} art={art} format={format} language={language} />
+            <StandeeSheet design={design} art={art} format={format} language={language} fit={fit} />
           </div>
         </div>,
         document.body,

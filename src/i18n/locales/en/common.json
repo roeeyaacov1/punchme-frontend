@@ -554,6 +554,10 @@
     "downloadHint": "To keep a file, choose Save as PDF in the print window. On a phone, the share menu prints too.",
     "previewTitle": "What comes out of the printer",
     "previewNote": "Prints at actual size: choose 100%, not “fit to page”. A thin white edge from a home printer is normal.",
+    "tooLong": {
+      "tent": "The name and the reward are too long for a table tent, even at their smallest. The A4 has more room, and a shorter reward makes room too; it's changed in <studio>Card Studio</studio>.",
+      "sheet": "The name and the reward are too long for this paper, even at their smallest. A shorter reward makes room; it's changed in <studio>Card Studio</studio>."
+    },
     "steps": {
       "scan": "Scan the code",
       "join": "Join with your mobile number",
