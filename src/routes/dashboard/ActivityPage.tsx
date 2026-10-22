@@ -18,6 +18,7 @@ import {
   SkeletonRows,
 } from "../../components/kit";
 import { DayChart, type ChartDay } from "../../components/dashboard/DayChart";
+import { ReadProblem } from "../../components/dashboard/ReadProblem";
 import { useBusiness } from "../../business/useBusiness";
 import { canEnrollRealCustomers, isOwner } from "../../business/gating";
 import { useDebounce } from "../../hooks/useDebounce";
@@ -30,11 +31,11 @@ import {
   NO_FILTERS,
   actorsOf,
   buildRows,
-  countByDay,
   dayTotals,
   hasAutomatic,
   markDayOpeners,
   matches,
+  stampsByDay,
   startOfDay,
   wholeDaysFrom,
   type ActivityRow,
@@ -96,7 +97,7 @@ export function ActivityPage() {
 
   const days = Number(period);
   const since = midnightBefore(days - 1);
-  const { data, isPending, isError, isPlaceholderData, refetch } = useQuery({
+  const { data, isPending, isError, error, fetchStatus, isPlaceholderData, refetch } = useQuery({
     queryKey: ["activity", business?.id, "window", days],
     // The window carries the period it was fetched for, so a period still
     // loading keeps drawing the last one whole rather than mixing the two.
@@ -116,11 +117,16 @@ export function ActivityPage() {
   // narrowing the line to one day would take away what was being read.
   const charted = useMemo(() => rows.filter((r) => matches(r, { ...active, day: null })), [rows, active]);
   const visible = useMemo(() => markDayOpeners(rows.filter((r) => matches(r, active))), [rows, active]);
-  const perDay = useMemo(() => countByDay(visible), [visible]);
+  // A day's heading says what the chart says for that day: stamps, net
+  // unless one kind is chosen.
+  const perDay = useMemo(() => stampsByDay(visible, active.kind === "all"), [visible, active.kind]);
+  // The day the walk's guard cut into, and every day before it, were not
+  // loaded whole: the chart leaves them undrawn and their headings say
+  // "at least".
+  const firstWhole = useMemo(() => (data ? wholeDaysFrom(data.items, data.truncated) : null), [data]);
 
   const chart = useMemo(() => {
     if (!data) return null;
-    const firstWhole = wholeDaysFrom(data.items, data.truncated);
     // Signed only when no single kind is chosen: unfiltered, the line is the
     // net the shop handed out; with "taken off" picked, it is how many.
     const totals = dayTotals(charted, data.since, data.days, active.kind === "all");
@@ -137,7 +143,7 @@ export function ActivityPage() {
       null,
     );
     return { series, total, busiest, truncated: data.truncated, period: data.days };
-  }, [data, charted, active.kind]);
+  }, [data, charted, active.kind, firstWhole]);
 
   const words = { today: t("dashboard.activity.today"), yesterday: t("dashboard.activity.yesterday") };
   const dayName = (day: number) => relativeDay(day, language, words);
@@ -145,6 +151,8 @@ export function ActivityPage() {
   const list = visible.slice(0, shown);
   const more = Math.min(PAGE_SIZE, visible.length - list.length);
   const loadingNext = isPlaceholderData;
+  // Offline: a read waits for the connection instead of failing.
+  const held = fetchStatus === "paused";
 
   if (!canEnroll) {
     return (
@@ -175,7 +183,6 @@ export function ActivityPage() {
         placeholder={t("dashboard.activity.searchPlaceholder")}
         leading={<Search />}
         value={filters.search}
-        dir="auto"
         autoComplete="off"
         // A customer, a card's code or a member of staff: nothing for a
         // phone to correct.
@@ -183,13 +190,15 @@ export function ActivityPage() {
         spellCheck={false}
         enterKeyHint="search"
         onChange={(event) => change({ search: event.target.value })}
-        className={inSheet ? undefined : "min-w-0 flex-1"}
+        // Typed text takes its own direction while the field keeps the
+        // page's, so the magnifier's room stays on its side (Customers).
+        className={cn("[&_input]:[unicode-bidi:plaintext]", !inSheet && "min-w-[min(10rem,100%)] flex-1")}
       />
       <Select
         label={t("dashboard.activity.columns.action")}
         value={filters.kind}
         onChange={(event) => change({ kind: event.target.value as Kind | "all" })}
-        className={inSheet ? undefined : "w-48"}
+        className={inSheet ? undefined : "w-40"}
       >
         <option value="all">{t("dashboard.activity.allActions")}</option>
         {KINDS.map((kind) => (
@@ -205,7 +214,10 @@ export function ActivityPage() {
           label={t("dashboard.activity.columns.by")}
           value={filters.who}
           onChange={(event) => change({ who: event.target.value })}
-          className={inSheet ? undefined : "w-48"}
+          // The people are short local parts, "Anyone" and "Automatic":
+          // a little narrower than the actions, so the search keeps room
+          // for its hint in one row at a desk.
+          className={inSheet ? undefined : "w-36"}
         >
           <option value="all">{t("dashboard.activity.allPeople")}</option>
           {actors.map((who) => (
@@ -220,7 +232,9 @@ export function ActivityPage() {
   );
 
   let body: ReactNode;
-  if (isPending && !data) {
+  if (isPending && !data && held) {
+    body = <ReadProblem title={t("dashboard.activity.loadFailed")} paused onRetry={() => void refetch()} />;
+  } else if (isPending && !data) {
     body = (
       <>
         <LitPanel className="flex flex-col gap-4 p-4 sm:p-5">
@@ -233,9 +247,7 @@ export function ActivityPage() {
       </>
     );
   } else if (isError && !data) {
-    body = (
-      <Notice tone="danger" title={t("dashboard.activity.loadFailed")} action={<Button variant="secondary" onClick={() => void refetch()}>{t("common.retry")}</Button>} />
-    );
+    body = <ReadProblem title={t("dashboard.activity.loadFailed")} error={error} onRetry={() => void refetch()} />;
   } else if (rows.length === 0) {
     body = (
       <EmptyState
@@ -252,91 +264,98 @@ export function ActivityPage() {
     );
   } else {
     body = (
-      <div className={cn("flex flex-col gap-5 transition-opacity duration-gentle", loadingNext && "opacity-55")} aria-busy={loadingNext || undefined}>
-        {chart?.truncated && (
-          <Notice tone="warn">
-            {t("dashboard.activity.truncated", {
-              shown: formatCount(rows.length, language),
-              since: shortDate(Date.parse(rows[rows.length - 1].event.created_at), language),
-            })}
-          </Notice>
-        )}
-
-        {chart && (
-          <LitPanel className="flex flex-col gap-1 p-4 sm:p-5">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-              <h2 className="type-card-title text-ink">{chartTitle}</h2>
-              <p className="type-label text-ink-muted">
-                {t(chart.truncated ? "dashboard.activity.totalAtLeast" : "dashboard.activity.stampsCount", { count: chart.total })}
-              </p>
-            </div>
-            <p className="text-sm text-ink-muted">{t("dashboard.activity.chartHint")}</p>
-            <DayChart
-              className="mt-3"
-              days={chart.series}
-              label={chartTitle}
-              summary={t("dashboard.activity.chartSummary", {
-                count: chart.series.length,
-                total: formatCount(chart.total, language),
-                peakDay: chart.busiest ? weekdayDate(chart.busiest.day, language) : "",
-                peak: chart.busiest ? formatCount(chart.busiest.value, language) : "",
+      <>
+        {/* A new period asked for offline: the last one stays, dimmed, and
+            this says why the next hasn't come. */}
+        {loadingNext && held && <ReadProblem title={t("dashboard.activity.loadFailed")} paused onRetry={() => void refetch()} />}
+        <div className={cn("flex flex-col gap-5 transition-opacity duration-gentle", loadingNext && "opacity-55")} aria-busy={loadingNext || undefined}>
+          {chart?.truncated && (
+            <Notice tone="warn">
+              {t("dashboard.activity.truncated", {
+                shown: formatCount(rows.length, language),
+                since: shortDate(Date.parse(rows[rows.length - 1].event.created_at), language),
               })}
-              valueLabel={(value) => t("dashboard.activity.stampsCount", { count: value })}
-              dayLabel={dayName}
-              axisLabel={(day) => shortDate(day, language)}
-              selectedDay={filters.day}
-              onSelectDay={(day) => change({ day })}
-              // The period the days were read for: a new one crossfades the
-              // line, while a filter or a picked day redraws it at once.
-              crossfade={chart.period}
+            </Notice>
+          )}
+
+          {chart && (
+            <LitPanel className="flex flex-col gap-1 p-4 sm:p-5">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                <h2 className="type-card-title text-ink">{chartTitle}</h2>
+                <p className="type-label text-ink-muted">
+                  {t(chart.truncated ? "dashboard.activity.totalAtLeast" : "dashboard.activity.stampsCount", { count: chart.total })}
+                </p>
+              </div>
+              <p className="text-sm text-ink-muted">{t("dashboard.activity.chartHint")}</p>
+              <DayChart
+                className="mt-3"
+                days={chart.series}
+                label={chartTitle}
+                summary={t("dashboard.activity.chartSummary", {
+                  count: chart.series.length,
+                  total: formatCount(chart.total, language),
+                  peakDay: chart.busiest ? weekdayDate(chart.busiest.day, language) : "",
+                  peak: chart.busiest ? formatCount(chart.busiest.value, language) : "",
+                })}
+                valueLabel={(value) => t("dashboard.activity.stampsCount", { count: value })}
+                dayLabel={dayName}
+                axisLabel={(day) => shortDate(day, language)}
+                selectedDay={filters.day}
+                onSelectDay={(day) => change({ day })}
+                // The period the days were read for: a new one crossfades the
+                // line, while a filter or a picked day redraws it at once.
+                crossfade={chart.period}
+              />
+            </LitPanel>
+          )}
+
+          {visible.length === 0 ? (
+            <EmptyState
+              icon={<Search />}
+              title={t("dashboard.activity.noMatches")}
+              action={
+                <Button variant="secondary" onClick={() => change(NO_FILTERS)}>
+                  {t("dashboard.activity.clearAll")}
+                </Button>
+              }
             />
-          </LitPanel>
-        )}
+          ) : (
+            <LitPanel className="overflow-hidden">
+              {groupByDay(list).map((group) => (
+                <section key={group.day} aria-labelledby={`day-${group.day}`}>
+                  <h2 id={`day-${group.day}`} className="type-label border-b border-border bg-background/60 px-4 py-2 text-ink-muted">
+                    {t(
+                      firstWhole !== null && group.day < firstWhole
+                        ? "dashboard.activity.dayHeadingAtLeast"
+                        : "dashboard.activity.dayHeading",
+                      { day: dayName(group.day), count: perDay.get(group.day) ?? 0 },
+                    )}
+                  </h2>
+                  <List>
+                    {group.rows.map((row, i) => (
+                      <EventRow key={`${row.event.card_serial}-${row.event.created_at}-${i}`} row={row} />
+                    ))}
+                  </List>
+                </section>
+              ))}
+            </LitPanel>
+          )}
 
-        {visible.length === 0 ? (
-          <EmptyState
-            icon={<Search />}
-            title={t("dashboard.activity.noMatches")}
-            action={
-              <Button variant="secondary" onClick={() => change(NO_FILTERS)}>
-                {t("dashboard.activity.clearAll")}
+          {more > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-ink-muted">
+                {t("dashboard.activity.showing", {
+                  shown: formatCount(list.length, language),
+                  total: formatCount(visible.length, language),
+                })}
+              </p>
+              <Button variant="secondary" onClick={() => setShown((n) => n + PAGE_SIZE)}>
+                {t("dashboard.activity.more", { count: more })}
               </Button>
-            }
-          />
-        ) : (
-          <LitPanel className="overflow-hidden">
-            {groupByDay(list).map((group) => (
-              <section key={group.day} aria-labelledby={`day-${group.day}`}>
-                <h2 id={`day-${group.day}`} className="type-label border-b border-border bg-background/60 px-4 py-2 text-ink-muted">
-                  {t("dashboard.activity.dayHeading", {
-                    day: dayName(group.day),
-                    count: formatCount(perDay.get(group.day) ?? group.rows.length, language),
-                  })}
-                </h2>
-                <List>
-                  {group.rows.map((row, i) => (
-                    <EventRow key={`${row.event.card_serial}-${row.event.created_at}-${i}`} row={row} />
-                  ))}
-                </List>
-              </section>
-            ))}
-          </LitPanel>
-        )}
-
-        {more > 0 && (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-ink-muted">
-              {t("dashboard.activity.showing", {
-                shown: formatCount(list.length, language),
-                total: formatCount(visible.length, language),
-              })}
-            </p>
-            <Button variant="secondary" onClick={() => setShown((n) => n + PAGE_SIZE)}>
-              {t("dashboard.activity.more", { count: more })}
-            </Button>
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      </>
     );
   }
 
@@ -363,7 +382,9 @@ export function ActivityPage() {
         <Button variant="secondary" icon={<SlidersHorizontal aria-hidden />} onClick={() => setSheetOpen(true)} className="lg:hidden">
           {activeFilters ? t("dashboard.activity.filtersOn", { count: activeFilters }) : t("dashboard.activity.filters")}
         </Button>
-        <div className="hidden min-w-0 flex-1 items-end gap-3 lg:flex">{filterFields(false)}</div>
+        {/* Its own line when the period leaves it too little room, as text
+            at 200% does; and the fields wrap inside it too. */}
+        <div className="hidden min-w-[min(30rem,100%)] flex-1 flex-wrap items-end gap-3 lg:flex">{filterFields(false)}</div>
         {filters.day !== null && (
           <Button
             variant="secondary"
@@ -377,7 +398,7 @@ export function ActivityPage() {
       </div>
 
       <p role="status" className="sr-only">
-        {loadingNext ? t("common.loading") : ""}
+        {loadingNext ? t(held ? "dashboard.problem.paused" : "common.loading") : ""}
       </p>
 
       {body}
@@ -433,8 +454,13 @@ function EventRow({ row }: { row: ActivityRow }) {
     <ListRow
       title={
         row.name ? (
-          <span className="line-clamp-2 whitespace-normal [overflow-wrap:anywhere]">
-            <bdi>{row.name}</bdi>
+          // In its own direction and cut at its own end, aligned to the
+          // row's start: the roster's rule (CustomersPage's Row).
+          <span
+            dir="auto"
+            className="line-clamp-3 whitespace-normal [overflow-wrap:anywhere] [text-align:-webkit-match-parent] [text-align:match-parent] min-[360px]:line-clamp-2"
+          >
+            {row.name}
           </span>
         ) : (
           <span className="text-ink-muted">
@@ -460,7 +486,10 @@ function EventRow({ row }: { row: ActivityRow }) {
         </span>
       }
       trailing={
-        <span className={cn("type-label whitespace-nowrap", row.kind === "removed" ? "text-warn" : "text-ink")}>
+        // One word at the size it was set; under large text it may take
+        // two lines rather than squeeze the name to nothing (a px cap, so
+        // it holds still while the text grows).
+        <span className={cn("type-label block max-w-[128px] text-end", row.kind === "removed" ? "text-warn" : "text-ink")}>
           {t(`dashboard.activity.action.${row.kind}`, { count: Math.abs(row.event.stamps) })}
         </span>
       }

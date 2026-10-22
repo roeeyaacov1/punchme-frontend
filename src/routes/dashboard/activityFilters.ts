@@ -216,14 +216,24 @@ export function wholeDaysFrom(items: Pick<ActivityItem, "created_at">[], truncat
 }
 
 /**
- * How many rows each day holds, over everything the filters let through, so
- * a day's heading counts the whole day even when the list shows only the top
- * of it.
+ * The stamps each day holds, over everything the filters let through, so a
+ * day's heading counts the whole day even when the list shows only the top
+ * of it, and says the same number the chart says for that day: counted the
+ * way `dayTotals` counts, net unless one kind is chosen, never below zero.
+ * Counting rows instead put 15 under a chart that said 13 the day a stamp
+ * was taken back.
  */
-export function countByDay(rows: Pick<ActivityRow, "day">[]): Map<number, number> {
-  const counts = new Map<number, number>();
-  for (const row of rows) counts.set(row.day, (counts.get(row.day) ?? 0) + 1);
-  return counts;
+export function stampsByDay(
+  rows: (Pick<ActivityRow, "day"> & { event: Pick<ActivityItem, "stamps"> })[],
+  signed: boolean,
+): Map<number, number> {
+  const totals = new Map<number, number>();
+  for (const row of rows) {
+    const stamps = signed ? row.event.stamps : Math.abs(row.event.stamps);
+    totals.set(row.day, (totals.get(row.day) ?? 0) + stamps);
+  }
+  for (const [day, total] of totals) totals.set(day, Math.max(0, total));
+  return totals;
 }
 
 /**
