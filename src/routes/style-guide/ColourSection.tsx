@@ -24,6 +24,13 @@ const STATES: PairSpec[] = [
   { name: "reward · surface", sample: "bg-surface text-reward" },
 ];
 
+// The data's teal: a line or a bar needs 3:1, a word that carries it 4.5:1.
+const DATA: PairSpec[] = [
+  { name: "series · background", sample: "border-series", kind: "edge" },
+  { name: "series-ink · background", sample: "bg-background text-series-ink" },
+  { name: "series-ink · surface", sample: "bg-surface text-series-ink" },
+];
+
 const EDGES: PairSpec[] = [
   { name: "field · background", sample: "border-field", kind: "edge" },
   { name: "ink ring · background", sample: "border-ink", kind: "edge" },
@@ -114,6 +121,8 @@ function Scope({
       <RatioList specs={STATES} version={version} />
       <h4 className="type-label mt-5 text-ink">{t("styleGuide.colour.edges")}</h4>
       <RatioList specs={EDGES} version={version} />
+      <h4 className="type-label mt-5 text-ink">{t("styleGuide.colour.data")}</h4>
+      <RatioList specs={DATA} version={version} />
     </div>
   );
 }

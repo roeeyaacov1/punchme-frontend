@@ -488,8 +488,9 @@ function EventRow({ row }: { row: ActivityRow }) {
       trailing={
         // One word at the size it was set; under large text it may take
         // two lines rather than squeeze the name to nothing (a px cap, so
-        // it holds still while the text grows).
-        <span className={cn("type-label block max-w-[128px] text-end", row.kind === "removed" ? "text-warn" : "text-ink")}>
+        // it holds still while the text grows). A stamp given is the chart's
+        // own colour, and one taken off is said in warn.
+        <span className={cn("type-label block max-w-[128px] text-end", row.kind === "removed" ? "text-warn" : "text-series-ink")}>
           {t(`dashboard.activity.action.${row.kind}`, { count: Math.abs(row.event.stamps) })}
         </span>
       }

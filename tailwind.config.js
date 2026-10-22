@@ -91,12 +91,20 @@ export default {
         // every value is measured. These two are themed:
         //
         // The edge that identifies a field, a checkbox, a switch's track and
-        // a slider's rail — 3.35:1 on the wall by day, 3.87:1 at night.
+        // a slider's rail — 3.35:1 on the wall by day, 4.04:1 at night.
         // border-strong never reached the 3:1 WCAG 1.4.11 asks.
         field: "rgb(var(--c-field) / <alpha-value>)",
         // Behind a dialog or a sheet: ink at 0.4 by day, black at 0.6 at
         // night. The strength is part of the token, so no opacity modifier.
         scrim: "rgb(var(--c-scrim) / var(--scrim-alpha))",
+        // The data's own colour: one series in teal, the complement of the
+        // sign's coral, never a state. A chart's line, area and bars, and a
+        // word that carries the series (series-ink). 4.55:1 and 5.66:1 on a
+        // panel by day, 9.11:1 and 10.05:1 at night.
+        series: {
+          DEFAULT: "rgb(var(--c-series) / <alpha-value>)",
+          ink: "rgb(var(--c-series-ink) / <alpha-value>)",
+        },
         //
         // And these are fixed, because lit things keep their light at
         // night. Their text is ink, so they are only ever painted inside a
