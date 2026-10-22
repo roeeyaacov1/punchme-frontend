@@ -428,9 +428,10 @@ function speak(state: AnswerState, reward: string | undefined, t: TFunction): st
       return "";
     case "stamped":
       return t("dashboard.scan.announce.stamped", {
-        count: state.count,
+        filled: state.count,
         total: state.total,
-        left: Math.max(0, state.total - state.count),
+        // The answer's own line, with its plurals: "1 more to the reward".
+        toGo: t("dashboard.scan.result.toGo", { count: Math.max(0, state.total - state.count) }),
       });
     case "rewardReady":
     case "alreadyFull":

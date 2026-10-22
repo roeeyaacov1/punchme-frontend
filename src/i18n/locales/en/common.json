@@ -811,7 +811,7 @@
     },
     "scan": {
       "title": "Scan a card",
-      "lead": "Hold the customer's pass up to the camera. It punches the moment it reads — there is no button to press.",
+      "lead": "Hold the customer's pass up to the camera. It stamps the moment it reads — there is no button to press.",
       "aim": "Hold the pass in the frame",
       "starting": "Opening the camera…",
       "working": "Reading…",
@@ -819,7 +819,7 @@
       "torch": "Light",
       "sound": "Sound",
       "freePlan": "The card isn't live, so new customers can't join. Your own card in your wallet, and any card customers already hold, stamps here as usual.",
-      "freePlanHire": "The card isn't live, so new customers can't join. The owner's own card, and any card customers already hold, stamps here as usual.",
+      "freePlanHire": "The card isn't live, so new customers can't join. The shop's own card, and any card customers already hold, stamps here as usual.",
       "freePlanCta": "Activate it",
       "slow": {
         "title": "The camera is taking a while",
@@ -855,7 +855,7 @@
         "seeAll": "All activity"
       },
       "announce": {
-        "stamped": "Stamped: {{count}} of {{total}}. {{left}} more to the reward.",
+        "stamped": "Stamped: {{filled}} of {{total}}. {{toGo}}.",
         "rewardReady": "Card full: {{reward}}",
         "alreadyFull": "This card is already full: {{reward}}",
         "said": "{{word}}. {{reason}}"
@@ -1003,7 +1003,7 @@
         "act": "Tap it and the camera opens.",
         "title": "Scan a card",
         "body": "Hold the customer's pass up to the camera; the stamp lands the moment it reads. When a card is full, hand over the reward and mark it given.",
-        "bodyFree": "Stamp your own card here to watch a stamp land. Customers' cards stamp here the same way."
+        "bodyFree": "Cards stamp here, the shop's own card too: scan it to watch a stamp land."
       }
     }
   },
