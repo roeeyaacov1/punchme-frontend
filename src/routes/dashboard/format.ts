@@ -39,3 +39,13 @@ export function relativeDay(
   if (day === yesterday.getTime()) return words.yesterday;
   return weekdayDate(day, language);
 }
+
+/** "14 Oct", or "14 Oct 2025" when it isn't this year: a day in a list. */
+export function listDay(iso: string, language?: string, now = Date.now()): string {
+  const date = new Date(iso);
+  return date.toLocaleDateString(language, {
+    day: "numeric",
+    month: "short",
+    ...(date.getFullYear() !== new Date(now).getFullYear() && { year: "numeric" }),
+  });
+}

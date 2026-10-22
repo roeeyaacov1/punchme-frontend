@@ -1775,51 +1775,55 @@
   },
   "referrals": {
     "title": "Refer a friend",
-    "lead": "A member shows their card, a friend scans it with their phone's camera and lands on a join page that already knows who invited them. You decide what happens at each step.",
+    "lead": "A customer shows their card, a friend scans it with their phone and gets a join page that knows who invited them. You decide what each of them gets.",
     "master": {
-      "label": "Referral program",
-      "hint": "Off, nothing below happens — the code on a member's card is just their card."
+      "label": "Refer a friend"
     },
     "blocked": {
-      "upgrade_required": "Referral rewards are part of Pro.",
-      "upgradeCta": "See plans",
+      "upgrade_required": "Referral gifts open with activation.",
       "not_enabled_for_pilot": "Referrals aren't switched on for this business yet — we're rolling them out gradually."
     },
+    "free": {
+      "owner": "Refer a friend opens with activation, at <ltr>₪{{price}}</ltr> a month.",
+      "hire": "Refer a friend opens once the owner activates the card."
+    },
+    "settings": {
+      "open": "Settings",
+      "title": "Refer a friend settings",
+      "gets": "What each person gets",
+      "cap": "Limit"
+    },
     "rows": {
-      "title": "What happens",
-      "hint": "Each line saves as you change it. Message texts save with their own button.",
       "friend_joined_friend": {
         "when": "When a friend joins",
-        "action": "give the friend a welcome gift",
-        "hint": ""
+        "action": "A welcome gift for the friend"
       },
       "friend_first_stamp_referrer": {
         "when": "When that friend gets their first stamp",
-        "action": "give the member a reward",
+        "action": "A gift for the customer who brought them",
         "hint": "Recommended: it takes a stamp from your own hand, so nobody can farm it from home."
       },
       "friend_completed_card_referrer": {
         "when": "When that friend finishes their first card",
-        "action": "give the member a bigger reward",
-        "hint": ""
+        "action": "A bigger gift for the customer who brought them"
       },
       "scanned_referrer": {
         "when": "When someone scans a member's card",
-        "action": "tell the member",
+        "action": "A message to the card's owner",
         "hint": "A message only, at most once a day per phone that scans."
       }
     },
     "gift": {
       "picker": "The gift",
-      "stamps_one": "{{count}} stamp",
+      "stamps_one": "One stamp",
       "stamps_other": "{{count}} stamps",
-      "full": "The whole card"
+      "full": "A full card"
     },
     "message": {
       "titleLabel": "Title",
       "bodyLabel": "Text on their card",
       "chars": "{{used}}/{{max}}",
-      "insert": "Insert:",
+      "insert": "Add to the text",
       "chip": {
         "name": "their name",
         "friend": "the other person",
@@ -1829,19 +1833,25 @@
       "unknown": "Unknown placeholder: {{token}}",
       "hintGift": "Leave the text empty to give the gift quietly.",
       "hintOnly": "This one only speaks — there is no gift on a scan.",
-      "save": "Save text"
+      "save": "Save the text"
     },
     "cap": {
-      "before": "A member can earn at most",
-      "countLabel": "Rewards per period",
-      "between": "referral rewards per",
-      "periodLabel": "Period",
+      "countLabel": "Gifts at most",
+      "periodLabel": "Per",
       "period": {
-        "month": "month",
-        "quarter": "quarter",
-        "year": "year",
-        "lifetime": "lifetime"
-      }
+        "month": "Month",
+        "quarter": "Quarter",
+        "year": "Year",
+        "lifetime": "In all"
+      },
+      "per": {
+        "month": "a month",
+        "quarter": "a quarter",
+        "year": "a year",
+        "lifetime": "in all"
+      },
+      "summary_one": "At most {{count}} gift per customer {{period}}.",
+      "summary_other": "At most {{count}} gifts per customer {{period}}."
     },
     "display": {
       "label": "What the friend sees about who invited them",
@@ -1850,23 +1860,42 @@
       "first_name_initial": "Initial only"
     },
     "preview": {
-      "title": "Preview",
-      "hint": "Exactly what the friend sees, and what the member receives, with sample names.",
+      "title": "How it looks",
       "friendTitle": "What the friend sees",
-      "memberTitle": "What the member receives",
-      "nothing": "Nothing is sent yet — switch on a line above with a text to see it here."
+      "memberTitle": "What the customer who brought them gets",
+      "roughly": "Roughly: the real page takes your card's design.",
+      "which": "Which message",
+      "memberSummary": "{{when}}: the message on the customer's lock screen",
+      "withFull": "It comes with a full card.",
+      "withStamps_one": "It comes with one stamp.",
+      "withStamps_other": "It comes with {{count}} stamps.",
+      "nothing": "Nothing is sent yet. Switch on a line with a text to see it here."
     },
     "list": {
-      "title": "Referrals",
-      "empty": "No referrals yet. Once the program is on, every friend who joins through a member's card shows up here.",
-      "line": "{{friend}} joined through {{member}}",
-      "someone": "someone",
+      "title": "Who brought whom",
+      "filter": "Filter the referrals",
+      "filters": {
+        "all": "All",
+        "joined": "Joined",
+        "qualified": "First stamp",
+        "completed": "Finished a card",
+        "rejected": "Not counted"
+      },
+      "emptyTitle": "No referrals yet",
+      "empty": "Once the program is on, every friend who joins through a customer's card shows up here.",
+      "noMatches": "None here.",
+      "showing": "Showing {{shown}} of {{total}}",
+      "more_one": "{{value}} more",
+      "more_other": "{{value}} more",
+      "line": "<f>{{friend}}</f> joined through <m>{{member}}</m>",
+      "noName": "a customer with no name",
+      "removedCard": "a customer whose card was removed",
       "status": {
         "joined": "Joined",
         "qualified": "First stamp",
         "completed": "Finished a card",
         "rejected": "Not counted",
-        "flagged": "Needs review"
+        "flagged": "Waiting for you"
       },
       "reason": {
         "self_referral": "the same phone number",
@@ -1875,17 +1904,92 @@
         "window_expired": "too long after the scan",
         "shared_device": "joined from the same phone as another",
         "burst": "many joins from one place",
-        "manual": "not counted, by your decision"
+        "manual": "not counted, by your decision",
+        "other": "not counted"
       },
       "review": {
-        "title": "Needs your review",
         "approve": "Count it",
         "reject": "Don't count it"
       }
     },
+    "decision": {
+      "title": "Waiting for your decision",
+      "reason": {
+        "self_referral": "<f>{{friend}}</f> joined with <m>{{member}}</m>'s own phone number.",
+        "shared_device": "<f>{{friend}}</f> joined from a phone another join already used.",
+        "burst": "Many joins came from the same place in a short time.",
+        "unknown": "We held this one back to check it."
+      },
+      "countBoth": "Count it: <f>{{friend}}</f> gets the welcome gift now, and it counts toward <m>{{member}}</m>'s gift.",
+      "countWelcome": "Count it: <f>{{friend}}</f> gets the welcome gift now.",
+      "countMember": "Count it: it counts for <m>{{member}}</m>, whose gift comes as <f>{{friend}}</f> collects stamps.",
+      "countPlain": "Count it: it counts as <m>{{member}}</m>'s referral. No gifts are on.",
+      "skip": "Don't count it: <f>{{friend}}</f> keeps the card, without the gift, and <m>{{member}}</m> gets nothing for it.",
+      "final": "It can't be undone.",
+      "askCount": "Count this referral?",
+      "askSkip": "Leave this referral uncounted?",
+      "cancel": "Cancel",
+      "counted": "Counted.",
+      "countedWelcome": "Counted: <f>{{friend}}</f> got the welcome gift.",
+      "notCounted": "Not counted.",
+      "decided": "This one was already decided.",
+      "more_one": "{{count}} more",
+      "more_other": "{{count}} more"
+    },
+    "program": {
+      "gives": {
+        "friend_joined": "A friend who joins gets {{gift}}.",
+        "friend_first_stamp": "A friend's first stamp gives the customer who brought them {{gift}}.",
+        "friend_completed_card": "A friend's first full card gives the customer who brought them {{gift}}."
+      },
+      "noGifts": "No gifts are switched on yet.",
+      "gift_one": "one stamp",
+      "gift_other": "{{count}} stamps",
+      "giftFull": "a full card",
+      "stamps_one": "{{value}} stamp",
+      "stamps_other": "{{value}} stamps",
+      "cards_one": "{{value}} full card",
+      "cards_other": "{{value}} full cards",
+      "month": "This month: {{gifts}}.",
+      "monthAtLeast": "This month, at least: {{gifts}}.",
+      "monthNone": "No gifts given this month yet.",
+      "monthNoneSoFar": "No gifts found this month so far.",
+      "on": "Refer a friend is on.",
+      "off": "Refer a friend is off."
+    },
+    "gifts": {
+      "line": "Gifts: {{gifts}}",
+      "item": "{{gift}} to {{who}}, {{state}}",
+      "state": {
+        "granted": "given",
+        "pending": "on its way",
+        "failed": "not given",
+        "revoked": "revoked"
+      },
+      "skipped": "not given: {{reason}}",
+      "skip": {
+        "cap_reached": "the limit was reached",
+        "program_off": "the program was off",
+        "not_pro": "the business wasn't on Pro",
+        "no_room": "the card had no room",
+        "no_route": "the pass couldn't take a message",
+        "other": "it was skipped"
+      }
+    },
+    "loadFailed": {
+      "program": "The program's settings didn't load",
+      "list": "The referrals didn't load",
+      "decisions": "The referrals waiting for you didn't load"
+    },
+    "saved": "Saved",
     "errors": {
       "generic": "That didn't save. Try again.",
-      "invalid": "That can't be saved as written ({{detail}})."
+      "title_too_long": "The title is too long (40 characters max).",
+      "body_too_long": "The text is too long (160 characters max).",
+      "gift_stamps": "That number of gift stamps isn't allowed.",
+      "rule_empty": "A line needs a gift or a text to go on.",
+      "scanned_has_no_gift": "A scan only speaks: it carries no gift.",
+      "max_rewarded_per_referrer": "Choose a number from 1 to 20."
     }
   },
   "styleGuide": {

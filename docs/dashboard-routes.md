@@ -175,7 +175,9 @@ returns to `/dashboard/messages?tab=rules` with a confirmation.
 |---|---|---|
 | Load | `GET {biz}/referrals/program` | `getReferralProgram` |
 | Load | `GET {biz}/referrals/rules`: the four sentences | `listReferralRules` |
-| Load | `GET {biz}/referrals` | `listReferrals` |
+| Load | `GET {biz}/referrals?status=flagged`: the decisions, however old | `listReferrals` |
+| Load (page 1), and the next page on "more" | `GET {biz}/referrals?page=N`, 100 a page | `listReferrals` |
+| Load, and again when more referrals load | `GET {biz}/referrals/grants?page=N`, newest first, back to the start of the month or the oldest referral shown (at most 10 pages): what the program gave this month, and each referral's gifts | `listReferralGrants` |
 | Load | `GET {biz}/templates` | `listTemplates` |
 | Program on/off, reward cap, cap period, how the referrer is shown | `PATCH {biz}/referrals/program` (`enabled`, `max_rewarded_per_referrer`, `cap_period`, `referrer_display_mode`) | `patchReferralProgram` |
 | Edit one sentence (on/off, title, body) | `PATCH {biz}/referrals/rules/{event}/{recipient}` | `putReferralRule` |
@@ -234,7 +236,6 @@ Wrapped in `src/api/` but never called:
 |---|---|
 | `POST {biz}/automations/{id}/test`: send a saved rule to the owner's own card | `testAutomation` |
 | `GET {biz}/broadcasts/{id}`: one broadcast | `getBroadcast` |
-| `GET {biz}/referrals/grants?status=`: rewards that referrals granted | `listReferralGrants` |
 | `POST {biz}/referrals/grants/{id}/revoke` | `revokeReferralGrant` |
 
 In the generated schema (`src/api/generated/schema.d.ts`) with no wrapper:
