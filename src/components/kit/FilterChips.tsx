@@ -24,7 +24,8 @@ export interface FilterChipsProps<T extends string> {
  * One of several ways to narrow a list, each with its count. Native radios
  * in a fieldset, like `SegmentedControl`, so the arrow keys move the choice
  * and a screen reader says "2 of 5"; unlike it, the chips wrap onto a second
- * line rather than scroll sideways under the edge of a phone.
+ * line rather than scroll sideways under the edge of a phone, and a chip
+ * wider than the line, under large text, wraps its own words.
  *
  * The chosen chip is an ink pill with a cream label (14.88:1, 14.92:1 at
  * night); the others are ink on a panel, their count in ink-muted (7.99:1,
@@ -54,7 +55,7 @@ export function FilterChips<T extends string>({
             <label
               key={option.value}
               className={cn(
-                "inline-flex min-h-11 touch-manipulation select-none items-center gap-2 rounded-full border px-4 font-heading text-base font-medium leading-tight transition-[color,background-color,border-color,box-shadow] duration-gentle ease-out has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
+                "inline-flex min-h-11 max-w-full touch-manipulation select-none items-center gap-2 rounded-full border px-4 font-heading text-base font-medium leading-tight transition-[color,background-color,border-color,box-shadow] duration-gentle ease-out has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
                 noTapFlash,
                 chosen
                   ? "cursor-pointer border-ink bg-ink text-surface"
