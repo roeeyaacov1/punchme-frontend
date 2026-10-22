@@ -6,13 +6,13 @@ import {
   actorsOf,
   buildRows,
   codesFor,
-  countByDay,
   dayTotals,
   hasAutomatic,
   isFiltered,
   kindOf,
   markDayOpeners,
   matches,
+  stampsByDay,
   startOfDay,
   wholeDaysFrom,
 } from "./activityFilters";
@@ -301,21 +301,58 @@ describe("wholeDaysFrom", () => {
   });
 });
 
-describe("countByDay", () => {
+describe("stampsByDay", () => {
+  const DAY = 86_400_000;
+  const start = startOfDay(Date.parse("2026-08-22T12:00:00Z"));
+  const at = (hours: number) => new Date(start + hours * 3600_000).toISOString();
+
   it("counts every row of a day, not only the ones on screen", () => {
-    const DAY = 86_400_000;
-    const start = startOfDay(Date.parse("2026-08-22T12:00:00Z"));
     const rows = buildRows([
-      event({ created_at: new Date(start + 20 * 3600_000).toISOString() }),
-      event({ created_at: new Date(start + 9 * 3600_000).toISOString() }),
+      event({ created_at: at(20) }),
+      event({ created_at: at(9) }),
       event({ created_at: new Date(start - DAY + 9 * 3600_000).toISOString() }),
     ]);
-    const counts = countByDay(rows);
-    expect(counts.get(start)).toBe(2);
-    expect(counts.get(rows[2].day)).toBe(1);
+    const totals = stampsByDay(rows, true);
+    expect(totals.get(start)).toBe(2);
+    expect(totals.get(rows[2].day)).toBe(1);
   });
 
   it("is empty for no rows", () => {
-    expect(countByDay([]).size).toBe(0);
+    expect(stampsByDay([], true).size).toBe(0);
+  });
+
+  it("nets a stamp taken back off its day, as the chart does", () => {
+    const rows = buildRows([
+      ...Array.from({ length: 14 }, (_, i) => event({ created_at: at(8 + i * 0.5) })),
+      event({ created_at: at(16), stamps: -1, source: "adjust" }),
+    ]);
+    expect(rows).toHaveLength(15);
+    expect(stampsByDay(rows, true).get(start)).toBe(13);
+    expect(dayTotals(rows, start, 1, true)[0]).toBe(13);
+  });
+
+  it("counts a gift or an import at its size", () => {
+    const rows = buildRows([
+      event({ created_at: at(9) }),
+      event({ created_at: at(10), stamps: 8, source: "adjust" }),
+      event({ created_at: at(11), stamps: 2, source: "automation", business_user_email: null }),
+    ]);
+    expect(stampsByDay(rows, true).get(start)).toBe(11);
+  });
+
+  it("counts stamps taken off by their size when that kind is chosen", () => {
+    const rows = buildRows([
+      event({ created_at: at(9), stamps: -1, source: "adjust" }),
+      event({ created_at: at(10), stamps: -2, source: "adjust" }),
+    ]);
+    expect(stampsByDay(rows, false).get(start)).toBe(3);
+  });
+
+  it("never says a day netted below zero", () => {
+    const rows = buildRows([
+      event({ created_at: at(9) }),
+      event({ created_at: at(10), stamps: -3, source: "adjust" }),
+    ]);
+    expect(stampsByDay(rows, true).get(start)).toBe(0);
   });
 });

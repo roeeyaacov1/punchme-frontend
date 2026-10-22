@@ -761,7 +761,7 @@
         "date": "Date",
         "customer": "Customer",
         "action": "Action",
-        "by": "By"
+        "by": "Done by"
       },
       "action": {
         "stamp_one": "Stamp",
@@ -773,7 +773,7 @@
         "import": "Import"
       },
       "chartTitleRemoved": "Stamps taken off a day",
-      "chartHint": "Tap a day to see only its events.",
+      "chartHint": "Pick a day on the chart to see only its events.",
       "chartSummary_one": "Stamps a day over the last day: {{total}} in all. The busiest day was {{peakDay}}, with {{peak}}.",
       "chartSummary_other": "Stamps a day over the last {{count}} days: {{total}} in all. The busiest day was {{peakDay}}, with {{peak}}.",
       "stampsCount_one": "{{count, number}} stamp",
@@ -789,7 +789,7 @@
       "filtersOn": "Filter · {{count}}",
       "clearAll": "Clear all",
       "searchLabel": "Search activity",
-      "searchPlaceholder": "Customer, card or staff",
+      "searchPlaceholder": "Customer, card, staff",
       "allActions": "Any action",
       "allPeople": "Anyone",
       "automatic": "Automatic",
@@ -797,7 +797,10 @@
       "noMatches": "No events match these filters",
       "emptyPeriod_one": "Nothing was stamped today",
       "emptyPeriod_other": "Nothing was stamped in the last {{count}} days",
-      "dayHeading": "{{day}} · {{count}}",
+      "dayHeading_one": "{{day}} · {{count, number}} stamp",
+      "dayHeading_other": "{{day}} · {{count, number}} stamps",
+      "dayHeadingAtLeast_one": "{{day}} · at least {{count, number}} stamp",
+      "dayHeadingAtLeast_other": "{{day}} · at least {{count, number}} stamps",
       "showing": "Showing {{shown}} of {{total}}",
       "more_one": "1 more",
       "more_other": "{{count, number}} more",
