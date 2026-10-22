@@ -613,7 +613,9 @@ function Row({ customer: c, onOpen }: { customer: CustomerListItem; onOpen: () =
   let badge = null;
   if (c.status === "void") badge = <Badge tone="warn">{words("dashboard.customers.status.void")}</Badge>;
   else if (ready) badge = <Badge tone="reward">{words("dashboard.customers.status.ready")}</Badge>;
-  else if (isOneAway(c)) badge = <Badge>{words("dashboard.customers.status.oneAway")}</Badge>;
+  // One stamp away is the next one through the door: green, beside the
+  // reward's gold, so both stand out of a long list.
+  else if (isOneAway(c)) badge = <Badge tone="ok">{words("dashboard.customers.status.oneAway")}</Badge>;
 
   return (
     <ListRow

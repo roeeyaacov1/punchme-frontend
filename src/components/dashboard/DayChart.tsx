@@ -36,8 +36,8 @@ const FADE_MS = 150;
 type Layer = { key: string; days: ChartDay[] | null; fresh: boolean };
 
 /**
- * A value a day, as one line in ink, and the dataviz rules the counter brief
- * settled for it.
+ * A value a day, as one line in the data's teal, and the dataviz rules the
+ * counter brief settled for it.
  *
  * Time runs like the numbers in both languages: oldest at the left, today at
  * the right. So the plot and its axis sit in a `dir="ltr"` box and never
@@ -400,10 +400,20 @@ function Drawing({
   const number = new Intl.NumberFormat(i18n.resolvedLanguage);
   const dir = i18n.dir();
   const { last, inner, peak, xAt, yAt, lines, areas, unloaded, bandEnd, todayValue, peakIndex, showPeak } = at;
+  // The area is the series' own light, strongest under the line and gone by
+  // the baseline. Its id is this drawing's, so a crossfade's two drawings
+  // never share a gradient.
+  const glow = `glow${useId().replace(/:/g, "")}`;
 
   return (
     <div aria-hidden={hidden || undefined} className={cn("pointer-events-none absolute inset-0", className)}>
       <svg width={width} height={PLOT_H} viewBox={`0 0 ${width} ${PLOT_H}`} aria-hidden className="block overflow-visible">
+        <defs>
+          <linearGradient id={glow} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style={{ stopColor: "rgb(var(--c-series))", stopOpacity: 0.26 }} />
+            <stop offset="1" style={{ stopColor: "rgb(var(--c-series))", stopOpacity: 0.03 }} />
+          </linearGradient>
+        </defs>
         {bandEnd > 0 && <rect x={0} y={0} width={bandEnd} height={PLOT_H} className="fill-ink/[0.05]" />}
         {selectedIndex >= 0 && (
           <rect
@@ -412,14 +422,14 @@ function Drawing({
             width={Math.max(16, inner / Math.max(1, last))}
             height={PLOT_H}
             rx={6}
-            className="fill-ink/[0.08]"
+            className="fill-series/[0.12]"
           />
         )}
         {areas.map((d) => (
-          <path key={d} d={d} className="fill-ink/[0.08]" />
+          <path key={d} d={d} fill={`url(#${glow})`} />
         ))}
         {lines.map((d) => (
-          <path key={d} d={d} fill="none" className="stroke-ink" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+          <path key={d} d={d} fill="none" className="stroke-series" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
         ))}
         {active !== null && (
           <line x1={xAt(active)} y1={0} x2={xAt(active)} y2={PLOT_H} className="stroke-ink-muted" strokeWidth={1} strokeDasharray="3 3" />
@@ -430,12 +440,12 @@ function Drawing({
             i >= 0 &&
             i !== last &&
             days[i].value !== null && (
-              <circle key={k} cx={xAt(i)} cy={yAt(days[i].value ?? 0)} r={4} className="fill-ink stroke-surface" strokeWidth={2} />
+              <circle key={k} cx={xAt(i)} cy={yAt(days[i].value ?? 0)} r={4} className="fill-series stroke-surface" strokeWidth={2} />
             ),
         )}
         {todayValue !== null && (
           // Today, lifted off the line: 8px inside a 2px ring of the panel.
-          <circle cx={xAt(last)} cy={yAt(todayValue)} r={5} className="fill-ink stroke-surface" strokeWidth={2} />
+          <circle cx={xAt(last)} cy={yAt(todayValue)} r={5} className="fill-series stroke-surface" strokeWidth={2} />
         )}
       </svg>
 

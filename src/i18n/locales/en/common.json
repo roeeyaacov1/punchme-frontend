@@ -1797,7 +1797,8 @@
       "lightLead": "The same by day and at night, and always under ink.",
       "text": "Text",
       "edges": "Edges and rings",
-      "states": "States"
+      "states": "States",
+      "data": "Data"
     },
     "type": {
       "title": "Type",

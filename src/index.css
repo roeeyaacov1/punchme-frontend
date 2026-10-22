@@ -262,6 +262,14 @@ html.theme-night .logo-mark {
   --c-danger-bg: 255 253 250; /* the panel: an error is its words and icon */
   --c-reward: 132 82 9; /* #845209  5.89:1 / 6.47:1 */
   --c-reward-bg: 255 253 250; /* the panel; gold is the reward's one fill */
+  /* The data's own colour: one series in teal, the complement of the sign's
+     coral, so a chart reads as data and never as the thing to press or a
+     state (ok's green is 30° of hue away). A line, a bar and a point need
+     3:1 (WCAG 1.4.11): #138282  4.14:1 on the wall, 4.55:1 on a panel. A
+     word that carries the series, such as Activity's "Stamp", is series-ink
+     #017272  5.15:1 / 5.66:1. */
+  --c-series: 19 130 130;
+  --c-series-ink: 1 114 114;
   /* Behind a dialog or a sheet. A dimmer, not a surface; carries no text. */
   --c-scrim: 43 37 33;
   --scrim-alpha: 0.4;
@@ -284,37 +292,43 @@ html.theme-night .logo-mark {
 
 /* The street after closing. The wall goes dark and the panels go unlit; only
    what matters keeps its light (`.theme-lit`, below). Ratios against the
-   street (#16120f) and an unlit panel (#211b17). */
+   street (#1f1916) and an unlit panel (#2a241f): a step up, 22 Oct, from
+   #16120f and #211b17, which read as black rather than a street at dusk.
+   The hue stays the wall's, at OKLCH lightness 0.22 and 0.265. */
 .theme-lightbox.theme-night {
   color-scheme: dark;
-  --c-background: 22 18 15; /* the street #16120f */
-  --c-surface: 33 27 23; /* an unlit panel #211b17 */
-  --c-ink: 246 239 231; /* #f6efe7  16.33:1 / 14.92:1 */
-  --c-ink-muted: 203 191 179; /* #cbbfb3  10.32:1 / 9.43:1 */
-  --c-ink-subtle: 169 156 144; /* #a99c90  6.95:1 / 6.35:1 */
-  --c-primary: 255 138 92; /* coral #ff8a5c; 8.01:1 / 7.32:1 as an edge */
+  --c-background: 31 25 22; /* the street #1f1916 */
+  --c-surface: 42 36 31; /* an unlit panel #2a241f */
+  --c-ink: 246 239 231; /* #f6efe7  15.23:1 / 13.43:1 */
+  --c-ink-muted: 203 191 179; /* #cbbfb3  9.63:1 / 8.49:1 */
+  --c-ink-subtle: 169 156 144; /* #a99c90  6.48:1 / 5.72:1 */
+  --c-primary: 255 138 92; /* coral #ff8a5c; 7.47:1 / 6.59:1 as an edge */
   --c-primary-hover: 255 158 120; /* #ff9e78 */
   --c-primary-text: 246 239 231;
   --c-primary-on: 26 18 13; /* #1a120d on coral 7.95:1, on its hover 9.16:1 */
   --c-primary-shadow: 185 94 60;
-  --c-border: 47 39 34; /* #2f2722  1.27:1 / 1.16:1, decoration only */
-  --c-border-strong: 63 53 46; /* #3f352e  1.56:1 / 1.42:1, decoration only */
-  --c-field: 125 112 100; /* #7d7064  3.87:1 / 3.54:1 */
+  --c-border: 54 47 42; /* #362f2a  1.32:1 / 1.16:1, decoration only */
+  --c-border-strong: 71 62 56; /* #473e38  1.66:1 / 1.46:1, decoration only */
+  --c-field: 136 119 105; /* #887769  4.04:1 / 3.56:1 */
   --c-navy-deep: 14 12 10; /* the camera's glass, one step under the street */
   --c-rim: 255 255 255;
-  --c-ok: 110 231 183; /* #6ee7b7  12.21:1 / 11.16:1, 10.44:1 on its own fill */
+  --c-ok: 110 231 183; /* #6ee7b7  11.39:1 / 10.05:1, 10.44:1 on its own fill */
   --c-ok-bg: 16 38 31;
-  --c-ok-tag: 110 231 183; /* on its wash 7.83:1 over a panel; #065f46 would be 2.21:1 */
-  --c-warn: 252 211 77; /* #fcd34d  12.91:1 / 11.80:1 */
-  --c-warn-bg: 33 27 23;
-  --c-danger: 252 165 165; /* #fca5a5  9.81:1 / 8.96:1 */
-  --c-danger-bg: 33 27 23;
-  --c-reward: 255 216 117; /* #ffd875  13.59:1 / 12.42:1 */
-  --c-reward-bg: 33 27 23;
+  --c-ok-tag: 110 231 183; /* on its wash 7.04:1 over a panel; #065f46 would fail */
+  --c-warn: 252 211 77; /* #fcd34d  12.04:1 / 10.62:1 */
+  --c-warn-bg: 42 36 31;
+  --c-danger: 252 165 165; /* #fca5a5  9.15:1 / 8.07:1 */
+  --c-danger-bg: 42 36 31;
+  --c-reward: 255 216 117; /* #ffd875  12.68:1 / 11.18:1 */
+  --c-reward-bg: 42 36 31;
+  /* The series after dark: the same teal, lit. #78d7d6  10.33:1 / 9.11:1;
+     its words #88e0df  11.39:1 / 10.05:1. */
+  --c-series: 120 215 214;
+  --c-series-ink: 136 224 223;
   --c-scrim: 0 0 0;
   --scrim-alpha: 0.6;
   /* Panels lose the drop at night, and a lit one needs no glow: its own
-     ground against the street (17.14:1) is the light. Transparent layers
+     ground against the street (15.99:1) is the light. Transparent layers
      rather than `none`, because Tailwind folds shadow-* and ring-* into one
      box-shadow list and a `none` inside it voids the whole declaration, focus
      ring included. */
@@ -364,6 +378,8 @@ html.theme-night .logo-mark {
   --c-danger-bg: var(--lit-ground);
   --c-reward: 132 82 9;
   --c-reward-bg: var(--lit-ground);
+  --c-series: 19 130 130;
+  --c-series-ink: 1 114 114;
   --c-scrim: 43 37 33;
   --scrim-alpha: 0.4;
   --shadow-panel: var(--lit-shadow);
@@ -383,7 +399,7 @@ html.theme-lightbox {
 
 /* Text selection, themed rather than left to the OS blue: coral at 28%,
    with the text keeping its own colour. Ink on it 10.56:1 over the wall and
-   11.29:1 over a panel; at night 9.57:1 over the street and 8.66:1 over an
+   11.29:1 over a panel; at night 8.79:1 over the street and 7.79:1 over an
    unlit panel; on a lit panel at night 10.77:1. Fixed values rather than
    variables, because a highlight pseudo-element's custom properties don't
    resolve the same way in every engine. The lit rule comes last so it wins

@@ -14,17 +14,17 @@ colors:
   hairline-strong: "#d8ccbb"
   field-edge: "#8e8277"
   # ── At night ──
-  street: "#16120f"
-  unlit-panel: "#211b17"
+  street: "#1f1916"
+  unlit-panel: "#2a241f"
   night-ink: "#f6efe7"
   night-ink-muted: "#cbbfb3"
   night-ink-subtle: "#a99c90"
   night-coral: "#ff8a5c"
   night-coral-hover: "#ff9e78"
   night-coral-ink: "#1a120d"
-  night-hairline: "#2f2722"
-  night-hairline-strong: "#3f352e"
-  night-field-edge: "#7d7064"
+  night-hairline: "#362f2a"
+  night-hairline-strong: "#473e38"
+  night-field-edge: "#887769"
   camera-glass: "#0e0c0a"
   # ── The light itself, the same by day and at night ──
   panel-light: "#fff4e6"
@@ -38,6 +38,11 @@ colors:
   answer-full-ink: "#504019"
   answer-failed-ink: "#66302a"
   reward-gold: "#f0b429"
+  # ── The data ──
+  series: "#138282"
+  series-ink: "#017272"
+  night-series: "#78d7d6"
+  night-series-ink: "#88e0df"
   # ── States ──
   ok: "#047857"
   ok-tag: "#065f46"
@@ -274,7 +279,8 @@ The voice is warm, calm and candid. Friendly without being cute, plain like the 
 Lightbox sits close to the warm cream look AI tools reach for first, and it stays out of it on purpose: no serif, no paper texture, light instead of paper, and coral only ever as a fill. The metaphor stays in the light, so there are no neon tubes, no brick and no drawn shopfronts, and light comes from lit panels, never from glass, glows or gradient text.
 
 **Key Characteristics:**
-- A warm wall (#f6f2eb) with lit panels (#fffdfa) on it; at night a street (#16120f) of unlit panels (#211b17), with a few things that keep their light (#fff4e6).
+- A warm wall (#f6f2eb) with lit panels (#fffdfa) on it; at night a street (#1f1916) of unlit panels (#2a241f), with a few things that keep their light (#fff4e6).
+- The data in its own teal, the complement of the coral, never a state.
 - One warm colour, Sign Coral, as a fill only, always carrying its label in Soft Ink.
 - Ink, not coral, marks "on" and "selected".
 - Rubik 500 for display and the interface, Assistant for running text, Rubik's tabular figures for every number.
@@ -297,7 +303,7 @@ A warm wall, lit acrylic and soft ink, with one coral fill and a set of lights t
 - **Ink Subtle** (#6b625a): quiet text, 5.34:1 and 5.87:1. Never on gold, coral or the full and failed answers.
 - **Field Edge** (#8e8277): the edge that identifies a control: a field, a checkbox, a switch's track, a slider's rail. 3.35:1 on the wall, 3.68:1 on a panel.
 - **Hairline** (#e9e1d5) and **Strong Hairline** (#d8ccbb): dividers and soft edges, 1.16–1.55:1, decoration only.
-- **Street** (#16120f), **Unlit Panel** (#211b17), **Night Ink** (#f6efe7, 16.33:1 and 14.92:1), **Night Ink Muted** (#cbbfb3), **Night Ink Subtle** (#a99c90), **Night Field Edge** (#7d7064, 3.87:1 and 3.54:1) and the night hairlines (#2f2722, #3f352e): the same roles after dark.
+- **Street** (#1f1916), **Unlit Panel** (#2a241f), **Night Ink** (#f6efe7, 15.23:1 and 13.43:1), **Night Ink Muted** (#cbbfb3, 9.63:1 and 8.49:1), **Night Ink Subtle** (#a99c90, 6.48:1 and 5.72:1), **Night Field Edge** (#887769, 4.04:1 and 3.56:1) and the night hairlines (#362f2a, #473e38): the same roles after dark. The street is a dusk, not black: the wall's hue at OKLCH lightness 0.22, its panels at 0.265 (raised from #16120f and #211b17 on 22 Oct).
 - **Camera Glass** (#0e0c0a): the viewfinder, a hole in the wall that is never lit. What sits on it is Panel Light (17.97:1).
 
 ### The light
@@ -305,6 +311,10 @@ A warm wall, lit acrylic and soft ink, with one coral fill and a set of lights t
 - **Deep Light** (#ffe9d4), **Bright Light** (#fff7ec) and **Edge Light** (#fddcc8): the band (Panel Light to Deep Light, top to bottom), which lights the Overview's verdict tile and the lead of a shop not live yet and the landing page's field (Bright Light at the centre to Edge Light at the edges). Ink 12.85, 14.22 and 11.69:1.
 - **The answers**: Punched (#c9f0d9, ink 12.19:1), Full (#ffd36b, 10.63:1) and Failed (#ffc9c2, 10.35:1). A refusal answers on Panel Light, its word and icon in warn (6.53:1) and its reason in ink-muted (7.47:1). Answers carry ink, and each light's secondary line its own deep tint: its hue darkened in OKLCH to L 0.38, Punched Ink (#224c37, 7.86:1), Full Ink (#504019, 7.08:1) and Failed Ink (#66302a, 7.12:1). Ink-muted, ink-subtle and the state colours stay off the three lights.
 - **Reward Gold** (#f0b429): the reward's one fill, carrying Soft Ink at 8.10:1. Coral beside it is 1.47:1.
+
+### The data
+- **Series** (#138282 by day, #78d7d6 at night): the data's one colour, a teal at OKLCH hue 195, the complement of the sign's coral and 30° of hue from ok's green, so a chart never reads as the thing to press or as a state. It draws a chart's line, its area and its points and the week's bars: 4.14:1 on the wall and 4.55:1 on a panel by day, 10.33:1 and 9.11:1 at night, over the 3:1 a mark needs.
+- **Series Ink** (#017272 by day, #88e0df at night): a word that carries the series, such as Activity's "Stamp" beside the chart drawn in it. 5.15:1 and 5.66:1 by day, 11.39:1 and 10.05:1 at night. A chart's own labels stay ink and ink-muted.
 
 ### States
 - **Ok** (#047857, 4.91:1 on the wall; at night #6ee7b7) with its tag text **Ok Tag** (#065f46, 6.11:1 on ok's 15% wash over a panel), **Warn** (#92400e, 6.35:1; at night #fcd34d), **Danger** (#b91c1c, 5.79:1; at night #fca5a5) and **Reward** text (#845209; at night #ffd875). A state is said in words and an icon; its colour is the second signal.
@@ -357,7 +367,7 @@ Everything is laid out with logical properties: start and end, never left and ri
 
 ## Elevation & Depth
 
-Lit, not lifted. By day a panel's depth is light: a 1px highlight inside its top edge, white at 70%, and a soft warm drop. At night panels lose both and keep only their own edge, and a lit panel needs no glow, because its own ground against the street (17.14:1) is the light. Only overlays lift: a dialog, a sheet and a toast float on a deeper shadow over a scrim of ink at 40% by day and black at 60% at night.
+Lit, not lifted. By day a panel's depth is light: a 1px highlight inside its top edge, white at 70%, and a soft warm drop. At night panels lose both and keep only their own edge, and a lit panel needs no glow, because its own ground against the street (15.99:1) is the light. Only overlays lift: a dialog, a sheet and a toast float on a deeper shadow over a scrim of ink at 40% by day and black at 60% at night.
 
 ### Shadow Vocabulary
 - **Lit panel** (`box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 1px 2px rgb(43 37 33 / 0.05), 0 8px 24px rgb(43 37 33 / 0.06)`): every panel by day.
@@ -412,7 +422,7 @@ Scan answers like a photo snap. A flash of Panel Light covers the whole viewfind
 The owner's card on the customer's phone: a wallpaper made from the card's own colour, a tone of it 30% of the way to white and a hint 28% of the way to its stamp colour, blurred 44px, with no saturation boost, under the message the pass brings as a lock-screen notification, and "Roughly how it looks on the lock screen" beneath. The blur is written into gradient stops, so nothing blurs at runtime. It is the customer's phone, so it looks the same at night.
 
 ### Charts
-One series in ink, never coral: a 2px line with round joins over an 8% area of itself, on a 1px baseline one step off the panel; bars at most 24px wide with 4px tops, square at the base, 2px apart. Time runs like the numbers in both languages, oldest at the left and today at the right, so a plot and its axis sit in a `dir="ltr"` box while the title, the readout and the panel around them follow the page. Only two values are printed on the line, the peak once and today at its end, in ink-muted and ink at 13px, Rubik's tabular figures; nothing under 13px and no Plex Mono. One hit surface snaps to the nearest day, and the readout above the plot leads with the value. A day that wasn't loaded is drawn as not loaded, never as zero, and every chart has a twin for a screen reader: a one-line summary and the days as a list.
+One series in the data's teal (Series), never coral and never a state colour: a 2px line with round joins over an area of its own light, 26% under the line falling to 3% at the baseline, on a 1px baseline one step off the panel; bars in the series at most 24px wide with 4px tops, square at the base, 2px apart. A picked day is a band of the series at 12%. Time runs like the numbers in both languages, oldest at the left and today at the right, so a plot and its axis sit in a `dir="ltr"` box while the title, the readout and the panel around them follow the page. Only two values are printed on the line, the peak once and today at its end, in ink-muted and ink at 13px, Rubik's tabular figures; nothing under 13px and no Plex Mono. One hit surface snaps to the nearest day, and the readout above the plot leads with the value. A day that wasn't loaded is drawn as not loaded, never as zero, and every chart has a twin for a screen reader: a one-line summary and the days as a list.
 
 ### Dialogs, sheets and toasts
 A dialog asks a question that must be answered first and rises from 0.96; a sheet holds work beside the page, rising on the drawer curve or coming in from the end edge. Both are the native `<dialog>`, a real focus trap, and crossfade with reduced motion. A toast confirms what the owner just did, arrives by light, and stays 4 seconds counted only while it can be read; an error stays until dismissed.
