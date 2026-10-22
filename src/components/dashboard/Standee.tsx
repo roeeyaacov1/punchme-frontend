@@ -1,4 +1,13 @@
-import { createContext, useContext, type CSSProperties, type ReactElement, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
 import { Lock } from "lucide-react";
@@ -155,6 +164,40 @@ export function standeePalette(
    whole thing scales as one object. */
 const u = (n: number) => `calc(var(--u) * ${n})`;
 
+/* ── The fit ───────────────────────────────────────────────────────────
+   The business name and the reward are the owner's, of any length, on a
+   panel whose height is fixed by the paper. So they carry one more dial,
+   `--fit`, which the sheet steps down from 1 until its content fits the
+   panel: it never clips. The QR code doesn't take it and never shrinks. The
+   dial is a multiplier on `cqw` sizes, so a fit measured on screen holds on
+   paper, where everything is the same multiple larger. */
+const fit = (n: number) => `calc(var(--u) * ${n} * var(--fit, 1))`;
+
+const FIT_STEP = 0.04;
+/** Below two thirds of their size the name and the reward are cramped, and
+ * the page says so; the sheet still steps on until it fits. */
+export const FIT_FLOOR = 0.66;
+const FIT_MIN = 0.3;
+
+/* ── The code's quiet zone ─────────────────────────────────────────────
+   ISO/IEC 18004 asks for four modules of white on every side, which the
+   code carries itself (`marginSize`), so the room it takes grows with how
+   many modules it has and the modules never get smaller. How many depends
+   on the URL: qrcode.react takes the smallest version that holds it, in
+   byte mode, because a URL's lowercase letters rule out the denser
+   alphanumeric mode. These are the bytes versions 1 to 10 hold at level M. */
+const QUIET_MODULES = 4;
+const BYTES_AT_LEVEL_M = [14, 26, 42, 62, 84, 106, 122, 152, 180, 213];
+
+function modulesFor(text: string): number {
+  const bytes = new TextEncoder().encode(text).length;
+  const version = BYTES_AT_LEVEL_M.findIndex((max) => bytes <= max) + 1 || BYTES_AT_LEVEL_M.length;
+  return 17 + 4 * version;
+}
+
+/** A join link is a version 5 code, 37 modules: the room the empty slot holds. */
+const SLOT_MODULES = 37;
+
 /* ── Blocks ───────────────────────────────────────────────────────────── */
 
 function Qr({
@@ -167,19 +210,22 @@ function Qr({
   palette: StandeePalette;
 }) {
   const t = useSheetT();
+  // `size` is the code itself, its modules edge to edge; the quiet zone is
+  // laid round it, in the same units.
+  const quiet = (size * QUIET_MODULES) / (art.active ? modulesFor(art.enrollUrl) : SLOT_MODULES);
   return (
     // The tile is white and the same size either way — it is the footprint
     // the code will occupy, so activating changes what is in the slot and
     // not where anything sits.
     //
     // Forced LTR only around a real code: a QR is a picture of a URL and has
-    // no writing direction, and the quiet zone around it is part of the spec,
-    // not padding taste. The waiting slot is a sentence and keeps the page's.
+    // no writing direction. The waiting slot is a sentence and keeps the
+    // page's.
     <div
       dir={art.active ? "ltr" : undefined}
       style={{
         backgroundColor: "#ffffff",
-        padding: u(size * 0.06),
+        padding: art.active ? 0 : u(quiet),
         borderRadius: u(size * 0.05),
         boxShadow: palette.lightGround ? "0 0 0 1px rgb(0 0 0 / 0.1)" : undefined,
       }}
@@ -191,7 +237,8 @@ function Qr({
           // box below, and the box is what the paper sees.
           size={1024}
           level="M"
-          style={{ display: "block", width: u(size), height: u(size) }}
+          marginSize={QUIET_MODULES}
+          style={{ display: "block", width: u(size + 2 * quiet), height: u(size + 2 * quiet) }}
         />
       ) : (
         // An empty slot, drawn as one: a dashed cut-out and the reason. Ink
@@ -285,12 +332,16 @@ function PunchRow({
   );
 }
 
+/** The three steps, side by side. A tent's panel is wider than an A4's in
+ * sheet units, so there each step gets room to say itself on one line. */
 function Steps({
   palette,
   size,
+  wide = false,
 }: {
   palette: StandeePalette;
   size: number;
+  wide?: boolean;
 }) {
   const t = useSheetT();
   const steps = [
@@ -307,7 +358,7 @@ function Steps({
         <li
           key={step}
           className="flex min-w-0 flex-col items-center text-center"
-          style={{ gap: u(size * 0.5), maxWidth: u(size * 9) }}
+          style={{ gap: u(size * 0.5), maxWidth: u(size * (wide ? 13 : 9)) }}
         >
           <span
             aria-hidden="true"
@@ -408,16 +459,16 @@ function Band({
 function Poster({ art, palette, wide }: Layout) {
   const t = useSheetT();
   return (
-    <Sheet pad={wide ? 5.5 : 8}>
-      <Band gap={wide ? 2.4 : 3}>
-        {art.logoUrl ? <Logo url={art.logoUrl} height={9} /> : null}
+    <Sheet pad={wide ? 4 : 8}>
+      <Band gap={wide ? 1.5 : 3}>
+        {art.logoUrl ? <Logo url={art.logoUrl} height={wide ? 6 : 9} /> : null}
         {/* Not a heading. This is a picture of a sheet of paper, and four
             thumbnails of it would put four <h2>s into the page's outline. */}
         <p
           dir="auto"
           className="font-heading font-bold"
           style={{
-            fontSize: u(9.5),
+            fontSize: fit(9.5),
             lineHeight: 1.05,
             letterSpacing: "-0.015em",
             textWrap: "balance",
@@ -436,12 +487,12 @@ function Poster({ art, palette, wide }: Layout) {
         />
       </Band>
 
-      <Band gap={wide ? 3 : 4.4}>
+      <Band gap={wide ? 2.2 : 4.4}>
         <p
           dir="auto"
           className="font-heading font-bold"
           style={{
-            fontSize: u(5.8),
+            fontSize: fit(5.8),
             lineHeight: 1.2,
             color: palette.accent,
             textWrap: "balance",
@@ -463,8 +514,8 @@ function Poster({ art, palette, wide }: Layout) {
         </p>
       </Band>
 
-      <Band gap={wide ? 2.4 : 3.4}>
-        <Steps palette={palette} size={2.4} />
+      <Band gap={wide ? 1.8 : 3.4}>
+        <Steps palette={palette} size={wide ? 2.2 : 2.4} wide={wide} />
         <Footer palette={palette} size={1.7} />
       </Band>
     </Sheet>
@@ -482,7 +533,7 @@ function Counter({ art, palette, wide }: Layout) {
           dir="auto"
           className="font-heading font-bold"
           style={{
-            fontSize: u(7),
+            fontSize: fit(7),
             lineHeight: 1.1,
             color: palette.accent,
             textWrap: "balance",
@@ -509,7 +560,7 @@ function Counter({ art, palette, wide }: Layout) {
         <p
           dir="auto"
           className="font-body font-bold"
-          style={{ fontSize: u(2.6), opacity: 0.9 }}
+          style={{ fontSize: fit(2.6), opacity: 0.9 }}
         >
           {art.businessName}
         </p>
@@ -530,7 +581,7 @@ function CardDeal({ art, palette, wide }: Layout) {
         <p
           dir="auto"
           className="font-heading font-bold"
-          style={{ fontSize: u(4.4), lineHeight: 1.15, opacity: 0.9 }}
+          style={{ fontSize: fit(4.4), lineHeight: 1.15, opacity: 0.9 }}
         >
           {art.businessName}
         </p>
@@ -547,7 +598,7 @@ function CardDeal({ art, palette, wide }: Layout) {
           dir="auto"
           className="font-heading font-bold"
           style={{
-            fontSize: u(7.2),
+            fontSize: fit(7.2),
             lineHeight: 1.12,
             color: palette.accent,
             textWrap: "balance",
@@ -582,8 +633,8 @@ function CardDeal({ art, palette, wide }: Layout) {
 function Plain({ art, palette, wide }: Layout) {
   const t = useSheetT();
   return (
-    <Sheet pad={wide ? 5.5 : 7.5}>
-      <Band gap={wide ? 2.4 : 3.2}>
+    <Sheet pad={wide ? 4 : 7.5}>
+      <Band gap={wide ? 1.8 : 3.2}>
         <span
           aria-hidden="true"
           className="w-full"
@@ -593,22 +644,22 @@ function Plain({ art, palette, wide }: Layout) {
             backgroundColor: palette.accent,
           }}
         />
-        {art.logoUrl ? <Logo url={art.logoUrl} height={8} /> : null}
+        {art.logoUrl ? <Logo url={art.logoUrl} height={wide ? 6 : 8} /> : null}
         <p
           dir="auto"
           className="font-heading font-bold"
-          style={{ fontSize: u(7.6), lineHeight: 1.1, textWrap: "balance" }}
+          style={{ fontSize: fit(7.6), lineHeight: 1.1, textWrap: "balance" }}
         >
           {art.businessName}
         </p>
       </Band>
 
-      <Band gap={wide ? 2.8 : 4}>
+      <Band gap={wide ? 2.2 : 4}>
         <p
           dir="auto"
           className="font-heading font-bold"
           style={{
-            fontSize: u(5),
+            fontSize: fit(5),
             lineHeight: 1.2,
             color: palette.accent,
             textWrap: "balance",
@@ -630,8 +681,8 @@ function Plain({ art, palette, wide }: Layout) {
         </p>
       </Band>
 
-      <Band gap={wide ? 2.4 : 3.2}>
-        <Steps palette={palette} size={2.3} />
+      <Band gap={wide ? 1.8 : 3.2}>
+        <Steps palette={palette} size={wide ? 2.1 : 2.3} wide={wide} />
         <Footer palette={palette} size={1.6} />
       </Band>
     </Sheet>
@@ -694,6 +745,12 @@ function StandeePanel({
  * It speaks `language` whatever the dashboard speaks, and says so with its
  * own `lang` and `dir`, so the print copy in its portal does too and a
  * screen reader reads it in the right voice.
+ *
+ * It fits itself to its paper (see "The fit"), measuring in a layout effect
+ * whenever what it holds or its width changes, and tells `onFit`. The print
+ * copy is `display: none` until the printer asks, so it can't measure: it
+ * takes the on-screen sheet's `fit` instead, which holds because both are
+ * drawn in the same `cqw`.
  */
 export function StandeeSheet({
   design,
@@ -701,6 +758,9 @@ export function StandeeSheet({
   format,
   language,
   single = false,
+  fit: fixedFit,
+  onFit,
+  measureAtPaper = false,
   className,
 }: {
   design: StandeeDesign;
@@ -708,6 +768,11 @@ export function StandeeSheet({
   format: PrintFormat;
   language: SignLanguage;
   single?: boolean;
+  /** A fit measured elsewhere, for a copy that can't measure itself. */
+  fit?: number;
+  onFit?: (fit: number) => void;
+  /** Also measured at the paper's width: for the sheet whose fit prints. */
+  measureAtPaper?: boolean;
   className?: string;
 }) {
   const { t } = useTranslation(undefined, { lng: language });
@@ -717,13 +782,85 @@ export function StandeeSheet({
   const height = wide && !folded ? spec.height / 2 : spec.height;
   const palette = standeePalette(design, art);
 
+  const root = useRef<HTMLDivElement>(null);
+  const [measured, setMeasured] = useState(1);
+  const report = useRef(onFit);
+  report.current = onFit;
+  const measuring = fixedFit === undefined;
+  const paperWidth = measureAtPaper ? `${spec.width}mm` : null;
+  const { businessName, reward, stampsRequired, logoUrl, glyph, active } = art;
+  useLayoutEffect(() => {
+    const sheet = root.current;
+    if (!measuring || !sheet) return;
+    // Step the dial down until no panel's content is taller than the panel,
+    // writing it straight onto the element so each step lays out at once.
+    const measure = () => {
+      // A sheet that isn't laid out has nothing to measure: printing hides
+      // the page around the print copy, and a fit taken then would be 1.
+      if (sheet.getClientRects().length === 0) return;
+      const contents = [...sheet.querySelectorAll<HTMLElement>(".standee-panel > *")];
+      // What the bands need, padding and gaps included, against what the
+      // panel has: `scrollHeight` would let the last band eat the bottom
+      // padding and set the footer on the paper's edge.
+      const overflows = () =>
+        contents.some((content) => {
+          const style = getComputedStyle(content);
+          const bands = [...content.children];
+          const needed =
+            parseFloat(style.paddingTop) +
+            parseFloat(style.paddingBottom) +
+            (parseFloat(style.rowGap) || 0) * Math.max(0, bands.length - 1) +
+            bands.reduce((sum, band) => sum + band.getBoundingClientRect().height, 0);
+          return needed - content.getBoundingClientRect().height > 0.5;
+        });
+      let next = 1;
+      const stepDown = () => {
+        while (overflows() && next - FIT_STEP >= FIT_MIN) {
+          next = Math.round((next - FIT_STEP) * 100) / 100;
+          sheet.style.setProperty("--fit", String(next));
+        }
+      };
+      sheet.style.setProperty("--fit", "1");
+      stepDown();
+      // Type doesn't scale quite linearly from 300px to 210mm, so a sheet
+      // whose fit the printer takes is measured at the paper's own width
+      // too, before anything paints, and keeps the smaller of the two.
+      if (paperWidth) {
+        sheet.style.width = paperWidth;
+        sheet.style.maxWidth = "none";
+        stepDown();
+        sheet.style.width = "";
+        sheet.style.maxWidth = "";
+      }
+      setMeasured(next);
+      report.current?.(next);
+    };
+    measure();
+    // Again once the faces have loaded, since Rubik sets wider than its
+    // fallback, and whenever the sheet's width changes.
+    let width = sheet.getBoundingClientRect().width;
+    const resized = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width === 0 || Math.abs(entry.contentRect.width - width) < 1) return;
+      width = entry.contentRect.width;
+      measure();
+    });
+    resized.observe(sheet);
+    let live = true;
+    void document.fonts?.ready.then(() => live && measure());
+    return () => {
+      live = false;
+      resized.disconnect();
+    };
+  }, [measuring, paperWidth, design, format, language, single, businessName, reward, stampsRequired, logoUrl, glyph, active]);
+
   return (
     <SheetLanguage.Provider value={language}>
       <div
+        ref={root}
         lang={language}
         dir={language === "he" ? "rtl" : "ltr"}
         className={cn("standee-sheet", className)}
-        style={{ aspectRatio: `${spec.width} / ${height}` }}
+        style={{ aspectRatio: `${spec.width} / ${height}`, ["--fit" as string]: fixedFit ?? measured }}
       >
         {folded && <StandeePanel design={design} art={art} wide className="rotate-180" />}
         <StandeePanel design={design} art={art} wide={wide} />
