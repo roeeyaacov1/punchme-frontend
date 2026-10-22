@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Figure } from "../kit/Figure";
 import { LitPanel } from "../kit/LitPanel";
-import { focusRingInset, linkText } from "../kit/classes";
+import { focusRingInset, linkText, noTapFlash } from "../kit/classes";
 import { cn } from "../../lib/cn";
 
 /**
@@ -14,6 +14,9 @@ import { cn } from "../../lib/cn";
  *
  * A tile that goes somewhere is one link round its label and figure, so the
  * line under it can be a link of its own without nesting one in the other.
+ * That link is a control, so it presses like the kit's rows: the 6% ink
+ * well under a finger, no wait for a double tap, and a long press neither
+ * opens the link's callout nor selects its words.
  */
 export function StatTile({
   label,
@@ -51,7 +54,8 @@ export function StatTile({
         <Link
           to={to}
           className={cn(
-            "-m-2 flex min-h-11 flex-col gap-2 rounded-field p-2 transition-colors hover-fine:bg-ink/5",
+            "-m-2 flex min-h-11 touch-manipulation select-none flex-col gap-2 rounded-field p-2 transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5 [-webkit-touch-callout:none]",
+            noTapFlash,
             focusRingInset,
           )}
         >

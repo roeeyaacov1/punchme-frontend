@@ -27,6 +27,11 @@ export interface SegmentedControlProps<T extends string> {
  * segment is as wide as the widest, so the pill can slide by its own width:
  * on the in-out, mirrored in Hebrew. With reduced motion there is no pill to
  * slide; the chosen segment's own colour crosses over instead.
+ *
+ * Each segment is a control: one not yet chosen presses with the kit's 6%
+ * ink well, at the press's own pace while its label's colour keeps the
+ * pill's, and none waits for a double tap or selects its words on a long
+ * press.
  */
 export function SegmentedControl<T extends string>({
   label,
@@ -63,12 +68,12 @@ export function SegmentedControl<T extends string>({
             <label
               key={option.value}
               className={cn(
-                "relative flex min-h-11 cursor-pointer items-center justify-center rounded-full px-4 text-center font-heading text-base font-medium leading-tight has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
+                "relative flex min-h-11 cursor-pointer touch-manipulation select-none items-center justify-center rounded-full px-4 text-center font-heading text-base font-medium leading-tight has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
                 noTapFlash,
-                chosen ? "text-surface" : "text-ink-muted hover-fine:text-ink",
+                chosen ? "text-surface" : "text-ink-muted active:bg-ink/[0.06] hover-fine:text-ink",
                 reduced
                   ? cn("transition-colors duration-gentle ease-out", chosen && "bg-ink")
-                  : "transition-colors duration-move ease-in-out-strong",
+                  : "[transition:color_var(--duration-move)_var(--ease-in-out-strong),background-color_var(--duration-press)_var(--ease-out-strong)]",
               )}
             >
               <input
