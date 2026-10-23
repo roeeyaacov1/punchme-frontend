@@ -588,8 +588,10 @@ don't meet.
 
 **Rules** (the default tab):
 - **A row per rule,** active rules first by `next_run_at`, then those
-  switched off, then those on hold. Each row is two controls, never one link
-  with a switch inside it:
+  switched off, then those on hold, as the page opens. Once a rule is
+  switched, that order holds until the page is opened again, so the row
+  under the finger stays the rule that was switched (step C). Each row is
+  two controls, never one link with a switch inside it:
   - **the rule,** a link to its editor: the kind's lucide icon, the name
     (`dir="auto"`, `text-align: match-parent`, two lines before an
     ellipsis), and one meta line in words: "מי שלא ביקר/ה 30 יום · 10:00 ·

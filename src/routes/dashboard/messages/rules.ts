@@ -85,6 +85,24 @@ export function orderRules(rules: readonly AutomationOut[], canReachOne: boolean
     .map(({ rule }) => rule);
 }
 
+/**
+ * The rules in an order already on screen, by id. Once a rule is switched,
+ * the page keeps the order it was showing until it is opened again, so the
+ * row under the finger stays the rule that was switched: sorted again on
+ * the answer, the first rule switched off dropped to the end and put
+ * another rule's switch where the finger was. A rule the order doesn't hold
+ * yet comes after, in `orderRules`' order; one that has gone drops out.
+ */
+export function keepOrder(rules: readonly AutomationOut[], order: readonly string[], canReachOne: boolean): AutomationOut[] {
+  const byId = new Map(rules.map((rule) => [rule.id, rule]));
+  const kept = order.flatMap((id) => {
+    const rule = byId.get(id);
+    return rule ? [rule] : [];
+  });
+  const held = new Set(order);
+  return [...kept, ...orderRules(rules.filter((rule) => !held.has(rule.id)), canReachOne)];
+}
+
 /** A rule that is on, whose next run is already behind it: the scheduler
  * missed it, and the row says so rather than show a time in the past. */
 export function isLate(rule: AutomationOut, canReachOne: boolean, now = Date.now()): boolean {
