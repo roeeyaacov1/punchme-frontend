@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Input, RadioGroup, SegmentedControl, Select, Switch } from "../../../components/kit";
+import { Input, RadioGroup, SegmentedControl, Select, Switch, useReducedMotion } from "../../../components/kit";
+import { cn } from "../../../lib/cn";
 import { FieldSection } from "../../../components/messaging/MessageFields";
 import { formatHour, uiDays } from "../../../components/messaging/describe";
 import { RULE_RANGES, inRange, type RuleDraft } from "./ruleSentence";
@@ -10,6 +11,14 @@ const REWARD_PRESETS = ["3", "7", "14"] as const;
 const BIRTHDAY_PRESETS = ["0", "1", "3", "7"] as const;
 const SEND_HOURS = Array.from({ length: 14 }, (_, i) => 8 + i); // 08:00 … 21:00
 const OTHER = "other";
+
+/** A field a choice opens lights on as it appears (240ms, or the gentle
+ * 150ms fade with reduced motion): only once a hand has opened it, never
+ * with the page or a draft brought back. */
+function useOpening(): (opened: boolean) => string | undefined {
+  const reduced = useReducedMotion();
+  return (opened) => (opened ? (reduced ? "animate-gentle-in" : "animate-lights-on") : undefined);
+}
 
 /** A typed number, or NaN while it isn't one: an empty field stays empty
  * rather than becoming a 0 the owner can't delete. */
@@ -38,8 +47,10 @@ function DaysChoice({
   onChange: (days: number) => void;
 }) {
   const { t, i18n } = useTranslation();
+  const opening = useOpening();
   const preset = presets.includes(String(value));
   const [other, setOther] = useState(!preset);
+  const [picked, setPicked] = useState(false);
   const [text, setText] = useState(preset || !Number.isFinite(value) ? "" : String(value));
   const chosen = other ? OTHER : String(value);
   return (
@@ -50,6 +61,7 @@ function DaysChoice({
         onChange={(next) => {
           if (next === OTHER) {
             setOther(true);
+            setPicked(true);
             onChange(parseCount(text));
           } else {
             setOther(false);
@@ -73,7 +85,7 @@ function DaysChoice({
             setText(event.target.value);
             onChange(parseCount(event.target.value));
           }}
-          className="max-w-[12rem]"
+          className={cn("max-w-[12rem]", opening(picked))}
         />
       )}
     </div>
@@ -87,7 +99,9 @@ function DaysChoice({
 export function RuleWhen({ draft, onChange }: { draft: RuleDraft; onChange: (patch: Partial<RuleDraft>) => void }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage ?? "he";
+  const opening = useOpening();
   const [repeatText, setRepeatText] = useState(draft.repeat_days === null ? "30" : String(draft.repeat_days));
+  const [repeatOpened, setRepeatOpened] = useState(false);
 
   return (
     <FieldSection title={t("messaging.editor.when")}>
@@ -104,7 +118,10 @@ export function RuleWhen({ draft, onChange }: { draft: RuleDraft; onChange: (pat
           <Switch
             checked={draft.repeat_days !== null}
             label={t("messaging.editor.repeat")}
-            onChange={(on) => onChange({ repeat_days: on ? parseCount(repeatText) : null })}
+            onChange={(on) => {
+              setRepeatOpened(on);
+              onChange({ repeat_days: on ? parseCount(repeatText) : null });
+            }}
           />
           {draft.repeat_days !== null && (
             <Input
@@ -120,7 +137,7 @@ export function RuleWhen({ draft, onChange }: { draft: RuleDraft; onChange: (pat
                 setRepeatText(event.target.value);
                 onChange({ repeat_days: parseCount(event.target.value) });
               }}
-              className="max-w-[12rem]"
+              className={cn("max-w-[12rem]", opening(repeatOpened))}
             />
           )}
         </>

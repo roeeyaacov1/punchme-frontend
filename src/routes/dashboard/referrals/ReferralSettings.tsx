@@ -11,6 +11,7 @@ import {
   Select,
   Switch,
   WallpaperStage,
+  useReducedMotion,
 } from "../../../components/kit";
 import { fieldBox } from "../../../components/kit/classes";
 import type { CardTemplate } from "../../../api/businesses";
@@ -187,11 +188,15 @@ function RuleSlotRow({
   businessId: string;
 }) {
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
   const key = slotKey(slot);
   const save = useSaveRule(businessId, slot);
   const [title, setTitle] = useState(rule.title);
   const [body, setBody] = useState(rule.body);
   const [editing, setEditing] = useState(false);
+  // The gift and the message light on when the owner switches the row on,
+  // as the saved answer brings them, never when the sheet opens.
+  const [opened, setOpened] = useState(false);
   const [switchState, setSwitchState] = useState<Saved>(null);
   const [giftState, setGiftState] = useState<Saved>(null);
   const [textState, setTextState] = useState<Saved>(null);
@@ -257,13 +262,21 @@ function RuleSlotRow({
             </>
           }
           description={hint || undefined}
-          onChange={(enabled) => run({ enabled }, setSwitchState)}
+          onChange={(enabled) => {
+            setOpened(enabled);
+            run({ enabled }, setSwitchState);
+          }}
         />
         <SaveState state={switchState} />
       </div>
 
       {rule.enabled && (
-        <div className="flex flex-col gap-4 ps-[3.75rem]">
+        <div
+          className={cn(
+            "flex flex-col gap-4 ps-[3.75rem]",
+            opened && (reduced ? "animate-gentle-in" : "animate-lights-on"),
+          )}
+        >
           {slot.gifts && (
             <div className="flex flex-col gap-1">
               <RadioGroup
