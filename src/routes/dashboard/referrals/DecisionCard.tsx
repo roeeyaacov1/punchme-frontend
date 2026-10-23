@@ -69,11 +69,16 @@ export function DecisionCard({
         {/* Its light, as a layer of its own over the edge, going out once
             the dialog that answered it has gone: 180ms after its 180ms
             exit, or 150ms after its 150ms fade with reduced motion. Opacity
-            only, so the same in Hebrew. */}
+            only, so the same in Hebrew. At night it goes out at once: the
+            words are night ink from the start, and over the light they read
+            1.05:1 until it had gone. */}
         <LitPanel
           light="lit"
           aria-hidden
-          className={cn("pointer-events-none absolute -inset-px -z-10", reduced ? "animate-gentle-out" : "animate-exit-fade")}
+          className={cn(
+            "pointer-events-none absolute -inset-px -z-10 [.theme-night_&]:animate-none [.theme-night_&]:opacity-0",
+            reduced ? "animate-gentle-out" : "animate-exit-fade",
+          )}
           style={{ animationDelay: reduced ? "var(--duration-gentle)" : "var(--duration-exit)" }}
         />
         {what}

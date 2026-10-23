@@ -1043,8 +1043,9 @@ Animate by frequency. These pages are used weekly, not at the counter.
 - **Sheets and dialogs:** the kit's own movement, with a crossfade under
   reduced motion.
 - **Switches:** the kit's knob, 200ms on the in-out.
-- **A decided referral:** its card's light goes out (180ms) and its row
-  arrives in the list by light (240ms).
+- **A decided referral:** its card's light goes out (180ms, once the
+  dialog has gone; at night at once, its words being night ink already)
+  and its row arrives in the list by light (240ms).
 - **Nothing counts up.**
 - **The sending line:** its number updates with no motion.
 - **The standee:** the sheet swaps at once on a choice, at most a 150ms
