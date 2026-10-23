@@ -109,7 +109,11 @@ export function ReferralSettings({
   const reward = template?.reward_description ?? "";
 
   return (
-    <div className="flex flex-col gap-6">
+    // Positioned, so the screen-reader-only labels and statuses inside stay
+    // in the sheet's scroller: placed by the sheet's panel, they reached up
+    // to 948px below its edge, and a flick past the last setting lifted the
+    // whole sheet off the bottom of the screen.
+    <div className="relative flex flex-col gap-6">
       <SettingsSection title={t("referrals.settings.gets")}>
         <ul className="flex flex-col divide-y divide-border">
           {RULE_SLOTS.map((slot) => {
@@ -426,6 +430,8 @@ function CapFields({ program, businessId }: { program: ReferralProgram; business
           onKeyDown={(event) => {
             if (event.key === "Enter") (event.target as HTMLInputElement).blur();
           }}
+          // The return key saves the cap, so on a phone it says so.
+          enterKeyHint="done"
           className="w-[9rem]"
         />
         <Select

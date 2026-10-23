@@ -94,7 +94,9 @@ export function RuleRow({
         <Link
           to={`/dashboard/messages/automations/${rule.id}`}
           className={cn(
-            "group flex min-w-0 flex-1 touch-manipulation items-start gap-3 rounded-field px-3 py-2 transition-colors duration-gentle ease-out [-webkit-tap-highlight-color:transparent] active:bg-ink/[0.06] hover-fine:bg-ink/5",
+            // A control, like the kit's rows: a long press neither selects
+            // the rule's words nor opens the link's callout.
+            "group flex min-w-0 flex-1 touch-manipulation select-none items-start gap-3 rounded-field px-3 py-2 transition-colors duration-gentle ease-out [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] active:bg-ink/[0.06] hover-fine:bg-ink/5",
             focusRingInset,
           )}
         >

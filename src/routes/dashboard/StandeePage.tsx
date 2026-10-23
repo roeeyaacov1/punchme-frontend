@@ -15,6 +15,7 @@ import {
   Skeleton,
   linkText,
 } from "../../components/kit";
+import { noTapFlash } from "../../components/kit/classes";
 import {
   FIT_FLOOR,
   PRINT_FORMATS,
@@ -224,7 +225,7 @@ export function StandeePage() {
             <Notice tone="warn">
               <Trans
                 i18nKey={format === "tent" ? "standee.tooLong.tent" : "standee.tooLong.sheet"}
-                components={{ studio: <Link to="/dashboard/design" className={linkText} /> }}
+                components={{ studio: <Link to="/dashboard/design" className={cn(linkText, noTapFlash)} /> }}
               />
             </Notice>
           )}
@@ -312,7 +313,9 @@ function DesignChoice({
             <label
               key={key}
               className={cn(
-                "relative flex cursor-pointer touch-manipulation select-none flex-col gap-2 rounded-panel border bg-surface p-2 transition-[border-color,box-shadow] duration-gentle ease-out [-webkit-tap-highlight-color:transparent] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
+                // A long press on a thumbnail chooses nothing and opens no
+                // callout over its logo or its code.
+                "relative flex cursor-pointer touch-manipulation select-none flex-col gap-2 rounded-panel border bg-surface p-2 transition-[border-color,box-shadow] duration-gentle ease-out [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
                 chosen ? "border-ink shadow-[0_0_0_1px_rgb(var(--c-ink))]" : "border-border-strong hover-fine:border-field",
               )}
             >
