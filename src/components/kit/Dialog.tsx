@@ -168,7 +168,12 @@ function Modal({
               />
             </div>
           </div>
-          <div className={cn("flex flex-col px-6", sheet && "min-h-0 flex-1 overflow-y-auto")}>
+          {/* A sheet's scroller is positioned, so what is placed absolutely
+              inside it, a screen reader's label among them, stays in it:
+              placed by the panel instead, a label far down a long sheet
+              stretched the layer around it, and a flick past the end lifted
+              the whole sheet off the bottom of the screen. */}
+          <div className={cn("flex flex-col px-6", sheet && "relative min-h-0 flex-1 overflow-y-auto")}>
             {description && (
               <p id={descriptionId} className="type-body mt-1 text-ink-muted">
                 {description}
