@@ -35,6 +35,7 @@ import {
   type ReferralGrant,
   type ReferralRule,
 } from "../../api/referrals";
+import { cn } from "../../lib/cn";
 import { useLightboxPage } from "../../theme/lightboxPage";
 import { useArrivals } from "./arrival";
 import { formatCount, listDay } from "./format";
@@ -212,10 +213,13 @@ export function ReferralsPage() {
     return out;
   }, [all]);
   const rows = filter === "all" ? all : all.filter((referral) => referral.status === filter);
-  // A referral decided here, once its new status has landed: its row lights
-  // on in the list, where the decision went, while its card's light goes out.
+  // A referral decided here, once its new status has landed: the status
+  // lights on in its row, where the decision went, while its card's light
+  // goes out. Only the badge, in opacity (the kit's 150ms fade): the row is
+  // already in the list.
   const arrive = useArrivals(
     rows.filter((referral) => decided[referral.id] && referral.status !== "flagged").map((referral) => referral.id),
+    "animate-gentle-in",
   );
 
   const settings = program.data;
@@ -379,7 +383,7 @@ export function ReferralsPage() {
                   referral={referral}
                   grants={grants.data?.grants ?? []}
                   lang={lang}
-                  className={arrive(referral.id)}
+                  statusMotion={arrive(referral.id)}
                 />
               ))}
             </List>
@@ -541,12 +545,13 @@ function ReferralRow({
   referral,
   grants,
   lang,
-  className,
+  statusMotion,
 }: {
   referral: Referral;
   grants: readonly ReferralGrant[];
   lang: string;
-  className?: string;
+  /** What the status plays as a decision made here lands. */
+  statusMotion?: string;
 }) {
   const { t } = useTranslation();
   const gifts = giftsOf(referral.id, grants);
@@ -587,11 +592,10 @@ function ReferralRow({
         </span>
       }
       trailing={
-        <Badge tone={STATUS_TONE[referral.status]} className="whitespace-normal text-center">
+        <Badge tone={STATUS_TONE[referral.status]} className={cn("whitespace-normal text-center", statusMotion)}>
           {t(`referrals.list.status.${referral.status}`)}
         </Badge>
       }
-      className={className}
     />
   );
 }
