@@ -20,6 +20,7 @@ export function MessageStage({
   template,
   design,
   notification,
+  holderName,
   summary,
   className,
 }: {
@@ -27,6 +28,8 @@ export function MessageStage({
   template: CardTemplate;
   design: DesignOut;
   notification: Omit<LockNotification, "sender">;
+  /** Whose pass it landed on, when it went to one customer; else the sample. */
+  holderName?: string;
   /** What a screen reader hears instead of the picture. */
   summary: string;
   className?: string;
@@ -45,6 +48,7 @@ export function MessageStage({
       <AppleCardPreview
         businessName={businessName}
         cardName={template.name}
+        holderName={holderName}
         stampsRequired={template.stamps_required}
         currentStamps={0}
         rewardDescription={template.reward_description}

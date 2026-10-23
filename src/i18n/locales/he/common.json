@@ -1587,6 +1587,7 @@
     "loadFailed": {
       "rules": "הכללים לא נטענו",
       "sent": "ההודעות שנשלחו לא נטענו",
+      "older": "ההודעות הישנות יותר לא נטענו",
       "figures": "הנתונים לא נטענו",
       "recipes": "הכללים המוכנים לא נטענו"
     },
@@ -1594,7 +1595,8 @@
       "inactive": "החזרת לקוחות",
       "birthday": "יום הולדת",
       "reward_waiting": "ההטבה מחכה",
-      "broadcast": "הודעה לכולם"
+      "broadcast": "הודעה לכולם",
+      "direct": "הודעה אישית"
     },
     "describe": {
       "birthdayToday": "ביום ההולדת",
@@ -1671,7 +1673,7 @@
       "daysBefore": "{{days}} לפני"
     },
     "history": {
-      "empty": "עוד לא נשלחו הודעות לכולם",
+      "empty": "עוד לא נשלחו הודעות",
       "sentOf": "<n>{{sent}}</n> מתוך <n>{{total}}</n>",
       "failed_one": "אחת נכשלה",
       "failed_other": "{{value}} נכשלו",

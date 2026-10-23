@@ -30,6 +30,7 @@ import {
   getMessagingSummary,
   listAutomations,
   listBroadcasts,
+  listDeliveries,
   listRecipes,
   pauseAutomation,
   type AutomationOut,
@@ -41,13 +42,29 @@ import { useLightboxPage } from "../../theme/lightboxPage";
 import { formatCount } from "./format";
 import { problemKey } from "./problem";
 import { BroadcastRow, BroadcastSheet } from "./messages/Broadcasts";
+import { PersonalRow, PersonalSheet } from "./messages/PersonalSends";
 import { RecipeList, RecipeSheet } from "./messages/RecipeSheet";
 import { RuleRow } from "./messages/RuleRow";
 import { isLate, messagesNotice, orderRules, ruleName, ruleReach, ruleState, type MessagesNotice } from "./messages/rules";
+import { sendOrigin, sentHistory } from "./messages/sentHistory";
 
 type TabKey = "rules" | "broadcast" | "sent";
 const TABS: readonly TabKey[] = ["rules", "broadcast", "sent"];
-const BROADCAST_PAGE = 10;
+/** Sent shows ten more at a time, and each of its feeds pages by as many. */
+const SENT_PAGE = 10;
+
+/** A sheet open on one of Sent's rows. */
+type Opened = { type: "broadcast"; id: string } | { type: "personal"; id: number };
+
+/** The page after the last, while what is loaded falls short of the count. */
+function nextPage<Page extends { items: unknown[]; count: number }>(last: Page, pages: Page[]): number | undefined {
+  return pages.reduce((sum, page) => sum + page.items.length, 0) < last.count ? pages.length + 1 : undefined;
+}
+
+/** A paged list's count, as its latest page gave it. */
+function countOf(data: { pages: { count: number }[] } | undefined): number {
+  return data && data.pages.length > 0 ? data.pages[data.pages.length - 1].count : 0;
+}
 
 /** A number inside a sentence, in tabular figures with its own direction. */
 const figure = <span dir="ltr" className="type-figure" />;
@@ -62,6 +79,10 @@ const figure = <span dir="ltr" className="type-figure" />;
  * broadcast's progress while one is sending, and the result a composer or
  * an editor handed back. While anything is sending the history is polled
  * every 3 seconds, whatever tab is open.
+ *
+ * Sent holds the broadcasts and the personal sends (the rules', and the
+ * messages to one customer from Customers) as one history, from two calls
+ * merged by `sentHistory`.
  */
 export function MessagesPage() {
   useLightboxPage();
@@ -100,14 +121,22 @@ export function MessagesPage() {
   });
   const broadcasts = useInfiniteQuery({
     queryKey: ["broadcasts", businessId],
-    queryFn: ({ pageParam }) => listBroadcasts(businessId!, pageParam, BROADCAST_PAGE),
+    queryFn: ({ pageParam }) => listBroadcasts(businessId!, pageParam, SENT_PAGE),
     initialPageParam: 1,
-    getNextPageParam: (last, pages) =>
-      pages.reduce((sum, page) => sum + page.items.length, 0) < last.count ? pages.length + 1 : undefined,
+    getNextPageParam: nextPage,
     enabled: !!businessId,
     // A broadcast in flight reports its progress: poll until it settles.
     refetchInterval: (query) =>
       query.state.data?.pages.some((page) => page.items.some((b) => b.status === "sending")) ? 3_000 : false,
+  });
+  // The rules' sends and the messages to one customer. A broadcast's own
+  // rows, one per customer, stay out: the broadcasts above count them.
+  const personal = useInfiniteQuery({
+    queryKey: ["deliveries", businessId, "personal"],
+    queryFn: ({ pageParam }) => listDeliveries(businessId!, undefined, pageParam, SENT_PAGE, "broadcast"),
+    initialPageParam: 1,
+    getNextPageParam: nextPage,
+    enabled: !!businessId,
   });
   const templates = useQuery({
     queryKey: ["templates", businessId],
@@ -139,6 +168,7 @@ export function MessagesPage() {
   const canReachOne = facts?.can_reach_one_customer ?? true;
   const notice = messagesNotice({ isPro, owns, summary: facts, rules });
   const sent = useMemo(() => broadcasts.data?.pages.flatMap((page) => page.items) ?? [], [broadcasts.data]);
+  const sends = useMemo(() => personal.data?.pages.flatMap((page) => page.items) ?? [], [personal.data]);
 
   // One polite voice for what changed out of sight: a switched rule, and a
   // broadcast that has finished.
@@ -192,13 +222,32 @@ export function MessagesPage() {
   });
 
   const [picking, setPicking] = useState(false);
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [opened, setOpened] = useState<Opened | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const openBroadcast = sent.find((b) => b.id === openId) ?? null;
-  const openSheet = (id: string) => {
-    setOpenId(id);
+  const openBroadcast = opened?.type === "broadcast" ? (sent.find((b) => b.id === opened.id) ?? null) : null;
+  const openSend = opened?.type === "personal" ? (sends.find((d) => d.id === opened.id) ?? null) : null;
+  const openSheet = (next: Opened) => {
+    setOpened(next);
     setSheetOpen(true);
   };
+
+  // "10 more" asks for ten more rows, and the feed that holds the list back
+  // pages until they are there or both feeds have run out. A page that
+  // fails stops it, and is said where the button was.
+  const history = sentHistory(
+    { items: sent, count: countOf(broadcasts.data), more: broadcasts.hasNextPage },
+    { items: sends, count: countOf(personal.data), more: personal.hasNextPage },
+  );
+  const [want, setWant] = useState(SENT_PAGE);
+  const shown = history.entries.slice(0, want);
+  const pager = history.next === "broadcasts" ? broadcasts : history.next === "personal" ? personal : null;
+  const read = !!broadcasts.data && !!personal.data;
+  const paging = pager?.isFetching ?? false;
+  const pageFailed = pager?.isFetchNextPageError ?? false;
+  useEffect(() => {
+    if (!read || !pager || paging || pageFailed || history.entries.length >= want) return;
+    void pager.fetchNextPage();
+  }, [read, pager, paging, pageFailed, history.entries.length, want]);
 
   const activate = (
     <LinkButton to="/dashboard/billing" variant="primary">
@@ -311,51 +360,75 @@ export function MessagesPage() {
   })();
 
   const sentPanel = (() => {
-    if (!broadcasts.data && (broadcasts.isError || broadcasts.fetchStatus === "paused")) {
+    // One read: until both feeds have answered, nothing can be placed.
+    const unread = [broadcasts, personal].find((feed) => !feed.data && (feed.isError || feed.fetchStatus === "paused"));
+    if (unread) {
       return (
         <ReadProblem
           title={t("messaging.loadFailed.sent")}
-          error={broadcasts.error}
-          paused={!broadcasts.isError}
-          onRetry={() => void broadcasts.refetch()}
+          error={unread.error}
+          paused={!unread.isError}
+          onRetry={() => {
+            if (!broadcasts.data) void broadcasts.refetch();
+            if (!personal.data) void personal.refetch();
+          }}
         />
       );
     }
-    if (!broadcasts.data) {
+    if (!read) {
       return (
         <LitPanel className="overflow-hidden">
           <SkeletonRows rows={4} />
         </LitPanel>
       );
     }
-    if (sent.length === 0) {
+    if (shown.length === 0) {
       return <EmptyState icon={<Inbox />} title={t("messaging.history.empty")} />;
     }
-    const total = broadcasts.data.pages[0]?.count ?? sent.length;
-    const more = Math.min(BROADCAST_PAGE, total - sent.length);
+    const further = shown.length < history.entries.length || history.next !== null;
+    // Rows written while the owner pages can leave the counts a row behind;
+    // the button still says at least one.
+    const more = Math.max(1, Math.min(SENT_PAGE, history.total - shown.length));
     return (
       <div className="flex flex-col gap-3">
         <LitPanel className="overflow-hidden">
           <List>
-            {sent.map((broadcast) => (
-              <BroadcastRow
-                key={broadcast.id}
-                broadcast={broadcast}
-                businessName={businessName}
-                onOpen={() => openSheet(broadcast.id)}
-              />
-            ))}
+            {shown.map((entry) =>
+              entry.type === "broadcast" ? (
+                <BroadcastRow
+                  key={`broadcast-${entry.broadcast.id}`}
+                  broadcast={entry.broadcast}
+                  businessName={businessName}
+                  onOpen={() => openSheet({ type: "broadcast", id: entry.broadcast.id })}
+                />
+              ) : (
+                <PersonalRow
+                  key={`send-${entry.send.id}`}
+                  send={entry.send}
+                  origin={sendOrigin(entry.send, rules, t)}
+                  onOpen={() => openSheet({ type: "personal", id: entry.send.id })}
+                />
+              ),
+            )}
           </List>
         </LitPanel>
-        {broadcasts.hasNextPage && (
-          <Button
-            variant="secondary"
-            busy={broadcasts.isFetchingNextPage}
-            onClick={() => void broadcasts.fetchNextPage()}
-            className="self-start"
-          >
-            {t("messaging.history.more", { count: more })}
-          </Button>
+        {pageFailed ? (
+          <ReadProblem
+            title={t("messaging.loadFailed.older")}
+            error={pager?.error}
+            onRetry={() => void pager?.fetchNextPage()}
+          />
+        ) : (
+          further && (
+            <Button
+              variant="secondary"
+              busy={shown.length < want}
+              onClick={() => setWant(shown.length + SENT_PAGE)}
+              className="self-start"
+            >
+              {t("messaging.history.more", { count: more })}
+            </Button>
+          )
         )}
       </div>
     );
@@ -422,7 +495,7 @@ export function MessagesPage() {
             summaryLoading={summary.isLoading}
             latest={sent[0]}
             businessName={businessName}
-            onOpen={openSheet}
+            onOpen={(id) => openSheet({ type: "broadcast", id })}
           />
         </TabPanel>
         <TabPanel value="sent" className="pt-4">
@@ -433,6 +506,15 @@ export function MessagesPage() {
       <BroadcastSheet
         broadcast={openBroadcast}
         open={sheetOpen && !!openBroadcast}
+        onClose={() => setSheetOpen(false)}
+        businessName={businessName}
+        template={template}
+        design={design.data}
+      />
+      <PersonalSheet
+        send={openSend}
+        origin={openSend ? sendOrigin(openSend, rules, t) : ""}
+        open={sheetOpen && !!openSend}
         onClose={() => setSheetOpen(false)}
         businessName={businessName}
         template={template}

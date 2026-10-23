@@ -1495,6 +1495,7 @@
     "loadFailed": {
       "rules": "The rules didn't load",
       "sent": "The messages sent didn't load",
+      "older": "The older messages didn't load",
       "figures": "The figures didn't load",
       "recipes": "The starter rules didn't load"
     },
@@ -1502,7 +1503,8 @@
       "inactive": "Win-back",
       "birthday": "Birthday",
       "reward_waiting": "Reward waiting",
-      "broadcast": "Message everyone"
+      "broadcast": "Message everyone",
+      "direct": "Personal message"
     },
     "describe": {
       "birthdayToday": "On the birthday",
@@ -1577,7 +1579,7 @@
       "daysBefore": "{{days}} before"
     },
     "history": {
-      "empty": "No messages to everyone yet",
+      "empty": "Nothing sent yet",
       "sentOf": "<n>{{sent}}</n> of <n>{{total}}</n>",
       "failed_one": "{{value}} failed",
       "failed_other": "{{value}} failed",
