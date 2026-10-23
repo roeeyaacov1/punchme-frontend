@@ -161,13 +161,14 @@ export function BroadcastComposerPage() {
         opt_in_only: draft.opt_in_only,
         template_id: draft.template_id,
       }),
-    onSuccess: () => {
+    onSuccess: (created) => {
       dropDraft(draftKey);
       void queryClient.invalidateQueries({ queryKey: ["broadcasts", businessId] });
       void queryClient.invalidateQueries({ queryKey: ["messaging", "summary", businessId] });
       void queryClient.invalidateQueries({ queryKey: ["customers"] });
       void queryClient.invalidateQueries({ queryKey: ["activity"] });
-      navigate("/dashboard/messages?tab=sent", { state: { flash: t("messaging.broadcast.sent") } });
+      // Sent lights the row this broadcast lands in.
+      navigate("/dashboard/messages?tab=sent", { state: { flash: t("messaging.broadcast.sent"), arrived: created.id } });
     },
     onError: (error) => {
       setSendProblem(error);

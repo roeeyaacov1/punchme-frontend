@@ -27,10 +27,12 @@ export function BroadcastRow({
   broadcast,
   businessName,
   onOpen,
+  className,
 }: {
   broadcast: BroadcastOut;
   businessName: string;
   onOpen: () => void;
+  className?: string;
 }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage ?? "he";
@@ -75,6 +77,7 @@ export function BroadcastRow({
           </span>
         </span>
       }
+      className={className}
     />
   );
 }
