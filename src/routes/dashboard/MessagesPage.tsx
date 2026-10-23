@@ -39,6 +39,7 @@ import {
 } from "../../api/messaging";
 import { useCardLanguage } from "../../hooks/useCardLanguage";
 import { useLightboxPage } from "../../theme/lightboxPage";
+import { useArrivals } from "./arrival";
 import { formatCount } from "./format";
 import { problemKey } from "./problem";
 import { BroadcastRow, BroadcastSheet } from "./messages/Broadcasts";
@@ -55,6 +56,10 @@ const SENT_PAGE = 10;
 
 /** A sheet open on one of Sent's rows. */
 type Opened = { type: "broadcast"; id: string } | { type: "personal"; id: number };
+
+/** What a composer or an editor hands over on navigate: what to say, and
+ * the broadcast or the rule it sent or saved. */
+type Handover = { flash?: string; arrived?: string } | null;
 
 /** The page after the last, while what is loaded falls short of the count. */
 function nextPage<Page extends { items: unknown[]; count: number }>(last: Page, pages: Page[]): number | undefined {
@@ -102,7 +107,8 @@ export function MessagesPage() {
   // The result a composer or an editor hands over on navigate, taken once
   // and cleared from history so a refresh doesn't say it again; clearing
   // alone would un-render it before anyone read it.
-  const [flash] = useState<string | null>(() => (location.state as { flash?: string } | null)?.flash ?? null);
+  const [flash] = useState<string | null>(() => (location.state as Handover)?.flash ?? null);
+  const [arrived] = useState<string | null>(() => (location.state as Handover)?.arrived ?? null);
   useEffect(() => {
     if (flash) navigate({ pathname: location.pathname, search: location.search }, { replace: true, state: null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -174,6 +180,11 @@ export function MessagesPage() {
   // broadcast that has finished.
   const [said, setSaid] = useState("");
   const sending = sent.find((b) => b.status === "sending");
+  // The sending line lights on when it appears in a page already drawn
+  // without it, as the history read again after a send brings it. One
+  // already sending when the page opens is shown as it is.
+  const [drewWithout, setDrewWithout] = useState(false);
+  if (broadcasts.data && !sending && !drewWithout) setDrewWithout(true);
   const sendingId = useRef<string | null>(null);
   useEffect(() => {
     const was = sendingId.current;
@@ -280,6 +291,14 @@ export function MessagesPage() {
   }
 
   const ordered = orderRules(rules, canReachOne);
+  // What the composer sent or the editor saved lights on once, in the row
+  // it landed in: with the page, or a beat after it, when the list kept
+  // from before is read again and the row drops in.
+  const landed =
+    (tab === "sent" && shown.some((entry) => entry.type === "broadcast" && entry.broadcast.id === arrived)) ||
+    (tab === "rules" && ordered.some((rule) => rule.id === arrived));
+  const arrive = useArrivals(arrived && landed ? [arrived] : []);
+
   const rulesPanel = (() => {
     if (!automations.data && (automations.isError || automations.fetchStatus === "paused")) {
       return (
@@ -346,6 +365,7 @@ export function MessagesPage() {
                     toggle.mutate({ rule, on });
                   }}
                   problem={refusals[rule.id] ? refusal(refusals[rule.id]) : undefined}
+                  className={arrive(rule.id)}
                 />
               );
             })}
@@ -400,6 +420,7 @@ export function MessagesPage() {
                   broadcast={entry.broadcast}
                   businessName={businessName}
                   onOpen={() => openSheet({ type: "broadcast", id: entry.broadcast.id })}
+                  className={arrive(entry.broadcast.id)}
                 />
               ) : (
                 <PersonalRow
@@ -453,9 +474,9 @@ export function MessagesPage() {
       )}
 
       {sending && (
-        // The count updates in place every 3 seconds and isn't read out
-        // each time; the end is said once, below.
-        <LitPanel light="lit" className="flex items-center gap-3 p-4">
+        // The count updates in place every 3 seconds, with no motion, and
+        // isn't read out each time; the end is said once, below.
+        <LitPanel light="lit" arrive={drewWithout} className="flex items-center gap-3 p-4">
           <Send aria-hidden className="size-5 shrink-0 text-ink-muted rtl:-scale-x-100" />
           <p className="type-body text-ink">
             <Trans

@@ -339,7 +339,8 @@ export function AutomationEditorPage() {
         const when = relativeWhen(saved.next_run_at, t, lang);
         flash = t(isNew || activate ? "messaging.editor.savedOn" : "messaging.editor.savedOnNext", { when });
       }
-      navigate("/dashboard/messages?tab=rules", { state: { flash } });
+      // Rules lights the row of the rule just saved.
+      navigate("/dashboard/messages?tab=rules", { state: { flash, arrived: saved.id } });
     },
     onError: (error) => setProblem(error),
   });

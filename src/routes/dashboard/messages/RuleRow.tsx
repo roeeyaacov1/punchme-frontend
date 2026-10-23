@@ -32,6 +32,7 @@ export function RuleRow({
   disabledReason,
   onToggle,
   problem,
+  className,
 }: {
   rule: AutomationOut;
   state: RuleState;
@@ -43,6 +44,7 @@ export function RuleRow({
   disabledReason?: string;
   onToggle: (on: boolean) => void;
   problem?: ReactNode;
+  className?: string;
 }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage ?? "he";
@@ -79,7 +81,7 @@ export function RuleRow({
   }
 
   return (
-    <li className="flex flex-col gap-1 py-2 pe-3 ps-1">
+    <li className={cn("flex flex-col gap-1 py-2 pe-3 ps-1", className)}>
       <div className="flex items-start gap-2">
         <Link
           to={`/dashboard/messages/automations/${rule.id}`}
