@@ -36,6 +36,7 @@ import {
   type ReferralRule,
 } from "../../api/referrals";
 import { useLightboxPage } from "../../theme/lightboxPage";
+import { useArrivals } from "./arrival";
 import { formatCount, listDay } from "./format";
 import { isolate } from "./problem";
 import { DecisionCard, type Decision, type DecisionResult } from "./referrals/DecisionCard";
@@ -211,6 +212,11 @@ export function ReferralsPage() {
     return out;
   }, [all]);
   const rows = filter === "all" ? all : all.filter((referral) => referral.status === filter);
+  // A referral decided here, once its new status has landed: its row lights
+  // on in the list, where the decision went, while its card's light goes out.
+  const arrive = useArrivals(
+    rows.filter((referral) => decided[referral.id] && referral.status !== "flagged").map((referral) => referral.id),
+  );
 
   const settings = program.data;
   const blocker = settings && !settings.enabled && !settings.can_enable ? settings.enable_blocker : null;
@@ -368,7 +374,13 @@ export function ReferralsPage() {
           ) : (
             <List>
               {rows.map((referral) => (
-                <ReferralRow key={referral.id} referral={referral} grants={grants.data?.grants ?? []} lang={lang} />
+                <ReferralRow
+                  key={referral.id}
+                  referral={referral}
+                  grants={grants.data?.grants ?? []}
+                  lang={lang}
+                  className={arrive(referral.id)}
+                />
               ))}
             </List>
           )}
@@ -525,7 +537,17 @@ function ProgramCost({
  * finished card, the reward), the day with the year when it isn't this
  * one, why it wasn't counted, and the gifts it gave, granted or not.
  */
-function ReferralRow({ referral, grants, lang }: { referral: Referral; grants: readonly ReferralGrant[]; lang: string }) {
+function ReferralRow({
+  referral,
+  grants,
+  lang,
+  className,
+}: {
+  referral: Referral;
+  grants: readonly ReferralGrant[];
+  lang: string;
+  className?: string;
+}) {
   const { t } = useTranslation();
   const gifts = giftsOf(referral.id, grants);
   const facts: string[] = [listDay(referral.created_at, lang)];
@@ -569,6 +591,7 @@ function ReferralRow({ referral, grants, lang }: { referral: Referral; grants: r
           {t(`referrals.list.status.${referral.status}`)}
         </Badge>
       }
+      className={className}
     />
   );
 }
