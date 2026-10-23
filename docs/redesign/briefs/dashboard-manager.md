@@ -1324,6 +1324,21 @@ to §10.
 - **The critique snapshots** in `.impeccable/critique/` are committed with
   these notes, for step D's `/impeccable polish`.
 
+**After step B** (checked in the browser on 23 Oct, for step D):
+- **The local API is older than the delivery filter.** The backend's
+  `exclude_kind` is merged (punchme-backend#2, `b63954b` on its `main`), but
+  the `punchme-web` container still runs code from before it. So, locally,
+  Sent falls back to the broadcasts alone. Before checking Sent, rebuild the
+  image from the backend's `main` with `git archive main`, which keeps the
+  uncommitted seed-demo work in its working tree out of the image. Then
+  recreate `punchme-web` the way the dev-environment note gives it.
+- **"Count it" says when.** The decision's line reads "the gift comes when
+  נועה collects stamps". The rule that's on gives the member's gift on the
+  friend's first stamp, so say that: "…ושני/ת תקבל/י את המתנה בחותמת
+  הראשונה של נועה".
+- **The rule's message still says ניקוב.** That is the backend's starter
+  text saved in the rule (§12, outside the redesign), not this page's copy.
+
 ## Appendix A: the worst-case data
 
 Load it into a signed-in dashboard tab on the dev server: paste it into the
