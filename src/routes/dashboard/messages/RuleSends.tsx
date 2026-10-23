@@ -3,13 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { List, ListRow, LitPanel, SkeletonRows } from "../../../components/kit";
 import { ReadProblem } from "../../../components/dashboard/ReadProblem";
 import { formatWhen } from "../../../components/messaging/describe";
-import { listDeliveries, type DeliveryOut } from "../../../api/messaging";
+import { listDeliveries } from "../../../api/messaging";
 import { formatCount } from "../format";
+import { sendState } from "./sentHistory";
 
 /** The sends a rule's editor shows. */
 const LAST = 10;
-
-const SKIP_REASONS = ["no_pass", "void", "card_gone", "stale", "gift_unavailable", "paused", "downgraded", "unsupported"];
 
 /**
  * What a rule last sent, and to whom, from the delivery log. A rule names
@@ -24,20 +23,6 @@ export function RuleSends({ businessId, automationId }: { businessId: string; au
     queryKey: ["deliveries", businessId, automationId],
     queryFn: () => listDeliveries(businessId, automationId, 1, LAST),
   });
-
-  function state(delivery: DeliveryOut): string {
-    if (delivery.status === "sent") {
-      return delivery.gift_granted > 0
-        ? t("messaging.sends.sentWithGift", { count: delivery.gift_granted })
-        : t("messaging.sends.sent");
-    }
-    if (delivery.status === "failed") return t("messaging.sends.failed");
-    if (delivery.status === "skipped") {
-      const reason = SKIP_REASONS.includes(delivery.skip_reason) ? delivery.skip_reason : "other";
-      return t(`messaging.sends.skipped.${reason}`);
-    }
-    return t("messaging.sends.onTheWay");
-  }
 
   let body;
   if (!sends.data && (sends.isError || sends.fetchStatus === "paused")) {
@@ -61,13 +46,13 @@ export function RuleSends({ businessId, automationId }: { businessId: string; au
             <ListRow
               key={delivery.id}
               title={
-                delivery.customer_display_name.trim() ? (
-                  <bdi>{delivery.customer_display_name}</bdi>
-                ) : (
-                  t("messaging.sends.noName")
-                )
+                // In its own direction, so a Latin name in Hebrew is cut at
+                // its end, not its start.
+                <span dir="auto" className="block truncate [text-align:-webkit-match-parent] [text-align:match-parent]">
+                  {delivery.customer_display_name.trim() || t("messaging.sends.noName")}
+                </span>
               }
-              meta={state(delivery)}
+              meta={sendState(delivery, t)}
               trailing={
                 <time dateTime={delivery.sent_at ?? delivery.created_at} className="text-sm text-ink-muted">
                   {formatWhen(delivery.sent_at ?? delivery.created_at, lang)}

@@ -162,13 +162,17 @@ export function getBroadcast(businessId: string, broadcastId: string) {
   return api.get<BroadcastOut>(`${base(businessId)}/broadcasts/${broadcastId}`);
 }
 
+/** The send history, newest first. `excludeKind: "broadcast"` leaves the
+ * rules' sends and the messages to one customer: a broadcast writes a row
+ * per customer, which `listBroadcasts` already counts. */
 export function listDeliveries(
   businessId: string,
   automationId?: string,
   page = 1,
   pageSize = 20,
+  excludeKind?: MessageKind,
 ) {
   return api.get<PagedDeliveries>(`${base(businessId)}/messaging/deliveries`, {
-    query: { automation_id: automationId, page, page_size: pageSize },
+    query: { automation_id: automationId, page, page_size: pageSize, exclude_kind: excludeKind },
   });
 }

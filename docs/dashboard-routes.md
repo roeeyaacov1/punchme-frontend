@@ -125,7 +125,8 @@ opens that tab.
 |---|---|---|
 | Load | `GET {biz}/messaging/summary` | `getMessagingSummary` |
 | Load | `GET {biz}/automations` | `listAutomations` |
-| Load (page 1), the next page on "10 more", and every loaded page again every 3 s while a broadcast is sending | `GET {biz}/broadcasts?page=N&page_size=10` | `listBroadcasts` |
+| Load (page 1), the next page when "10 more" reaches past what is loaded, and every loaded page again every 3 s while a broadcast is sending | `GET {biz}/broadcasts?page=N&page_size=10` | `listBroadcasts` |
+| Load (page 1), and the next page when "10 more" reaches past what is loaded: the rules' sends and the messages to one customer, which Sent merges with the broadcasts by time | `GET {biz}/messaging/deliveries?exclude_kind=broadcast&page=N&page_size=10` | `listDeliveries` |
 | Load | `GET {biz}/templates`, then `GET {biz}/templates/{template_id}/design` for the card's language | `listTemplates`, `useCardLanguage` |
 | Load | `GET {biz}/messaging/recipes?language=HE` (or `EN`): starter rules | `listRecipes` |
 | Turn a rule on or off | `POST {biz}/automations/{id}/activate` or `…/pause` | `activateAutomation`, `pauseAutomation` |
