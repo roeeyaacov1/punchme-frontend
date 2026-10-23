@@ -1341,6 +1341,19 @@ to §10.
 - **The rule's message still says ניקוב.** That is the backend's starter
   text saved in the rule (§12, outside the redesign), not this page's copy.
 
+**After step C** (23 Oct, for step D):
+- **On a real phone,** beside §10's list: a long press on a rule's row and
+  on a standee thumbnail opens no callout; the keyboard over the
+  composer's send and the editor's docked action; and a placeholder chip
+  keeping the keyboard up as it inserts.
+- **The kit's sheet doesn't position its scroller.** Anything placed
+  absolutely inside it, such as an `sr-only` label, takes the panel as
+  its box, so in a long sheet it can stretch the layer around the sheet
+  and let a flick lift the sheet off the bottom of the screen. Refer a
+  friend's settings now contain their own; the other sheets here, the
+  customer's and the More sheet are clear today. A `relative` on the
+  kit's scroller would close it for every sheet: a kit change, for Roee.
+
 ## Appendix A: the worst-case data
 
 Load it into a signed-in dashboard tab on the dev server: paste it into the
