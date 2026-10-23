@@ -1,7 +1,7 @@
-import { useId, useRef, type ReactNode, type RefObject } from "react";
+import { useId, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, TriangleAlert } from "lucide-react";
-import { Button, Field, LitPanel, RadioGroup, Select, Switch, Textarea } from "../kit";
+import { Button, Field, LitPanel, RadioGroup, Select, Switch, Textarea, useReducedMotion } from "../kit";
 import { fieldBox } from "../kit/classes";
 import {
   insertAtCaret,
@@ -69,6 +69,10 @@ export function MessageFields({
   titleInputRef?: RefObject<HTMLInputElement>;
 }) {
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
+  // The gift's choices light on when a hand opens them (240ms, or the gentle
+  // 150ms fade), never with the page or a draft brought back.
+  const [giftOpened, setGiftOpened] = useState(false);
   const ownTitleRef = useRef<HTMLInputElement>(null);
   const titleRef = titleInputRef ?? ownTitleRef;
   const bodyRef = useRef<HTMLTextAreaElement>(null);
@@ -201,10 +205,14 @@ export function MessageFields({
             disabled={disabled}
             label={t("messaging.editor.giftToggle")}
             description={t("messaging.editor.giftExplain")}
-            onChange={(on) => onChange(giftPatch(on ? "1" : null))}
+            onChange={(on) => {
+              setGiftOpened(on);
+              onChange(giftPatch(on ? "1" : null));
+            }}
           />
           {hasGift(value) && (
             <RadioGroup
+              className={giftOpened ? (reduced ? "animate-gentle-in" : "animate-lights-on") : undefined}
               legend={t("messaging.editor.giftCount")}
               value={giftChoiceOf(value)}
               onChange={(choice) => onChange(giftPatch(choice))}
