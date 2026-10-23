@@ -1346,13 +1346,13 @@ to §10.
   on a standee thumbnail opens no callout; the keyboard over the
   composer's send and the editor's docked action; and a placeholder chip
   keeping the keyboard up as it inserts.
-- **The kit's sheet doesn't position its scroller.** Anything placed
-  absolutely inside it, such as an `sr-only` label, takes the panel as
-  its box, so in a long sheet it can stretch the layer around the sheet
-  and let a flick lift the sheet off the bottom of the screen. Refer a
-  friend's settings now contain their own; the other sheets here, the
-  customer's and the More sheet are clear today. A `relative` on the
-  kit's scroller would close it for every sheet: a kit change, for Roee.
+- **The kit's sheet positions its scroller** (Roee's yes, 23 Oct).
+  Anything placed absolutely inside a sheet, such as an `sr-only` label,
+  used to take the panel as its box, so in a long sheet it stretched the
+  layer around the sheet and let a flick lift the sheet off the bottom of
+  the screen. Refer a friend's settings were the one sheet it reached.
+  Every sheet that uses the kit's was checked after the change, and none
+  of their elements moved.
 
 ## Appendix A: the worst-case data
 
