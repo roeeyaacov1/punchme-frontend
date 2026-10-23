@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Cake, Gift, Send, TriangleAlert, UserRoundX } from "lucide-react";
-import { Switch, focusRingInset } from "../../../components/kit";
+import { Switch, focusRingInset, useReducedMotion } from "../../../components/kit";
 import { describeAutomation, relativeWhen } from "../../../components/messaging/describe";
 import type { AutomationOut } from "../../../api/messaging";
 import { cn } from "../../../lib/cn";
@@ -47,10 +47,18 @@ export function RuleRow({
   className?: string;
 }) {
   const { t, i18n } = useTranslation();
+  const reduced = useReducedMotion();
   const lang = i18n.resolvedLanguage ?? "he";
   const Icon = KIND_ICONS[rule.kind as keyof typeof KIND_ICONS] ?? Send;
   const name = ruleName(rule, t);
   const count = (value: number) => formatCount(value, lang);
+  // The rule's own light: its icon's ink disc comes on with the switch, on
+  // the knob's own 200ms in-out (the gentle 150ms with reduced motion), and
+  // goes back with it when a switch is refused. A held rule stays unlit.
+  const lit = checked && state !== "held";
+  const fade = reduced
+    ? "transition-opacity duration-gentle ease-out"
+    : "transition-opacity duration-move ease-in-out-strong";
 
   const facts: ReactNode[] = [];
   if (state === "held") {
@@ -90,14 +98,15 @@ export function RuleRow({
             focusRingInset,
           )}
         >
+          {/* The disc and the icon's two colours are layers that cross over
+              in opacity, so nothing but opacity moves. */}
           <span
             aria-hidden
-            className={cn(
-              "mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full [&_svg]:size-5",
-              state === "on" ? "bg-ink text-surface" : "bg-background text-ink-muted",
-            )}
+            className="relative mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-background [&_svg]:size-5"
           >
-            <Icon />
+            <span className={cn("absolute inset-0 rounded-full bg-ink", fade, lit ? "opacity-100" : "opacity-0")} />
+            <Icon className={cn("absolute inset-0 m-auto text-ink-muted", fade, lit ? "opacity-0" : "opacity-100")} />
+            <Icon className={cn("relative text-surface", fade, lit ? "opacity-100" : "opacity-0")} />
           </span>
           <span className="flex min-w-0 flex-col gap-0.5">
             <span
