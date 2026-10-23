@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { AutomationOut, MessagingSummary } from "../../../api/messaging";
-import { STALE_TICK_MS, isLate, messagesNotice, orderRules, ruleReach, ruleState } from "./rules";
+import { STALE_TICK_MS, isLate, keepOrder, messagesNotice, orderRules, ruleReach, ruleState } from "./rules";
 
 const NOW = Date.parse("2026-10-22T12:00:00Z");
 
@@ -105,6 +105,26 @@ describe("orderRules", () => {
     const none = rule({ name: "none", next_run_at: null });
     const some = rule({ name: "some" });
     expect(orderRules([none, some], true).map((r) => r.name)).toEqual(["some", "none"]);
+  });
+});
+
+describe("keepOrder", () => {
+  it("keeps a switched rule where it stood, where sorting again would move it", () => {
+    const first = rule({ name: "first" });
+    const second = rule({ name: "second" });
+    const third = rule({ name: "third" });
+    const shown = orderRules([first, second, third], true).map((r) => r.id);
+    const switchedOff = { ...first, is_active: false, next_run_at: null };
+    expect(orderRules([switchedOff, second, third], true).map((r) => r.name)).toEqual(["second", "third", "first"]);
+    expect(keepOrder([switchedOff, second, third], shown, true).map((r) => r.name)).toEqual(["first", "second", "third"]);
+  });
+
+  it("puts a rule it doesn't hold after, in its own order, and drops one that has gone", () => {
+    const kept = rule({ name: "kept" });
+    const gone = rule({ name: "gone" });
+    const newOff = rule({ name: "new off", is_active: false, next_run_at: null });
+    const newOn = rule({ name: "new on" });
+    expect(keepOrder([newOff, kept, newOn], [gone.id, kept.id], true).map((r) => r.name)).toEqual(["kept", "new on", "new off"]);
   });
 });
 

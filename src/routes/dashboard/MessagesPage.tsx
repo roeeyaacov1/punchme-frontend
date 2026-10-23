@@ -46,7 +46,16 @@ import { BroadcastRow, BroadcastSheet } from "./messages/Broadcasts";
 import { PersonalRow, PersonalSheet } from "./messages/PersonalSends";
 import { RecipeList, RecipeSheet } from "./messages/RecipeSheet";
 import { RuleRow } from "./messages/RuleRow";
-import { isLate, messagesNotice, orderRules, ruleName, ruleReach, ruleState, type MessagesNotice } from "./messages/rules";
+import {
+  isLate,
+  keepOrder,
+  messagesNotice,
+  orderRules,
+  ruleName,
+  ruleReach,
+  ruleState,
+  type MessagesNotice,
+} from "./messages/rules";
 import { sendOrigin, sentHistory } from "./messages/sentHistory";
 
 type TabKey = "rules" | "broadcast" | "sent";
@@ -200,6 +209,9 @@ export function MessagesPage() {
   // refusal puts it back and is said under that rule.
   const [optimistic, setOptimistic] = useState<Record<string, boolean>>({});
   const [refusals, setRefusals] = useState<Record<string, unknown>>({});
+  // From the first switch on, the rules keep the order on screen until the
+  // page is opened again, so no row moves out from under the finger.
+  const [heldOrder, setHeldOrder] = useState<string[] | null>(null);
   const toggle = useMutation({
     mutationFn: ({ rule, on }: { rule: AutomationOut; on: boolean }) =>
       on ? activateAutomation(businessId!, rule.id) : pauseAutomation(businessId!, rule.id),
@@ -290,7 +302,7 @@ export function MessagesPage() {
     );
   }
 
-  const ordered = orderRules(rules, canReachOne);
+  const ordered = heldOrder ? keepOrder(rules, heldOrder, canReachOne) : orderRules(rules, canReachOne);
   // What the composer sent or the editor saved lights on once, in the row
   // it landed in: with the page, or a beat after it, when the list kept
   // from before is read again and the row drops in.
@@ -362,6 +374,7 @@ export function MessagesPage() {
                   disabledReason={disabledReason}
                   onToggle={(on) => {
                     if (rule.id in optimistic) return;
+                    setHeldOrder((held) => held ?? ordered.map((item) => item.id));
                     toggle.mutate({ rule, on });
                   }}
                   problem={refusals[rule.id] ? refusal(refusals[rule.id]) : undefined}
