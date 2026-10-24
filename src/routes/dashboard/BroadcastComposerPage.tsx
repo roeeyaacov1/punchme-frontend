@@ -232,7 +232,7 @@ export function BroadcastComposerPage() {
       tone="warn"
       action={
         owns ? (
-          <LinkButton to="/dashboard/billing" variant="primary">
+          <LinkButton to="/dashboard/billing" variant="primary" className="max-w-full !whitespace-normal text-center">
             {t("billing.activateCta")}
           </LinkButton>
         ) : undefined
@@ -292,7 +292,7 @@ export function BroadcastComposerPage() {
       disabled={!canSend}
       aria-describedby={spent && open ? "composer-quota" : undefined}
       onClick={() => setConfirming(true)}
-      className="w-full"
+      className="w-full max-w-full !whitespace-normal text-center"
     >
       {count !== null && count > 0
         ? t("messaging.broadcast.send", { count, value: formatCount(count, lang) })
@@ -307,7 +307,7 @@ export function BroadcastComposerPage() {
           to="/dashboard/messages?tab=broadcast"
           variant="quiet"
           icon={<ArrowLeft aria-hidden className="rtl:-scale-x-100" />}
-          className="-ms-3"
+          className="-ms-3 max-w-full !whitespace-normal text-center"
         >
           {t("messaging.editor.back")}
         </LinkButton>
@@ -344,7 +344,7 @@ export function BroadcastComposerPage() {
             titleInputRef={titleInput}
           />
           {touched && (
-            <Button variant="quiet" onClick={discard} className="-ms-3 self-start">
+            <Button variant="quiet" onClick={discard} className="-ms-3 self-start max-w-full !whitespace-normal text-center">
               {t("messaging.editor.discard")}
             </Button>
           )}
@@ -401,6 +401,7 @@ export function BroadcastComposerPage() {
               busy={test.isPending}
               disabled={!ready || send.isPending}
               onClick={() => test.mutate()}
+              className="max-w-full !whitespace-normal text-center"
             >
               {t("messaging.editor.test")}
             </Button>
@@ -431,10 +432,10 @@ export function BroadcastComposerPage() {
         returnFocus={problemRef}
         footer={
           <>
-            <Button ref={cancelRef} variant="secondary" onClick={() => setConfirming(false)}>
+            <Button ref={cancelRef} variant="secondary" onClick={() => setConfirming(false)} className="max-w-full !whitespace-normal text-center">
               {t("messaging.editor.cancel")}
             </Button>
-            <Button busy={send.isPending} icon={<Send aria-hidden className="rtl:-scale-x-100" />} onClick={() => send.mutate()}>
+            <Button busy={send.isPending} icon={<Send aria-hidden className="rtl:-scale-x-100" />} onClick={() => send.mutate()} className="max-w-full !whitespace-normal text-center">
               {t("messaging.broadcast.confirmYes")}
             </Button>
           </>

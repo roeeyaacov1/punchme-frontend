@@ -182,6 +182,7 @@ export function MessageFields({
                 // Keep the field's caret: the chip goes where the owner was typing.
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => insert(chip.token)}
+                className="max-w-full !whitespace-normal text-center"
               >
                 {t(`messaging.editor.chip.${chip.key satisfies PlaceholderKey}`)}
                 <span dir="auto" className="font-body font-normal text-ink-muted">

@@ -273,7 +273,7 @@ export function MessagesPage() {
   }, [read, pager, paging, pageFailed, history.entries.length, want]);
 
   const activate = (
-    <LinkButton to="/dashboard/billing" variant="primary">
+    <LinkButton to="/dashboard/billing" variant="primary" className="max-w-full !whitespace-normal text-center">
       {t("billing.activateCta")}
     </LinkButton>
   );
@@ -286,7 +286,7 @@ export function MessagesPage() {
             {t(owns ? "messaging.rules.upgradeOwner" : "messaging.rules.upgradeHire")}
           </p>
           {owns && (
-            <LinkButton to="/dashboard/billing" variant="secondary">
+            <LinkButton to="/dashboard/billing" variant="secondary" className="max-w-full !whitespace-normal text-center">
               {t("billing.activateCta")}
             </LinkButton>
           )}
@@ -384,7 +384,7 @@ export function MessagesPage() {
             })}
           </List>
         </LitPanel>
-        <Button variant="secondary" icon={<Plus aria-hidden />} onClick={() => setPicking(true)} className="self-start">
+        <Button variant="secondary" icon={<Plus aria-hidden />} onClick={() => setPicking(true)} className="self-start max-w-full !whitespace-normal text-center">
           {t("messaging.automations.new")}
         </Button>
         <RecipeSheet open={picking} onClose={() => setPicking(false)} {...recipeList} />
@@ -458,7 +458,7 @@ export function MessagesPage() {
               variant="secondary"
               busy={shown.length < want}
               onClick={() => setWant(shown.length + SENT_PAGE)}
-              className="self-start"
+              className="self-start max-w-full !whitespace-normal text-center"
             >
               {t("messaging.history.more", { count: more })}
             </Button>
@@ -634,7 +634,7 @@ function BroadcastTab({
     return (
       <LitPanel className="flex flex-col items-start gap-4 p-5 sm:p-6">
         <p className="type-body text-ink">{t("messaging.broadcast.freeLine")}</p>
-        <LinkButton to="/dashboard/messages/new" variant="secondary" icon={<PenLine aria-hidden />}>
+        <LinkButton to="/dashboard/messages/new" variant="secondary" icon={<PenLine aria-hidden />} className="max-w-full !whitespace-normal text-center">
           {t("messaging.broadcast.writeSample")}
         </LinkButton>
       </LitPanel>
@@ -682,15 +682,15 @@ function BroadcastTab({
           )}
         </p>
         {nobody ? (
-          <LinkButton to="/dashboard/standee" variant="secondary">
+          <LinkButton to="/dashboard/standee" variant="secondary" className="max-w-full !whitespace-normal text-center">
             {t("messaging.broadcast.toStandee")}
           </LinkButton>
         ) : open && !spent ? (
-          <LinkButton to="/dashboard/messages/new" variant="primary" icon={<PenLine aria-hidden />}>
+          <LinkButton to="/dashboard/messages/new" variant="primary" icon={<PenLine aria-hidden />} className="max-w-full !whitespace-normal text-center">
             {t("messaging.broadcast.write")}
           </LinkButton>
         ) : (
-          <Button variant="primary" icon={<PenLine aria-hidden />} disabled aria-describedby={open ? "broadcast-quota" : undefined}>
+          <Button variant="primary" icon={<PenLine aria-hidden />} disabled aria-describedby={open ? "broadcast-quota" : undefined} className="max-w-full !whitespace-normal text-center">
             {t("messaging.broadcast.write")}
           </Button>
         )}

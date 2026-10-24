@@ -362,6 +362,7 @@ function RuleSlotRow({
                 icon={<Plus aria-hidden />}
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => insert(chip.token)}
+                className="max-w-full !whitespace-normal text-center"
               >
                 {t(`referrals.message.chip.${chip.key}`)}
                 <span dir="auto" className="font-body font-normal text-ink-muted">
@@ -378,6 +379,7 @@ function RuleSlotRow({
                   busy={save.isPending}
                   disabled={unknown.length > 0 || (!slot.gifts && !body.trim())}
                   onClick={() => run({ title, body }, setTextState, () => setEditing(false))}
+                  className="max-w-full !whitespace-normal text-center"
                 >
                   {t("referrals.message.save")}
                 </Button>
