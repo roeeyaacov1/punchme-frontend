@@ -1490,7 +1490,7 @@
       "picker": "Which rule?",
       "exists": "You already have one: {{name}}",
       "emptyTitle": "No rules yet",
-      "emptyBody": "Most businesses start with a win-back."
+      "emptyBody": "A good first rule is a win-back: it writes to people who already know you."
     },
     "loadFailed": {
       "rules": "The rules didn't load",
@@ -1832,7 +1832,7 @@
         "business": "the business",
         "reward": "the reward"
       },
-      "unknown": "Unknown placeholder: {{token}}",
+      "unknown": "Unknown keyword: {{token}}",
       "hintGift": "Leave the text empty to give the gift quietly.",
       "hintOnly": "This one only speaks — there is no gift on a scan.",
       "save": "Save the text"
