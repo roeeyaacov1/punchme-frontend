@@ -51,6 +51,7 @@ import {
   giftsOf,
   grantsHorizon,
   monthGifts,
+  prefixJoiner,
   referralProblemKey,
   walkReached,
 } from "./referrals/referralFacts";
@@ -563,18 +564,20 @@ function ReferralRow({
     gifts.length > 0
       ? t("referrals.gifts.line", {
           gifts: gifts
-            .map((grant) =>
-              t("referrals.gifts.item", {
+            .map((grant) => {
+              const who = grant.recipient_display_name.trim() || t("referrals.list.noName");
+              return t("referrals.gifts.item", {
                 gift: grant.gift_complete_card ? t("referrals.program.giftFull") : t("referrals.program.gift", { count: grant.gift_stamps }),
-                who: isolate(grant.recipient_display_name.trim() || t("referrals.list.noName")),
+                who: isolate(who),
+                wj: prefixJoiner(who, lang),
                 state:
                   grant.status === "skipped"
                     ? t("referrals.gifts.skipped", {
                         reason: t(`referrals.gifts.skip.${SKIPS.includes(grant.skip_reason) ? grant.skip_reason : "other"}`),
                       })
                     : t(`referrals.gifts.state.${grant.status === "sending" ? "pending" : grant.status}`),
-              }),
-            )
+              });
+            })
             .join(" · "),
         })
       : null;

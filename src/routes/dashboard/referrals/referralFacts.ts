@@ -88,28 +88,50 @@ export function giftRulesOn(rules: readonly ReferralRule[]): ReferralRule[] {
     .filter((rule): rule is ReferralRule => rule !== undefined);
 }
 
+/** When the member's first gift for a counted referral comes: on the
+ * friend's first stamp, on the friend's first full card, or never. */
+export type MemberGiftWhen = "firstStamp" | "firstCard" | null;
+
 /**
  * What counting a flagged referral does, from the rules that are on: the
  * friend's welcome gift fires now, and the member's gifts wait for the
- * friend's first stamp or first full card. Not counting keeps the friend's
- * card and gives nobody anything for it.
+ * friend's first stamp or first full card, whichever rule that is on comes
+ * first. Not counting keeps the friend's card and gives nobody anything for
+ * it.
  */
-export function decisionEffects(rules: readonly ReferralRule[]): { welcome: boolean; memberGift: boolean } {
+export function decisionEffects(rules: readonly ReferralRule[]): { welcome: boolean; memberGift: MemberGiftWhen } {
   const welcome = on(rules, "friend_joined", "friend");
   const firstStamp = on(rules, "friend_first_stamp", "referrer");
   const completed = on(rules, "friend_completed_card", "referrer");
   return {
     welcome: !!welcome && hasGift(welcome),
-    memberGift: (!!firstStamp && hasGift(firstStamp)) || (!!completed && hasGift(completed)),
+    memberGift: firstStamp && hasGift(firstStamp) ? "firstStamp" : completed && hasGift(completed) ? "firstCard" : null,
   };
 }
 
-/** The sentence that says what counting does, by what the rules give. */
-export function countSentenceKey(effects: { welcome: boolean; memberGift: boolean }): string {
-  if (effects.welcome && effects.memberGift) return "referrals.decision.countBoth";
+/** The sentence that says what counting does, by what the rules give and
+ * when: "count it" says when the member's gift comes, not just that it will. */
+export function countSentenceKey(effects: { welcome: boolean; memberGift: MemberGiftWhen }): string {
+  const card = effects.memberGift === "firstCard" ? "Card" : "";
+  if (effects.welcome && effects.memberGift) return `referrals.decision.countBoth${card}`;
   if (effects.welcome) return "referrals.decision.countWelcome";
-  if (effects.memberGift) return "referrals.decision.countMember";
+  if (effects.memberGift) return `referrals.decision.countMember${card}`;
   return "referrals.decision.countPlain";
+}
+
+/**
+ * The hyphen Hebrew puts between a one-letter prefix (ל, ו, כש) and a word
+ * in another script: "ונועה" but "ו-Emma", "ל-Александра". Empty in English
+ * and before a Hebrew word, including the words for a missing name.
+ */
+export function prefixJoiner(name: string, lang: string): string {
+  return lang.startsWith("he") && !/^[֐-׿]/.test(name.trim()) ? "-" : "";
+}
+
+/** A sentence can open on a name said in words ("a customer with no name"),
+ * which then takes a capital. A real name is printed as its owner wrote it. */
+export function sentenceStart(person: Person, said: string): string {
+  return person.kind === "name" ? said : said.charAt(0).toLocaleUpperCase() + said.slice(1);
 }
 
 /** The reasons a flag has its own sentence for; any other is said plainly. */
