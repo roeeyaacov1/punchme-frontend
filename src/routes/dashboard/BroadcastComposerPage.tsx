@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CircleAlert, CircleCheck, Send } from "lucide-react";
 import { Button, Dialog, LinkButton, Notice, Skeleton } from "../../components/kit";
 import { ReadProblem } from "../../components/dashboard/ReadProblem";
+import { usePageTitle } from "../../components/dashboard/shell/pageTitle";
 import { PUNCHME_MONTHLY_PRICE } from "../../components/marketing/calculator";
 import { MessageFields } from "../../components/messaging/MessageFields";
 import { MessageStage } from "../../components/messaging/MessageStage";
@@ -54,6 +55,8 @@ const figure = <span dir="ltr" className="type-figure" />;
 export function BroadcastComposerPage() {
   useLightboxPage();
   const { t, i18n } = useTranslation();
+  // Titled as its heading is, not by the list it was opened from.
+  usePageTitle(t("messaging.broadcast.composerTitle"));
   const lang = i18n.resolvedLanguage ?? "he";
   const { business, role, isPro } = useBusiness();
   const owns = isOwner(role);
