@@ -17,6 +17,11 @@ export function formatHour(hour: number): string {
   return `${String(hour).padStart(2, "0")}:00`;
 }
 
+/** Hours on the 24-hour clock in both languages, as the send hour is
+ * picked and said ("at 10:00"), so English never mixes "10:00" with
+ * "10:00 AM". */
+const CLOCK = { hour: "2-digit", minute: "2-digit", hourCycle: "h23" } as const;
+
 /**
  * A date-time in the UI's locale, short: "23 Oct, 09:00". With the year
  * whenever it isn't this one, so last October's broadcast never reads like
@@ -29,14 +34,15 @@ export function formatWhen(iso: string | null | undefined, lang: string, now = D
     day: "numeric",
     month: "short",
     ...(date.getFullYear() !== new Date(now).getFullYear() && { year: "numeric" }),
-    hour: "2-digit",
-    minute: "2-digit",
+    ...CLOCK,
   }).format(date);
 }
 
 /** A date-time said whole, for a message read in full: "Thursday, 22 October 2026 at 09:12". */
 export function formatFull(iso: string, lang: string): string {
-  return new Intl.DateTimeFormat(lang, { dateStyle: "full", timeStyle: "short" }).format(new Date(iso));
+  return new Intl.DateTimeFormat(lang, { dateStyle: "full", timeStyle: "short", hourCycle: "h23" }).format(
+    new Date(iso),
+  );
 }
 
 /** Whole calendar days from `now`'s day to `date`'s, in local time, so a
@@ -54,7 +60,7 @@ export function daysFrom(date: Date, now: Date): number {
  */
 export function relativeWhen(iso: string, t: TFunction, lang: string, now = Date.now()): string {
   const date = new Date(iso);
-  const time = new Intl.DateTimeFormat(lang, { hour: "2-digit", minute: "2-digit" }).format(date);
+  const time = new Intl.DateTimeFormat(lang, CLOCK).format(date);
   const days = daysFrom(date, new Date(now));
   if (days === 0) return t("messaging.when.today", { time });
   if (days === 1) return t("messaging.when.tomorrow", { time });

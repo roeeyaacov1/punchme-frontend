@@ -19,6 +19,11 @@ describe("formatWhen", () => {
     expect(formatWhen(at(1, 5, 9, 2027), "en", NOW)).toContain("2027");
   });
 
+  it("keeps English on the 24-hour clock the send hour is picked on", () => {
+    expect(formatWhen(at(10, 23, 18), "en", NOW)).toContain("18:00");
+    expect(formatWhen(at(10, 23, 9), "en", NOW)).not.toMatch(/AM|PM/);
+  });
+
   it("is empty for no date", () => {
     expect(formatWhen(null, "en", NOW)).toBe("");
   });
@@ -26,7 +31,7 @@ describe("formatWhen", () => {
 
 describe("relativeWhen", () => {
   it("names today, tomorrow and yesterday, with the hour", () => {
-    expect(relativeWhen(at(10, 22, 18), t, "en", NOW)).toMatch(/^today 0?6:00/i);
+    expect(relativeWhen(at(10, 22, 18), t, "en", NOW)).toMatch(/^today 18:00/);
     expect(relativeWhen(at(10, 23, 10), t, "en", NOW)).toMatch(/^tomorrow 10:00/);
     expect(relativeWhen(at(10, 21, 10), t, "en", NOW)).toMatch(/^yesterday 10:00/);
   });
