@@ -15,6 +15,7 @@ import {
   Switch,
 } from "../../components/kit";
 import { ReadProblem } from "../../components/dashboard/ReadProblem";
+import { usePageTitle } from "../../components/dashboard/shell/pageTitle";
 import { PUNCHME_MONTHLY_PRICE } from "../../components/marketing/calculator";
 import { FieldSection, MessageFields } from "../../components/messaging/MessageFields";
 import { MessageStage } from "../../components/messaging/MessageStage";
@@ -138,8 +139,19 @@ function toPayload(draft: RuleDraft, fallbackName: string): AutomationIn {
  * and beside the fields from 1024px. Where switching on can't happen (Free,
  * sending not open, rules on hold) the action says "Save as off" instead.
  * The draft is kept in the tab while the owner steps away.
+ *
+ * Keyed by the rule: a new rule and each saved one are separate screens, so
+ * going from one to another without the list in between (back and forward)
+ * starts the draft over instead of showing the last one under the new
+ * address.
  */
 export function AutomationEditorPage() {
+  const { automationId } = useParams();
+  const [searchParams] = useSearchParams();
+  return <AutomationEditor key={automationId ?? `new-${searchParams.get("recipe") ?? "winback"}`} />;
+}
+
+function AutomationEditor() {
   useLightboxPage();
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage ?? "he";
@@ -433,6 +445,10 @@ export function AutomationEditorPage() {
       {t("messaging.editor.back")}
     </LinkButton>
   );
+
+  // The tab and the route announcement name the rule, as its heading does,
+  // rather than the list it was opened from.
+  usePageTitle(draft ? (isNew ? kindName : ruleName(existing.data ?? draft, t)) : t("messaging.title"));
 
   // A rule that is gone says so with the way back; a read that failed
   // offers to try again.
