@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ReferralGrant, ReferralRule } from "../../../api/referrals";
 import {
+  countSentenceKey,
   decisionEffects,
   giftRulesOn,
   giftsOf,
@@ -8,6 +9,8 @@ import {
   monthGifts,
   monthStart,
   personOf,
+  prefixJoiner,
+  sentenceStart,
   walkReached,
 } from "./referralFacts";
 
@@ -100,12 +103,38 @@ describe("what the rules that are on give", () => {
   it("says what counting does: a welcome gift now, a member's gift later", () => {
     expect(decisionEffects([rule("friend_joined", "friend"), rule("friend_first_stamp", "referrer")])).toEqual({
       welcome: true,
-      memberGift: true,
+      memberGift: "firstStamp",
     });
     expect(decisionEffects([rule("friend_joined", "friend", { gift_stamps: 0, body: "Hi" })])).toEqual({
       welcome: false,
-      memberGift: false,
+      memberGift: null,
     });
+  });
+
+  it("says when the member's gift comes: the first stamp, else the first full card", () => {
+    const card = rule("friend_completed_card", "referrer", { gift_complete_card: true, gift_stamps: 0 });
+    expect(decisionEffects([card]).memberGift).toBe("firstCard");
+    expect(decisionEffects([card, rule("friend_first_stamp", "referrer")]).memberGift).toBe("firstStamp");
+    expect(countSentenceKey({ welcome: false, memberGift: "firstCard" })).toBe("referrals.decision.countMemberCard");
+    expect(countSentenceKey({ welcome: true, memberGift: "firstStamp" })).toBe("referrals.decision.countBoth");
+    expect(countSentenceKey({ welcome: true, memberGift: null })).toBe("referrals.decision.countWelcome");
+    expect(countSentenceKey({ welcome: false, memberGift: null })).toBe("referrals.decision.countPlain");
+  });
+});
+
+describe("prefixJoiner", () => {
+  it("hyphens a Hebrew prefix onto another script only", () => {
+    expect(prefixJoiner("Emma Brown", "he")).toBe("-");
+    expect(prefixJoiner("Александра", "he")).toBe("-");
+    expect(prefixJoiner("נועה כהן", "he")).toBe("");
+    expect(prefixJoiner("Emma Brown", "en")).toBe("");
+  });
+});
+
+describe("sentenceStart", () => {
+  it("capitalises a name said in words, never a real one", () => {
+    expect(sentenceStart({ kind: "noName" }, "a customer with no name")).toBe("A customer with no name");
+    expect(sentenceStart({ kind: "name", name: "da Silva" }, "da Silva")).toBe("da Silva");
   });
 });
 

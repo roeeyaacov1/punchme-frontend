@@ -1889,7 +1889,7 @@
       "showing": "Showing {{shown}} of {{total}}",
       "more_one": "{{value}} more",
       "more_other": "{{value}} more",
-      "line": "<f>{{friend}}</f> joined through <m>{{member}}</m>",
+      "line": "<f>{{Friend}}</f> joined through <m>{{member}}</m>",
       "noName": "a customer with no name",
       "removedCard": "a customer whose card was removed",
       "status": {
@@ -1917,14 +1917,16 @@
     "decision": {
       "title": "Waiting for your decision",
       "reason": {
-        "self_referral": "<f>{{friend}}</f> joined with <m>{{member}}</m>'s own phone number.",
-        "shared_device": "<f>{{friend}}</f> joined from a phone another join already used.",
+        "self_referral": "<f>{{Friend}}</f> joined with <m>{{member}}</m>'s own phone number.",
+        "shared_device": "<f>{{Friend}}</f> joined from a phone another join already used.",
         "burst": "Many joins came from the same place in a short time.",
         "unknown": "We held this one back to check it."
       },
-      "countBoth": "Count it: <f>{{friend}}</f> gets the welcome gift now, and it counts toward <m>{{member}}</m>'s gift.",
+      "countBoth": "Count it: <f>{{friend}}</f> gets the welcome gift now, and <m>{{member}}</m> gets a gift at <f>{{friend}}</f>'s first stamp.",
+      "countBothCard": "Count it: <f>{{friend}}</f> gets the welcome gift now, and <m>{{member}}</m> gets a gift when <f>{{friend}}</f> fills a first card.",
       "countWelcome": "Count it: <f>{{friend}}</f> gets the welcome gift now.",
-      "countMember": "Count it: it counts for <m>{{member}}</m>, whose gift comes as <f>{{friend}}</f> collects stamps.",
+      "countMember": "Count it: it counts for <m>{{member}}</m>, who gets the gift at <f>{{friend}}</f>'s first stamp.",
+      "countMemberCard": "Count it: it counts for <m>{{member}}</m>, who gets the gift when <f>{{friend}}</f> fills a first card.",
       "countPlain": "Count it: it counts as <m>{{member}}</m>'s referral. No gifts are on.",
       "skip": "Don't count it: <f>{{friend}}</f> keeps the card, without the gift, and <m>{{member}}</m> gets nothing for it.",
       "final": "It can't be undone.",
