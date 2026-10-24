@@ -30,7 +30,7 @@ export function RecipeList({
     return (
       <div className="flex flex-col items-start gap-3 px-4 py-3">
         <p className="type-body text-ink">{t("messaging.loadFailed.recipes")}</p>
-        <Button variant="secondary" onClick={onRetry}>
+        <Button variant="secondary" onClick={onRetry} className="max-w-full !whitespace-normal text-center">
           {t("common.retry")}
         </Button>
       </div>

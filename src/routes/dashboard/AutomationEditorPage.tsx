@@ -420,7 +420,7 @@ function AutomationEditor() {
             {t(owns ? "messaging.rules.upgradeOwner" : "messaging.rules.upgradeHire")}
           </p>
           {owns && (
-            <LinkButton to="/dashboard/billing" variant="secondary">
+            <LinkButton to="/dashboard/billing" variant="secondary" className="max-w-full !whitespace-normal text-center">
               {t("billing.activateCta")}
             </LinkButton>
           )}
@@ -440,7 +440,7 @@ function AutomationEditor() {
       to="/dashboard/messages?tab=rules"
       variant="quiet"
       icon={<ArrowLeft aria-hidden className="rtl:-scale-x-100" />}
-      className="-ms-3 self-start"
+      className="-ms-3 self-start max-w-full !whitespace-normal text-center"
     >
       {t("messaging.editor.back")}
     </LinkButton>
@@ -521,7 +521,7 @@ function AutomationEditor() {
         tone="warn"
         action={
           owns ? (
-            <LinkButton to="/dashboard/billing" variant="secondary">
+            <LinkButton to="/dashboard/billing" variant="secondary" className="max-w-full !whitespace-normal text-center">
               {t("billing.activateCta")}
             </LinkButton>
           ) : undefined
@@ -648,7 +648,7 @@ function AutomationEditor() {
               busy={save.isPending && save.variables?.activate === primary.activate}
               disabled={!ready || remove.isPending}
               onClick={() => save.mutate({ activate: primary.activate })}
-              className="w-full"
+              className="w-full max-w-full !whitespace-normal text-center"
             >
               {primary.label}
             </Button>
@@ -686,7 +686,7 @@ function AutomationEditor() {
           {/* The secondary actions, then the one that removes, at the foot. */}
           <div className="flex flex-col items-start gap-3">
             <div className="flex flex-wrap gap-3">
-              <Button variant="secondary" busy={test.isPending} disabled={!messageReady(draft, draft.kind) || busy} onClick={() => test.mutate()}>
+              <Button variant="secondary" busy={test.isPending} disabled={!messageReady(draft, draft.kind) || busy} onClick={() => test.mutate()} className="max-w-full !whitespace-normal text-center">
                 {t("messaging.editor.test")}
               </Button>
               {offeredOff && (
@@ -695,6 +695,7 @@ function AutomationEditor() {
                   busy={save.isPending && save.variables?.activate === false}
                   disabled={!ready || remove.isPending}
                   onClick={() => save.mutate({ activate: false })}
+                  className="max-w-full !whitespace-normal text-center"
                 >
                   {t("messaging.editor.saveOff")}
                 </Button>
@@ -714,12 +715,12 @@ function AutomationEditor() {
               ) : null}
             </p>
             {touched && (
-              <Button variant="quiet" onClick={discard} className="-ms-3">
+              <Button variant="quiet" onClick={discard} className="-ms-3 max-w-full !whitespace-normal text-center">
                 {t("messaging.editor.discard")}
               </Button>
             )}
             {rule && (
-              <Button variant="danger" icon={<Trash2 aria-hidden />} onClick={() => setConfirmDelete(true)} disabled={busy}>
+              <Button variant="danger" icon={<Trash2 aria-hidden />} onClick={() => setConfirmDelete(true)} disabled={busy} className="max-w-full !whitespace-normal text-center">
                 {t("messaging.editor.delete")}
               </Button>
             )}
@@ -737,10 +738,10 @@ function AutomationEditor() {
         initialFocus={cancelDelete}
         footer={
           <>
-            <Button ref={cancelDelete} variant="secondary" onClick={() => setConfirmDelete(false)}>
+            <Button ref={cancelDelete} variant="secondary" onClick={() => setConfirmDelete(false)} className="max-w-full !whitespace-normal text-center">
               {t("messaging.editor.cancel")}
             </Button>
-            <Button variant="danger" busy={remove.isPending} onClick={() => remove.mutate()}>
+            <Button variant="danger" busy={remove.isPending} onClick={() => remove.mutate()} className="max-w-full !whitespace-normal text-center">
               {t("messaging.editor.deleteYes")}
             </Button>
           </>

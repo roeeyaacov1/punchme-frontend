@@ -119,7 +119,7 @@ export function StandeePage() {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
         {header}
-        <Loading className="grid items-start gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-8">
+        <Loading className="grid items-start gap-6 lg:grid-cols-[minmax(0,min(22rem,45%))_minmax(0,1fr)] lg:gap-8">
           <div className="grid grid-cols-2 gap-3">
             {STANDEE_DESIGNS.map((key) => (
               <Skeleton key={key} className="aspect-[3/5] rounded-panel" />
@@ -163,7 +163,9 @@ export function StandeePage() {
 
       {header}
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-8">
+      {/* The choices take 22rem, but never more than 45% of the row, so at
+          200% text the sheet keeps a column of its own. */}
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,min(22rem,45%))_minmax(0,1fr)] lg:gap-8">
         <div className="flex min-w-0 flex-col gap-6">
           <DesignChoice value={design} onChange={setDesign} art={art} format={format} language={language} />
 
@@ -232,7 +234,7 @@ export function StandeePage() {
 
           {canEnroll ? (
             <>
-              <Button size="lg" icon={<Printer aria-hidden />} onClick={() => window.print()} className="w-full">
+              <Button size="lg" icon={<Printer aria-hidden />} onClick={() => window.print()} className="w-full max-w-full !whitespace-normal text-center">
                 {t("standee.print")}
               </Button>
               <div className="flex flex-col gap-1 text-sm leading-snug text-ink-muted">
@@ -249,7 +251,7 @@ export function StandeePage() {
                   components={{ ltr: <bdi dir="ltr" className="type-figure" /> }}
                 />
               </p>
-              <LinkButton to="/dashboard/billing" variant="primary" size="lg" className="w-full">
+              <LinkButton to="/dashboard/billing" variant="primary" size="lg" className="w-full max-w-full !whitespace-normal text-center">
                 {t("billing.activateCta")}
               </LinkButton>
             </LitPanel>

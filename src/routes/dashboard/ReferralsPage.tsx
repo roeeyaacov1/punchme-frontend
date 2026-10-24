@@ -257,7 +257,7 @@ export function ReferralsPage() {
           ))}
         </ul>
         {hiddenWaiting > 0 && (
-          <Button variant="secondary" onClick={() => setAllDecisions(true)} className="self-start">
+          <Button variant="secondary" onClick={() => setAllDecisions(true)} className="self-start max-w-full !whitespace-normal text-center">
             {t("referrals.decision.more", { count: hiddenWaiting })}
           </Button>
         )}
@@ -314,7 +314,7 @@ export function ReferralsPage() {
                   components={{ ltr: <bdi dir="ltr" className="type-figure" /> }}
                 />
               </p>
-              <LinkButton to="/dashboard/billing" variant="primary">
+              <LinkButton to="/dashboard/billing" variant="primary" className="max-w-full !whitespace-normal text-center">
                 {t("billing.activateCta")}
               </LinkButton>
             </div>
@@ -337,7 +337,7 @@ export function ReferralsPage() {
         ) : (
           <p role="status" className="sr-only" />
         )}
-        <Button variant="secondary" icon={<Settings2 aria-hidden />} onClick={() => setSettingsOpen(true)} className="self-start">
+        <Button variant="secondary" icon={<Settings2 aria-hidden />} onClick={() => setSettingsOpen(true)} className="self-start max-w-full !whitespace-normal text-center">
           {t("referrals.settings.open")}
         </Button>
       </LitPanel>
@@ -399,6 +399,7 @@ export function ReferralsPage() {
               variant="secondary"
               busy={referrals.isFetchingNextPage}
               onClick={() => void referrals.fetchNextPage()}
+              className="max-w-full !whitespace-normal text-center"
             >
               {t("referrals.list.more", { count: more, value: formatCount(more, lang) })}
             </Button>
@@ -443,10 +444,10 @@ export function ReferralsPage() {
         returnFocus={afterDecision}
         footer={
           <>
-            <Button ref={cancelRef} variant="secondary" onClick={() => setAsking(null)}>
+            <Button ref={cancelRef} variant="secondary" onClick={() => setAsking(null)} className="max-w-full !whitespace-normal text-center">
               {t("referrals.decision.cancel")}
             </Button>
-            <Button variant="ink" busy={review.isPending} onClick={() => asking && review.mutate(asking)}>
+            <Button variant="ink" busy={review.isPending} onClick={() => asking && review.mutate(asking)} className="max-w-full !whitespace-normal text-center">
               {t(asking?.decision === "reject" ? "referrals.list.review.reject" : "referrals.list.review.approve")}
             </Button>
           </>

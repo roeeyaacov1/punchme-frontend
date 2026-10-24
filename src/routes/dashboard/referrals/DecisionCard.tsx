@@ -102,10 +102,10 @@ export function DecisionCard({
         </li>
       </ul>
       <div className="grid grid-cols-2 gap-3">
-        <Button variant="secondary" onClick={() => onAsk("approve")} className="whitespace-normal">
+        <Button variant="secondary" onClick={() => onAsk("approve")} className="max-w-full !whitespace-normal text-center">
           {t("referrals.list.review.approve")}
         </Button>
-        <Button variant="secondary" onClick={() => onAsk("reject")} className="whitespace-normal">
+        <Button variant="secondary" onClick={() => onAsk("reject")} className="max-w-full !whitespace-normal text-center">
           {t("referrals.list.review.reject")}
         </Button>
       </div>
