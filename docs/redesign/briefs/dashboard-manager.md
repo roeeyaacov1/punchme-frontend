@@ -1356,6 +1356,39 @@ to §10.
   Every sheet that uses the kit's was checked after the change, and none
   of their elements moved.
 
+**After step D** (24 Oct, for the review):
+- **The local API runs the backend's `main`** (`b63954b`), built with
+  `git archive main`, so Sent reads the delivery filter: 323 deliveries
+  in all, 0 once broadcasts are left out. One message to one customer
+  (no weekly cap) now stands in Sent beside the broadcasts. No rule has
+  sent anything locally, since the scheduler doesn't run in Docker (§12).
+- **Found and fixed:** English times read "10:00 AM" beside "at 10:00";
+  Hebrew prefixes ran into Latin and Cyrillic names ("לEmma"); English
+  opened sentences on "a customer with no name"; "count it" didn't say
+  when; at 200% text the kit's one-line buttons pushed the composer and
+  the editor off a phone, and the standee's sheet off a laptop;
+  `DecisionCard`'s `whitespace-normal` never applied; the composer and the
+  editor carried the list's tab title; the editor kept the last draft when
+  moving between rules without the list; "most businesses start with a
+  win-back" claimed what nothing backs.
+- **Checked and holding:** every design on every paper in both languages
+  with the demo's names, a 45-character name with a 60-character reward,
+  and the worst. Nothing clips, the code keeps its size, and its nearest
+  edge is about 23 mm away (the tent, Counter). Each paper prints as one
+  page at its own size, by day and at night, and ctrl+P on Free prints the
+  sheet with its empty slot.
+- **Left as they are:**
+  - the messaging errors shown on Customers (Phase 5) still say "her" in
+    English and "ללקוח הזה" in Hebrew (`kind_unsupported_direct`,
+    `design_outdated`, `card_has_no_pass`). That is Phase 5's page, so
+    the fix waits for Roee's word;
+  - the starter rules' copy is the backend's (§12);
+  - the console's dev-only lines: React Router's future-flag warnings and
+    Vite's own;
+  - `impeccable detect` finds nothing on these files. Its two advisories
+    are the standee's empty slot, `#111111` ink on white paper, which is
+    print and not the screen palette.
+
 ## Appendix A: the worst-case data
 
 Load it into a signed-in dashboard tab on the dev server: paste it into the
