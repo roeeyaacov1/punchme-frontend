@@ -8,7 +8,8 @@ import {
   type Invitation,
   type Team,
 } from "../../../api/team";
-import { Button, Sheet } from "../../../components/kit";
+import { Button, Sheet, useReducedMotion } from "../../../components/kit";
+import { cn } from "../../../lib/cn";
 import { listDay } from "../format";
 import { Email } from "./Email";
 import { ReadyLink } from "./ReadyLink";
@@ -51,6 +52,7 @@ export function InvitationSheet({
   onGone: () => void;
 }) {
   const { t, i18n } = useTranslation();
+  const reduced = useReducedMotion();
   const action = useRef<HTMLButtonElement>(null);
   const [renewed, setRenewed] = useState<Invitation | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
@@ -145,7 +147,13 @@ export function InvitationSheet({
               {failed}
             </div>
           ) : (
-            <div className="flex flex-col gap-6">
+            // A renewed link lights on where "Make a new link" was, as the
+            // invite's does where its form was. One the sheet opened on
+            // comes up with the sheet.
+            <div
+              key={current.id}
+              className={cn("flex flex-col gap-6", renewed && (reduced ? "animate-gentle-in" : "animate-lights-on"))}
+            >
               <ReadyLink invitation={current} businessName={businessName} actionRef={action} />
               <div className="flex flex-col items-start gap-2 border-t border-border pt-5">
                 <Button
