@@ -1239,3 +1239,55 @@ answered (§6, rows 5 and 6). These notes win where they differ from §7 to §9:
   - a 409 on a second checkout while a subscription is bound and not
     releasable;
   - the invitation address checked by the API.
+
+**After step B** (25 Oct, for steps C and D). Built as §7 to §9 say, with
+the notes above, and a fresh review of the whole branch after it, whose
+two real findings are fixed (focus falling to `<body>` when a background
+read takes a row or the ready link away; the success page's 30 s counted
+between tries, so a hung request held it). Where step B departed or
+decided, for the review to overturn:
+- **The manager's sentence stands on its own:** "כל מה שעובד/ת יכול/ה
+  לעשות, ובנוסף משנה את מה שהלקוחות רואים: …". `/invite/:token` reads the
+  same key and shows it alone, where "גם…" had nothing before it.
+- **The redirect failures are `billing.problem.*`,** not `billing.error.*`:
+  `billing.error` is the string onboarding reads.
+- **The cancel page's "אפשר להפעיל מתי שתרצו" is on Free only.**
+- **Five keys §8 doesn't name:** `team.member.role`, `.joined` and
+  `.removeConfirm`, `team.ready.linkLabel` (the link field's name for a
+  screen reader) and `team.invitation.removed` (the toast after "הסרה
+  מהרשימה").
+- **The invite panel goes back to the form** once its link leaves the list,
+  cancelled from its sheet or used.
+- **The success page's wait is `pollForPro`,** tested on fake timers, with a
+  deadline of its own.
+
+Left for step C:
+- The sheets reset as they close as well as open, so a renewed link's sheet
+  flips back to its expired view while it slides out, and the member sheet
+  drops its error the same way.
+- The ready link's `arrive` (§7.9).
+
+Left for step D:
+- "חזרתם מעמוד התשלום של Stripe ב-שבת 23:40" when the return was yesterday:
+  a "yesterday at" line instead of the weekday.
+- Two lines a screen reader may not hear: the bad-address error after Enter
+  in the field, where focus already is, and "הדפדפן לא איפשר להעתיק", whose
+  line arrives after focus has moved.
+- Share does nothing when the browser refuses it, other than the owner
+  closing the menu; it could fall back to Copy.
+- The business's name opens the shared line unisolated: check a Latin name
+  inside Hebrew on WhatsApp, on the phone.
+- The calculator link may land at the top of the landing page: check it,
+  Safari included.
+- For Roee: the back-from-Stripe warning stands beside "התשלום האחרון לא
+  הושלם" (`incomplete`), where a new checkout is safe, and may put an owner
+  off a retry.
+
+Outside the redesign:
+- Cancelling a link the hire has just accepted says it was cancelled: the
+  backend's DELETE answers 204 for a used link, so the 404 Team listens for
+  never comes.
+- When a guard sends a signed-out return to `/login`, the pre-paint classes
+  stay on `<html>`, as they already do for `/dashboard` paths: Phase 8's.
+- Billing's Live state can't tell a subscription set to end with its
+  period: the API doesn't say.
