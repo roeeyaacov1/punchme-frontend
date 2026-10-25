@@ -9,6 +9,13 @@ import { listDay } from "../format";
  * computer's own. Where there is none, Copy is the one thing to press. */
 const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
 
+/** The whole link, on an iPhone too: Safari there can take `select()` and
+ * leave nothing selected, and answers to the range instead. */
+function selectAll(field: HTMLInputElement) {
+  field.select();
+  field.setSelectionRange(0, field.value.length);
+}
+
 /**
  * An invitation that is ready to send: the link itself, in full, and the
  * two ways to hand it over, then what it is and what the hire will do.
@@ -44,8 +51,10 @@ export function ReadyLink({
       toast.show({ tone: "ok", title: t("common.copied") });
     } catch {
       setRefused(true);
-      field.current?.focus();
-      field.current?.select();
+      if (field.current) {
+        field.current.focus();
+        selectAll(field.current);
+      }
     }
   }
 
@@ -68,7 +77,7 @@ export function ReadyLink({
         readOnly
         dir="ltr"
         value={url}
-        onFocus={(event) => event.currentTarget.select()}
+        onFocus={(event) => selectAll(event.currentTarget)}
       />
       <div className="flex flex-wrap gap-3">
         {canShare && (
