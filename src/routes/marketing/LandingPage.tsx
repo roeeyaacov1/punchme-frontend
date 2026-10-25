@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 import { ctaClasses } from "../../components/marketing/primitives";
@@ -42,6 +42,24 @@ export function LandingPage() {
 
   const handleCalculatorResult = useCallback((value: number) => {
     setNetAnnual(value > 0 ? value : null);
+  }, []);
+
+  // A link from another page, such as Billing's to `/#calculator`, arrives
+  // before React has drawn the section, so the browser finds nothing to
+  // scroll to and the page opens at the top. Once the page and its fonts
+  // are in, it goes there itself, at once, since this is an arrival rather
+  // than a glide down the page. Only as the page opens: the header's own
+  // links already glide to their sections.
+  useEffect(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (!id) return;
+    let cancelled = false;
+    void document.fonts.ready.then(() => {
+      if (!cancelled) document.getElementById(id)?.scrollIntoView({ behavior: "instant", block: "start" });
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
