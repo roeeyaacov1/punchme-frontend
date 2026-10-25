@@ -1331,5 +1331,18 @@ Left for step D:
   opening the phone's menu with the line and the link; and the three
   arrivals at full speed. The preview pane painted no frames during this
   step, so their motion was read from the animations, not watched.
-- **`/review-animations`** on the motion since step B, as a message of its
-  own (the guide's template C).
+
+**After the motion review** (25 Oct). `/review-animations` approved step
+C's motion. It found two jumps at 375px that the arrivals don't bridge,
+and Roee left both as they are: the lists under the invite panel moving
+68px as it turns, and, for later:
+- **A sheet that grows while open jumps to its new height.** The kit's
+  `Sheet` doesn't animate its own size. Renewing an expired link takes
+  the invitation sheet from 238px to 478px in one frame, its top edge
+  rising 240px while the new link rises 8px. Refer a friend's settings
+  stand at the sheet's 90dvh cap and scroll, so their rows open inside
+  it. The fix is the kit's: start a panel that grows at
+  `translateY(<growth>)` and transition `transform` to `none` over 300ms
+  on the drawer curve. The panel's transform is shared with
+  `useSheetDrag` and with the rise keyframe's fill, so the change needs
+  both in mind.
