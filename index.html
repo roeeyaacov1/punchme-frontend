@@ -73,8 +73,10 @@
          here, before the first paint, from the same key and the same class
          names src/theme/useDashboardTheme.ts uses — keep the two in step.
          /billing counts as the dashboard, since it only forwards there (it
-         is where Stripe's portal sends the owner back). Every other route
-         is light and gets nothing.
+         is where Stripe's portal sends the owner back). The page Stripe's
+         checkout returns to when the owner leaves it stands outside the
+         shell, on Lightbox, at night when the dashboard is. Every other
+         route is light and gets nothing.
 
          The dashboard also runs edge to edge on a phone (viewport-fit=cover),
          which useShellViewport sets while it is mounted and takes away when
@@ -82,9 +84,11 @@
          screen doesn't open letterboxed and then jump. -->
     <script>
       (function () {
-        if (!/^\/(dashboard(\/|$)|billing\/?$)/.test(location.pathname)) return;
+        var shell = /^\/(dashboard(\/|$)|billing\/?$)/.test(location.pathname);
+        var returned = /^\/billing\/cancel\/?$/.test(location.pathname);
+        if (!shell && !returned) return;
         var viewport = document.querySelector('meta[name="viewport"]');
-        if (viewport && viewport.content.indexOf("viewport-fit") === -1) {
+        if (shell && viewport && viewport.content.indexOf("viewport-fit") === -1) {
           viewport.setAttribute("content", viewport.content + ", viewport-fit=cover");
         }
         var mode;
@@ -98,7 +102,8 @@
           (mode !== "light" &&
             window.matchMedia("(prefers-color-scheme: dark)").matches);
         var root = document.documentElement;
-        root.classList.add("theme-purple", "theme-raised");
+        if (shell) root.classList.add("theme-purple", "theme-raised");
+        else root.classList.add("theme-lightbox");
         if (dark) root.classList.add("theme-night");
       })();
     </script>

@@ -1072,8 +1072,10 @@
       "done": "You're live! Real customers can now join your card."
     },
     "cancel": {
-      "title": "Checkout cancelled",
-      "body": "No charge was made.",
+      "title": "You weren't charged",
+      "body": "You left Stripe's payment page before paying. Your card is as you left it, and not live yet.",
+      "bodyPro": "You left Stripe's page before paying. Nothing changed, and your card is still live.",
+      "next": "You can activate whenever you like, from Billing.",
       "backCta": "Back to billing"
     },
     "plan": {
