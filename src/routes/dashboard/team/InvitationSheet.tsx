@@ -55,13 +55,16 @@ export function InvitationSheet({
   const [renewed, setRenewed] = useState<Invitation | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
 
-  // Each opening starts clean.
+  // Each opening starts clean. A closing sheet keeps what it holds while it
+  // slides out, so a renewed link doesn't flip back to the expired one.
   const [openFor, setOpenFor] = useState<string | null>(null);
   const opening = open ? (invitation?.id ?? null) : null;
   if (opening !== openFor) {
     setOpenFor(opening);
-    setRenewed(null);
-    setProblem(null);
+    if (opening) {
+      setRenewed(null);
+      setProblem(null);
+    }
   }
   const current = renewed ?? invitation;
 
