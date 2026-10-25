@@ -1026,8 +1026,9 @@
     "price": "<ltr>₪{{price}}</ltr> a month, VAT included",
     "leaving": "Opening Stripe…",
     "loadFailed": "Billing didn't load",
-    "unfinished": "Your last payment didn't go through, so the card isn't live yet.",
+    "unfinished": "Your last payment wasn't completed, so the card isn't live yet.",
     "recent": "You came back from Stripe's payment page at {{time}}. If you paid, the card goes live by itself once Stripe confirms it, and activating again would charge you twice.",
+    "recent_yesterday": "You came back from Stripe's payment page yesterday at {{time}}. If you paid, the card goes live by itself once Stripe confirms it, and activating again would charge you twice.",
     "unbilled": "This business has no subscription, so there's nothing to manage or cancel here.",
     "unlocks": {
       "title": "What activating turns on",
@@ -1050,7 +1051,7 @@
     "failed": {
       "title": "Your last payment didn't go through",
       "body": "Until it does, new customers can't join and messages don't go out. The cards your customers hold keep collecting stamps. Update the card you pay with on Stripe, and everything comes back by itself once the payment goes through.",
-      "cta": "Update payment"
+      "cta": "Update payment method"
     },
     "pro": {
       "badge": "Live",
