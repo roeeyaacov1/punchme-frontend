@@ -40,8 +40,8 @@ is no app to install and no account or password to make. The pass collects a
 stamp on every visit, updates by itself, and carries the owner's messages.
 
 Designing the card, previewing it on the owner's own phone and using the whole
-dashboard are free. The owner pays ₪99 a month only when they activate the card
-for real customers.
+dashboard are free. The owner pays ₪99 a month, VAT included, only when they
+activate the card for real customers.
 
 Success is an owner whose regulars come back often enough that ₪99 a month pays
 for itself, and who can see that without tending a dashboard. The revenue
