@@ -51,13 +51,16 @@ export function MemberSheet({
   const [asking, setAsking] = useState(false);
   const [removeProblem, setRemoveProblem] = useState<string | null>(null);
 
-  // Each opening starts clean.
+  // Each opening starts clean. A closing sheet keeps its refusal on screen
+  // while it slides out.
   const [openFor, setOpenFor] = useState<string | null>(null);
   const opening = open ? (member?.id ?? null) : null;
   if (opening !== openFor) {
     setOpenFor(opening);
-    setAsking(false);
-    setRemoveProblem(null);
+    if (opening) {
+      setAsking(false);
+      setRemoveProblem(null);
+    }
   }
 
   const remove = useMutation({
