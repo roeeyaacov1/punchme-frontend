@@ -75,9 +75,39 @@ export function TeamPage() {
   const [memberRemoved, setMemberRemoved] = useState(false);
   const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [invitationOpen, setInvitationOpen] = useState(false);
-  // Where focus goes once a sheet has closed, when the row that opened it
-  // has gone: a list's heading, not nowhere.
-  const [afterSheet, setAfterSheet] = useState<RefObject<HTMLElement> | undefined>(undefined);
+
+  // Where focus goes once a sheet has closed, read as its exit ends so it
+  // answers for the page as it then is: a target the page named once a row
+  // went by the owner's own hand, else the row that opened the sheet while
+  // it is still there, else its list's heading. A row can also go in a
+  // background read while its sheet is open (the hire accepts, someone is
+  // removed on another device), and focus must not fall to <body>.
+  const opener = useRef<HTMLElement | null>(null);
+  const named = useRef<RefObject<HTMLElement> | null>(null);
+  const memberReturn = useMemo<RefObject<HTMLElement>>(
+    () => ({
+      get current() {
+        if (named.current) return named.current.current;
+        return opener.current?.isConnected ? opener.current : membersHeading.current;
+      },
+    }),
+    [],
+  );
+  const invitationReturn = useMemo<RefObject<HTMLElement>>(
+    () => ({
+      get current() {
+        if (named.current) return named.current.current;
+        return opener.current?.isConnected ? opener.current : listHeading.current;
+      },
+    }),
+    [listHeading],
+  );
+
+  function rememberOpener() {
+    const active = document.activeElement;
+    opener.current = active instanceof HTMLElement && active !== document.body ? active : null;
+    named.current = null;
+  }
 
   /** The change at once, so focus has its target the moment a sheet closes,
    * and then the team as the server has it. */
@@ -87,20 +117,20 @@ export function TeamPage() {
   }
 
   function readAgain(target: RefObject<HTMLElement>) {
-    setAfterSheet(target);
+    named.current = target;
     void queryClient.invalidateQueries({ queryKey: teamKey });
   }
 
   function openMember(person: Member) {
+    rememberOpener();
     setMember(person);
     setMemberRemoved(false);
-    setAfterSheet(undefined);
     setMemberOpen(true);
   }
 
   function openInvitation(one: Invitation) {
+    rememberOpener();
     setInvitation(one);
-    setAfterSheet(undefined);
     setInvitationOpen(true);
   }
 
@@ -223,7 +253,7 @@ export function TeamPage() {
         member={member}
         open={memberOpen}
         onClose={() => setMemberOpen(false)}
-        returnFocus={afterSheet}
+        returnFocus={memberReturn}
         removed={memberRemoved}
         onSaved={(updated) => {
           patchTeam((current) => ({
@@ -242,7 +272,7 @@ export function TeamPage() {
             members: current.members.filter((one) => one.id !== person.id),
           }));
           toast.show({ tone: "ok", title: t("team.member.removed", { email: isolate(person.email) }) });
-          setAfterSheet(membersHeading);
+          named.current = membersHeading;
           setMemberRemoved(true);
           setMemberOpen(false);
         }}
@@ -256,7 +286,7 @@ export function TeamPage() {
         invitation={invitation}
         open={invitationOpen}
         onClose={() => setInvitationOpen(false)}
-        returnFocus={afterSheet}
+        returnFocus={invitationReturn}
         onCancelled={(which) => {
           patchTeam((current) => ({
             ...current,
@@ -266,7 +296,7 @@ export function TeamPage() {
             tone: "ok",
             title: t(which.status === "expired" ? "team.invitation.removed" : "team.invitation.cancelled"),
           });
-          setAfterSheet(listHeading);
+          named.current = listHeading;
           setInvitationOpen(false);
         }}
         onRenewed={(old, created) => {
@@ -280,7 +310,7 @@ export function TeamPage() {
             ],
           }));
           // The row that opened the sheet is the old link's, now gone.
-          setAfterSheet(listHeading);
+          named.current = listHeading;
         }}
         onGone={() => readAgain(listHeading)}
       />

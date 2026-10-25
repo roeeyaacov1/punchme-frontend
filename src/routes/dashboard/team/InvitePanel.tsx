@@ -58,12 +58,19 @@ export function InvitePanel({
   }
 
   // Focus follows the panel from the form to the link and back when the
-  // owner moved it, and never as the page opens.
+  // owner moved it, and never as the page opens. When the list took the
+  // link away, focus stays where the owner is, unless it was on the link
+  // itself (Copy, say, on the way back from WhatsApp): then the form's
+  // heading takes it rather than the page's <body>.
   const focusNext = useRef(false);
+  const shown = useRef(made);
   useEffect(() => {
-    if (!focusNext.current) return;
+    if (shown.current === made) return;
+    shown.current = made;
+    const owned = focusNext.current;
     focusNext.current = false;
-    heading.current?.focus();
+    const lost = !document.activeElement || document.activeElement === document.body;
+    if (owned || lost) heading.current?.focus();
   }, [made]);
 
   const create = useMutation({
