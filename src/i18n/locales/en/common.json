@@ -1661,6 +1661,7 @@
   },
   "team": {
     "title": "Team",
+    "lead": "Invitations are links you send yourself, on WhatsApp or however you talk. We don't send emails.",
     "notReady": "Nothing to set up here yet — the owner activates the card.",
     "role": {
       "owner": "Owner",
@@ -1668,34 +1669,71 @@
       "staff": "Staff"
     },
     "roleBody": {
-      "manager": "Scans cards and looks customers up, and can change the card, the poster and the messages that go out. Not billing, and not the team.",
-      "staff": "Scans cards, hands over rewards, and looks customers up. Nothing else changes."
+      "manager": "Everything staff can do, and also changes what customers see: the card, the standee, the messages and Refer a friend. Not billing, and not the team.",
+      "staff": "Scans cards, hands over rewards and looks customers up. Can't change what customers see."
     },
     "invite": {
       "title": "Invite someone",
       "body": "Make a link and send it however you already talk to them. No email involved.",
       "roleLabel": "What they can do",
-      "emailLabel": "Their email (optional)",
+      "lock": "Only for one email address",
+      "openHint": "Without an address, whoever opens the link first joins.",
+      "emailLabel": "Their email",
       "emailPlaceholder": "dana@example.com",
+      "lockHint": "Only someone signed in with this address can use the link. Nothing is sent to it.",
       "emailNamed": "Only this address can use the link, so forwarding it does nothing.",
       "emailBlank": "Anyone who opens this link can join. Add an address to tie it to one person.",
-      "cta": "Create invite link"
+      "cta": "Make the link"
+    },
+    "ready": {
+      "title": "The link is ready",
+      "linkLabel": "The invitation link",
+      "until": "It works once, until {{date}}.",
+      "locked": "Only <who>{{email}}</who> can use it.",
+      "open": "Whoever opens it first joins as {{role}}.",
+      "next": "They open it, sign in or make an account, and they're on the team.",
+      "share": "Share",
+      "shareText": "{{business}} invites you to the team on PunchMe, as {{role}}:",
+      "copyFailed": "This browser didn't let us copy. The link is selected, so you can copy it from here.",
+      "another": "Invite someone else"
     },
     "members": {
       "title": "On your team",
+      "owner": "Owner (you)",
+      "meta": "{{role}} · joined {{date}}",
       "roleFor": "Role for {{email}}",
       "remove": "Remove {{email}}",
       "confirmRemove": "Remove"
     },
+    "member": {
+      "joined": "Joined {{date}}",
+      "role": "Role",
+      "new": "New",
+      "remove": "Remove from the team",
+      "removeTitle": "Remove <who>{{email}}</who> from the team?",
+      "removeBody": "They won't be able to open {{business}}'s dashboard any more. You can invite them again later.",
+      "removeConfirm": "Remove",
+      "saved": "Role saved: {{email}}, {{role}}.",
+      "removed": "{{email}} is no longer on the team."
+    },
     "pending": {
-      "title": "Open invites",
+      "title": "Open invitations",
       "body": "Each link works once and expires after two weeks.",
       "anyone": "Anyone with the link",
+      "until": "{{role}} · until {{date}}",
       "expires": "Expires {{date}}",
-      "expired": "Expired",
+      "expired": "{{role}} · expired {{date}}",
       "copy": "Copy link",
-      "revoke": "Cancel this invite"
+      "revoke": "Cancel the invitation"
     },
+    "invitation": {
+      "cancelled": "Invitation cancelled. The link no longer works.",
+      "expiredLine": "This link expired on {{date}}.",
+      "renew": "Make a new link",
+      "remove": "Remove from the list",
+      "removed": "Removed from the list."
+    },
+    "loadFailed": "The team didn't load",
     "denied": {
       "title": "This page isn't open to you",
       "manager": "Only a manager or the owner can change what customers see: the card, the standee, the messages and Refer a friend.",
@@ -1707,9 +1745,12 @@
     "error": {
       "alreadyMember": "That person is already on your team.",
       "capReached": "That's as many people as one business can hold.",
+      "capMembers": "That's as many people as one business can hold. Remove someone to invite another.",
+      "capInvitations": "There are too many open invitations. Cancel one to make another.",
       "notOwner": "Only the owner can manage the team.",
       "badEmail": "That email doesn't look right.",
-      "generic": "That didn't go through. Try again."
+      "generic": "That didn't go through. Try again.",
+      "gone": "That already changed, maybe on another device. The list is up to date now."
     }
   },
   "invite": {
