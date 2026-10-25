@@ -1023,6 +1023,47 @@
     "title": "Billing",
     "activateCta": "Activate",
     "managePortalCta": "Manage billing",
+    "price": "<ltr>₪{{price}}</ltr> a month, VAT included",
+    "leaving": "Opening Stripe…",
+    "loadFailed": "Billing didn't load",
+    "unfinished": "Your last payment didn't go through, so the card isn't live yet.",
+    "recent": "You came back from Stripe's payment page at {{time}}. If you paid, the card goes live by itself once Stripe confirms it, and activating again would charge you twice.",
+    "unbilled": "This business has no subscription, so there's nothing to manage or cancel here.",
+    "unlocks": {
+      "title": "What activating turns on",
+      "join": "Real customers join with your QR code",
+      "messages": "Your messages really send",
+      "standee": "The standee prints",
+      "referrals": "Refer a friend opens"
+    },
+    "free": {
+      "how": "You pay on Stripe's page, then come back here. You can cancel any time, from this page.",
+      "staysTitle": "What stays free",
+      "stays": "Designing the card, trying it on your own phone, this dashboard and your team: free, before activating and after.",
+      "calculator": "Not sure it pays? Work it out with your own numbers."
+    },
+    "ended": {
+      "title": "Your subscription has ended",
+      "body": "The cards your customers hold keep collecting stamps. New customers can't join, and messages don't go out, until you activate again.",
+      "activateTitle": "Activate again"
+    },
+    "failed": {
+      "title": "Your last payment didn't go through",
+      "body": "Until it does, new customers can't join and messages don't go out. The cards your customers hold keep collecting stamps. Update the card you pay with on Stripe, and everything comes back by itself once the payment goes through.",
+      "cta": "Update payment"
+    },
+    "pro": {
+      "badge": "Live",
+      "paidUntil": "Paid until {{date}}",
+      "trialUntil": "Trial until {{date}}",
+      "manage": "Changing the card you pay with, receipts and cancelling are on Stripe.",
+      "ifCancelTitle": "If you cancel",
+      "ifCancel": "The cards your customers hold keep working and collecting stamps. New customers who scan the code on your counter can't join, messages stop going out, and Refer a friend closes, until you activate again."
+    },
+    "problem": {
+      "unavailable": "Stripe can't be reached right now, and nothing was charged. Try again in a few minutes.",
+      "noCustomer": "There's no billing to manage for this business yet."
+    },
     "status": "Status",
     "error": "Something went wrong. Please try again in a moment.",
     "success": {
