@@ -71,6 +71,21 @@ describe.each(NAMESPACES)("the %s copy", (namespace) => {
   });
 });
 
+/**
+ * The owner pages' Hebrew, where a one-letter prefix before a Latin word
+ * ("ב-Stripe", "ה-QR") takes a word joiner after its hyphen: without it a
+ * line can break there and leave the prefix alone at the end of a line.
+ */
+const JOINED = ["team", "billing"] as const;
+
+describe.each(JOINED)("the %s Hebrew", (namespace) => {
+  it("keeps a prefix with the Latin word after it", () => {
+    for (const [key, value] of strings(leaf(he, namespace), namespace)) {
+      expect(value, key).not.toMatch(/[א-ת]-[A-Za-z]/);
+    }
+  });
+});
+
 describe("the kit's single keys", () => {
   it.each(SINGLE_KEYS)("%s is in Hebrew wherever it is in English", (path) => {
     if (leaf(en, path) === undefined) return;
