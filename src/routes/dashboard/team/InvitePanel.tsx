@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useMutation } from "@tanstack/react-query";
 import { Link2 } from "lucide-react";
 import { createInvitation, type AssignableRole, type Invitation, type Team } from "../../../api/team";
-import { Badge, Button, Checkbox, Input, LitPanel, RadioGroup } from "../../../components/kit";
+import { Badge, Button, Checkbox, Input, LitPanel, RadioGroup, useReducedMotion } from "../../../components/kit";
 import { ReadyLink } from "./ReadyLink";
 import { roleOptions } from "./roles";
 import { inviteRefusalKey, looksLikeEmail } from "./teamFacts";
@@ -35,6 +35,7 @@ export function InvitePanel({
   onMade: (invitation: Invitation) => void;
 }) {
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
   const headingId = useId();
   const heading = useRef<HTMLHeadingElement>(null);
   const emailField = useRef<HTMLInputElement>(null);
@@ -167,9 +168,14 @@ export function InvitePanel({
                   label={t("team.invite.lock")}
                   description={locked ? undefined : t("team.invite.openHint")}
                 />
+                {/* Lights on as the box opens it, as a field a choice opens
+                    does across the dashboard, and goes at once when the box
+                    is unticked. Only a hand ticks it: the form never comes
+                    back ticked. */}
                 {locked && (
                   <Input
                     ref={emailField}
+                    className={reduced ? "animate-gentle-in" : "animate-lights-on"}
                     label={t("team.invite.emailLabel")}
                     hint={t("team.invite.lockHint")}
                     error={emailWrong ? t("team.error.badEmail") : undefined}
