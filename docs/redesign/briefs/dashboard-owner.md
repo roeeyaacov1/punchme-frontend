@@ -1292,3 +1292,44 @@ Outside the redesign:
   stay on `<html>`, as they already do for `/dashboard` paths: Phase 8's.
 - Billing's Live state can't tell a subscription set to end with its
   period: the API doesn't say.
+
+**After step C** (25 Oct, for step D). Built: step B's two leftovers, the
+sheets keeping what they showed until they are out and the ready link's
+arrival, and two more Roee picked from the list: a renewed link lighting
+on in its sheet where its button was, and the address field lighting on
+as "רק לכתובת אימייל אחת" opens it. The kit's sheets and dialogs and the
+success page's breathing line were already as §7.9 asks, and stay as they
+are. Where step C decided, for the review to overturn:
+- **The panel lights on both ways:** the link where the form was, and the
+  form where the link was, by "הזמנה נוספת" or when the list takes the
+  link away; never as the page opens. The panel is keyed on what it
+  holds, so the polite "הקישור מוכן" region stands beside it, already
+  listening.
+- **Left still, on purpose:** the price; the hand-off, which is the
+  shell's and the Overview's; content taking its placeholders' place,
+  since they are drawn in its shape; rows arriving in or leaving the
+  lists; and the 30 s "עדיין מחכים" state.
+- **The return pages stay letterboxed,** with no `viewport-fit=cover`
+  outside the shell: the wall is on `<html>`, so in landscape the bars
+  around the panel are its own ground, and the status bar takes the same
+  colour.
+- **Two mobile fixes:** the calculator link under Free takes
+  `noTapFlash`, and the link's field sets its selection range as well as
+  calling `select()`, for Safari on an iPhone.
+
+Left for step D:
+- **"עדיין מחכים לאישור מ-Stripe" breaks after "מ-"** at 375px, leaving
+  the prefix at the end of its line. The same hyphen before a Latin word
+  runs through Billing's other lines ("ב-Stripe", "ל-Stripe",
+  "ש-Stripe"): a non-breaking hyphen (U+2011), or a word joiner after the
+  hyphen, keeps each prefix with its word.
+- **At night the waiting line is faint:** the hairline on the unlit
+  panel, fainter still at the bottom of its breath. The words carry the
+  state, so it may stand.
+- **On a real phone,** beside the earlier lists: the link's field
+  selecting whole in Safari, on focus and after a refused copy; Share
+  opening the phone's menu with the line and the link; and the three
+  arrivals at full speed. The preview pane painted no frames during this
+  step, so their motion was read from the animations, not watched.
+- **`/review-animations`** on the motion since step B, as a message of its
+  own (the guide's template C).
