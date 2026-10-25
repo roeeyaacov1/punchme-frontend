@@ -1260,6 +1260,10 @@ decided, for the review to overturn:
   cancelled from its sheet or used.
 - **The success page's wait is `pollForPro`,** tested on fake timers, with a
   deadline of its own.
+- **The warning against paying twice stays beside "התשלום האחרון לא הושלם"**
+  (`incomplete`), Roee's call after the review asked: a payment still
+  completing there can turn active, and a second checkout would then charge
+  twice.
 
 Left for step C:
 - The sheets reset as they close as well as open, so a renewed link's sheet
@@ -1279,9 +1283,6 @@ Left for step D:
   inside Hebrew on WhatsApp, on the phone.
 - The calculator link may land at the top of the landing page: check it,
   Safari included.
-- For Roee: the back-from-Stripe warning stands beside "התשלום האחרון לא
-  הושלם" (`incomplete`), where a new checkout is safe, and may put an owner
-  off a retry.
 
 Outside the redesign:
 - Cancelling a link the hire has just accepted says it was cancelled: the

@@ -121,6 +121,9 @@ export function BillingSettingsPage() {
 
   const state = subscription.data ? billingState(subscription.data) : null;
   const activates = state === "notLive" || state === "unfinished" || state === "ended";
+  // Wherever Activate shows, an unfinished checkout included: a payment
+  // still completing there can turn active, and a second checkout would
+  // then charge twice.
   const returnedAt = activates && businessId ? checkoutReturnedAt(businessId) : null;
 
   let body: ReactNode;
