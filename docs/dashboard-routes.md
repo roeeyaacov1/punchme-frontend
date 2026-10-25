@@ -212,6 +212,7 @@ The invitation link opens `/invite/{token}`, which is public.
 |---|---|---|
 | `/billing/success` | Back from checkout. Waits for the plan to turn Pro, then goes to `/dashboard?activated=1`. | `GET /api/billing/subscription` every 2 s for up to 30 s, then `GET /api/businesses/me` |
 | `/billing/cancel` | Back from an abandoned checkout; links to `/dashboard/billing`. | none |
+| `/billing` | Where Stripe's portal returns by default (`BILLING_PORTAL_RETURN_URL`); forwards to `/dashboard/billing`. | none |
 
 ## Admin: PunchMe staff only
 

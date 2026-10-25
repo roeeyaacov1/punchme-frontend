@@ -191,6 +191,9 @@ const router = createBrowserRouter([
                   },
                   { path: "billing/success", element: <BillingSuccessPage /> },
                   { path: "billing/cancel", element: <BillingCancelPage /> },
+                  // Where Stripe's portal sends the owner back by default.
+                  // Billing lives in the dashboard, so this only forwards.
+                  { path: "billing", element: <Navigate to="/dashboard/billing" replace /> },
                 ],
               },
             ],

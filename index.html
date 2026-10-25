@@ -72,7 +72,9 @@
          a white page flashing first on a hard load. So the ground is decided
          here, before the first paint, from the same key and the same class
          names src/theme/useDashboardTheme.ts uses — keep the two in step.
-         Every other route is light and gets nothing.
+         /billing counts as the dashboard, since it only forwards there (it
+         is where Stripe's portal sends the owner back). Every other route
+         is light and gets nothing.
 
          The dashboard also runs edge to edge on a phone (viewport-fit=cover),
          which useShellViewport sets while it is mounted and takes away when
@@ -80,7 +82,7 @@
          screen doesn't open letterboxed and then jump. -->
     <script>
       (function () {
-        if (!/^\/dashboard(\/|$)/.test(location.pathname)) return;
+        if (!/^\/(dashboard(\/|$)|billing\/?$)/.test(location.pathname)) return;
         var viewport = document.querySelector('meta[name="viewport"]');
         if (viewport && viewport.content.indexOf("viewport-fit") === -1) {
           viewport.setAttribute("content", viewport.content + ", viewport-fit=cover");
