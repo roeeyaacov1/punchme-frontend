@@ -1,384 +1,289 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Copy, Link2, Trash2 } from "lucide-react";
-import {
-  Notice,
-  Panel,
-  PanelHeader,
-  SegmentedControl,
-  Tag,
-  fieldClasses,
-} from "../../components/dashboard/primitives";
-import { ctaClasses, focusRing } from "../../components/marketing/primitives";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getTeam, type Invitation, type Member, type Team } from "../../api/team";
 import { useBusiness } from "../../business/useBusiness";
-import { ApiError } from "../../api/errors";
-import {
-  changeMemberRole,
-  createInvitation,
-  getTeam,
-  inviteUrl,
-  removeMember,
-  revokeInvitation,
-  type AssignableRole,
-  type Invitation,
-  type Member,
-} from "../../api/team";
-import { cn } from "../../lib/cn";
+import { ReadProblem } from "../../components/dashboard/ReadProblem";
+import { Badge, List, ListRow, LitPanel, SkeletonRows, useToast } from "../../components/kit";
+import { useLightboxPage } from "../../theme/lightboxPage";
+import { listDay } from "./format";
+import { isolate } from "./problem";
+import { Email } from "./team/Email";
+import { InvitationSheet } from "./team/InvitationSheet";
+import { InvitePanel } from "./team/InvitePanel";
+import { MemberSheet } from "./team/MemberSheet";
+import { joinedSince } from "./team/teamFacts";
+import { lastTeamVisit, rememberTeamVisit } from "./team/teamSeen";
 
 /**
  * Who else can work here.
  *
  * The owner's mental model is a shop, not an access-control matrix, so the
- * page is written as one: a row per person, a plain sentence per role, and
- * one thing to do — make a link and send it. There is no email delivery in
- * this product; the owner copies the link and sends it the way they already
- * talk to the person they just hired.
+ * page is written as one: the invitation leads and turns into the link
+ * where it was made, then a row per person and a row per open link. There
+ * is no email delivery in this product; the owner sends the link the way
+ * they already talk to the person they just hired, and the lead says so
+ * before anything else.
  *
- * Two things are said out loud rather than assumed. What each role can
- * actually reach, next to the picker, because "Manager" means nothing on its
- * own. And what leaving the email blank costs: the link alone is then the
- * credential, so anyone it reaches can walk in.
+ * From 1024px the invitation stands on the start side and the lists beside
+ * it, so the form never pushes the team down. A read that fails says so in
+ * place of both lists, never as a team of nobody: an open link nobody can
+ * see is one nobody can cancel. And a hire who joined since the owner last
+ * looked is marked "New" until the page has been seen, so a link sent last
+ * week comes back as a person rather than as a row that disappeared.
  */
 export function TeamPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const language = i18n.language;
   const { business } = useBusiness();
+  useLightboxPage();
+  const toast = useToast();
   const queryClient = useQueryClient();
   const businessId = business?.id ?? "";
+  const businessName = business?.name ?? "";
 
-  const [role, setRole] = useState<AssignableRole>("staff");
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState<string | null>(null);
-  const [confirming, setConfirming] = useState<string | null>(null);
-
-  const teamQuery = useQuery({
-    queryKey: ["team", businessId],
+  const teamKey = ["team", businessId];
+  const team = useQuery({
+    queryKey: teamKey,
     queryFn: () => getTeam(businessId),
     enabled: !!businessId,
   });
 
-  function refresh() {
-    void queryClient.invalidateQueries({ queryKey: ["team", businessId] });
+  // The visit before this one, read once as the page opens; this one is
+  // kept each time the team is shown.
+  const [since] = useState(() => lastTeamVisit(businessId));
+  useEffect(() => {
+    if (team.isSuccess) rememberTeamVisit(businessId, team.dataUpdatedAt);
+  }, [team.isSuccess, team.dataUpdatedAt, businessId]);
+  const fresh = useMemo(() => joinedSince(team.data?.members ?? [], since), [team.data, since]);
+
+  const membersHeading = useRef<HTMLHeadingElement>(null);
+  const pendingHeading = useRef<HTMLHeadingElement>(null);
+  // The open invitations' heading while there are any, the team's once
+  // the last one has gone.
+  const listHeading = useMemo<RefObject<HTMLElement>>(
+    () => ({
+      get current() {
+        return pendingHeading.current ?? membersHeading.current;
+      },
+    }),
+    [],
+  );
+
+  const [member, setMember] = useState<Member | null>(null);
+  const [memberOpen, setMemberOpen] = useState(false);
+  const [memberRemoved, setMemberRemoved] = useState(false);
+  const [invitation, setInvitation] = useState<Invitation | null>(null);
+  const [invitationOpen, setInvitationOpen] = useState(false);
+  // Where focus goes once a sheet has closed, when the row that opened it
+  // has gone: a list's heading, not nowhere.
+  const [afterSheet, setAfterSheet] = useState<RefObject<HTMLElement> | undefined>(undefined);
+
+  /** The change at once, so focus has its target the moment a sheet closes,
+   * and then the team as the server has it. */
+  function patchTeam(change: (current: Team) => Team) {
+    queryClient.setQueryData<Team>(teamKey, (old) => (old ? change(old) : old));
+    void queryClient.invalidateQueries({ queryKey: teamKey });
   }
 
-  /** One reading of the API's refusals for every mutation on this page —
-   * the codes are the backend's own, so a new one surfaces its `detail`
-   * rather than a shrug. */
-  function describe(err: unknown): string {
-    if (err instanceof ApiError) {
-      if (err.code === "already_a_member") return t("team.error.alreadyMember");
-      if (err.code === "team_cap_reached") return t("team.error.capReached");
-      if (err.code === "insufficient_role") return t("team.error.notOwner");
-      if (err.status === 422) return t("team.error.badEmail");
-      return err.message;
-    }
-    return t("team.error.generic");
+  function readAgain(target: RefObject<HTMLElement>) {
+    setAfterSheet(target);
+    void queryClient.invalidateQueries({ queryKey: teamKey });
   }
 
-  const invite = useMutation({
-    mutationFn: () =>
-      createInvitation(businessId, { role, email: email.trim() }),
-    onSuccess: (created) => {
-      setError(null);
-      setEmail("");
-      refresh();
-      void copy(created);
-    },
-    onError: (err) => setError(describe(err)),
-  });
-
-  const revoke = useMutation({
-    mutationFn: (invitationId: string) => revokeInvitation(businessId, invitationId),
-    onSuccess: refresh,
-    onError: (err) => setError(describe(err)),
-  });
-
-  const changeRole = useMutation({
-    mutationFn: (input: { membershipId: string; role: AssignableRole }) =>
-      changeMemberRole(businessId, input.membershipId, input.role),
-    onSuccess: refresh,
-    onError: (err) => setError(describe(err)),
-  });
-
-  const remove = useMutation({
-    mutationFn: (membershipId: string) => removeMember(businessId, membershipId),
-    onSuccess: () => {
-      setConfirming(null);
-      refresh();
-    },
-    onError: (err) => setError(describe(err)),
-  });
-
-  async function copy(invitation: Invitation) {
-    try {
-      await navigator.clipboard.writeText(inviteUrl(invitation.accept_path));
-      setCopied(invitation.id);
-      window.setTimeout(() => setCopied(null), 2500);
-    } catch {
-      // A clipboard the browser won't hand over (an insecure origin, a
-      // permission the owner declined) is not an error worth a red panel —
-      // the link is on screen and selectable either way.
-      setCopied(null);
-    }
+  function openMember(person: Member) {
+    setMember(person);
+    setMemberRemoved(false);
+    setAfterSheet(undefined);
+    setMemberOpen(true);
   }
 
-  const members = teamQuery.data?.members ?? [];
-  const invitations = teamQuery.data?.invitations ?? [];
+  function openInvitation(one: Invitation) {
+    setInvitation(one);
+    setAfterSheet(undefined);
+    setInvitationOpen(true);
+  }
 
-  const roleOptions: { value: AssignableRole; label: string }[] = [
-    { value: "staff", label: t("team.role.staff") },
-    { value: "manager", label: t("team.role.manager") },
-  ];
+  const members = team.data?.members ?? [];
+  const owner = members.find((person) => person.is_owner);
+  const hires = members.filter((person) => !person.is_owner);
+  const invitations = team.data?.invitations ?? [];
 
-  return (
-    <div className="flex flex-col gap-4 sm:gap-5">
-      <h1 className="t-h3 text-ink">{t("team.title")}</h1>
+  const membersTitle = (
+    <h2 id="team-members-title" ref={membersHeading} tabIndex={-1} className="type-card-title text-ink outline-none">
+      {t("team.members.title")}
+    </h2>
+  );
 
-      {error && <Notice tone="warn">{error}</Notice>}
+  let lists: ReactNode;
+  if (!team.data && (team.isError || team.fetchStatus === "paused")) {
+    lists = (
+      <ReadProblem
+        title={t("team.loadFailed")}
+        error={team.error}
+        paused={!team.isError}
+        onRetry={() => void team.refetch()}
+      />
+    );
+  } else if (!team.data) {
+    lists = (
+      <section aria-labelledby="team-members-title" className="flex flex-col gap-3">
+        {membersTitle}
+        <LitPanel className="overflow-hidden">
+          <SkeletonRows rows={3} />
+        </LitPanel>
+      </section>
+    );
+  } else {
+    lists = (
+      <>
+        <section aria-labelledby="team-members-title" className="flex flex-col gap-3">
+          {membersTitle}
+          <LitPanel className="overflow-hidden">
+            <List>
+              {/* No sheet behind the owner's row: the owner isn't a
+                  membership, which is what keeps a shop from ending up
+                  with nobody in charge. */}
+              {owner && <ListRow title={<Email value={owner.email} />} meta={t("team.members.owner")} />}
+              {hires.map((person) => (
+                <ListRow
+                  key={person.id}
+                  title={<Email value={person.email} />}
+                  meta={t("team.members.meta", {
+                    role: t(`team.role.${person.role}`),
+                    date: listDay(person.joined_at, language),
+                  })}
+                  trailing={person.id && fresh.has(person.id) ? <Badge>{t("team.member.new")}</Badge> : undefined}
+                  chevron
+                  onClick={() => openMember(person)}
+                />
+              ))}
+            </List>
+          </LitPanel>
+        </section>
 
-      {/* Making the link is the page's one action, so it leads. */}
-      <Panel className="p-5 sm:p-6">
-        <PanelHeader title={t("team.invite.title")} hint={t("team.invite.body")} />
-
-        <div className="mt-5 flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-ink">
-              {t("team.invite.roleLabel")}
-            </span>
-            {/* Full width where a thumb has to hit it, its own width on a
-                desk — otherwise the flex column stretches two options across
-                the whole panel. */}
-            <SegmentedControl
-              value={role}
-              options={roleOptions}
-              onChange={setRole}
-              label={t("team.invite.roleLabel")}
-              className="w-full sm:w-auto sm:self-start"
-            />
-            {/* The sentence is the point: "Manager" is a word, this is what
-                it actually opens. */}
-            <p className="text-sm text-ink-muted">{t(`team.roleBody.${role}`)}</p>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="invite-email" className="text-sm font-semibold text-ink">
-              {t("team.invite.emailLabel")}
-            </label>
-            <input
-              id="invite-email"
-              type="email"
-              inputMode="email"
-              autoComplete="off"
-              dir="ltr"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t("team.invite.emailPlaceholder")}
-              className={cn(fieldClasses, "text-start")}
-            />
-            <p className="text-sm text-ink-muted">
-              {email.trim()
-                ? t("team.invite.emailNamed")
-                : t("team.invite.emailBlank")}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => invite.mutate()}
-            disabled={invite.isPending || !businessId}
-            className={ctaClasses("primary", "sm", "self-start")}
-          >
-            <Link2 size={15} aria-hidden />
-            {invite.isPending ? t("common.loading") : t("team.invite.cta")}
-          </button>
-        </div>
-      </Panel>
-
-      <Panel className="p-5 sm:p-6">
-        <PanelHeader title={t("team.members.title")} />
-
-        {teamQuery.isLoading ? (
-          <p className="mt-4 font-mono text-sm text-ink-subtle">
-            {t("common.loading")}
-          </p>
-        ) : (
-          <ul className="mt-4 flex flex-col divide-y divide-border">
-            {members.map((member) => (
-              <MemberRow
-                key={member.id ?? "owner"}
-                member={member}
-                confirming={confirming === member.id}
-                busy={remove.isPending || changeRole.isPending}
-                onRole={(next) =>
-                  changeRole.mutate({ membershipId: member.id!, role: next })
-                }
-                onConfirm={() => setConfirming(member.id!)}
-                onCancel={() => setConfirming(null)}
-                onRemove={() => remove.mutate(member.id!)}
-              />
-            ))}
-          </ul>
-        )}
-      </Panel>
-
-      {invitations.length > 0 && (
-        <Panel className="p-5 sm:p-6">
-          <PanelHeader
-            title={t("team.pending.title")}
-            hint={t("team.pending.body")}
-          />
-          <ul className="mt-4 flex flex-col divide-y divide-border">
-            {invitations.map((invitation) => (
-              <li
-                key={invitation.id}
-                className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4"
-              >
-                <div className="min-w-0 sm:flex-1">
-                  <p className="truncate text-ink" dir="ltr">
-                    {invitation.email || t("team.pending.anyone")}
-                  </p>
-                  <p className="mt-0.5 text-xs text-ink-subtle">
-                    {invitation.status === "expired"
-                      ? t("team.pending.expired")
-                      : t("team.pending.expires", {
-                          date: new Date(invitation.expires_at).toLocaleDateString(),
-                        })}
-                  </p>
-                </div>
-
-                <Tag tone="neutral" className="self-start sm:self-auto">
-                  {t(`team.role.${invitation.role}`)}
-                </Tag>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => void copy(invitation)}
-                    disabled={invitation.status === "expired"}
-                    className={ctaClasses("secondary", "sm")}
-                  >
-                    {copied === invitation.id ? (
-                      <Check size={15} aria-hidden />
-                    ) : (
-                      <Copy size={15} aria-hidden />
-                    )}
-                    {copied === invitation.id
-                      ? t("common.copied")
-                      : t("team.pending.copy")}
-                  </button>
-                  <IconButton
-                    label={t("team.pending.revoke")}
-                    onClick={() => revoke.mutate(invitation.id)}
-                    disabled={revoke.isPending}
+        {invitations.length > 0 && (
+          <section aria-labelledby="team-pending-title" className="flex flex-col gap-3">
+            <h2 id="team-pending-title" ref={pendingHeading} tabIndex={-1} className="type-card-title text-ink outline-none">
+              {t("team.pending.title")}
+            </h2>
+            <LitPanel className="overflow-hidden">
+              <List>
+                {invitations.map((one) => (
+                  <ListRow
+                    key={one.id}
+                    title={one.email ? <Email value={one.email} /> : t("team.pending.anyone")}
+                    meta={t(one.status === "expired" ? "team.pending.expired" : "team.pending.until", {
+                      role: t(`team.role.${one.role}`),
+                      date: listDay(one.expires_at, language),
+                    })}
+                    chevron
+                    onClick={() => openInvitation(one)}
                   />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      )}
+                ))}
+              </List>
+            </LitPanel>
+          </section>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-1">
+        <h1 className="type-title text-ink">{t("team.title")}</h1>
+        <p className="type-body max-w-prose text-ink-muted">{t("team.lead")}</p>
+      </header>
+
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,23rem)_minmax(0,1fr)]">
+        {/* Making a link needs no list, so the form works while the team
+            is still loading, or after it failed to. */}
+        <InvitePanel
+          businessId={businessId}
+          businessName={businessName}
+          team={team.data}
+          onMade={(created) =>
+            patchTeam((current) => ({
+              ...current,
+              // Inviting an address again cancels its earlier link.
+              invitations: [
+                created,
+                ...current.invitations.filter((one) => !created.email || one.email !== created.email),
+              ],
+            }))
+          }
+        />
+        <div className="flex min-w-0 flex-col gap-6">{lists}</div>
+      </div>
+
+      <MemberSheet
+        businessId={businessId}
+        businessName={businessName}
+        member={member}
+        open={memberOpen}
+        onClose={() => setMemberOpen(false)}
+        returnFocus={afterSheet}
+        removed={memberRemoved}
+        onSaved={(updated) => {
+          patchTeam((current) => ({
+            ...current,
+            members: current.members.map((person) => (person.id === updated.id ? updated : person)),
+          }));
+          toast.show({
+            tone: "ok",
+            title: t("team.member.saved", { email: isolate(updated.email), role: t(`team.role.${updated.role}`) }),
+          });
+          setMemberOpen(false);
+        }}
+        onRemoved={(person) => {
+          patchTeam((current) => ({
+            ...current,
+            members: current.members.filter((one) => one.id !== person.id),
+          }));
+          toast.show({ tone: "ok", title: t("team.member.removed", { email: isolate(person.email) }) });
+          setAfterSheet(membersHeading);
+          setMemberRemoved(true);
+          setMemberOpen(false);
+        }}
+        onGone={() => readAgain(membersHeading)}
+      />
+
+      <InvitationSheet
+        businessId={businessId}
+        businessName={businessName}
+        team={team.data}
+        invitation={invitation}
+        open={invitationOpen}
+        onClose={() => setInvitationOpen(false)}
+        returnFocus={afterSheet}
+        onCancelled={(which) => {
+          patchTeam((current) => ({
+            ...current,
+            invitations: current.invitations.filter((one) => one.id !== which.id),
+          }));
+          toast.show({
+            tone: "ok",
+            title: t(which.status === "expired" ? "team.invitation.removed" : "team.invitation.cancelled"),
+          });
+          setAfterSheet(listHeading);
+          setInvitationOpen(false);
+        }}
+        onRenewed={(old, created) => {
+          patchTeam((current) => ({
+            ...current,
+            invitations: [
+              created,
+              ...current.invitations.filter(
+                (one) => one.id !== old.id && (!created.email || one.email !== created.email),
+              ),
+            ],
+          }));
+          // The row that opened the sheet is the old link's, now gone.
+          setAfterSheet(listHeading);
+        }}
+        onGone={() => readAgain(listHeading)}
+      />
     </div>
-  );
-}
-
-function MemberRow({
-  member,
-  confirming,
-  busy,
-  onRole,
-  onConfirm,
-  onCancel,
-  onRemove,
-}: {
-  member: Member;
-  confirming: boolean;
-  busy: boolean;
-  onRole: (role: AssignableRole) => void;
-  onConfirm: () => void;
-  onCancel: () => void;
-  onRemove: () => void;
-}) {
-  const { t } = useTranslation();
-
-  return (
-    <li className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4">
-      <p className="min-w-0 truncate text-ink sm:flex-1" dir="ltr">
-        {member.email}
-      </p>
-
-      {member.is_owner ? (
-        // The owner has no Membership row to address, which is exactly what
-        // keeps a shop from ending up with nobody in charge.
-        <Tag tone="accent" className="self-start sm:self-auto">
-          {t("team.role.owner")}
-        </Tag>
-      ) : (
-        <div className="flex items-center gap-2">
-          <SegmentedControl
-            value={member.role as AssignableRole}
-            options={[
-              { value: "staff", label: t("team.role.staff") },
-              { value: "manager", label: t("team.role.manager") },
-            ]}
-            onChange={onRole}
-            label={t("team.members.roleFor", { email: member.email })}
-          />
-
-          {confirming ? (
-            <>
-              <button
-                type="button"
-                onClick={onRemove}
-                disabled={busy}
-                className={ctaClasses("primary", "sm")}
-              >
-                {t("team.members.confirmRemove")}
-              </button>
-              <button
-                type="button"
-                onClick={onCancel}
-                className={ctaClasses("secondary", "sm")}
-              >
-                {t("common.cancel")}
-              </button>
-            </>
-          ) : (
-            <IconButton
-              label={t("team.members.remove", { email: member.email })}
-              onClick={onConfirm}
-              disabled={busy}
-            />
-          )}
-        </div>
-      )}
-    </li>
-  );
-}
-
-/** A 44px destructive affordance that is an icon on screen and a full
- * sentence to a screen reader. */
-function IconButton({
-  label,
-  onClick,
-  disabled,
-}: {
-  label: string;
-  onClick: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        "inline-flex h-11 w-11 items-center justify-center rounded-xl text-ink-muted transition-colors hover:bg-ink/[0.06] hover:text-ink disabled:opacity-50",
-        focusRing,
-      )}
-    >
-      <Trash2 size={16} aria-hidden />
-      <span className="sr-only">{label}</span>
-    </button>
   );
 }
