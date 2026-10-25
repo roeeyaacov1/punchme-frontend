@@ -16,15 +16,15 @@ import { listDay } from "./format";
 
 type Leaving = "checkout" | "portal";
 
-/** "14:05" today, "Sat 23:40" before: on the 24-hour clock, as Messages prints times. */
-function returnClock(at: number, language: string): string {
-  const today = new Date(at).toDateString() === new Date().toDateString();
-  return new Intl.DateTimeFormat(language, {
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-    ...(!today && { weekday: "short" }),
-  }).format(at);
+/**
+ * When this device came back from Stripe, on the 24-hour clock as Messages
+ * prints times: "at 14:05", or "yesterday at 23:40". The mark is kept for
+ * less than a day, so it is one or the other, never a weekday.
+ */
+function returnClock(at: number, language: string, now = Date.now()) {
+  const time = new Intl.DateTimeFormat(language, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(at);
+  const yesterday = new Date(at).toDateString() !== new Date(now).toDateString();
+  return { time, context: yesterday ? "yesterday" : undefined };
 }
 
 /**
@@ -158,7 +158,7 @@ export function BillingSettingsPage() {
           </Notice>
         )}
         {returnedAt && (
-          <Notice tone="warn">{t("billing.recent", { time: returnClock(returnedAt, language) })}</Notice>
+          <Notice tone="warn">{t("billing.recent", returnClock(returnedAt, language))}</Notice>
         )}
         <ActivationPanel
           heading={t(state === "ended" ? "billing.ended.activateTitle" : "dashboard.plan.notLive")}
@@ -263,7 +263,8 @@ export function BillingSettingsPage() {
   }
 
   return (
-    <div className="flex max-w-[40rem] flex-col gap-6">
+    // No word left alone on the last line of a sentence.
+    <div className="flex max-w-[40rem] flex-col gap-6 text-pretty">
       <h1 className="type-title text-ink">{t("billing.title")}</h1>
       <p aria-live="polite" className="sr-only">
         {opening ? t("billing.leaving") : ""}
