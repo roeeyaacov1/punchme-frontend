@@ -73,10 +73,10 @@
          here, before the first paint, from the same key and the same class
          names src/theme/useDashboardTheme.ts uses — keep the two in step.
          /billing counts as the dashboard, since it only forwards there (it
-         is where Stripe's portal sends the owner back). The page Stripe's
-         checkout returns to when the owner leaves it stands outside the
-         shell, on Lightbox, at night when the dashboard is. Every other
-         route is light and gets nothing.
+         is where Stripe's portal sends the owner back). The two pages
+         Stripe's checkout returns to stand outside the shell, on Lightbox,
+         at night when the dashboard is. Every other route is light and
+         gets nothing.
 
          The dashboard also runs edge to edge on a phone (viewport-fit=cover),
          which useShellViewport sets while it is mounted and takes away when
@@ -85,7 +85,7 @@
     <script>
       (function () {
         var shell = /^\/(dashboard(\/|$)|billing\/?$)/.test(location.pathname);
-        var returned = /^\/billing\/cancel\/?$/.test(location.pathname);
+        var returned = /^\/billing\/(success|cancel)\/?$/.test(location.pathname);
         if (!shell && !returned) return;
         var viewport = document.querySelector('meta[name="viewport"]');
         if (shell && viewport && viewport.content.indexOf("viewport-fit") === -1) {

@@ -1,4 +1,4 @@
-import { createContext, type ReactNode } from "react";
+import { createContext, useCallback, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getMyBusiness, type Business } from "../api/businesses";
 import { ApiError } from "../api/errors";
@@ -30,7 +30,10 @@ export interface BusinessContextValue {
   status: BusinessStatus;
   /** Asking again is under way: the failure page's "Try again" waits on it. */
   isFetching: boolean;
-  refetch: () => void;
+  /** Asks again, and brings back the business as it then stands: what
+   * `/billing/success` waits for before it hands the owner to a shell that
+   * is already on Pro. The same function every render. */
+  refetch: () => Promise<Business | null>;
 }
 
 export const BusinessContext = createContext<BusinessContextValue | null>(
@@ -61,6 +64,10 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
   });
 
   const business = query.data ?? null;
+  const { refetch: askAgain } = query;
+  // A read that fails keeps the last business it had, so a failed ask
+  // brings back the old one rather than nothing.
+  const refetch = useCallback(async () => (await askAgain()).data ?? null, [askAgain]);
 
   const value: BusinessContextValue = {
     business,
@@ -70,7 +77,7 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     role: roleOf(business),
     status: statusOf(business, query.error, query.fetchStatus === "paused"),
     isFetching: query.isFetching,
-    refetch: () => void query.refetch(),
+    refetch,
   };
 
   return (

@@ -1067,9 +1067,13 @@
     "status": "Status",
     "error": "Something went wrong. Please try again in a moment.",
     "success": {
-      "finalizing": "Finalizing your subscription…",
-      "timeout": "This is taking longer than expected — check back shortly",
-      "done": "You're live! Real customers can now join your card."
+      "finalizing": "Stripe is telling PunchMe about the payment. This page moves on by itself.",
+      "timeout": "Stripe hasn't confirmed the payment to us yet. If you paid, the card goes live by itself once it does, so there's no need to pay again.",
+      "done": "You're live! Real customers can now join your card.",
+      "title": "Switching your card on",
+      "waitingTitle": "Still waiting for Stripe",
+      "unreachable": "We couldn't reach PunchMe to check. Check the connection and try again.",
+      "check": "Check again"
     },
     "cancel": {
       "title": "You weren't charged",
