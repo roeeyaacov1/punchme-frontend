@@ -1650,10 +1650,10 @@
       "upgrade": "Turning rules on and messaging real customers is a Pro feature.",
       "notEnabled": "Messaging isn't open for your business yet.",
       "generic": "Something went wrong. Try again.",
-      "kind_unsupported_direct": "This customer can't be messaged on her own right now: the wallet publishes to a whole card design at once, and more than one customer holds hers — so a message meant for her would reach them too.",
-      "design_outdated": "This customer can't be messaged on her own until your card design is re-published to the wallet. Open your card design and save it — that pushes the update to every pass — then try again.",
+      "kind_unsupported_direct": "This card can't get a message of its own right now: the wallet sends to a whole card design at once, and other customers hold the same design, so a personal message would reach them too.",
+      "design_outdated": "This card can't get a message of its own until your card design is published to the wallet again. Open Card Studio and save the design, which updates every pass, then try again.",
       "card_void": "This card has been voided, so there's nothing to send a message to.",
-      "card_has_no_pass": "This customer's wallet pass hasn't been issued yet, so there's nowhere for the message to arrive."
+      "card_has_no_pass": "This card's wallet pass hasn't been issued yet, so there's nowhere for the message to arrive."
     },
     "activity": {
       "gift": "gift"
