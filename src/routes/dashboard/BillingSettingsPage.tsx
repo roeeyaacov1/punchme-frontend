@@ -5,6 +5,7 @@ import { createCheckoutSession, createPortalSession, getSubscription } from "../
 import { useBusiness } from "../../business/useBusiness";
 import { ReadProblem } from "../../components/dashboard/ReadProblem";
 import { Badge, Button, LitPanel, Loading, Notice, Skeleton, linkText } from "../../components/kit";
+import { noTapFlash } from "../../components/kit/classes";
 import { PUNCHME_MONTHLY_PRICE } from "../../components/marketing/calculator";
 import { cn } from "../../lib/cn";
 import { useLightboxPage } from "../../theme/lightboxPage";
@@ -173,9 +174,10 @@ export function BillingSettingsPage() {
           <p className="type-body text-ink-muted">{t("billing.free.stays")}</p>
         </LitPanel>
         {/* The calculator runs on the owner's own numbers, costs the reward
-            at cost, and can say no. */}
+            at cost, and can say no. Its underline thickens under a finger,
+            so the phone's grey flash stays off. */}
         <p className="type-body">
-          <a href="/#calculator" className={cn(linkText, "inline-flex min-h-11 items-center")}>
+          <a href="/#calculator" className={cn(linkText, noTapFlash, "inline-flex min-h-11 items-center")}>
             {t("billing.free.calculator")}
           </a>
         </p>
