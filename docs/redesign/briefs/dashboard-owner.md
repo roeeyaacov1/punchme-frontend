@@ -1346,3 +1346,133 @@ and Roee left both as they are: the lists under the invite panel moving
   on the drawer curve. The panel's transform is shared with
   `useSheetDrag` and with the rise keyframe's fill, so the change needs
   both in mind.
+
+**After step D** (26 Oct, for the review). Checked in headless Chrome
+at exact sizes and in the preview pane, signed in with `seed_demo`'s
+accounts, with `fetch` wrapped for Billing's states, Stripe's answers
+and Team's worst case. The one link made on the real team was
+cancelled, and the server holds no invitation.
+- **Found and fixed:**
+  - "Back from Stripe" said a weekday for yesterday. It now says
+    "אתמול ב-23:40" (`billing.recent_yesterday`, through i18next's
+    `context`). The mark lives less than a day, so the line is about today
+    or yesterday, never a weekday. 25 Oct had 25 hours, so "yesterday"
+    couldn't happen on the real clock; it was checked with `Date.now`
+    moved on.
+  - A one-letter prefix before a Latin word ("מ-Stripe", "ב-Stripe",
+    "ל-Stripe", "ש-Stripe", "ה-QR") now has a word joiner after its
+    hyphen, written `⁠` in the JSON so it can be seen. A test in
+    `kitCopy.test.ts` keeps it so for `team` and `billing`. "עדיין מחכים
+    לאישור מ-Stripe" holds on one line at 320 and 375.
+  - The shared line opens on the dashboard language's mark (RLM or LRM)
+    and isolates the business's name. So "Demo Coffee מזמינים אותך…" is set
+    right to left wherever the paragraph takes its direction from its
+    first letter.
+  - Share refused, rather than closed, falls back to Copy, and a refused
+    copy then selects the field as before.
+  - The two lines a screen reader missed:
+    - The refused copy's line is on the page before focus reaches the
+      field (`flushSync`), so it is read as the field's description.
+    - Enter on a bad address in the field says the error through an
+      alert, made new on each press. From the button, focus lands only
+      once the error is in the field's description.
+  - Two layouts at 200% text:
+    - On a laptop the invite's 23rem column left the lists 64px. It is
+      capped at 45% of the row, as the standee's is.
+    - On a 320px phone the single column took the invite panel's width
+      and ran 12px off the screen. It shrinks now (`grid-cols-1`).
+  - The kit's toast let an address with no hyphen run past its edge,
+    under the close button. Its words now wrap anywhere (a `kit:` commit).
+    Ordinary words wrap as before.
+  - `impeccable detect` found words alone on a last line ("ב-Stripe.",
+    "Billing.", "team."). The four pages wrap with `text-pretty`, as the
+    landing page does.
+  - Clarify:
+    - English `billing.unfinished` said "didn't go through", the same
+      words as a failed renewal. It now says "wasn't completed", as the
+      Hebrew does.
+    - "Update payment" is "Update payment method".
+    - Hebrew "קישור חדש" is the action "יצירת קישור חדש", like the buttons
+      beside it.
+    - The removal dialog's "הלוח" is "לוח הבקרה", as Billing says it.
+  - From step A's critique: a link made for an address that already had
+    one cancels the earlier link on the server without a word. It now
+    says "הקישור שנוצר קודם לכתובת הזו כבר לא עובד."
+    (`team.ready.replaced`).
+- **Checked and holding,** in both languages:
+  - Billing:
+    - its six states, an unknown status word, `trialing`, no date, a
+      date in another year ("24 בינו׳ 2027"), and Pro with `none`;
+    - the read failing (500 and offline);
+    - each redirect failing (503, the portal's 400, offline), under its
+      button, with focus kept there;
+    - Back from a redirect, idle;
+    - the mark an hour ago, 23 hours ago, yesterday, and just over a day
+      ago.
+  - The success page:
+    - waiting;
+    - every try failing, then the "couldn't reach" line;
+    - 30 s without Pro, with focus on the new heading and Tab reaching
+      "בדיקה נוספת", which waits again;
+    - the hand-off on the Free business, with the webhook on the third
+      try and the business read held a second. The Overview opens on
+      "אתם פעילים!".
+  - The cancel page on Free and on Pro.
+  - Manager and staff refused out loud with no call, on Team, on Billing
+    and on both return pages.
+  - Team:
+    - one hire;
+    - 24 hires and 20 invitations, with a 53-character address and dates
+      from last year;
+    - every refusal (409 member, both caps, 422, 500, the 404s);
+    - a real link made, shared, copied and cancelled;
+    - an expired link renewed and removed;
+    - the role chosen by arrow keys;
+    - the dialog opening on "ביטול", and Escape back through both
+      overlays.
+  - 320, 375, 768, 1024 and 1280px, at 100% and 200% text; day and night;
+    full and reduced motion. The arrivals play `lights-on` in 240ms, or
+    `gentle-in` in 150ms with reduced motion. The tab reported
+    `no-preference`.
+  - `/billing` forwards to `/dashboard/billing`.
+  - The keyboard path: the role choice; the ready link (heading, the
+    field selected whole, Share, Copy, "הזמנה נוספת"); the sheets' focus
+    and return; the success page's heading after its timeout.
+- **Left as they are:**
+  - **The calculator link lands at the top of the landing page,** at 375
+    and at 1280. `/#calculator` is a new page load, and the browser looks
+    for the anchor before React has drawn it; the landing page has
+    nothing that scrolls to the hash afterwards. The fix is the landing
+    page's (Phase 9's): scroll to `location.hash` once the page has
+    rendered. It waits for Roee's word.
+  - **The kit's Notice at 320px and 200% text** gives its words 126px.
+    The failed-payment button (193px at that size) and "הכרטיסיות" run
+    into its padding, and the page moves 2px sideways. That fix is the
+    kit's, for Phase 10 or a kit pass.
+  - **The shell's phone bar at 320px and 200% text** truncates its labels
+    ("ס…"), and its content is 344px wide. Phase 2's.
+  - **`impeccable detect`** also reports:
+    - `cream-palette` on every page by day, on Lightbox's own wall,
+      `#f6f2eb` (DESIGN.md). It stays.
+    - `first-viewport-column-overflow` with 24 hires and 20 invitations
+      at 1280. The lists run three screens beside a short form, as §7.3
+      lays them out.
+  - **Plurals:** nothing on these pages counts, so no plural forms are
+    needed. The copy test checks them should one come.
+  - **The back-forward cache:** in development Vite's socket keeps the
+    page out of it, so Back from a redirect reloads Billing, idle. The
+    `pageshow` path is for a production build and wasn't exercised.
+  - **The console** holds only the known lines: the two 401s at a cold
+    boot, React Router's future-flag warning, the fake wallet's host and
+    Vite's own lines. Headless Chrome adds its install banner's note and
+    a missing `favicon.ico`.
+- **On a real phone,** with `npm run dev:phone`:
+  - It serves plain HTTP at the PC's LAN address, which isn't a secure
+    context. So a phone there has no `navigator.share` (no Share button,
+    and Copy is the coral) and no `navigator.clipboard` (every copy takes
+    the refused path).
+  - That path is the one to check there: the field selecting whole in
+    Safari and the line under it.
+  - Share needs HTTPS. On Android, Chrome's "Insecure origins treated as
+    secure" flag can name the address. An iPhone needs the server itself
+    on HTTPS.

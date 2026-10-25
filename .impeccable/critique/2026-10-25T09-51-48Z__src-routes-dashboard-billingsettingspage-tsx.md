@@ -10,6 +10,7 @@ target_fingerprint: "sha256:3199e1b95ff0342eb643b9d19ccbd3e9dc683c450624d83bd4db
 target_path: "C:\\Users\\roeey\\Projects\\punchme-frontend\\src\\routes\\dashboard\\BillingSettingsPage.tsx"
 timestamp: 2026-10-25T09-51-48Z
 slug: src-routes-dashboard-billingsettingspage-tsx
+closed: true
 ---
 Method: dual-agent (A: design review · B: detector and overlay), run one after the other because browser agents share one session.
 
