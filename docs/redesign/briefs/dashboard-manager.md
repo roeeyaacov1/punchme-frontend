@@ -1378,10 +1378,11 @@ to §10.
   page at its own size, by day and at night, and ctrl+P on Free prints the
   sheet with its empty slot.
 - **Left as they are:**
-  - the messaging errors shown on Customers (Phase 5) still say "her" in
+  - the messaging errors shown on Customers (Phase 5) said "her" in
     English and "ללקוח הזה" in Hebrew (`kind_unsupported_direct`,
-    `design_outdated`, `card_has_no_pass`). That is Phase 5's page, so
-    the fix waits for Roee's word;
+    `design_outdated`, `card_has_no_pass`). Fixed before the merge, with
+    Roee's word: they now speak of the card, so neither language needs a
+    gender;
   - the starter rules' copy is the backend's (§12);
   - the console's dev-only lines: React Router's future-flag warnings and
     Vite's own;
