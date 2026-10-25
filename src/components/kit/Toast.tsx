@@ -168,7 +168,9 @@ function ToastItem({
     >
       {tone === "ok" && <CircleCheck aria-hidden className="mt-0.5 size-5 shrink-0 text-ok" />}
       {tone === "danger" && <CircleAlert aria-hidden className="mt-0.5 size-5 shrink-0 text-danger" />}
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5 py-0.5">
+      {/* A word longer than the line, such as an email address with no
+          hyphen in it, breaks inside the toast rather than running past it. */}
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5 py-0.5 [overflow-wrap:anywhere]">
         <p className="type-body font-semibold text-ink">{toast.title}</p>
         {toast.body && <p className="text-sm leading-snug text-ink-muted">{toast.body}</p>}
         {toast.action && (
