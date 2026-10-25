@@ -32,10 +32,11 @@ export function ReturnPage({ children }: { children: ReactNode }) {
   }, [title]);
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background p-4 text-ink">
+      {/* Centred lines wrap evenly, so no word is left alone on a last line. */}
       <LitPanel
         as="section"
         aria-labelledby="return-title"
-        className="flex w-full max-w-md flex-col items-center gap-3 px-6 py-10 text-center"
+        className="flex w-full max-w-md flex-col items-center gap-3 px-6 py-10 text-center text-pretty"
       >
         {business?.name && (
           <p dir="auto" className="type-label max-w-full break-words text-ink-muted">
