@@ -1740,6 +1740,7 @@
       "locked": "Only <who>{{email}}</who> can use it.",
       "open": "Whoever opens it first joins as {{role}}.",
       "next": "They open it, sign in or make an account, and they're on the team.",
+      "replaced": "The link you made earlier for this address no longer works.",
       "share": "Share",
       "shareText": "{{business}} invites you to the team on PunchMe, as {{role}}:",
       "copyFailed": "This browser didn't let us copy. The link is selected, so you can copy it from here.",

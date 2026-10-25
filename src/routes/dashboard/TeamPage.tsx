@@ -220,13 +220,19 @@ export function TeamPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    // No word left alone on the last line of a sentence.
+    <div className="flex flex-col gap-6 text-pretty">
       <header className="flex flex-col gap-1">
         <h1 className="type-title text-ink">{t("team.title")}</h1>
         <p className="type-body max-w-prose text-ink-muted">{t("team.lead")}</p>
       </header>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,23rem)_minmax(0,1fr)]">
+      {/* One column that can shrink to the screen: left to size itself, it
+          took the invitation's widest content, which at 200% text on a
+          320px phone is wider than the screen. From 1024px the invitation
+          takes 23rem, but never more than 45% of the row, so at 200% text
+          on a laptop the lists keep a column of their own. */}
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,min(23rem,45%))_minmax(0,1fr)]">
         {/* Making a link needs no list, so the form works while the team
             is still loading, or after it failed to. */}
         <InvitePanel

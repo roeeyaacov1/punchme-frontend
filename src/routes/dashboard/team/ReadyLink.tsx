@@ -1,9 +1,11 @@
 import { useRef, useState, type Ref } from "react";
+import { flushSync } from "react-dom";
 import { Trans, useTranslation } from "react-i18next";
 import { Copy, Share2 } from "lucide-react";
 import { inviteUrl, type Invitation } from "../../../api/team";
 import { Button, Input, useToast } from "../../../components/kit";
 import { listDay } from "../format";
+import { isolate } from "../problem";
 
 /** A share menu to hand the link to: a phone's, with WhatsApp in it, or the
  * computer's own. Where there is none, Copy is the one thing to press. */
@@ -31,11 +33,14 @@ export function ReadyLink({
   invitation,
   businessName,
   actionRef,
+  replaced,
 }: {
   invitation: Invitation;
   businessName: string;
   /** On the first action, for a sheet that moves focus there. */
   actionRef?: Ref<HTMLButtonElement>;
+  /** The address had an open link already, which this one cancelled. */
+  replaced?: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const toast = useToast();
@@ -50,7 +55,9 @@ export function ReadyLink({
       setRefused(false);
       toast.show({ tone: "ok", title: t("common.copied") });
     } catch {
-      setRefused(true);
+      // The line is on the page before focus reaches the field, so a
+      // screen reader hears it with the field rather than not at all.
+      flushSync(() => setRefused(true));
       if (field.current) {
         field.current.focus();
         selectAll(field.current);
@@ -59,10 +66,18 @@ export function ReadyLink({
   }
 
   async function share() {
+    // WhatsApp sets the line as a paragraph of its own, in the direction of
+    // its first letter. So it opens on the dashboard's language's mark, and
+    // the business's name, in whichever script, is isolated after it.
+    const mark = i18n.dir() === "rtl" ? "‏" : "‎";
+    const text = mark + t("team.ready.shareText", { business: isolate(businessName), role });
     try {
-      await navigator.share({ text: t("team.ready.shareText", { business: businessName, role }), url });
-    } catch {
-      // Closed without sending, or refused: Copy is right beside it.
+      await navigator.share({ text, url });
+    } catch (error) {
+      // Closed without sending: nothing to do. Refused (an in-app browser,
+      // a computer with nothing to share to): Copy does it instead.
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      await copy();
     }
   }
 
@@ -112,6 +127,7 @@ export function ReadyLink({
           ) : (
             t("team.ready.open", { role })
           )}
+          {replaced && <> {t("team.ready.replaced")}</>}
         </p>
         <p>{t("team.ready.next")}</p>
       </div>

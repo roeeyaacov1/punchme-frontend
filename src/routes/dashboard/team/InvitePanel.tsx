@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { flushSync } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@tanstack/react-query";
 import { Link2 } from "lucide-react";
@@ -43,8 +44,12 @@ export function InvitePanel({
   const [locked, setLocked] = useState(false);
   const [email, setEmail] = useState("");
   const [emailWrong, setEmailWrong] = useState(false);
+  /** Each Enter on a bad address, for an alert made new each time. */
+  const [badSaid, setBadSaid] = useState(0);
   const [refusal, setRefusal] = useState<string | null>(null);
   const [made, setMade] = useState<Invitation | null>(null);
+  /** The new link cancelled an earlier one for the same address. */
+  const [replaced, setReplaced] = useState(false);
 
   // A link cancelled from its sheet, or already used, is no longer ready:
   // the form comes back, and focus stays wherever the owner is. Only once
@@ -82,7 +87,11 @@ export function InvitePanel({
 
   const create = useMutation({
     mutationFn: (input: { role: AssignableRole; email: string }) => createInvitation(businessId, input),
-    onSuccess: (invitation) => {
+    onSuccess: (invitation, input) => {
+      // Inviting an address again cancels its earlier link on the server,
+      // which may already be in the hire's chat, so the new one says so.
+      const address = input.email.toLowerCase();
+      setReplaced(!!address && !!team?.invitations.some((one) => one.email.toLowerCase() === address));
       // The form behind the link is empty again, for whenever it comes back.
       setRole("staff");
       setLocked(false);
@@ -102,8 +111,17 @@ export function InvitePanel({
     // The API takes any string, so the shape is checked here, before a
     // link nobody could accept exists.
     if (locked && !looksLikeEmail(address)) {
-      setEmailWrong(true);
-      emailField.current?.focus();
+      const field = emailField.current;
+      // Pressed from the button, focus goes to the field once its error is
+      // there, and a screen reader reads the two together. Enter in the
+      // field leaves focus where it is, so the error is said out loud.
+      if (field && document.activeElement === field) {
+        setEmailWrong(true);
+        setBadSaid((n) => n + 1);
+      } else {
+        flushSync(() => setEmailWrong(true));
+        field?.focus();
+      }
       return;
     }
     setEmailWrong(false);
@@ -138,7 +156,7 @@ export function InvitePanel({
               </h2>
               <Badge>{t(`team.role.${made.role}`)}</Badge>
             </div>
-            <ReadyLink invitation={made} businessName={businessName} />
+            <ReadyLink invitation={made} businessName={businessName} replaced={replaced} />
             <Button variant="quiet" onClick={another} className="max-w-full self-start !whitespace-normal text-center">
               {t("team.ready.another")}
             </Button>
@@ -190,8 +208,14 @@ export function InvitePanel({
                     onChange={(event) => {
                       setEmail(event.target.value);
                       if (emailWrong) setEmailWrong(false);
+                      setBadSaid(0);
                     }}
                   />
+                )}
+                {emailWrong && badSaid > 0 && (
+                  <p key={badSaid} role="alert" className="sr-only">
+                    {t("team.error.badEmail")}
+                  </p>
                 )}
               </div>
               <div className="flex flex-col items-start gap-2">
