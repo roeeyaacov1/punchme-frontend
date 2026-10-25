@@ -32,7 +32,8 @@ one after the other, since browser agents share one session:
 
 Four questions went to Roee on the way; his answers are in §6.
 
-Read "In short" first. Sections 7 and 8 are what step B builds.
+Read "In short" first. Sections 7 and 8 are what step B builds, and §12
+records the review.
 
 1. In short
 2. The pages today
@@ -45,6 +46,7 @@ Read "In short" first. Sections 7 and 8 are what step B builds.
 9. What step B keeps, touches and checks
 10. Open questions for Roee
 11. Left for other phases, and outside the redesign
+12. Review notes for step B
 
 ---
 
@@ -204,8 +206,8 @@ Team 22/40 and Billing 21/40, Acceptable; the two return pages 12/36, Poor.
 Heuristic 7 doesn't apply to a page with one job, so the return pages are
 scored out of 36. The scores are A's: the detector added no issue A had
 missed, and its one real advisory is A's own Plex Mono tags. The snapshots
-are in `.impeccable/critique/` (untracked), one per page group, for step D's
-`/impeccable polish`.
+are in `.impeccable/critique/`, one per page group, committed with the
+review (§12), for step D's `/impeccable polish`.
 
 | # | Heuristic | Team | Billing | Return pages | Key issue |
 |---|---|---|---|---|---|
@@ -1194,6 +1196,14 @@ One page per commit, as in the earlier phases.
   from Billing itself.
 - **Phase 9, the landing page:** Billing now links to its `#calculator`
   (§7.4), so the anchor stays.
+
+## 12. Review notes for step B
+
+Roee approved the brief as written on 25 Oct, so step B builds §7 to §9 as
+they stand, and §10's questions stay open: what Stripe charges, where the
+portal returns, and the backend's two changes. The critique snapshots in
+`.impeccable/critique/` are committed with this note, for step D's
+`/impeccable polish`.
 
 **Outside the redesign:**
 - §10's backend items: the second checkout, the address check, and the
