@@ -475,6 +475,8 @@ page about money and access is only as honest as its reading of them.
 | 2 | How the return pages wear Lightbox | **They follow the dashboard's day and night,** through the dashboard's own theme hook (§7.2) |
 | 3 | How a link is handed over | **Share and Copy:** the phone's share menu where the browser has one, Copy everywhere, and the link shown in full. No QR |
 | 4 | What Stripe charges | **Not settled yet.** The brief keeps ₪99, from `PUNCHME_MONTHLY_PRICE`, and §10 lists the price to settle against Stripe before Phase 7 ships |
+| 5 | Whether ₪99 includes VAT (§10, at the manager's review) | **Including VAT.** Billing says "₪99 לחודש, כולל מע״מ"; Stripe's price is created to match (§12) |
+| 6 | Where Stripe's portal returns (§10) | **Both fixes.** Step B adds a `/billing` route that forwards to `/dashboard/billing`, and the backend's default changes to `/dashboard/billing`, outside the redesign (§12) |
 
 The seven structures for Team, ranked in writing before the roll:
 1. the invitation as an object to hand over, the link and a code, leading
@@ -1151,6 +1153,10 @@ One page per commit, as in the earlier phases.
 
 ## 10. Open questions for Roee
 
+**Answered at the manager's review (§6, rows 5 and 6):** 1, VAT included;
+the ₪59 in the backend's notes is stale, and Stripe's price is created at
+₪99. 2, both fixes. Items 3 to 5 stay as they are.
+
 1. **What Stripe charges.** Every page says ₪99, from `PUNCHME_MONTHLY_PRICE`
    and three literal strings. The backend's `DEPLOYMENT.md:144` says to
    create "your ₪59/mo recurring Price", and nothing in either repo says
@@ -1209,3 +1215,27 @@ portal returns, and the backend's two changes. The critique snapshots in
 - §10's backend items: the second checkout, the address check, and the
   return URL.
 - **`DEPLOYMENT.md`'s price,** whichever number is right.
+
+**At the manager's review** (25 Oct, after Roee's approval). The calls in
+§7.1 match `docs/dashboard-routes.md`, the return pages' included, and §5
+reads the backend's billing rules as they are. Two of §10's questions were
+answered (§6, rows 5 and 6). These notes win where they differ from §7 to §9:
+- **₪99 includes VAT.** `billing.price` reads "<ltr>₪{{price}}</ltr> a month,
+  VAT included" and "<ltr>₪{{price}}</ltr> לחודש, כולל מע״מ", on Billing's
+  Free and Live states. The dashboard's other mentions of the price stay as
+  they are, since ₪99 is the whole amount. Phase 4 (onboarding's billing
+  step) and Phase 9 (the landing's pricing band) add "VAT included" where
+  they print it. CLAUDE.md and PRODUCT.md now say it.
+- **The one route this phase adds,** with Roee's yes: `/billing`, forwarding
+  to `/dashboard/billing`. It is a `Navigate ... replace` beside
+  `billing/success` and `billing/cancel` in `main.tsx`, behind the same
+  sign-in and business checks, and `docs/dashboard-routes.md` gains it in
+  the same commit. It is the safety net for the portal's return, whatever
+  the backend says.
+- **The backend's part,** outside the redesign and its own task:
+  - the portal's default return URL becomes `/dashboard/billing`;
+  - `DEPLOYMENT.md`'s ₪59 becomes ₪99 including VAT, with Stripe's price
+    created to match;
+  - a 409 on a second checkout while a subscription is bound and not
+    releasable;
+  - the invitation address checked by the API.
