@@ -30,9 +30,10 @@ export interface BusinessContextValue {
   status: BusinessStatus;
   /** Asking again is under way: the failure page's "Try again" waits on it. */
   isFetching: boolean;
-  /** Asks again, and brings back the business as it then stands: what
-   * `/billing/success` waits for before it hands the owner to a shell that
-   * is already on Pro. The same function every render. */
+  /** Asks again, and brings back the business as it then stands, or null
+   * when it couldn't be read: what `/billing/success` waits for before it
+   * hands the owner to a shell that is already on Pro. The same function
+   * every render. */
   refetch: () => Promise<Business | null>;
 }
 
@@ -65,9 +66,12 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
 
   const business = query.data ?? null;
   const { refetch: askAgain } = query;
-  // A read that fails keeps the last business it had, so a failed ask
-  // brings back the old one rather than nothing.
-  const refetch = useCallback(async () => (await askAgain()).data ?? null, [askAgain]);
+  // A read that fails keeps the last business it had on the query, so a
+  // failed ask says null rather than pass the old one off as the answer.
+  const refetch = useCallback(async () => {
+    const result = await askAgain();
+    return result.isError ? null : (result.data ?? null);
+  }, [askAgain]);
 
   const value: BusinessContextValue = {
     business,

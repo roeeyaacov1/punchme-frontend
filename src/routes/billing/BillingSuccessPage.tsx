@@ -6,10 +6,8 @@ import { isOwner } from "../../business/gating";
 import { useBusiness } from "../../business/useBusiness";
 import { Button, LinkButton, Loading, Skeleton } from "../../components/kit";
 import { clearCheckoutReturn, markCheckoutReturn } from "./checkoutReturn";
+import { pollForPro } from "./pollForPro";
 import { ReturnPage, ReturnRefusal } from "./ReturnPanel";
-
-const POLL_INTERVAL_MS = 2_000;
-const TIMEOUT_MS = 30_000;
 
 /**
  * Back from Stripe's checkout. One job: wait for Stripe's word, then hand
@@ -17,11 +15,12 @@ const TIMEOUT_MS = 30_000;
  *
  * Stripe's webhook is the only proof a payment went through, so the
  * redirect back here proves nothing. The page asks for the subscription
- * every 2 s for up to 30 s. A try that fails counts as one, and the next
- * comes 2 s later. Once it reads Pro, the business is read too, and only
- * when that also says Pro does the page hand over, replacing itself: the
- * shell then mounts on Pro, so its sign switches on and the Overview opens
- * on "you're live" with no Free frame first.
+ * every 2 s for up to 30 s, on the clock (`pollForPro`): a try that fails
+ * counts as one, and a request that hangs can't hold the page. Once it
+ * reads Pro, the business is read too, and only when that also says Pro
+ * does the page hand over, replacing itself: the shell then mounts on Pro,
+ * so its sign switches on and the Overview opens on "you're live" with no
+ * Free frame first.
  *
  * Thirty seconds without Pro says so, and that there is no need to pay
  * again, with "Check again" (another 30 s) and the way to the Overview.
@@ -51,40 +50,15 @@ function Activating() {
 
   useEffect(() => {
     if (!businessId) return;
-    let cancelled = false;
-    let timer: number | undefined;
-    const startedAt = Date.now();
-    let lastFailed = false;
-
-    async function attempt() {
-      try {
-        const subscription = await getSubscription(businessId);
-        lastFailed = false;
-        if (subscription.plan === "pro") {
-          const latest = await refetch();
-          if (cancelled) return;
-          if (latest?.plan === "pro") {
-            clearCheckoutReturn(businessId);
-            navigate("/dashboard?activated=1", { replace: true });
-            return;
-          }
-        }
-      } catch {
-        lastFailed = true;
-      }
-      if (cancelled) return;
-      if (Date.now() - startedAt >= TIMEOUT_MS) {
-        setGaveUp({ unreachable: lastFailed });
-        return;
-      }
-      timer = window.setTimeout(attempt, POLL_INTERVAL_MS);
-    }
-
-    void attempt();
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
+    return pollForPro({
+      read: () => getSubscription(businessId),
+      confirm: refetch,
+      onPro: () => {
+        clearCheckoutReturn(businessId);
+        navigate("/dashboard?activated=1", { replace: true });
+      },
+      onGiveUp: setGaveUp,
+    });
   }, [businessId, round, refetch, navigate]);
 
   // The heading changes with the page's state, and focus goes to it, so
