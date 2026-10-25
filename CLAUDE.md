@@ -210,14 +210,16 @@ Already in place and must survive any redesign: skip link, visible focus rings
 
 ## Verification
 
-There are **no component or render tests** — the 31 test files cover pure logic
+There are **no component or render tests** — the 35 test files cover pure logic
 only: the API client, the calculator, the onboarding draft, the language a
 first visit opens in, the dashboard's navigation by role, the tour and where
 its card stands, the Overview and Activity logic, the scan's failure causes,
 the customer search, the messages' rules, their one-sentence summary, the
-sent history, drafts and dates, the referrals' facts, the kit's
-wallpaper and arrow keys, the kit's copy in both languages, and ten helpers in
-`src/lib`. The browser is the safety net, so use it.
+sent history, drafts and dates, the referrals' facts, the team's refusals and
+who is new, Billing's states, the mark a return from checkout leaves, the
+kit's wallpaper and arrow keys, the kit's copy in both languages, the price
+the copy writes out, and ten helpers in `src/lib`. The browser is the safety
+net, so use it.
 
 Before calling any UI change done:
 
