@@ -1201,7 +1201,8 @@ the ₪59 in the backend's notes is stale, and Stripe's price is created at
 - **Phase 2, the shell:** on Free, the masthead's "הפעלה" links to Billing
   from Billing itself.
 - **Phase 9, the landing page:** Billing now links to its `#calculator`
-  (§7.4), so the anchor stays.
+  (§7.4), so the anchor stays, and so does the scroll to the hash as the
+  page opens, which step D added (§12).
 
 ## 12. Review notes for step B
 
@@ -1438,13 +1439,15 @@ cancelled, and the server holds no invitation.
   - The keyboard path: the role choice; the ready link (heading, the
     field selected whole, Share, Copy, "הזמנה נוספת"); the sheets' focus
     and return; the success page's heading after its timeout.
+- **Fixed on the landing page, with Roee's yes:** the calculator link
+  opened the landing page at the top. `/#calculator` is a new page load,
+  and the browser looked for the anchor before React had drawn it. The
+  landing page now scrolls to the hash's section once it and its fonts
+  are in, only as it opens, so the header's own links still glide. From
+  Billing at 375 and 1280, in both languages and both motion settings,
+  the calculator's heading lands 96px from the top, under the sticky
+  header. Phase 9 should keep it.
 - **Left as they are:**
-  - **The calculator link lands at the top of the landing page,** at 375
-    and at 1280. `/#calculator` is a new page load, and the browser looks
-    for the anchor before React has drawn it; the landing page has
-    nothing that scrolls to the hash afterwards. The fix is the landing
-    page's (Phase 9's): scroll to `location.hash` once the page has
-    rendered. It waits for Roee's word.
   - **The kit's Notice at 320px and 200% text** gives its words 126px.
     The failed-payment button (193px at that size) and "הכרטיסיות" run
     into its padding, and the page moves 2px sideways. That fix is the
