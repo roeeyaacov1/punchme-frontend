@@ -461,6 +461,8 @@ Read from `../punchme-backend` (`tooling/seed-demo`, `87ee16f`).
 | 2 | Should onboarding and the studio share one set of controls? | **One set, built now** (§8.9) |
 | 3 | When uploads reach customers | **Held for Save:** cropped and shown in the browser, uploaded when Save is pressed, before the PATCH. The admin catalog keeps uploading at once |
 | 4 | A picture stamp that can't be taken back | **Ask the backend for a remove call,** mirroring the catalog's; step B wires "back to a symbol" once it exists, which needs Roee's yes as a new call. Until then the studio says before uploading that the picture stays (§11) |
+| 5 | `StampGrid`'s white glyph on a white stamp (§11, at the manager's review, 27 Oct) | **Fix it,** in a commit of its own: the glyph takes white or near-black by the server's own rule (`_glyph_ink`), so the stand-in matches the pass again. The one sanctioned change to a frozen file (§13) |
+| 6 | Wallet details on the owner's page (§11) | **Keep it,** folded and in plain words (§8.8) |
 
 The seven structures, ranked in writing before the roll:
 1. the card and its tray: the card pinned at the top, a row of tabs swapping
@@ -1060,6 +1062,10 @@ as in the earlier phases.
 
 ## 11. Open questions for Roee
 
+**Answered at the manager's review (§7, rows 5 and 6):** 3, fix it; 6, keep
+it. Items 1, 2, 4 and 5 are the backend's, gathered into one backend task
+(§13).
+
 1. **The remove call** (Roee: ask for it, §7). Proposed for the backend:
    `DELETE {biz}/templates/{template_id}/images/{use}`, manager and up, as the
    catalog's `delete_catalog_image` does, clearing `design_assets[use]` (or
@@ -1292,3 +1298,33 @@ the masthead.
   return "loaded: " + MODES.join(" / ");
 })();
 ```
+
+## 13. Review notes for step B
+
+Checked against the code, the contracts and the backend on 27 Oct. The calls
+in §8.1 match `docs/dashboard-routes.md`. `holderName` already reaches the
+frozen previews through `CardPreviewValue` (`CardPreviews.tsx:51`, the
+literal only its fallback), so passing it from the open wrapper is staging,
+not a change to them. These notes win where they differ from §8 to §10.
+
+- **`StampGrid`'s glyph ink** (§7, row 5): the one change to a frozen file,
+  in its own commit, and nothing else in that file. A stamp's glyph takes
+  white or near-black by the same rule as the server's `_glyph_ink`
+  (`strips.py`), so a white stamp shows its glyph as the pass does.
+  `docs/card-studio.md` says so beside the frozen table, with the date and
+  Roee's yes.
+- **The contracts follow the new order** in the commit that makes it:
+  `docs/dashboard-routes.md` for `/dashboard/design` (uploads on Save, before
+  the PATCH, and the design read once after the last write), and
+  `docs/card-studio.md` ("uploads save straight away" becomes "held for
+  Save", and its "Found while writing this" list marked as fixed).
+- **The tray** is built beside the studio on the kit's motion tokens and
+  `useSheetDrag`, imported as it is. If the kit itself would need to change,
+  step B asks first.
+- **The backend's four** (§11, items 1, 2, 4 and 5) are one backend task,
+  outside the redesign. The remove call, once it lands, is a new call on
+  `/dashboard/design` and needs Roee's yes before step B or a later phase
+  wires it.
+- **The critique snapshot** and the drawn layouts Roee chose from
+  (`.impeccable/mocks/decision/card-studio-layouts.png`) are committed with
+  these notes.
