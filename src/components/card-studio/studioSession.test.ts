@@ -7,6 +7,7 @@ import {
   keepPicture,
   keepSyncWait,
   keepUploaded,
+  notKeptNow,
   readKept,
   readSyncWait,
   readUploaded,
@@ -92,5 +93,24 @@ describe("the draft kept in the tab", () => {
     keepPicture("biz", "tpl", "logo", "data:image/png;base64,AAAA");
     dropKept("biz", "tpl");
     expect(storage.size).toBe(0);
+  });
+});
+
+describe("the pictures said not to come back", () => {
+  it("are the ones the tab just refused, and the ones it refused before", () => {
+    const held = { logo: "data:logo", strip_base: "data:strip" };
+    expect(notKeptNow([], new Map([["strip_base", false]]), held)).toEqual(["strip_base"]);
+    expect(notKeptNow(["strip_base"], new Map([["logo", true]]), held)).toEqual(["strip_base"]);
+  });
+
+  it("lets go of one written again that fits now", () => {
+    expect(notKeptNow(["logo"], new Map([["logo", true]]), { logo: "data:smaller" })).toEqual([]);
+  });
+
+  it("says nothing of a picture a save sent, which the tab let go before it left the draft", () => {
+    // The save took it out of the tab itself, so nothing is written when it
+    // leaves the held pictures.
+    expect(notKeptNow(["strip_base"], new Map(), {})).toEqual([]);
+    expect(notKeptNow(["strip_base", "logo"], new Map(), { logo: "data:logo" })).toEqual(["logo"]);
   });
 });
