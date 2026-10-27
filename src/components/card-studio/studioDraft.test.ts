@@ -6,6 +6,7 @@ import {
   changesBetween,
   faceLabelFull,
   fieldsOver,
+  followField,
   kindOf,
   nameMissing,
   readDesign,
@@ -193,6 +194,26 @@ describe("withUniqueBindings", () => {
       "meta.custom",
       "meta.custom_2",
     ]);
+  });
+});
+
+describe("followField", () => {
+  it("follows the field an editor holds to its new place", () => {
+    // Read in: the name field removed elsewhere, a level added before the rest.
+    const tier = { binding: "members.tier.name", label: "רמה" };
+    const after = [tier, FIELDS[1], FIELDS[2]];
+    expect(followField(FIELDS, after, 2)).toBe(2);
+    expect(followField(FIELDS, after, 1)).toBe(1);
+    expect(followField(FIELDS, [FIELDS[2], FIELDS[1]], 2)).toBe(0);
+  });
+
+  it("closes the editor when its field went", () => {
+    expect(followField(FIELDS, [FIELDS[1], FIELDS[2]], 0)).toBeNull();
+  });
+
+  it("leaves a closed editor closed", () => {
+    expect(followField(FIELDS, FIELDS, null)).toBeNull();
+    expect(followField(FIELDS, FIELDS, 7)).toBeNull();
   });
 });
 

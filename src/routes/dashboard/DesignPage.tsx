@@ -7,6 +7,7 @@ import { readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
   fieldsOver,
+  followField,
   HELD_ORDER,
   MAX_FIELDS,
   nameMissing,
@@ -166,15 +167,18 @@ export function DesignPage() {
       }
       return;
     }
-    // A save reads the card again itself, and starts from what it read.
+    // A save reads the card again itself, and starts from what it read. A
+    // field open in its editor stays open on that field, wherever it is now.
     const was = baseline.current;
     if (saving || !was || !newerRead(was.at, at)) return;
     baseline.current = { value: fresh, at };
     if (sameCard(was.value, fresh)) return;
+    const next = draft ? rebaseEdits(was.value, draft, fresh) : fresh;
     setSaved(fresh);
-    setDraft((current) => (current ? rebaseEdits(was.value, current, fresh) : fresh));
+    setDraft(next);
+    setEditingField((open) => followField(draft?.design.fields, next.design.fields, open));
     setLint(designQuery.data.lint);
-  }, [businessId, template, designQuery.data, templatesAt, designAt, saving]);
+  }, [businessId, template, designQuery.data, templatesAt, designAt, saving, draft]);
 
   const changes = saved && draft ? changesBetween(saved, draft, held) : [];
   const changed = changes.length > 0;
@@ -410,10 +414,12 @@ export function DesignPage() {
     let sentValue = draft;
     const now = await readCard();
     if (now) {
-      sentValue = rebaseEdits(saved, draft, now.value);
+      const onNow = rebaseEdits(saved, draft, now.value);
+      sentValue = onNow;
       baseline.current = { value: now.value, at: now.at };
       setSaved(now.value);
       setDraft(sentValue);
+      setEditingField((open) => followField(draft.design.fields, onNow.design.fields, open));
       if (tooMany(sentValue, sent.length > 0)) {
         await stopPartWay();
         setSaving(false);
