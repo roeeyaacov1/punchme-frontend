@@ -220,10 +220,9 @@ who is new, Billing's states, the mark a return from checkout leaves and the
 wait for Stripe's word, the card controls' rules, the studio's draft and the
 reward on the back of the card, the studio's reads, the draft it keeps in
 the tab and the size a held picture is kept at, the server's check read by
-kind, a failed
-save or upload as a sentence, the kit's wallpaper and arrow keys, the kit's
-copy in both languages, the price the copy writes out, and ten helpers in
-`src/lib`.
+kind, a failed save or upload as a sentence, the kit's wallpaper and arrow
+keys, the kit's copy in both languages, the price the copy writes out, and
+ten helpers in `src/lib`.
 The browser is the safety net, so use it.
 
 Before calling any UI change done:
