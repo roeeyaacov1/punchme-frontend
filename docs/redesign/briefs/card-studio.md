@@ -765,13 +765,16 @@ The pass's back carries one line of text, `universal.info`'s
 `default_value`, and it is the only place the reward reaches the pass (§6).
 The studio keeps the two together:
 - **When the back says the reward** (or nothing), the back follows it: a
-  save writes the new reward into the field's `default_value` too, in the
-  same `design`. The reward tray says so under the field: "זה גם מה שכתוב בגב
-  הכרטיס."
+  new reward is written into the field's `default_value` too, in the draft,
+  as it is typed (step D: not at Save, so Wallet details shows what will be
+  sent). The reward tray says so under the field: "זה גם מה שכתוב בגב
+  הכרטיס." A back that says nothing is said as well: "בגב הכרטיס עוד לא כתוב
+  כלום."
 - **When the back says something else** (the presets' "קפה שמיני חינם", or
   words an owner wrote), the studio never overwrites it silently. The reward
   row and the tray say: "בגב הכרטיס כתוב: 'קפה שמיני חינם'", with "לכתוב שם
-  את ההטבה", which makes the back follow from then on.
+  את ההטבה", which puts the reward there in the draft, so the back follows
+  from then on, until words are typed there by hand.
 - **When the card has no `universal.info` field,** nothing is added: the
   server's defaults fill it from the reward by themselves.
 - The rule is pure and tested (`studioDraft.ts`, §8.9). The back's own words
