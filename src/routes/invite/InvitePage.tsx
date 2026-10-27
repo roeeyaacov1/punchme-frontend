@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
-import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { TokenPair } from "../../api/auth";
 import { ApiError } from "../../api/errors";
 import { acceptInvitation, getInvitationPreview, type InvitationPreview } from "../../api/team";
@@ -54,9 +54,6 @@ export function InvitePage() {
     queryFn: () => getInvitationPreview(token),
     enabled: !!token,
     retry: false,
-    // Signing out clears the query cache; the invitation stays on screen
-    // while the same read comes back.
-    placeholderData: keepPreviousData,
   });
   const invitation = preview.data;
 
@@ -119,6 +116,9 @@ export function InvitePage() {
     setRefusal(null);
     setWrongAccount(false);
     logout();
+    // Signing out empties the query cache; the invitation goes straight back
+    // in, so it stays on screen without being read again.
+    if (invitation) queryClient.setQueryData(["invitation", token], invitation);
     if (auth.mode === "signup") auth.toggleMode();
     setSwitched(true);
   }
