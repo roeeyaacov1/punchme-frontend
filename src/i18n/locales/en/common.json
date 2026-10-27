@@ -1912,26 +1912,29 @@
     }
   },
   "invite": {
-    "title": "{{business}} wants you on the team",
-    "asRole": "As {{role}}.",
-    "asRoleSignIn": "As {{role}}. Sign in, or make an account, to join.",
-    "signedInAs": "Signed in as {{email}}.",
-    "forAddress": "This invite is for {{email}}.",
-    "joinCta": "Join",
+    "title": "<shop>{{business}}</shop> wants you on the team",
+    "signedInAs": "Signed in as <email>{{email}}</email>.",
+    "forAddress": "This invite is for <email>{{email}}</email>",
+    "joinCta": "Join the team",
     "signInCta": "Sign in and join",
     "signUpCta": "Create account and join",
     "dead": {
       "title": "This link doesn't work",
-      "unknown": "We don't recognise it. Ask for a new one.",
-      "revoked": "It was cancelled. Ask for a new one.",
-      "expired": "It expired. Ask for a new one.",
+      "unknown": "We don't recognise it. Ask the owner for a new link.",
+      "revoked": "It was cancelled. Ask the owner for a new link.",
+      "expired": "It expired. Ask the owner for a new link.",
       "accepted": "It has already been used. If that was you, just sign in."
     },
     "error": {
-      "wrongAccount": "This invite was sent to a different email address. Sign in with that one.",
+      "wrongAccount": "This invite is for <email>{{email}}</email>, not this account.",
       "alreadyIn": "You're already on this team.",
       "generic": "That didn't go through. Try again."
-    }
+    },
+    "expires": "Valid until {{date}}",
+    "switch": "Not you? Use another account",
+    "switchShort": "Use another account",
+    "pageTitle": "Invitation to {{business}}'s team",
+    "pageTitleLoading": "Team invitation"
   },
   "publicCard": {
     "eyebrow": "PunchMe loyalty card",
