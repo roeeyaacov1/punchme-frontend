@@ -58,6 +58,10 @@ function useDocumentTitle(name: string) {
  *   the subject; PunchMe signs at the foot, as the standee does.
  * - `team` (`/login`, `/invite`): the mark home and the language switch.
  *
+ * The frame is at least the small viewport's height, the screen with the
+ * browser's bars showing, so a sign centred in it holds still while the
+ * address bar slides away, and nothing is ever under the bars.
+ *
  * On a phone, nothing here flashes grey under a finger: the tap highlight
  * is off for the whole frame (it inherits), and every control in it shows
  * its own press instead. A long press never selects a button's words; the
@@ -81,7 +85,7 @@ export function PublicPage({
   useDocumentTitle(title);
 
   return (
-    <div className="theme-lightbox flex min-h-dvh flex-col bg-background text-ink [-webkit-tap-highlight-color:transparent] [&_button]:select-none">
+    <div className="theme-lightbox flex min-h-svh flex-col bg-background text-ink [-webkit-tap-highlight-color:transparent] [&_button]:select-none">
       <a
         href="#public-main"
         className={cn(
