@@ -274,6 +274,14 @@ export function DesignPage() {
       setSyncWait({ before: syncBefore });
       keepSyncWait(businessId, templateId, syncBefore);
     };
+    // A save that stops after a picture went: that picture is on customers'
+    // cards, so wait for its sync, and read the design again, once, so the
+    // studio knows which pictures are there.
+    const stopPartWay = () => {
+      if (!sent) return;
+      waitForSync();
+      void queryClient.refetchQueries({ queryKey: ["design", templateId], exact: true });
+    };
     // The held pictures first, so one that is refused stops the save before
     // anything else reaches customers' cards.
     for (const use of HELD_ORDER) {
@@ -296,7 +304,7 @@ export function DesignPage() {
         setHeld((current) => withoutSent(current, use, dataUrl));
       } catch (error) {
         setFailure({ problem: uploadProblem(use, error), partial: sent });
-        if (sent) waitForSync();
+        stopPartWay();
         setSaving(false);
         return;
       }
@@ -314,7 +322,7 @@ export function DesignPage() {
         setTray("wallet");
         setEditingField(problem.fieldIndex);
       }
-      if (sent) waitForSync();
+      stopPartWay();
       setSaving(false);
       return;
     }
