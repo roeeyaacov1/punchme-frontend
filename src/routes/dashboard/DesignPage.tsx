@@ -14,7 +14,7 @@ import {
   type HeldPictures,
   type HeldUse,
 } from "../../components/card-studio/studioDraft";
-import { newerRead, syncMovedPast, type ReadStamp } from "../../components/card-studio/studioReads";
+import { bothLandedSince, newerRead, syncMovedPast, type ReadStamp } from "../../components/card-studio/studioReads";
 import { saveProblem, uploadProblem, type StudioProblem } from "../../components/card-studio/studioProblems";
 import {
   dropKept,
@@ -315,17 +315,23 @@ export function DesignPage() {
     }
     waitForSync();
 
-    // Read once more, after the last write, and start again from it.
-    await queryClient.invalidateQueries({ queryKey: ["templates", businessId] });
-    const fresh = await designQuery.refetch();
-    const freshTemplate = queryClient.getQueryData<CardTemplate[]>(["templates", businessId])?.[0];
-    const readAt = {
-      templates: queryClient.getQueryState(["templates", businessId])?.dataUpdatedAt ?? 0,
-      design: queryClient.getQueryState(["design", templateId])?.dataUpdatedAt ?? 0,
-    };
-    if (fresh.data && freshTemplate) reseed(toStudioValue(freshTemplate, fresh.data), fresh.data.lint, readAt);
-    // Newer than either read, so only a later pair of reads takes over.
-    else reseed(sentValue, lint, { templates: Date.now(), design: Date.now() });
+    // Read once more, after the last write, and start again from it. If
+    // either read didn't land, the studio starts from what was sent, stamped
+    // newer than both, and the next good pair of reads takes over.
+    const asked = Date.now();
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["templates", businessId] }),
+      queryClient.refetchQueries({ queryKey: ["design", templateId], exact: true }),
+    ]);
+    const templatesRead = queryClient.getQueryState<CardTemplate[]>(["templates", businessId]);
+    const designRead = queryClient.getQueryState<DesignOut>(["design", templateId]);
+    const freshTemplate = templatesRead?.data?.[0];
+    const readAt = { templates: templatesRead?.dataUpdatedAt ?? 0, design: designRead?.dataUpdatedAt ?? 0 };
+    if (freshTemplate && designRead?.data && bothLandedSince(asked, readAt)) {
+      reseed(toStudioValue(freshTemplate, designRead.data), designRead.data.lint, readAt);
+    } else {
+      reseed(sentValue, lint, { templates: Date.now(), design: Date.now() });
+    }
     setSaving(false);
     toast.show({ tone: "ok", title: t("studio.saved") });
     heading.current?.focus();
@@ -337,9 +343,12 @@ export function DesignPage() {
     </h1>
   );
 
-  const readFailed = templatesQuery.isError || designQuery.isError;
+  // Only a card that never loaded: a later read that fails keeps the card
+  // the studio already has, and the next good one takes over.
+  const templatesFailed = templatesQuery.isError && !templatesQuery.data;
+  const readFailed = templatesFailed || (designQuery.isError && !designQuery.data);
   if (readFailed) {
-    const failed = templatesQuery.isError ? templatesQuery : designQuery;
+    const failed = templatesFailed ? templatesQuery : designQuery;
     return (
       <div className="flex flex-col gap-5">
         {title}
