@@ -7,19 +7,22 @@ import {
   type TokenPair,
 } from "../../api/auth";
 import { ApiError } from "../../api/errors";
+import { authErrorKey, type AuthMethod } from "./authErrors";
 
 export type AuthMode = "signup" | "signin";
 
 /**
- * The sign-in / sign-up form's logic, shared by the login page and the
- * wizard's account step so the two can't drift: one mode toggle, one
- * reading of the API's errors (409 = that email exists → flip to sign-in
- * and keep the address; 422 = the server's password message; 429 = the
- * anonymous throttle), one Google path.
+ * The sign-in / sign-up form's logic, shared by the login page, the
+ * invitation and the wizard's account step so they can't drift: one mode
+ * toggle, one reading of the API's errors in the page's own words
+ * (`authErrors.ts`: 409 = that email exists → flip to sign-in and keep the
+ * address; 401 = the email or the password, or a Google account; 422 = a
+ * weak password; 429 = the anonymous throttle), one Google path.
  *
  * `onAuthenticated` receives the tokens and does whatever the screen is
  * for — the login page navigates, the account step saves the card. It may
- * be async; its failure is reported here too.
+ * be async; its failure is reported here too, though all three callers
+ * catch their own.
  */
 export function useEmailPasswordAuth({
   initialMode,
@@ -35,24 +38,9 @@ export function useEmailPasswordAuth({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function describe(err: unknown): string {
-    if (err instanceof ApiError) {
-      if (err.status === 409) return t("onboarding.account.alreadyRegistered");
-      if (err.status === 429) return t("onboarding.account.throttled");
-      if (err.status === 422 || err.status === 401) return err.message;
-      return generic();
-    }
-    // fetch rejects with a TypeError when the API can't be reached at all —
-    // a stopped local backend, no network — which is worth saying plainly.
-    if (err instanceof TypeError) return t("auth.offline");
-    return generic();
-  }
-
-  function generic(): string {
-    return mode === "signup" ? t("auth.signUpError") : t("auth.error");
-  }
-
-  async function run(getTokens: () => Promise<TokenPair>) {
+  /** `method` travels with the call: a Google 401 and a password 401 look
+   * the same on the wire and must not read the same. */
+  async function run(method: AuthMethod, getTokens: () => Promise<TokenPair>) {
     if (submitting) return;
     setError(null);
     setSubmitting(true);
@@ -61,7 +49,7 @@ export function useEmailPasswordAuth({
       await onAuthenticated(tokens);
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) setMode("signin");
-      setError(describe(err));
+      setError(t(authErrorKey(err, { mode, method })));
     } finally {
       setSubmitting(false);
     }
@@ -82,9 +70,9 @@ export function useEmailPasswordAuth({
     setError,
     canSubmit: email.trim().length > 0 && password.length > 0,
     submitPassword: () =>
-      run(() =>
+      run("password", () =>
         mode === "signup" ? signUpWithPassword(email, password) : signInWithPassword(email, password),
       ),
-    submitGoogle: (idToken: string) => run(() => signInWithGoogle(idToken)),
+    submitGoogle: (idToken: string) => run("google", () => signInWithGoogle(idToken)),
   };
 }
