@@ -67,13 +67,25 @@ export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function 
         </button>
       )}
       {(changes > 0 || updateOnly || problem) && (
-        <div className="flex items-center gap-2">
+        // Each label wraps, and Save drops under Discard, rather than run off
+        // a phone at 200% text.
+        <div className="flex flex-wrap items-center gap-2">
           {changes > 0 && (
-            <Button variant="quiet" onClick={onDiscard} disabled={saving} className="shrink">
+            <Button
+              variant="quiet"
+              onClick={onDiscard}
+              disabled={saving}
+              className="max-w-full shrink !whitespace-normal text-center"
+            >
               {t("studio.bar.discard")}
             </Button>
           )}
-          <Button ref={saveRef} busy={saving} onClick={onSave} className="ms-auto min-w-[7rem]">
+          <Button
+            ref={saveRef}
+            busy={saving}
+            onClick={onSave}
+            className="ms-auto min-w-[7rem] max-w-full !whitespace-normal text-center"
+          >
             {updateOnly ? t("studio.sync.update") : t("studio.save")}
           </Button>
         </div>

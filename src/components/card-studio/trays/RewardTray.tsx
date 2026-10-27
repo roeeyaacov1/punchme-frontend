@@ -55,7 +55,8 @@ export function BackDiffers({ back, onFollow }: { back: BackState; onFollow: () 
           t("studio.back.empty")
         )}
       </p>
-      <Button variant="secondary" onClick={onFollow}>
+      {/* Wraps rather than runs off a phone at 200% text. */}
+      <Button variant="secondary" onClick={onFollow} className="max-w-full !whitespace-normal text-center">
         {t("studio.back.follow")}
       </Button>
     </div>
