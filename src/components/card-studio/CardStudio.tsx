@@ -13,6 +13,7 @@ import { StudioStage, type CardPart, type StageHandle, type Wallet } from "./Stu
 import { StudioTray } from "./StudioTray";
 import {
   backState,
+  rewardForRow,
   sampleStart,
   withRewardOnBack,
   type CardStudioImages,
@@ -516,7 +517,7 @@ export function CardStudio({
           <Trans
             i18nKey="studio.rewardSentence"
             count={value.stamps_required}
-            values={{ reward: value.reward_description.trim() || t("studio.noReward") }}
+            values={{ reward: rewardForRow(value.reward_description) || t("studio.noReward") }}
             components={{ b: <bdi className="font-semibold" /> }}
           />
         </span>
