@@ -57,7 +57,14 @@ export const TEXT_LIMITS = {
   changeMessage: 120,
   value: 500,
   organization: 120,
+  /** A catalog look's staff note (CatalogEntryIn). */
+  catalogDescription: 200,
 } as const;
+
+/** The API refuses a card without a name, and one of spaces is none. */
+export function nameMissing(value: CardStudioValue): boolean {
+  return !value.name.trim();
+}
 
 /** At most this many fields; at least one, which the API requires. */
 export const MAX_FIELDS = 10;
@@ -119,11 +126,18 @@ export function faceLabel(fields: readonly DesignField[], binding: string): stri
   return fields.find((field) => field.binding === binding)?.label ?? "";
 }
 
-/** Rename a face field. One typed where there was none adds the field;
- * clearing one the studio added drops it again, rather than sending an
- * empty label. A field the card came with (`savedFields`) keeps its place
- * with an empty label: clearing the words above the customer's name never
- * takes the name off the card. These are the only editors of the two labels. */
+/** A face field the card hasn't got, which a label can't add: the card
+ * already holds as many fields as it can. */
+export function faceLabelFull(fields: readonly DesignField[], binding: string): boolean {
+  return fields.length >= MAX_FIELDS && !fields.some((field) => field.binding === binding);
+}
+
+/** Rename a face field. One typed where there was none adds the field, while
+ * the card has room for it; clearing one the studio added drops it again,
+ * rather than sending an empty label. A field the card came with
+ * (`savedFields`) keeps its place with an empty label: clearing the words
+ * above the customer's name never takes the name off the card. These are the
+ * only editors of the two labels. */
 export function withFaceLabel(
   fields: readonly DesignField[],
   binding: string,
@@ -133,7 +147,8 @@ export function withFaceLabel(
 ): DesignField[] {
   const index = fields.findIndex((field) => field.binding === binding);
   if (index === -1) {
-    return label ? [...fields, { binding, label, section, alignment: "NATURAL" }] : [...fields];
+    if (!label || faceLabelFull(fields, binding)) return [...fields];
+    return [...fields, { binding, label, section, alignment: "NATURAL" }];
   }
   const field = fields[index];
   const added = !savedFields.some((saved) => saved.binding === binding);

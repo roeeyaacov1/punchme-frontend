@@ -182,6 +182,8 @@ export interface CardStudioProps {
   editingField: number | null;
   onEditingField: (index: number | null) => void;
   extraTrays?: ExtraTray[];
+  /** Names says the card has no name (see `NamesTray`). */
+  sayNameMissing?: boolean;
   /** Where Save is, so a page can put focus back on it. */
   saveRef?: React.Ref<HTMLButtonElement>;
 }
@@ -222,6 +224,7 @@ export function CardStudio({
   editingField,
   onEditingField,
   extraTrays = [],
+  sayNameMissing = true,
   saveRef,
 }: CardStudioProps) {
   const { t } = useTranslation();
@@ -348,6 +351,7 @@ export function CardStudio({
             onChange={onChange}
             savedFields={saved.design.fields ?? []}
             businessName={businessName}
+            sayNameMissing={sayNameMissing}
           />
         );
       case "logo":

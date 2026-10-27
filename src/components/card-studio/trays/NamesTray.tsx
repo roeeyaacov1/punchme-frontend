@@ -1,7 +1,15 @@
 import { useTranslation } from "react-i18next";
 import type { DesignField } from "../../../api/designs";
 import { Input } from "../../kit/Input";
-import { FACE_FIELDS, TEXT_LIMITS, faceLabel, withFaceLabel, type CardStudioValue } from "../studioDraft";
+import {
+  FACE_FIELDS,
+  TEXT_LIMITS,
+  faceLabel,
+  faceLabelFull,
+  nameMissing,
+  withFaceLabel,
+  type CardStudioValue,
+} from "../studioDraft";
 
 const FACE_LABELS: Record<(typeof FACE_FIELDS)[number]["binding"], { label: string; placeholder: string }> = {
   "person.displayName": { label: "studio.names.holderLabel", placeholder: "studio.preview.nameLabel" },
@@ -12,13 +20,15 @@ const FACE_LABELS: Record<(typeof FACE_FIELDS)[number]["binding"], { label: stri
  * The words on the card: its name, which Google prints after the business's,
  * the two labels on its face, and the business's name as the pass prints it.
  * These are the only editors of the two labels. Every field stops at the
- * API's own limit.
+ * API's own limit, and says the two it can't stop at: a card with no name,
+ * and a label whose field the card has no room for.
  */
 export function NamesTray({
   value,
   onChange,
   savedFields,
   businessName,
+  sayNameMissing,
 }: {
   value: CardStudioValue;
   onChange: (next: CardStudioValue) => void;
@@ -26,6 +36,9 @@ export function NamesTray({
    * label is cleared. */
   savedFields: readonly DesignField[];
   businessName: string;
+  /** Say that the card has no name: at once on a card that had one, and
+   * only after Save on a catalog look still being made. */
+  sayNameMissing: boolean;
 }) {
   const { t } = useTranslation();
   const fields = value.design.fields ?? [];
@@ -38,6 +51,7 @@ export function NamesTray({
         onChange={(event) => onChange({ ...value, name: event.target.value })}
         maxLength={TEXT_LIMITS.name}
         required
+        error={sayNameMissing && nameMissing(value) ? t("studio.names.nameMissing") : undefined}
         dir="auto"
         autoComplete="off"
         hint={
@@ -46,26 +60,32 @@ export function NamesTray({
           </>
         }
       />
-      {FACE_FIELDS.map((face) => (
-        <Input
-          key={face.binding}
-          label={t(FACE_LABELS[face.binding].label)}
-          placeholder={t(FACE_LABELS[face.binding].placeholder)}
-          value={faceLabel(fields, face.binding)}
-          onChange={(event) =>
-            onChange({
-              ...value,
-              design: {
-                ...value.design,
-                fields: withFaceLabel(fields, face.binding, face.section, event.target.value, savedFields),
-              },
-            })
-          }
-          maxLength={TEXT_LIMITS.label}
-          dir="auto"
-          autoComplete="off"
-        />
-      ))}
+      {FACE_FIELDS.map((face) => {
+        // A label where there's no field adds one, and the card has no room.
+        const full = faceLabelFull(fields, face.binding);
+        return (
+          <Input
+            key={face.binding}
+            label={t(FACE_LABELS[face.binding].label)}
+            placeholder={t(FACE_LABELS[face.binding].placeholder)}
+            hint={full ? t("studio.names.full") : undefined}
+            readOnly={full}
+            value={faceLabel(fields, face.binding)}
+            onChange={(event) =>
+              onChange({
+                ...value,
+                design: {
+                  ...value.design,
+                  fields: withFaceLabel(fields, face.binding, face.section, event.target.value, savedFields),
+                },
+              })
+            }
+            maxLength={TEXT_LIMITS.label}
+            dir="auto"
+            autoComplete="off"
+          />
+        );
+      })}
       <Input
         label={t("studio.names.organization")}
         hint={t("studio.names.organizationHint")}

@@ -7,6 +7,8 @@ import { CardStudio, type ExtraTray } from "../../components/card-studio/CardStu
 import { readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
+  nameMissing,
+  TEXT_LIMITS,
   type CardStudioImages,
   type CardStudioValue,
 } from "../../components/card-studio/studioDraft";
@@ -78,6 +80,8 @@ export function AdminCatalogEditPage() {
   const [justSaved, setJustSaved] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
+  // A look still being made says it has no name only once Save is pressed.
+  const [saveTried, setSaveTried] = useState(false);
   const [tray, setTray] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<number | null>(null);
 
@@ -161,8 +165,28 @@ export function AdminCatalogEditPage() {
     await queryClient.invalidateQueries({ queryKey: ["admin-catalog"] });
   }
 
+  // A description saved before the field held its limit can be longer.
+  const descriptionTooLong = shelf.description.length > TEXT_LIMITS.catalogDescription;
+
   async function handleSave() {
     if (!draft || !saved || saving) return;
+    setSaveTried(true);
+    // The limits typing can't hold: said in their fields, and nothing is sent.
+    if (nameMissing(draft)) {
+      setProblem(t("studio.problem.noName"));
+      setTray("names");
+      return;
+    }
+    if (descriptionTooLong) {
+      setProblem(
+        t("admin.catalog.descriptionTooLong", {
+          max: TEXT_LIMITS.catalogDescription,
+          length: shelf.description.length,
+        }),
+      );
+      setTray("shelf");
+      return;
+    }
     setProblem(null);
     setSaving(true);
     try {
@@ -241,6 +265,15 @@ export function AdminCatalogEditPage() {
             hint={t("admin.catalog.descriptionHint")}
             value={shelf.description}
             onChange={(event) => editShelf({ description: event.target.value })}
+            maxLength={TEXT_LIMITS.catalogDescription}
+            error={
+              descriptionTooLong
+                ? t("admin.catalog.descriptionTooLong", {
+                    max: TEXT_LIMITS.catalogDescription,
+                    length: shelf.description.length,
+                  })
+                : undefined
+            }
             dir="auto"
             autoComplete="off"
           />
@@ -322,6 +355,7 @@ export function AdminCatalogEditPage() {
           editingField={editingField}
           onEditingField={setEditingField}
           extraTrays={extraTrays}
+          sayNameMissing={!isNew || saveTried}
         />
       </div>
     </div>
