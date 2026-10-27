@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
 import type { CardPublic } from "../../../api/loyalty";
-import { Button, Skeleton, linkText } from "../../../components/kit";
+import { Button, Skeleton, linkText, useReducedMotion } from "../../../components/kit";
 import { cn } from "../../../lib/cn";
 import { PassStage } from "../PassStage";
 import { useWalletPass } from "../useWalletPass";
@@ -24,6 +24,10 @@ const LINES = { new: "enroll.card.lineNew", have: "enroll.card.lineHave", full: 
  *
  * The heading takes focus when the card arrives: it is what a screen reader
  * hears first, so the live region keeps to what changes after.
+ *
+ * On a join the card arrives with the activation (`PassStage`), and the
+ * words around it come up in 240ms where they stand, so the pass settling
+ * is the one thing that moves.
  */
 export function JoinedCard({
   serial,
@@ -31,6 +35,7 @@ export function JoinedCard({
   holderName,
   returning,
   statusLink,
+  arrival,
 }: {
   serial: string;
   card: CardPublic;
@@ -39,8 +44,11 @@ export function JoinedCard({
   returning: boolean;
   /** The way back to this card at `/c`, under the join's card. */
   statusLink?: boolean;
+  /** How the pass's stage appears: see `PassStage`. */
+  arrival?: "activate" | "lights";
 }) {
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
   const heading = useRef<HTMLHeadingElement>(null);
   const { card, wait, checking, recheck } = useWalletPass(serial, initial);
 
@@ -57,9 +65,11 @@ export function JoinedCard({
   }
 
   const line = cardLine(card);
+  let words: string | undefined;
+  if (arrival === "activate") words = reduced ? "animate-gentle-in" : "animate-light-up";
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-2">
+      <div className={cn("flex flex-col gap-2", words)}>
         <h1 ref={heading} tabIndex={-1} className="type-title text-balance outline-none">
           <Trans
             i18nKey={returning ? "enroll.card.titleReturning" : "enroll.card.titleNew"}
@@ -82,9 +92,9 @@ export function JoinedCard({
         </p>
       </div>
 
-      <PassStage card={card} serial={serial} holderName={holderName} />
+      <PassStage card={card} serial={serial} holderName={holderName} arrival={arrival} />
 
-      <div className="flex flex-col gap-3">
+      <div className={cn("flex flex-col gap-3", words)}>
         {wait === "ready" && card.wallet_pass_url ? (
           <WalletButton href={card.wallet_pass_url} />
         ) : wait === "waiting" ? (
@@ -107,7 +117,7 @@ export function JoinedCard({
       </div>
 
       {statusLink && (
-        <Link to={`/c/${serial}`} className={cn(linkText, "type-body inline-flex min-h-11 items-center self-center text-center")}>
+        <Link to={`/c/${serial}`} className={cn(linkText, "type-body inline-flex min-h-11 items-center self-center text-center", words)}>
           {t("enroll.card.toStatus")}
         </Link>
       )}

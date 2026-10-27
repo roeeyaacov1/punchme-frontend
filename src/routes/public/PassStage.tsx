@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import type { CardPublic } from "../../api/loyalty";
 import { AppleCardPreview, GoogleCardPreview } from "../../components/card-studio/CardPreviews";
-import { LitPanel } from "../../components/kit";
+import { LitPanel, useReducedMotion } from "../../components/kit";
 import { cn } from "../../lib/cn";
 import { usePublicCardPreview } from "./publicCard";
 import { deviceWallet } from "./wallet";
@@ -26,11 +26,21 @@ import { deviceWallet } from "./wallet";
  * Hidden from assistive tech and summarised in words instead — read out
  * element by element it is a pile of unlabelled fragments, and the summary
  * says the same thing in one sentence.
+ *
+ * How it arrives is the stage's, never the pass's: the previews are drawn
+ * as the wallets draw them and only their slot moves.
+ * - `activate`, the card arriving on a join, once: the stage stands unlit
+ *   (the wall, with a hairline edge) and its light comes up behind the pass
+ *   over 600ms while the pass settles 8px into its slot.
+ * - `lights`, a return (`/c`): lights on, 240ms.
+ * With reduced motion either one is the light at full strength in 150ms,
+ * with no travel.
  */
 export function PassStage({
   card,
   serial,
   holderName,
+  arrival,
   className,
 }: {
   card: CardPublic;
@@ -38,22 +48,34 @@ export function PassStage({
   serial: string;
   /** The name the customer just gave, printed in the pass's name field. */
   holderName?: string;
+  arrival?: "activate" | "lights";
   className?: string;
 }) {
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
   const platform = deviceWallet() === "google" ? "google" : "apple";
   // The hook lives here rather than at the call sites: both of them render
   // this behind a loading/error branch, where a hook can't go.
   const value = usePublicCardPreview(card, serial, holderName);
+  const activate = arrival === "activate" && !reduced;
 
   return (
-    <div className={cn("-mx-4 flex justify-center sm:mx-0", className)}>
+    // `--unlit` keeps the wall: inside the lit stage, `background` is the
+    // lit panel's own colour.
+    <div className={cn("-mx-4 flex justify-center [--unlit:var(--c-background)] sm:mx-0", className)}>
       <LitPanel
         light="field"
         radius="card"
-        className="flex w-[340px] max-w-full justify-center overflow-hidden px-5 py-6"
+        arrive={arrival !== undefined && !activate}
+        className="relative flex w-[340px] max-w-full justify-center overflow-hidden px-5 py-6"
       >
-        <div aria-hidden="true" className="w-[300px] shrink-0">
+        {activate && (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[rgb(var(--unlit))] ring-1 ring-inset ring-border animate-stage-on"
+          />
+        )}
+        <div aria-hidden="true" className={cn("relative w-[300px] shrink-0", activate && "animate-pass-settle")}>
           {platform === "apple" ? <AppleCardPreview {...value} /> : <GoogleCardPreview {...value} />}
         </div>
         <p className="sr-only">

@@ -19,7 +19,8 @@ const STEP_MOTION = { forward: "animate-step-forward", back: "animate-step-back"
  * start edge, 8px at most and mirrored in Hebrew; with reduced motion, a
  * 150ms fade where it stands. The page's first place is simply there. The
  * band comes in once, with the form, and holds still while the form and the
- * code take turns under it, so only what changed moves.
+ * code take turns under it, so only what changed moves. The card arrives
+ * its own way, with the activation (`PassStage`).
  */
 export function JoinSteps({
   flow,
@@ -73,6 +74,7 @@ export function JoinSteps({
       holderName={toNameCase(flow.name)}
       returning={isReturning({ stampCount: joined.card.stamp_count, alreadyMember: joined.alreadyMember })}
       statusLink
+      arrival="activate"
     />
   );
 }
