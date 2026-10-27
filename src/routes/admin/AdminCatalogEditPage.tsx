@@ -279,7 +279,7 @@ export function AdminCatalogEditPage() {
           <Link
             to="/admin/catalog"
             className={cn(
-              "inline-flex min-h-11 w-fit items-center gap-1.5 rounded-full text-sm text-ink-muted hover:text-ink",
+              "inline-flex min-h-11 w-fit items-center gap-1.5 rounded-full text-sm text-ink-muted hover-fine:text-ink",
               focusRing,
             )}
           >

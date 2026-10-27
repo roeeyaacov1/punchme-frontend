@@ -267,7 +267,10 @@ export const StudioStage = forwardRef<
           foregroundColor={value.foreground_color}
           summary={summary}
         >
-          <div ref={slot} className="relative">
+          {/* A finger held on the card selects none of the pass's words and
+              raises no picture's callout: the card is the studio's map, not
+              text to copy. */}
+          <div ref={slot} className="relative select-none [-webkit-touch-callout:none]">
             <Preview {...preview} />
             {(Object.keys(boxes) as CardPart[]).map((part) => {
               const box = boxes[part]!;
