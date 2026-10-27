@@ -19,6 +19,7 @@ import {
 import {
   ART_USES,
   bothLandedSince,
+  laterSync,
   newerRead,
   publishedArt,
   syncMovedPast,
@@ -305,8 +306,11 @@ export function DesignPage() {
     // was, until the save is over.
     const sent: [HeldUse, string][] = [];
     // Anything that reaches the server is drawn into the passes by the next
-    // sync: until it has run, the published pictures are from before.
-    const syncBefore = designQuery.data?.sync.synced_at ?? null;
+    // sync: until it has run, the published pictures are from before. The
+    // design read can be from before an earlier save in this visit, whose
+    // sync has run since, so a save that gets as far as the PATCH takes the
+    // later of it and the PATCH's own answer.
+    let syncBefore = designQuery.data?.sync.synced_at ?? null;
     const waitForSync = () => {
       setSyncWait({ before: syncBefore });
       keepSyncWait(businessId, templateId, syncBefore);
@@ -353,7 +357,8 @@ export function DesignPage() {
     // owner sees is what is sent.
     const sentValue = draft;
     try {
-      await patchTemplate(businessId, templateId, sentValue);
+      const answer = await patchTemplate(businessId, templateId, sentValue);
+      syncBefore = laterSync(syncBefore, answer.design_synced_at);
     } catch (error) {
       const problem = saveProblem(error);
       setFailure({ problem, partial: sent.length > 0 });

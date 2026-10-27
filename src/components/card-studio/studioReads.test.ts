@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bothLandedSince, newerRead, publishedArt, syncMovedPast } from "./studioReads";
+import { bothLandedSince, laterSync, newerRead, publishedArt, syncMovedPast } from "./studioReads";
 
 describe("publishedArt", () => {
   it("draws this device's copy of each picture the design read says is on the card", () => {
@@ -46,6 +46,28 @@ describe("syncMovedPast", () => {
 
   it("reads the time, not the text", () => {
     expect(syncMovedPast("2026-10-27T10:00:00+00:00", "2026-10-27T12:00:00+02:00")).toBe(false);
+  });
+});
+
+describe("laterSync", () => {
+  it("takes the PATCH's answer over a read made before an earlier save's sync ran", () => {
+    // The read is from before the first save; its sync ran at 10:00:04, and
+    // the second save's PATCH answers with that.
+    const before = laterSync("2026-10-27T10:00:00Z", "2026-10-27T10:00:04Z");
+    expect(before).toBe("2026-10-27T10:00:04Z");
+    // So the first save's sync no longer counts as the second's.
+    expect(syncMovedPast(before, "2026-10-27T10:00:04Z")).toBe(false);
+  });
+
+  it("keeps the read when it is the later, or the only one", () => {
+    expect(laterSync("2026-10-27T10:00:04Z", "2026-10-27T10:00:00Z")).toBe("2026-10-27T10:00:04Z");
+    expect(laterSync("2026-10-27T10:00:00Z", null)).toBe("2026-10-27T10:00:00Z");
+    expect(laterSync(null, "2026-10-27T10:00:00Z")).toBe("2026-10-27T10:00:00Z");
+    expect(laterSync(null, undefined)).toBeNull();
+  });
+
+  it("reads the time, not the text", () => {
+    expect(laterSync("2026-10-27T12:00:00+02:00", "2026-10-27T10:00:01Z")).toBe("2026-10-27T10:00:01Z");
   });
 });
 
