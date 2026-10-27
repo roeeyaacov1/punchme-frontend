@@ -14,7 +14,8 @@ export function PublicTopBar() {
   const { t } = useTranslation();
   return (
     <header className="mx-auto flex h-16 w-full max-w-[26rem] items-center justify-between px-4 sm:px-0">
-      <Link to="/" className={cn("inline-flex min-h-11 items-center rounded-lg", focusRing)}>
+      {/* The mark dims under a finger: the tap's own flash is off here. */}
+      <Link to="/" className={cn("inline-flex min-h-11 items-center rounded-lg active:opacity-70", focusRing)}>
         <img src={logo} alt={t("app.name")} className="logo-mark h-7 w-auto" />
       </Link>
       <LanguageSwitch className="-me-3" />

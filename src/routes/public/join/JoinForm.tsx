@@ -85,11 +85,14 @@ export function JoinForm({ flow }: { flow: JoinFlow }) {
             type="button"
             onClick={() => setNotice(true)}
             className={cn(
-              "type-body flex min-h-11 w-full items-center justify-between gap-3 rounded-lg text-start text-ink",
+              "group type-body flex min-h-11 w-full items-center justify-between gap-3 rounded-lg text-start text-ink",
               focusRing,
             )}
           >
-            <span className="underline decoration-1 underline-offset-[3px]">{t("enroll.privacySummary")}</span>
+            {/* Its underline thickens under a finger, as a link's does. */}
+            <span className="underline decoration-1 underline-offset-[3px] group-active:decoration-2">
+              {t("enroll.privacySummary")}
+            </span>
             <ChevronRight aria-hidden className="size-5 shrink-0 rtl:-scale-x-100" />
           </button>
           {flow.errors.form && (
