@@ -7,6 +7,8 @@ import {
   kindOf,
   newField,
   nextCustomBinding,
+  rebaseEdits,
+  sameCard,
   sampleStart,
   textColourChoice,
   withBackground,
@@ -180,5 +182,65 @@ describe("changesBetween", () => {
     const design = { ...SAVED.design, fields: [FIELDS[0], FIELDS[1], { ...FIELDS[2], default_value: "קפה שמיני חינם" }] };
     const saved = { ...SAVED, design };
     expect(changesBetween(saved, saved, {}, true)).toEqual(["reward"]);
+  });
+});
+
+describe("sameCard", () => {
+  it("reads two copies of a card as one, whatever order their keys came in", () => {
+    const reordered = { ...SAVED, design: { pattern: "none" as const, stamp: { color: "#FFFFFF", glyph: "coffee" }, fields: FIELDS } };
+    expect(sameCard(SAVED, reordered)).toBe(true);
+    expect(sameCard(SAVED, { ...SAVED, stamps_required: 10 })).toBe(false);
+  });
+});
+
+describe("rebaseEdits", () => {
+  // Saved elsewhere since the edits began: a new colour and twelve stamps.
+  const FRESH: CardStudioValue = { ...SAVED, background_color: "#0E1120", stamps_required: 12 };
+
+  it("takes the fresh card whole when the owner changed nothing", () => {
+    expect(rebaseEdits(SAVED, SAVED, FRESH)).toEqual(FRESH);
+  });
+
+  it("puts the owner's own change on top, and nothing else from the old card", () => {
+    const draft = { ...SAVED, reward_description: "מאפה חינם" };
+    const rebased = rebaseEdits(SAVED, draft, FRESH);
+    expect(rebased.reward_description).toBe("מאפה חינם");
+    expect(rebased.background_color).toBe("#0E1120");
+    expect(rebased.stamps_required).toBe(12);
+  });
+
+  it("keeps the owner's glyph and takes the stamp colour changed elsewhere", () => {
+    const draft = { ...SAVED, design: { ...SAVED.design, stamp: { glyph: "star", color: "#FFFFFF" } } };
+    const fresh = { ...SAVED, design: { ...SAVED.design, stamp: { glyph: "coffee", color: "#F0B429" } } };
+    expect(rebaseEdits(SAVED, draft, fresh).design.stamp).toEqual({ glyph: "star", color: "#F0B429" });
+  });
+
+  it("merges the fields by what they show", () => {
+    // Here: the stamp count's label renamed, and the name field removed.
+    const draft = {
+      ...SAVED,
+      design: { ...SAVED.design, fields: [{ ...FIELDS[1], label: "ביקורים" }, FIELDS[2]] },
+    };
+    // Elsewhere: the back's words changed, and a tier field added.
+    const tier = { binding: "members.tier.name", label: "רמה", section: "BACK_FIELDS" as const };
+    const fresh = {
+      ...SAVED,
+      design: { ...SAVED.design, fields: [FIELDS[0], FIELDS[1], { ...FIELDS[2], default_value: "מאפה חינם" }, tier] },
+    };
+    expect(rebaseEdits(SAVED, draft, fresh).design.fields).toEqual([
+      { ...FIELDS[1], label: "ביקורים" },
+      { ...FIELDS[2], default_value: "מאפה חינם" },
+      tier,
+    ]);
+  });
+
+  it("keeps a field the owner changed even where the fresh card dropped it", () => {
+    const draft = { ...SAVED, design: { ...SAVED.design, fields: [FIELDS[0], { ...FIELDS[1], label: "ביקורים" }, FIELDS[2]] } };
+    const fresh = { ...SAVED, design: { ...SAVED.design, fields: [FIELDS[0], FIELDS[2]] } };
+    expect(rebaseEdits(SAVED, draft, fresh).design.fields?.map((f) => f.binding)).toEqual([
+      "person.displayName",
+      "members.member.points",
+      "universal.info",
+    ]);
   });
 });

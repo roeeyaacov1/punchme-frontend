@@ -10,8 +10,13 @@ import { HELD_ORDER, type CardStudioValue, type HeldPictures, type HeldUse } fro
  * 1125×432 and a logo can be anything, and one that doesn't fit the tab's
  * storage is simply not kept. Its entry is cleared before it is written, so
  * an older picture can never come back in its place.
+ *
+ * The edits keep the card they started from beside them, so on return only
+ * the owner's own changes go on top of the card as it is now: a save made
+ * elsewhere in between is never undone.
  */
 interface KeptEdits {
+  base: CardStudioValue;
   value: CardStudioValue;
   follow: boolean;
 }
@@ -37,13 +42,15 @@ export function keepPicture(businessId: string, templateId: string, use: HeldUse
 
 export function readKept(businessId: string, templateId: string): KeptDraft | null {
   const edits = readDraft<KeptEdits>(editsKey(businessId, templateId));
-  if (!edits?.value) return null;
+  // Without the card they started from, there is no telling the owner's
+  // changes from a save made since.
+  if (!edits?.value || !edits.base) return null;
   const held: HeldPictures = {};
   for (const use of HELD_ORDER) {
     const picture = readDraft<string>(pictureKey(businessId, templateId, use));
     if (picture) held[use] = picture;
   }
-  return { value: edits.value, follow: !!edits.follow, held };
+  return { base: edits.base, value: edits.value, follow: !!edits.follow, held };
 }
 
 export function dropKept(businessId: string, templateId: string): void {

@@ -208,8 +208,79 @@ function sameColour(a: string | undefined, b: string | undefined): boolean {
   return (normalizeHex(a ?? "") ?? a ?? "") === (normalizeHex(b ?? "") ?? b ?? "");
 }
 
+function isPlain(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** JSON with every object's keys in order, so two reads of one card match
+ * however the server or the studio ordered them. */
+function stable(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stable);
+  if (!isPlain(value)) return value;
+  return Object.fromEntries(
+    Object.keys(value)
+      .sort()
+      .map((key) => [key, stable(value[key])]),
+  );
+}
+
 function same(a: unknown, b: unknown): boolean {
-  return JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+  return JSON.stringify(stable(a ?? null)) === JSON.stringify(stable(b ?? null));
+}
+
+/** Two copies of one card, down to the last key. */
+export function sameCard(a: CardStudioValue, b: CardStudioValue): boolean {
+  return same(a, b);
+}
+
+/** One part of the card on a fresher copy: as fresh where the owner left it
+ * alone, the owner's where they changed it, and an object merged key by key,
+ * so a glyph chosen here keeps a stamp colour changed elsewhere. */
+function rebaseValue(base: unknown, draft: unknown, fresh: unknown): unknown {
+  if (same(draft, base)) return fresh;
+  if (!isPlain(base) || !isPlain(draft) || !isPlain(fresh)) return draft;
+  const merged: Record<string, unknown> = {};
+  for (const key of new Set([...Object.keys(draft), ...Object.keys(fresh), ...Object.keys(base)])) {
+    const value = rebaseValue(base[key], draft[key], fresh[key]);
+    if (value !== undefined) merged[key] = value;
+  }
+  return merged;
+}
+
+/** The fields, matched by what each shows: one the owner left alone is as
+ * the fresh card has it (or gone, if it went there), one they changed or
+ * added is theirs, one they removed stays removed, and one added elsewhere
+ * comes after theirs. */
+function rebaseFields(
+  base: readonly DesignField[] = [],
+  draft: readonly DesignField[] = [],
+  fresh: readonly DesignField[] = [],
+): DesignField[] {
+  if (same(draft, base)) return [...fresh];
+  const was = new Map(base.map((field) => [field.binding, field]));
+  const now = new Map(fresh.map((field) => [field.binding, field]));
+  const fields: DesignField[] = [];
+  for (const field of draft) {
+    const before = was.get(field.binding);
+    if (!before || !same(field, before)) fields.push(field);
+    else if (now.has(field.binding)) fields.push(now.get(field.binding)!);
+  }
+  const placed = new Set(fields.map((field) => field.binding));
+  for (const field of fresh) if (!was.has(field.binding) && !placed.has(field.binding)) fields.push(field);
+  return fields;
+}
+
+/**
+ * The owner's own edits on a fresher copy of the card. `base` is the card the
+ * edits started from; whatever differs between it and `draft` is the owner's,
+ * and everything else comes from `fresh`, so a save made elsewhere since is
+ * never sent back undone.
+ */
+export function rebaseEdits(base: CardStudioValue, draft: CardStudioValue, fresh: CardStudioValue): CardStudioValue {
+  const rebased = rebaseValue(base, draft, fresh) as CardStudioValue;
+  if (!base.design.fields && !draft.design.fields && !fresh.design.fields) return rebased;
+  const fields = rebaseFields(base.design.fields, draft.design.fields, fresh.design.fields);
+  return { ...rebased, design: { ...rebased.design, fields } };
 }
 
 /** The fields with the face labels and the back's text set aside, which
