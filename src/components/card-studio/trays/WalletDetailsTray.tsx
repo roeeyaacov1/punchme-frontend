@@ -17,6 +17,7 @@ import {
   MAX_FIELDS,
   TEXT_LIMITS,
   addableKinds,
+  fieldName,
   fieldsOver,
   kindOf,
   newField,
@@ -84,11 +85,7 @@ export function WalletDetailsTray({
   const setDesign = (patch: Partial<DesignDoc>) => onChange({ ...value, design: { ...value.design, ...patch } });
   const setFields = (next: DesignField[]) => setDesign({ fields: next });
 
-  const kindName = (field: DesignField) => {
-    const kind = kindOf(field.binding);
-    return kind ? t(`studio.fields.binding.${kind}`) : field.binding;
-  };
-  const nameOf = (field: DesignField) => field.label?.trim() || kindName(field);
+  const nameOf = (field: DesignField) => fieldName(field, t);
 
   if (editing !== null && fields[editing]) {
     return (

@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import type { DesignDoc, DesignField, ImageUse } from "../../api/designs";
 import { normalizeHex, readableInk } from "../../lib/color";
 
@@ -101,6 +102,12 @@ const CUSTOM = "meta.custom";
 export function kindOf(binding: string): FieldKind | null {
   if (binding === CUSTOM || /^meta\.custom_\d+$/.test(binding)) return CUSTOM;
   return (FIELD_KINDS as readonly string[]).includes(binding) ? (binding as FieldKind) : null;
+}
+
+/** A field as the owner knows it: its label, or what it shows. */
+export function fieldName(field: DesignField, t: TFunction): string {
+  const kind = kindOf(field.binding);
+  return field.label?.trim() || (kind ? t(`studio.fields.binding.${kind}`) : field.binding);
 }
 
 function freeCustomBinding(used: ReadonlySet<string>): string {
