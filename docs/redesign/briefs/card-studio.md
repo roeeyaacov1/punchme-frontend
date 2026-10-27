@@ -622,13 +622,17 @@ beside the studio (`StudioTray`), on the kit's motion tokens and its
 `useSheetDrag`. If step B finds the kit's `Sheet` should learn a
 non-modal mode instead, it asks first, as the earlier phases did.
 
-**From 1024px:** two columns, as the rule editor's. The trays become the
-page's working column on the start side, under the kit's `Tabs` ("צבעים ·
-החותמת · ההטבה · השמות · הלוגו · פרטי הארנק"). The card stands in a sticky
-22rem column on the end side with the sample, the reward sentence and the
-bar under it, so Save never leaves the screen. A tap on the card switches the
-tab. Between 768 and 1023 the phone's layout holds, its trays coming up from
-the bottom.
+**From 1024px:** the kit's `Tabs` ("צבעים · החותמת · ההטבה · השמות · הלוגו
+· פרטי הארנק") run across the whole studio, and under them two columns, as
+the rule editor's. The open tab's panel is the working column on the start
+side, with the bar at its foot, sticky to the bottom of the screen while a
+long tab scrolls under it, so Save never leaves the screen. The card stands
+in a sticky 22rem column on the end side with the sample and the reward
+sentence under it, held clear of the masthead until 1280px. A tap on the
+card switches the tab. Between 768 and 1023 the phone's layout holds, its
+trays coming up from the bottom. (Step D moved the tabs and the bar: in the
+working column the tabs wrapped onto two lines, and under the card the bar
+pushed the reward row down 121px as it arrived; §14.)
 
 ### 8.4 The trays
 
@@ -700,7 +704,7 @@ above as it is made. The controls are §8.9's shared set.
 ### 8.5 Saving, uploads and the draft
 
 **The bar.** One line and one coral button, docked above the phone bar on a
-phone (and at the foot of an open tray, and under the card from 1024px):
+phone (and at the foot of an open tray, and of the open tab from 1024px):
 - **its words:** "2 שינויים · עוד לא בכרטיסים של הלקוחות", counted by what
   changed (the reward, the stamps, the colours, the stamp, the texture, the
   names, the logo, a field, the language, the barcode), with Hebrew plurals;
@@ -708,8 +712,10 @@ phone (and at the foot of an open tray, and under the card from 1024px):
   which asks nothing, since the saved card is still there to return to;
 - **when it shows:** from the first change until the save lands, or a
   failure is cleared;
-- **the toast offset** rises by the bar's height while it is docked, as the
-  rule editor's does.
+- **the toasts** stand 8px above the bar while it is docked: the shell's
+  toast region takes a page's `--toast-above`, which the studio sets from
+  the bar's own height (step D; the rule editor never did this, as this
+  line used to say).
 
 **A save, in order:**
 1. "שמירה" goes busy (the kit's `Button`: same width, focus kept,
@@ -1331,3 +1337,106 @@ not a change to them. These notes win where they differ from §8 to §10.
 - **The critique snapshot** and the drawn layouts Roee chose from
   (`.impeccable/mocks/decision/card-studio-layouts.png`) are committed with
   these notes.
+
+## 14. Step D
+
+Hardened, polished and checked on 27 Oct on the local backend's demo data:
+Demo Coffee as its owner, its manager and its staff, Demo Barbershop on
+Free, and `/admin/catalog/cafe-classic` as PunchMe staff. It ran in a
+headless Chrome at 320, 375, 1024, 1280 and 1440px, in Hebrew and English,
+at 100% and 200% text, with and without reduced motion. The worst cases ran
+through a wrapper in that tab that answered every write itself, so nothing
+reached the demo card or the catalog.
+
+**The items carried over from parts 1 and 1b:**
+- **The cleared label** (Roee's yes): `fieldLabel` falls back to the
+  default only when the card has no such field, as the pass does.
+  `docs/card-studio.md` records it beside the `StampGrid` correction.
+- **The bar from 1024px** stands at the foot of the open tab and pushes
+  nothing; **the tabs** run across the studio and hold one line from
+  1024px in either language, the catalog's seven too (§8.3).
+- **A tray that grows** (the bar arriving in its foot) brings the card's
+  part back above its edge, if it was in view.
+- **The leaving bar** is `inert`, wherever it stands.
+- **The toasts** stand above the docked bar: made so, not dropped from the
+  brief (§8.5). It took one class in the shell's toast region,
+  `--toast-above`, which no other page sets, so theirs are unchanged.
+- **`/admin/catalog/new`** reached from an existing look starts empty: the
+  editor is keyed by the look's id.
+- **Closing the tab from another page: decided not to ask.** The draft
+  stays in the tab when the owner leaves the studio, and the leave prompt
+  lives on the studio alone. Asked from Scan or Customers, it would be the
+  browser's own wordless "Leave site?", about edits the page in front of
+  the owner doesn't show, at the counter, where a tab is closed often. On a
+  phone, where the dashboard runs installed, closing it raises no prompt
+  anyway. So closing the tab elsewhere loses kept edits without asking;
+  coming back while the tab lives says they're there.
+- **A field's alignment across a card language switch:** the pass keeps
+  the side (LEFT, RIGHT, CENTER or NATURAL), and switching the card's
+  language changes nothing stored. The choice is renamed: a left field is
+  "סוף" on a Hebrew card and "התחלה" on an English one, and its icon keeps
+  the side, so it still matches the pass. A line under the choice now says
+  which side start is on this card.
+- **StudioTray's doc comment** wraps again.
+
+**Also fixed:**
+- the reward row cuts a long reward at a word (a 200-character one ran to
+  seven lines), and the counter says "לא נשארו תווים" at zero;
+- a field the wallet refuses is named as Wallet details names it, not by
+  its place ("שדה 4");
+- a field of the owner's own words follows the page's direction while
+  empty: `dir="auto"` reads an empty field as left to right, so in Hebrew
+  its placeholder and caret started at the left edge;
+- a cleared face label says nothing will show above it;
+- Discard, Save and "לכתוב שם את ההטבה" wrap at 200% text;
+- the loading skeleton takes the studio's shape from 1024px;
+- the catalog says when a saved look is unpublished, which no owner sees,
+  and keeps its id under its title.
+
+**Checked and holding:**
+- the plurals: "חותמת אחת", "שתי חותמות", "בלי חותמות", "שינוי אחד", "שני
+  שינויים";
+- every save failure (offline, the schema's 422, the design's 422, 500,
+  429) and upload failure (422, 503, offline) said under Save, with focus
+  kept there, and the design's 422 opening its field;
+- a read that fails or is made offline, and the loading state;
+- nothing sideways at 320px; the keyboard path; reduced motion; the
+  console;
+- the manager and the owner on Pro, the owner on Free, staff on the role
+  panel, and the catalog as PunchMe staff.
+
+**The detector:** the file scan finds no anti-patterns, and its seven
+advisories are inside the frozen previews. The live scan names Lightbox's
+Warm Wall as a cream page and the kit's `WallpaperStage` as a radial halo,
+both chosen in DESIGN.md, and on the catalog `AdminLayout`'s "Staff" badge
+at 2.7:1 (Phase 10, §12).
+
+**Found and left:**
+- **The phone bar at 200% text** is wider than a 375px screen (433px in
+  English), so every dashboard page scrolls sideways there: the shell's,
+  Phase 2.
+- **The rule editor's and the composer's card columns** stick at 32px,
+  under the 56px masthead, between 1024 and 1279px: Phase 6's pages, the
+  same fix as the studio's.
+- **The masthead's `Identity`** reads the templates on every dashboard
+  page, so staff on the role panel still make that one call; the studio
+  itself makes none.
+- **The reward field is one line,** so a long reward scrolls sideways as
+  it's typed. A field of two lines is for Phase 4 to decide, since
+  onboarding will share it.
+- From parts 1 and 1b, still known: a save that stops before its PATCH
+  still waits from the design read, and a sync already running when a save
+  lands can finish without that save's edits.
+
+**On a real phone,** installed, in Hebrew, beside §10's list:
+1. **A long press on the card:** no words selected, no picture callout, and
+   a tap on the stamps, the names or the logo still opens its tray.
+2. **The keyboard over a tray:** open Names and tap the card's name. The
+   field stays above the keyboard, the tray doesn't jump, and closing the
+   keyboard brings the tray back to its height with Save at its foot.
+3. **Quick double taps on +:** each tap lands one stamp, the page never
+   zooms, and no stamp is left mid-landing.
+4. **The tray's edge in iOS Safari** (in the browser, not installed): open
+   the reward tray, change the reward so the bar arrives at its foot, and
+   scroll a little. The stamps stay above the edge, and Safari's toolbar
+   coming and going leaves no gap under the tray.
