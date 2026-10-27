@@ -8,6 +8,7 @@ import { readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
   nameMissing,
+  readDesign,
   TEXT_LIMITS,
   type CardStudioImages,
   type CardStudioValue,
@@ -96,7 +97,7 @@ export function AdminCatalogEditPage() {
           background_color: entry.background_color ?? "#FFFFFF",
           foreground_color: entry.foreground_color ?? "#000000",
           label_color: entry.label_color ?? "#000000",
-          design: (entry.design ?? {}) as CardStudioValue["design"],
+          design: readDesign((entry.design ?? {}) as CardStudioValue["design"]),
         };
         const loaded = {
           niche: entry.niche ?? "cafe",

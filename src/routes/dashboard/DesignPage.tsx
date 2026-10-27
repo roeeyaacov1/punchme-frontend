@@ -8,6 +8,7 @@ import {
   changesBetween,
   HELD_ORDER,
   nameMissing,
+  readDesign,
   rebaseEdits,
   sameCard,
   withoutSent,
@@ -64,8 +65,9 @@ function toStudioValue(template: CardTemplate, design: DesignOut): CardStudioVal
     foreground_color: template.foreground_color ?? "#000000",
     label_color: template.label_color ?? "#000000",
     // The effective design (defaults filled in), so Wallet details shows
-    // the card's real fields, not an empty doc.
-    design: design.design,
+    // the card's real fields, not an empty doc; fields that share a binding
+    // are mended here, so the next Save mends the card.
+    design: readDesign(design.design),
   };
 }
 

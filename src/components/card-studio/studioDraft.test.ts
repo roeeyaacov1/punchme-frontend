@@ -7,6 +7,7 @@ import {
   faceLabelFull,
   kindOf,
   nameMissing,
+  readDesign,
   newField,
   nextCustomBinding,
   rebaseEdits,
@@ -16,6 +17,7 @@ import {
   withBackground,
   withFaceLabel,
   withoutSent,
+  withUniqueBindings,
   withReward,
   withRewardOnBack,
   type CardStudioValue,
@@ -126,6 +128,39 @@ describe("bindings", () => {
     expect(addableKinds(FIELDS)).toEqual(["members.tier.name", "meta.custom"]);
     const ten = Array.from({ length: 10 }, (_, i) => ({ binding: `meta.custom_${i + 2}` }));
     expect(addableKinds(ten)).toEqual([]);
+  });
+});
+
+describe("withUniqueBindings", () => {
+  it("leaves a card whose fields each show their own thing as it is", () => {
+    expect(withUniqueBindings(FIELDS)).toBe(FIELDS);
+  });
+
+  it("gives each repeated free-text field a binding of its own, words and all", () => {
+    const repeated = [
+      { binding: "meta.custom", label: "שעות", default_value: "א-ה 8-20" },
+      { binding: "meta.custom", label: "כתובת", default_value: "סוקולוב 12" },
+      { binding: "meta.custom_2", label: "טלפון" },
+      { binding: "meta.custom", label: "אתר" },
+    ];
+    expect(withUniqueBindings(repeated)).toEqual([
+      repeated[0],
+      { ...repeated[1], binding: "meta.custom_3" },
+      repeated[2],
+      { ...repeated[3], binding: "meta.custom_4" },
+    ]);
+  });
+
+  it("mends a design as it is read, and leaves one without fields alone", () => {
+    const design = { pattern: "dots" as const, fields: [FIELDS[0], { ...FIELDS[0], label: "שם הלקוח" }] };
+    expect(readDesign(design)).toEqual({ pattern: "dots", fields: [FIELDS[0]] });
+    const bare = { pattern: "dots" as const };
+    expect(readDesign(bare)).toBe(bare);
+  });
+
+  it("keeps the first of a kind the card shows once, since the rest show the same", () => {
+    const twice = [FIELDS[0], FIELDS[2], { ...FIELDS[0], label: "שם הלקוח" }];
+    expect(withUniqueBindings(twice)).toEqual([FIELDS[0], FIELDS[2]]);
   });
 });
 
