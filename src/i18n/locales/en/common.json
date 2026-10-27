@@ -587,18 +587,15 @@
     }
   },
   "enroll": {
-    "title": "Join {{businessName}}'s loyalty card",
-    "genericTitle": "Join this loyalty card",
-    "nameLabel": "Your name (optional)",
-    "phoneLabel": "Phone number (optional)",
-    "phoneRequiredLabel": "Mobile phone number",
+    "nameLabel": "Name (optional)",
+    "phoneRequiredLabel": "Mobile number",
     "birthdayLabel": "Birthday (optional)",
-    "birthdayHint": "Used only for a birthday treat. You can join without it.",
+    "birthdayHint": "Only for a birthday treat. You can join without it.",
     "marketingOptIn": "I agree to receive marketing messages and updates from this business, including club benefits, by SMS and as alerts on my wallet card. You can withdraw consent at any time.",
     "privacySummary": "How is my data handled? (privacy notice)",
     "privacyNotice": "Providing your details is not required by law and is entirely voluntary; without them we cannot enroll you in the club and issue your loyalty card. The details you provide (name, mobile number, and birthday — if you chose to share it) are stored in this business's customer database (the data controller) and processed on its behalf by PunchMe, the digital loyalty-card service, for managing the club, awarding stamps and rewards, and issuing a card to your digital wallet (Apple Wallet / Google Wallet) via wallet infrastructure providers. Your data is not shared with other third parties except as required by law.\n\nYou have the right to access data about you, to request correction or deletion of data that is inaccurate, incomplete, or outdated (sections 13–14 of the Israeli Privacy Protection Law, 1981), and to demand in writing deletion from the direct-mailing database (section 17F).",
     "sendCodeCta": "Send SMS verification code",
-    "codeTitle": "Enter the verification code",
+    "codeTitle": "Enter the code",
     "codeSentTo": "We sent a 6-digit code to {{phone}}",
     "codeLabel": "Verification code",
     "verifyCta": "Verify & join",
@@ -611,12 +608,53 @@
     "genericError": "Something went wrong. Please try again in a moment.",
     "submit": "Add to my wallet",
     "notFound": "This loyalty card isn't available anymore",
-    "upgradeRequired": "This business isn't accepting new customers right now",
+    "upgradeRequired": "This shop isn't taking new members yet.",
     "successTitle": "Your card is ready! Add it to your wallet",
     "successEyebrow": "You're in at {{businessName}}",
     "scanMeanwhile": "No need to wait — staff can scan the code above right now.",
     "statusTitle": "Your card",
-    "alreadyMemberTitle": "You already have a card here — here it is"
+    "alreadyMemberTitle": "You already have a card here — here it is",
+    "pageTitle": "Join the card",
+    "pageTitleCard": "Your card at {{business}}",
+    "phoneMissing": "A mobile number is needed to join.",
+    "nameHint": "It's how the card will show it.",
+    "offline": "No connection. Check the network and try again.",
+    "sign": {
+      "heading": "Your loyalty card, in your phone's wallet",
+      "line": "A stamp every visit, and a reward when the card is full.",
+      "cost": "Just your mobile number and an SMS code.",
+      "costNoCode": "Just your mobile number.",
+      "join": "Join"
+    },
+    "dead": {
+      "title": "This code no longer leads to a card",
+      "body": "Ask the shop for its current code."
+    },
+    "form": {
+      "heading": "Join the card",
+      "codeNote": "We'll text a 6-digit code to this number."
+    },
+    "code": {
+      "sentTo": "We sent a 6-digit code to <phone>{{phone}}</phone>",
+      "resendIn_one": "You can send another in {{count}} second",
+      "resendIn_other": "You can send another in {{count}} seconds"
+    },
+    "card": {
+      "titleNew": "You're in at <shop>{{business}}</shop>",
+      "titleReturning": "Your card at <shop>{{business}}</shop>",
+      "lineNew_one": "<n>{{count}}</n> stamp, then <reward>{{reward}}</reward>. Show the card at the counter every visit.",
+      "lineNew_other": "<n>{{count}}</n> stamps, then <reward>{{reward}}</reward>. Show the card at the counter every visit.",
+      "lineHave_one": "You have <n>{{have}}</n> of <n>{{count}}</n> stamp. <n>{{left}}</n> more to the reward: <reward>{{reward}}</reward>.",
+      "lineHave_other": "You have <n>{{have}}</n> of <n>{{count}}</n> stamps. <n>{{left}}</n> more to the reward: <reward>{{reward}}</reward>.",
+      "lineFull": "Your card is full: <reward>{{reward}}</reward> is waiting at the counter.",
+      "toStatus": "If the pass goes missing from your wallet, it's always here"
+    },
+    "wallet": {
+      "waiting": "Getting your pass ready. The button will be here in a moment.",
+      "meanwhile": "Meanwhile the code on the card already works at the counter.",
+      "ready": "Your pass is ready",
+      "slow": "This is taking longer than usual. The code on the card works without the wallet too."
+    }
   },
   "standee": {
     "title": "Print signage",
