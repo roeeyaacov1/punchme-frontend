@@ -486,6 +486,7 @@ export function CardStudio({
         onClose={close}
         onHeight={setTrayHeight}
         foot={barDrawn ? <div className={light}>{studioBar}</div> : undefined}
+        footLeaving={barPhase === "leaving"}
       >
         {body(tray ?? shownTray)}
       </StudioTray>
