@@ -1169,3 +1169,62 @@ Outside the redesign, unchanged: the shop's face and its flag (§10.1),
 "Member" on the real pass (§10.2), a `code` on each 401, password recovery
 (§10.4). §11's `src/auth` line is done (above). Three test files are new
 (`authErrors`, `joinRules`, `wallet`): the suite is 39 files and 451 tests.
+
+**After step C** (27 Oct, for step D). §7.13 built in three commits,
+`6c02daa` to `546ebca`, and the phone layouts in three more, `ae30ed8` to
+`923a4ef`. `/find-animation-opportunities` kept §7.13's list and added
+nothing to it. It rejected the sign lighting on at page load, the stamp
+screen's card coming back after the answer, the wallet button replacing
+its skeleton, a shake on a wrong code, and `/login`'s and `/invite`'s
+swaps. Every change was checked in headless Chrome over CDP, in Hebrew
+and English at 375 and 1280 and at 320 where the pass stands, with
+reduced motion off and on, reading `document.getAnimations()`. Roee
+approved the plan and its departures; where step C departed from the
+brief:
+- **The join's steps** (§7.13's "the sign giving way to the form") all
+  arrive the same way, not only the first. Going forward (sign to form,
+  form to code), the new step comes in from the end edge; going back
+  ("Edit number", a refused phone, the sign coming back holding an
+  answer), from the start edge. Each step is lights on, 240ms, 8px,
+  mirrored through `--kit-dir`; with reduced motion, a 150ms fade. The
+  friend's join's band moved into `JoinSteps`, so it arrives once with
+  the form and holds still under the code. `stepDirection` in
+  `joinRules.ts` is tested.
+- **The activation** warms smoothly, not with the shop sign's tube catch:
+  - the stage stands unlit, as the wall with a hairline edge, and its light
+    comes up behind the pass over 600ms, linear;
+  - the pass's slot settles 8px on the ease-out, with no beat before it;
+  - the words and the wallet's place come up in 240ms where they stand.
+  The wall is held in `--unlit` outside the stage, where `.theme-lit`
+  makes `background` the lit panel's colour.
+- **`/c`'s pass** is `LitPanel`'s own `arrive`, after the skeleton.
+- **The stamp screen and the waits** needed nothing: Scan's snap (flash
+  220ms, settle 180ms, the stamp 240ms after 60ms) and its stand-ins
+  (a 0.3 glow, a 150ms fade, the stamp at its size) play as they do on
+  Scan, and the skeleton breathes and holds still under reduced motion.
+  No looping animation sits on text.
+- **The phone:**
+  - the tap highlight is off for the whole frame, so the ink links and the
+    notice's row no longer flash; the row and the top bar's mark gained a
+    press of their own;
+  - a long press selects no button's words;
+  - the frame is `min-h-svh`, not §7.2's `dvh`, so a centred sign holds
+    still while the address bar slides away;
+  - the code field's return key says "done".
+
+  The fields were already 16px, with the right keyboards, and the pages
+  stay letterboxed in the wall rather than under the notch.
+- **No real writes.** Every join, code, stamp and redeem was answered by
+  a wrapped `fetch`. The signed-out `/p` loads were wrapped too, so no
+  referral click was recorded. The stamp screen ran signed in as the
+  demo staff. The step-B test card reads 5/8 now (it was 1/8); none of
+  those stamps came from step C.
+
+Left for a phone: the tap flash and the long press, the sign holding
+still as the bar slides, the code key's label and the SMS code's
+suggestion. Desktop Chrome reports no tap highlight by default and has
+no address bar, so none of them shows there.
+
+Left for step D, unchanged: the Referrals settings' picture of the
+friend's join, the sample name on a nameless pass, and the service worker
+on a production build. The suite is 39 files and 454 tests.
