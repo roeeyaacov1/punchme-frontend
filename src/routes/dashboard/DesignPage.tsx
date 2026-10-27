@@ -337,13 +337,14 @@ export function DesignPage() {
     };
     // A save that stops after a picture went: that picture is on customers'
     // cards, so wait for its sync, and read the design again, once, so the
-    // studio knows which pictures are there.
-    const stopPartWay = () => {
+    // studio knows which pictures are there. The save isn't over until the
+    // read settles: the pictures that went are held until then, and a second
+    // press meanwhile would send them again.
+    const stopPartWay = async () => {
       if (sent.length === 0) return;
       waitForSync();
-      const letGo = () =>
-        setHeld((current) => sent.reduce((rest, [use, dataUrl]) => withoutSent(rest, use, dataUrl), current));
-      void queryClient.refetchQueries({ queryKey: ["design", templateId], exact: true }).finally(letGo);
+      await queryClient.refetchQueries({ queryKey: ["design", templateId], exact: true });
+      setHeld((current) => sent.reduce((rest, [use, dataUrl]) => withoutSent(rest, use, dataUrl), current));
     };
     // The held pictures first, so one that is refused stops the save before
     // anything else reaches customers' cards.
@@ -367,7 +368,7 @@ export function DesignPage() {
         }
       } catch (error) {
         setFailure({ problem: uploadProblem(use, error), partial: sent.length > 0 });
-        stopPartWay();
+        await stopPartWay();
         setSaving(false);
         return;
       }
@@ -397,7 +398,7 @@ export function DesignPage() {
         setTray("wallet");
         setEditingField(problem.fieldIndex);
       }
-      stopPartWay();
+      await stopPartWay();
       setSaving(false);
       return;
     }
