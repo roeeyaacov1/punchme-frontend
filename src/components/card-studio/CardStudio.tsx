@@ -71,6 +71,63 @@ function topClearance(): number {
   return (main ? parseFloat(getComputedStyle(main).scrollMarginTop) || 0 : 0) + 8;
 }
 
+/** The bar's light comes up in 240ms and goes out in 180ms; 150ms either
+ * way with reduced motion. */
+const BAR_IN_MS = 240;
+const BAR_OUT_MS = 180;
+const GENTLE_MS = 150;
+
+type BarPhase = "still" | "arriving" | "leaving";
+
+/**
+ * When the save bar comes and goes. It arrives when a hand's first change
+ * brings it, never with the page or a draft kept from an earlier visit, and
+ * leaves when a save or a discard takes it, still saying what it said.
+ * Moving between the dock and a tray's foot is neither.
+ */
+function useBarPresence(bar: StudioBarProps, reduced: boolean) {
+  const shown = bar.changes > 0 || !!bar.problem || !!bar.stale;
+  const [was, setWas] = useState(shown);
+  const [phase, setPhase] = useState<BarPhase>("still");
+  // Followed while rendering, not in an effect, so the bar starts to come
+  // or go in the very frame it changes.
+  if (shown !== was) {
+    setWas(shown);
+    setPhase(shown ? "arriving" : "leaving");
+  }
+  // What it said the last time it was shown, to say as it leaves.
+  const last = useRef(bar);
+  useEffect(() => {
+    if (shown) last.current = bar;
+  });
+  useEffect(() => {
+    if (phase === "still") return;
+    const ms = reduced ? GENTLE_MS : phase === "arriving" ? BAR_IN_MS : BAR_OUT_MS;
+    const id = window.setTimeout(() => setPhase("still"), ms);
+    return () => window.clearTimeout(id);
+  }, [phase, reduced]);
+  return { drawn: shown || phase === "leaving", props: shown ? bar : last.current, phase };
+}
+
+/**
+ * The bar arriving by light, up 8px on the ease-out, and leaving as a fade,
+ * no longer pressable; with reduced motion, the fade alone. Transitions, not
+ * keyframes: the next change can turn it round halfway.
+ */
+function barLight(phase: BarPhase, reduced: boolean): string | undefined {
+  if (phase === "still") return undefined;
+  const arriving = phase === "arriving";
+  if (reduced) {
+    return cn(
+      "transition-opacity duration-gentle ease-out",
+      arriving ? "[@starting-style]:opacity-0" : "pointer-events-none opacity-0",
+    );
+  }
+  return arriving
+    ? "transition-[opacity,transform] duration-lights ease-out-strong [@starting-style]:translate-y-2 [@starting-style]:opacity-0"
+    : "pointer-events-none opacity-0 transition-[opacity,transform] duration-exit ease-out";
+}
+
 export interface CardStudioProps {
   value: CardStudioValue;
   onChange: (next: CardStudioValue) => void;
@@ -284,8 +341,9 @@ export function CardStudio({
     }
   };
 
-  const barShown = bar.changes > 0 || !!bar.problem || !!bar.stale;
-  const studioBar = <StudioBar ref={saveRef} {...bar} />;
+  const { drawn: barDrawn, props: barProps, phase: barPhase } = useBarPresence(bar, reduced);
+  const light = barLight(barPhase, reduced);
+  const studioBar = <StudioBar ref={saveRef} {...barProps} />;
 
   const sampleRow = (
     <div className="flex items-center justify-center gap-3">
@@ -385,7 +443,9 @@ export function CardStudio({
         <aside className="flex flex-col gap-4 lg:sticky lg:top-8">
           {stageView}
           {sampleRow}
-          {barShown && <div className="rounded-panel border border-border bg-surface p-4 shadow-panel">{studioBar}</div>}
+          {barDrawn && (
+            <div className={cn("rounded-panel border border-border bg-surface p-4 shadow-panel", light)}>{studioBar}</div>
+          )}
           {rewardRow}
           {foot}
         </aside>
@@ -424,16 +484,21 @@ export function CardStudio({
         trayKey={tray ?? shownTray ?? ""}
         onClose={close}
         onHeight={setTrayHeight}
-        foot={barShown ? studioBar : undefined}
+        foot={barDrawn ? <div className={light}>{studioBar}</div> : undefined}
       >
         {body(tray ?? shownTray)}
       </StudioTray>
 
-      {!tray && barShown && (
+      {!tray && barDrawn && (
         <>
           {/* Above the phone bar; its foot runs under the Scan circle that
               stands out of it. From 768px there is no phone bar. */}
-          <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t border-border bg-surface px-4 pb-7 pt-3 md:bottom-0 md:pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <div
+            className={cn(
+              "fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t border-border bg-surface px-4 pb-7 pt-3 md:bottom-0 md:pb-[max(0.75rem,env(safe-area-inset-bottom))]",
+              light,
+            )}
+          >
             <div className="mx-auto max-w-2xl">{studioBar}</div>
           </div>
           <div aria-hidden className="h-36" />
