@@ -607,7 +607,6 @@
     "phoneInvalid": "That doesn't look like a valid Israeli mobile number",
     "genericError": "Something went wrong. Please try again in a moment.",
     "submit": "Add to my wallet",
-    "notFound": "This loyalty card isn't available anymore",
     "upgradeRequired": "This shop isn't taking new members yet.",
     "successTitle": "Your card is ready! Add it to your wallet",
     "successEyebrow": "You're in at {{businessName}}",
@@ -654,6 +653,12 @@
       "meanwhile": "Meanwhile the code on the card already works at the counter.",
       "ready": "Your pass is ready",
       "slow": "This is taking longer than usual. The code on the card works without the wallet too."
+    },
+    "status": {
+      "pageTitle": "Your card",
+      "notFoundTitle": "This link doesn't lead to a card",
+      "notFoundBody": "Scan the sign at the counter and join with the same mobile number: if your card still exists, it comes back with its stamps.",
+      "failedTitle": "We couldn't load the card"
     }
   },
   "standee": {
