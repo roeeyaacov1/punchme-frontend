@@ -18,6 +18,7 @@ import {
 } from "../../components/card-studio/studioDraft";
 import {
   ART_USES,
+  artOnCard,
   bothLandedSince,
   laterSync,
   newerRead,
@@ -26,6 +27,7 @@ import {
   settleWithin,
   syncMovedPast,
   type ArtCopies,
+  type ArtSent,
   type ArtUse,
   type ReadStamp,
 } from "../../components/card-studio/studioReads";
@@ -124,6 +126,7 @@ export function DesignPage() {
   const [tray, setTray] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<number | null>(null);
   const [uploaded, setUploaded] = useState<ArtCopies>({});
+  const [artSent, setArtSent] = useState<ArtSent>({});
   const [ownerCard, setOwnerCard] = useState<EnrollOut | null>(null);
   const [syncWait, setSyncWait] = useState<SyncWait | null>(null);
 
@@ -252,6 +255,12 @@ export function DesignPage() {
       cancelled = true;
     };
   }, [debouncedDraft, businessId, templateId]);
+  // Its latest answer, for a save that starts again from what it sent: one
+  // can land while the save runs.
+  const latestLint = useRef(lint);
+  useEffect(() => {
+    latestLint.current = lint;
+  }, [lint]);
 
   // The owner's own pass, issued asynchronously: polled until its URL lands.
   useEffect(() => {
@@ -362,6 +371,7 @@ export function DesignPage() {
           const copy = answer.url || dataUrl;
           keepUploaded(businessId, templateId, use, copy);
           setUploaded((current) => ({ ...current, [use]: copy }));
+          setArtSent((current) => ({ ...current, [use]: Date.now() }));
         }
         // Off the tab's copy at once, even if the page was left meanwhile,
         // so a picture that reached customers' cards is never sent twice.
@@ -415,7 +425,7 @@ export function DesignPage() {
     // stamped newer than both, and the next good pair of reads takes over.
     const after = await readCard();
     if (after) reseed(after.value, after.lint, after.at);
-    else reseed(sentValue, lint, { templates: Date.now(), design: Date.now() });
+    else reseed(sentValue, latestLint.current, { templates: Date.now(), design: Date.now() });
     setSaving(false);
     toast.show({ tone: "ok", title: t("studio.saved") });
     heading.current?.focus();
@@ -463,8 +473,11 @@ export function DesignPage() {
   const design = designQuery.data;
   const reading = readLint(lint);
   const sync = design.sync;
-  const savedPicture = design.assets.includes("stamp_art");
-  const art = publishedArt(design.assets, uploaded);
+  // Art just sent is on the card until a read says otherwise, even when the
+  // re-read after the save failed.
+  const assets = artOnCard(design.assets, designAt, artSent);
+  const savedPicture = assets.includes("stamp_art");
+  const art = publishedArt(assets, uploaded);
   const pictureName = failure?.problem.picture ? t(`studio.pictures.${failure.problem.picture}`) : "";
 
   const problem = failure && (
@@ -525,7 +538,7 @@ export function DesignPage() {
         businessName={business.name}
         niche={business.niche}
         images={{ ...designImageUrls(design), ...art }}
-        assets={design.assets}
+        assets={assets}
         notKept={notKept}
         held={held}
         onHold={hold}

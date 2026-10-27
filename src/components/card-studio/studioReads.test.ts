@@ -1,5 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { bothLandedSince, laterSync, newerRead, publishedArt, settleWithin, syncMovedPast } from "./studioReads";
+import {
+  artOnCard,
+  bothLandedSince,
+  laterSync,
+  newerRead,
+  publishedArt,
+  settleWithin,
+  syncMovedPast,
+} from "./studioReads";
 
 describe("publishedArt", () => {
   it("draws this device's copy of each picture the design read says is on the card", () => {
@@ -15,6 +23,28 @@ describe("publishedArt", () => {
 
   it("has nothing to draw for a picture sent from another device", () => {
     expect(publishedArt(["unstamped_art"], {})).toEqual({});
+  });
+});
+
+describe("artOnCard", () => {
+  it("counts art sent since the read landed, which the read can't name yet", () => {
+    // The re-read after the save failed: the read is from before it.
+    expect(artOnCard([], 1000, { stamp_art: 2000 })).toEqual(["stamp_art"]);
+    expect(artOnCard(["stamped_art"], 1000, { stamp_art: 2000, unstamped_art: 2000 })).toEqual([
+      "stamped_art",
+      "stamp_art",
+      "unstamped_art",
+    ]);
+  });
+
+  it("lets a read that landed after the art say for itself", () => {
+    expect(artOnCard([], 3000, { stamp_art: 2000 })).toEqual([]);
+    expect(artOnCard(["stamp_art"], 3000, { stamp_art: 2000 })).toEqual(["stamp_art"]);
+  });
+
+  it("is the read as it is when nothing was sent", () => {
+    const assets = ["stamp_art"];
+    expect(artOnCard(assets, 1000, {})).toBe(assets);
   });
 });
 
