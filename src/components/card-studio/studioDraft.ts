@@ -182,6 +182,20 @@ export function newField(kind: FieldKind, fields: readonly DesignField[]): Desig
   };
 }
 
+/** The field an open editor holds, followed by its binding when the fields
+ * change under it (a fresher card read in): where it is now, or null if it
+ * went. */
+export function followField(
+  before: readonly DesignField[] | undefined,
+  after: readonly DesignField[] | undefined,
+  index: number | null,
+): number | null {
+  const binding = index === null ? undefined : before?.[index]?.binding;
+  if (binding === undefined) return null;
+  const next = (after ?? []).findIndex((field) => field.binding === binding);
+  return next === -1 ? null : next;
+}
+
 /** The label a face field carries, or "" for the default. */
 export function faceLabel(fields: readonly DesignField[], binding: string): string {
   return fields.find((field) => field.binding === binding)?.label ?? "";
