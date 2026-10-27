@@ -17,6 +17,7 @@ import {
   MAX_FIELDS,
   TEXT_LIMITS,
   addableKinds,
+  fieldsOver,
   kindOf,
   newField,
   nextCustomBinding,
@@ -109,6 +110,7 @@ export function WalletDetailsTray({
   }
 
   const addable = addableKinds(fields);
+  const over = fieldsOver(value);
   return (
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-2" aria-labelledby="studio-fields-heading">
@@ -147,7 +149,15 @@ export function WalletDetailsTray({
             {t("studio.fields.add")}
           </Button>
         )}
-        {fields.length >= MAX_FIELDS && <p className="text-sm text-ink-muted">{t("studio.fields.full", { count: MAX_FIELDS })}</p>}
+        {over > 0 ? (
+          // Fields added elsewhere, read in on top of the owner's: said before Save.
+          <p className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-ink">
+            <TriangleAlert aria-hidden className="mt-px size-4 shrink-0 text-warn" />
+            <span>{t("studio.fields.over", { count: over, total: fields.length, max: MAX_FIELDS })}</span>
+          </p>
+        ) : (
+          fields.length >= MAX_FIELDS && <p className="text-sm text-ink-muted">{t("studio.fields.full", { count: MAX_FIELDS })}</p>
+        )}
       </section>
 
       <Select

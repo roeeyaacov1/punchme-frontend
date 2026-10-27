@@ -175,6 +175,8 @@
       "title": "The fields on the card",
       "full_one": "A card holds up to {{count}} field.",
       "full_other": "A card holds up to {{count}} fields.",
+      "over_one": "Fields added elsewhere bring the card to {{total}}, and it holds {{max}}. Remove one before you save.",
+      "over_other": "Fields added elsewhere bring the card to {{total}}, and it holds {{max}}. Remove {{count}} before you save.",
       "all": "All fields",
       "shows": "What it shows",
       "place": "Where it sits on Apple Wallet",
@@ -262,7 +264,9 @@
       "offline": "We didn't send {{picture}}: there's no connection. Check the network and try again.",
       "notSent": "We didn't send {{picture}}.",
       "partial": "A picture already went to customers' cards. The rest wasn't saved.",
-      "noName": "The card needs a name before it can be saved."
+      "noName": "The card needs a name before it can be saved.",
+      "over_one": "The card holds {{max}} fields and has {{total}}. Remove one in Wallet details, then save.",
+      "over_other": "The card holds {{max}} fields and has {{total}}. Remove {{count}} in Wallet details, then save."
     },
     "check": {
       "field": "The {{label}} field won't show on Google Wallet.",

@@ -69,6 +69,12 @@ export function nameMissing(value: CardStudioValue): boolean {
 /** At most this many fields; at least one, which the API requires. */
 export const MAX_FIELDS = 10;
 
+/** How many fields past the most the API takes: ones added elsewhere, read
+ * in on top of the owner's own, can take a card past it. */
+export function fieldsOver(value: CardStudioValue): number {
+  return Math.max(0, (value.design.fields?.length ?? 0) - MAX_FIELDS);
+}
+
 /** The back field that carries the reward to the pass. */
 export const BACK_BINDING = "universal.info";
 

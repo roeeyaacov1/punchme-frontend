@@ -5,6 +5,7 @@ import {
   backState,
   changesBetween,
   faceLabelFull,
+  fieldsOver,
   kindOf,
   nameMissing,
   readDesign,
@@ -423,6 +424,17 @@ describe("rebaseEdits", () => {
     const draft = { ...SAVED, design: { ...SAVED.design, fields: [...FIELDS, ours] } };
     const fresh = { ...SAVED, design: { ...SAVED.design, fields: [...FIELDS, theirs] } };
     expect(rebaseEdits(SAVED, draft, fresh).design.fields).toEqual([...FIELDS, ours]);
+  });
+
+  it("can bring in fields past the ten the API takes, and says how many", () => {
+    const nine = [...FIELDS, ...Array.from({ length: 6 }, (_, i) => ({ binding: `meta.custom_${i + 2}` }))];
+    const base = { ...SAVED, design: { ...SAVED.design, fields: nine } };
+    const draft = { ...base, design: { ...base.design, fields: [...nine, { binding: "members.tier.name" }] } };
+    const fresh = { ...base, design: { ...base.design, fields: [...nine, { binding: "meta.custom", label: "כתובת" }] } };
+    expect(fieldsOver(draft)).toBe(0);
+    const rebased = rebaseEdits(base, draft, fresh);
+    expect(rebased.design.fields).toHaveLength(11);
+    expect(fieldsOver(rebased)).toBe(1);
   });
 
   it("keeps a field the owner changed even where the fresh card dropped it", () => {
