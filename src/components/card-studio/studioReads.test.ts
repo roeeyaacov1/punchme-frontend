@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { bothLandedSince, laterSync, newerRead, publishedArt, syncMovedPast } from "./studioReads";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { bothLandedSince, laterSync, newerRead, publishedArt, settleWithin, syncMovedPast } from "./studioReads";
 
 describe("publishedArt", () => {
   it("draws this device's copy of each picture the design read says is on the card", () => {
@@ -87,5 +87,37 @@ describe("newerRead", () => {
     // Started from what Save sent, after a re-read that failed: both reads
     // have to land again before either takes over.
     expect(newerRead({ templates: 5000, design: 5000 }, { templates: 6000, design: 1000 })).toBe(false);
+  });
+});
+
+describe("settleWithin", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const settled = (promise: Promise<void>) => {
+    let done = false;
+    void promise.then(() => (done = true));
+    return () => done;
+  };
+
+  it("is over as soon as the work is", async () => {
+    vi.useFakeTimers();
+    const isDone = settled(settleWithin(Promise.resolve(), 10_000));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(isDone()).toBe(true);
+  });
+
+  it("is over at the limit when the work never answers", async () => {
+    vi.useFakeTimers();
+    const isDone = settled(settleWithin(new Promise(() => {}), 10_000));
+    await vi.advanceTimersByTimeAsync(9_999);
+    expect(isDone()).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(isDone()).toBe(true);
+  });
+
+  it("doesn't throw when the work fails", async () => {
+    await expect(settleWithin(Promise.reject(new Error("offline")), 10_000)).resolves.toBeUndefined();
   });
 });

@@ -22,6 +22,8 @@ import {
   laterSync,
   newerRead,
   publishedArt,
+  READ_LIMIT_MS,
+  settleWithin,
   syncMovedPast,
   type ArtCopies,
   type ArtUse,
@@ -296,14 +298,15 @@ export function DesignPage() {
 
   /** Read the card again, as the page loads it: the template list and the
    * design. The card they make, if both landed since they were asked for;
-   * neither call throws, and a read that failed, or one made offline, keeps
-   * the time of the one before. */
+   * neither call throws, and a read that failed, one made offline, or one
+   * still out when the limit passes keeps the time of the one before. */
   async function readCard(): Promise<{ value: CardStudioValue; lint: string[]; at: ReadStamp } | null> {
     const asked = Date.now();
-    await Promise.all([
+    const reads = Promise.all([
       queryClient.invalidateQueries({ queryKey: ["templates", businessId] }),
       queryClient.refetchQueries({ queryKey: ["design", templateId], exact: true }),
     ]);
+    await settleWithin(reads, READ_LIMIT_MS);
     const templatesRead = queryClient.getQueryState<CardTemplate[]>(["templates", businessId]);
     const designRead = queryClient.getQueryState<DesignOut>(["design", templateId]);
     const freshTemplate = templatesRead?.data?.[0];
@@ -343,7 +346,7 @@ export function DesignPage() {
     const stopPartWay = async () => {
       if (sent.length === 0) return;
       waitForSync();
-      await queryClient.refetchQueries({ queryKey: ["design", templateId], exact: true });
+      await settleWithin(queryClient.refetchQueries({ queryKey: ["design", templateId], exact: true }), READ_LIMIT_MS);
       setHeld((current) => sent.reduce((rest, [use, dataUrl]) => withoutSent(rest, use, dataUrl), current));
     };
     // The held pictures first, so one that is refused stops the save before
@@ -408,8 +411,8 @@ export function DesignPage() {
     dropKept(businessId, templateId);
 
     // Read once more, after the last write, and start again from it. If
-    // either read didn't land, the studio starts from what was sent, stamped
-    // newer than both, and the next good pair of reads takes over.
+    // either read didn't land in time, the studio starts from what was sent,
+    // stamped newer than both, and the next good pair of reads takes over.
     const after = await readCard();
     if (after) reseed(after.value, after.lint, after.at);
     else reseed(sentValue, lint, { templates: Date.now(), design: Date.now() });
