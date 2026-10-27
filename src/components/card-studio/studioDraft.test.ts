@@ -13,6 +13,7 @@ import {
   textColourChoice,
   withBackground,
   withFaceLabel,
+  withoutSent,
   withReward,
   withRewardOnBack,
   type CardStudioValue,
@@ -222,6 +223,17 @@ describe("changesBetween", () => {
 
   it("counts a new reward once, on the front and the back", () => {
     expect(changesBetween(SAVED, withReward(SAVED, "מאפה חינם"))).toEqual(["reward"]);
+  });
+});
+
+describe("withoutSent", () => {
+  it("lets go of a picture once it is sent", () => {
+    expect(withoutSent({ logo: "data:a", strip_base: "data:b" }, "logo", "data:a")).toEqual({ strip_base: "data:b" });
+  });
+
+  it("keeps a picture chosen again while the first was on its way", () => {
+    const held = { logo: "data:new" };
+    expect(withoutSent(held, "logo", "data:old")).toBe(held);
   });
 });
 
