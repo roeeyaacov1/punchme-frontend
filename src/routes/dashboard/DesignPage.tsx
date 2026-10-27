@@ -292,6 +292,24 @@ export function DesignPage() {
     heading.current?.focus();
   }
 
+  /** Read the card again, as the page loads it: the template list and the
+   * design. The card they make, if both landed since they were asked for;
+   * neither call throws, and a read that failed, or one made offline, keeps
+   * the time of the one before. */
+  async function readCard(): Promise<{ value: CardStudioValue; lint: string[]; at: ReadStamp } | null> {
+    const asked = Date.now();
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["templates", businessId] }),
+      queryClient.refetchQueries({ queryKey: ["design", templateId], exact: true }),
+    ]);
+    const templatesRead = queryClient.getQueryState<CardTemplate[]>(["templates", businessId]);
+    const designRead = queryClient.getQueryState<DesignOut>(["design", templateId]);
+    const freshTemplate = templatesRead?.data?.[0];
+    const at = { templates: templatesRead?.dataUpdatedAt ?? 0, design: designRead?.dataUpdatedAt ?? 0 };
+    if (!freshTemplate || !designRead?.data || !bothLandedSince(asked, at)) return null;
+    return { value: toStudioValue(freshTemplate, designRead.data), lint: designRead.data.lint, at };
+  }
+
   async function save() {
     if (!businessId || !templateId || !draft || !saved || saving) return;
     // The one limit typing can't hold: said in Names, and nothing is sent.
@@ -353,9 +371,20 @@ export function DesignPage() {
       }
     }
 
-    // The draft as Save was pressed, the back's words included: what the
-    // owner sees is what is sent.
-    const sentValue = draft;
+    // Save sends every field, so the card is read again first, after the
+    // pictures, and the owner's edits go on it: a save made elsewhere since
+    // the studio last read the card is never sent back undone. The studio
+    // stands on it from here, so what is sent is what the owner sees, the
+    // back's words included. If the read doesn't land, the edits go as they
+    // are, on the card last read.
+    let sentValue = draft;
+    const now = await readCard();
+    if (now) {
+      sentValue = rebaseEdits(saved, draft, now.value);
+      baseline.current = { value: now.value, at: now.at };
+      setSaved(now.value);
+      setDraft(sentValue);
+    }
     try {
       const answer = await patchTemplate(businessId, templateId, sentValue);
       syncBefore = laterSync(syncBefore, answer.design_synced_at);
@@ -378,20 +407,9 @@ export function DesignPage() {
     // Read once more, after the last write, and start again from it. If
     // either read didn't land, the studio starts from what was sent, stamped
     // newer than both, and the next good pair of reads takes over.
-    const asked = Date.now();
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["templates", businessId] }),
-      queryClient.refetchQueries({ queryKey: ["design", templateId], exact: true }),
-    ]);
-    const templatesRead = queryClient.getQueryState<CardTemplate[]>(["templates", businessId]);
-    const designRead = queryClient.getQueryState<DesignOut>(["design", templateId]);
-    const freshTemplate = templatesRead?.data?.[0];
-    const readAt = { templates: templatesRead?.dataUpdatedAt ?? 0, design: designRead?.dataUpdatedAt ?? 0 };
-    if (freshTemplate && designRead?.data && bothLandedSince(asked, readAt)) {
-      reseed(toStudioValue(freshTemplate, designRead.data), designRead.data.lint, readAt);
-    } else {
-      reseed(sentValue, lint, { templates: Date.now(), design: Date.now() });
-    }
+    const after = await readCard();
+    if (after) reseed(after.value, after.lint, after.at);
+    else reseed(sentValue, lint, { templates: Date.now(), design: Date.now() });
     setSaving(false);
     toast.show({ tone: "ok", title: t("studio.saved") });
     heading.current?.focus();

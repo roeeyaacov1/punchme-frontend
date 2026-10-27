@@ -327,9 +327,12 @@ function rebaseValue(base: unknown, draft: unknown, fresh: unknown): unknown {
 }
 
 /** The fields, matched by what each shows: one the owner left alone is as
- * the fresh card has it (or gone, if it went there), one they changed or
- * added is theirs, one they removed stays removed, and one added elsewhere
- * comes after theirs. */
+ * the fresh card has it (or gone, if it went there), one they removed stays
+ * removed, and one they added is theirs. One they changed is merged with the
+ * fresh card's property by property, so a new reward written on the back
+ * keeps a label changed there elsewhere. One added elsewhere comes after
+ * theirs; a free-text one whose binding the owner's new field took gets a
+ * binding of its own, as the mend on load gives one. */
 function rebaseFields(
   base: readonly DesignField[] = [],
   draft: readonly DesignField[] = [],
@@ -341,11 +344,25 @@ function rebaseFields(
   const fields: DesignField[] = [];
   for (const field of draft) {
     const before = was.get(field.binding);
-    if (!before || !same(field, before)) fields.push(field);
-    else if (now.has(field.binding)) fields.push(now.get(field.binding)!);
+    const after = now.get(field.binding);
+    if (!before) fields.push(field);
+    else if (!same(field, before)) fields.push(after ? (rebaseValue(before, field, after) as DesignField) : field);
+    else if (after) fields.push(after);
   }
-  const placed = new Set(fields.map((field) => field.binding));
-  for (const field of fresh) if (!was.has(field.binding) && !placed.has(field.binding)) fields.push(field);
+  const placed = new Map(fields.map((field) => [field.binding, field]));
+  const used = new Set([...placed.keys(), ...now.keys()]);
+  for (const field of fresh) {
+    if (was.has(field.binding)) continue;
+    const ours = placed.get(field.binding);
+    if (!ours) {
+      fields.push(field);
+      placed.set(field.binding, field);
+    } else if (kindOf(field.binding) === CUSTOM && !same(field, ours)) {
+      const binding = freeCustomBinding(used);
+      used.add(binding);
+      fields.push({ ...field, binding });
+    }
+  }
   return fields;
 }
 

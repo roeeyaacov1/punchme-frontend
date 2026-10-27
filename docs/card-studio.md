@@ -102,8 +102,9 @@ These come from the wallet renderer, not from taste:
   - load the template and design;
   - issue the owner's own pass;
   - a lint check 400 ms after each edit;
-  - Save: each picture held since the last save, then one PATCH, then the
-    design read once more. Pictures are held for Save (Phase 3), so a new
+  - Save: each picture held since the last save, then the card read
+    again with the owner's edits put on it, then one PATCH, then the card
+    read once more. Pictures are held for Save (Phase 3), so a new
     logo or stamp reaches customers with the rest of the edit.
 - The draft is seeded once per template, so a refetch never overwrites an
   edit.
