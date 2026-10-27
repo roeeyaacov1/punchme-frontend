@@ -89,7 +89,7 @@
       (function () {
         var shell = /^\/(dashboard(\/|$)|billing\/?$)/.test(location.pathname);
         var returned = /^\/billing\/(success|cancel)\/?$/.test(location.pathname);
-        if (/^\/(login|(invite|join)\/[^/]+)\/?$/.test(location.pathname)) {
+        if (/^\/(login|(invite|join|c)\/[^/]+)\/?$/.test(location.pathname)) {
           document.documentElement.classList.add("theme-lightbox");
           var wall = document.createElement("meta");
           wall.name = "theme-color";
