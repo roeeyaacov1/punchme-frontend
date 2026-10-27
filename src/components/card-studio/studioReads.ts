@@ -63,3 +63,20 @@ export function newerRead(was: ReadStamp, now: ReadStamp): boolean {
   if (now.templates < was.templates || now.design < was.design) return false;
   return now.templates > was.templates || now.design > was.design;
 }
+
+/** How long Save waits for a read before going on without it: the API client
+ * has no time limit of its own, and the studio holds still while it waits. */
+export const READ_LIMIT_MS = 10_000;
+
+/** Wait for `work` to settle, or `ms`, whichever comes first. Never throws:
+ * a read that fails or doesn't come is judged by the times it left. */
+export function settleWithin(work: Promise<unknown>, ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, ms);
+    const done = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    work.then(done, done);
+  });
+}
