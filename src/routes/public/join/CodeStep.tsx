@@ -69,6 +69,8 @@ export function CodeStep({ flow }: { flow: JoinFlow }) {
                 onChange={(e) => flow.setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 inputMode="numeric"
                 autoComplete="one-time-code"
+                // The return key on a phone's number pad says what it does.
+                enterKeyHint="done"
                 dir="ltr"
                 maxLength={6}
                 // A code is the one place on this page Plex Mono may set.
