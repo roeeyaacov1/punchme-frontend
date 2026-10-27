@@ -1,5 +1,6 @@
 import { env } from "../lib/env";
 import { ApiError } from "./errors";
+import { endsSession } from "../auth/endsSession";
 import {
   getAccessToken,
   getRefreshToken,
@@ -34,6 +35,8 @@ async function refreshAccessToken(): Promise<boolean> {
   const refresh = getRefreshToken();
   if (!refresh) return false;
 
+  // No answer at all (offline, or cut off) throws from here, before the
+  // tokens are touched: nothing has said the session is over.
   const res = await fetch(buildUrl("/api/auth/refresh"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -48,7 +51,14 @@ async function refreshAccessToken(): Promise<boolean> {
   if (getRefreshToken() !== refresh) return false;
 
   if (!res.ok) {
-    clearTokens();
+    const error = await ApiError.fromResponse(res);
+    // Only a refused token ends the session. The throttle's 429 or a 5xx
+    // leaves it standing, and the caller hears that answer rather than its
+    // own 401, which every page reads as signed out.
+    if (!endsSession(error)) throw error;
+    // Reading the answer took a turn; it is still only ours to clear if
+    // the session hasn't changed hands in it.
+    if (getRefreshToken() === refresh) clearTokens();
     return false;
   }
 
