@@ -308,6 +308,21 @@ export function sampleStart(stampsRequired: number): number {
   return Math.max(1, Math.floor(stampsRequired / 2));
 }
 
+/** About two lines of the reward row on a phone. */
+const REWARD_ROW_MAX = 80;
+
+/** The reward as its row under the card says it: whole while it's short,
+ * then cut at the last word that fits, with an ellipsis, so a 200-character
+ * reward doesn't run to seven lines. The reward tray holds all of it. */
+export function rewardForRow(reward: string, max = REWARD_ROW_MAX): string {
+  const text = reward.trim().replace(/\s+/g, " ");
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const space = cut.lastIndexOf(" ");
+  const kept = space >= max / 2 ? cut.slice(0, space) : cut;
+  return `${kept.replace(/[\s,.;:\-–—]+$/, "")}…`;
+}
+
 export type ChangeKind =
   | "reward"
   | "stamps"

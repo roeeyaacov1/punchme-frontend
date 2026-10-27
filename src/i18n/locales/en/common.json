@@ -316,6 +316,7 @@
     "pictureInUse": "A picture is the stamp",
     "stampCount": "After how many stamps",
     "reward": "What customers get",
+    "charactersLeft_zero": "No characters left",
     "charactersLeft_one": "{{count}} character left",
     "charactersLeft_other": "{{count}} characters left",
     "picker": {

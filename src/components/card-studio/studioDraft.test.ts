@@ -13,6 +13,7 @@ import {
   newField,
   nextCustomBinding,
   rebaseEdits,
+  rewardForRow,
   sameCard,
   sampleStart,
   textColourChoice,
@@ -270,6 +271,23 @@ describe("sampleStart", () => {
     expect(sampleStart(8)).toBe(4);
     expect(sampleStart(7)).toBe(3);
     expect(sampleStart(2)).toBe(1);
+  });
+});
+
+describe("rewardForRow", () => {
+  it("says a short reward whole, its spaces tidied", () => {
+    expect(rewardForRow("  קפה   חינם ")).toBe("קפה חינם");
+  });
+
+  it("cuts a long one at the last word that fits, without trailing punctuation", () => {
+    const reward = "תספורת גברים מלאה כולל חפיפה, עיצוב זקן במכונה ובתער וטיפול פנים קצר עם מגבת חמה, לבחירתכם";
+    const row = rewardForRow(reward, 40);
+    expect(row).toBe("תספורת גברים מלאה כולל חפיפה, עיצוב זקן…");
+    expect(row.length).toBeLessThanOrEqual(41);
+  });
+
+  it("cuts mid-word only when there's no space in the second half", () => {
+    expect(rewardForRow("x".repeat(100), 20)).toBe(`${"x".repeat(20)}…`);
   });
 });
 

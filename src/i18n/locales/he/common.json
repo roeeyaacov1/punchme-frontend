@@ -334,6 +334,7 @@
     "pictureInUse": "החותמת היא תמונה",
     "stampCount": "אחרי כמה חותמות",
     "reward": "מה הלקוחות מקבלים",
+    "charactersLeft_zero": "לא נשארו תווים",
     "charactersLeft_one": "נשאר תו אחד",
     "charactersLeft_two": "נשארו שני תווים",
     "charactersLeft_many": "נשארו {{count}} תווים",
