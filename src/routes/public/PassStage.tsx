@@ -1,48 +1,27 @@
 import { useTranslation } from "react-i18next";
 import type { CardPublic } from "../../api/loyalty";
-import {
-  AppleCardPreview,
-  GoogleCardPreview,
-  type PreviewPlatform,
-} from "../../components/card-studio/CardPreviews";
+import { AppleCardPreview, GoogleCardPreview } from "../../components/card-studio/CardPreviews";
+import { LitPanel } from "../../components/kit";
 import { cn } from "../../lib/cn";
 import { usePublicCardPreview } from "./publicCard";
-
-/** Which wallet this phone actually has.
- *
- * No switcher goes with this on the public pages, deliberately. The owner's
- * studio has one because the owner is designing for both; the customer has
- * exactly one wallet, and a segmented "Apple / Google" control next to an
- * add-to-wallet button reads as a choice about where the pass is going —
- * which it isn't. The add link is one universal URL the provider resolves
- * by device, so the preview resolves the same way and says nothing.
- *
- * Desktop can't be told apart and falls back to Apple; nobody joins a punch
- * card from a laptop, and either layout is honest there. */
-function devicePlatform(): PreviewPlatform {
-  if (typeof navigator === "undefined") return "apple";
-  if (/android/i.test(navigator.userAgent)) return "google";
-  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) return "apple";
-  // iPadOS 13+ claims to be a Mac. A Mac with a touchscreen is an iPad.
-  if (
-    navigator.platform === "MacIntel" &&
-    typeof navigator.maxTouchPoints === "number" &&
-    navigator.maxTouchPoints > 1
-  )
-    return "apple";
-  return "apple";
-}
+import { deviceWallet } from "./wallet";
 
 /**
- * The customer's own pass, staged.
+ * The customer's own pass, staged in the sign's light.
  *
- * `theme-lit` because a pass is not a screen the page owns — it is the thing
- * being handed over, and it is drawn on white by both wallets whatever the
- * page around it is doing (see index.css, "Things that stay lit").
+ * The pass stands in its slot of exactly 300px, the size both previews are
+ * built for, in a lit stage 340px wide (DESIGN.md's 300px Slot Rule). On a
+ * phone the stage reaches into the page's gutter, as the Overview stands its
+ * wallpaper, so a 320px screen still gives the pass its full 300px; on a
+ * screen narrower than that the stage clips the pass's edges rather than
+ * squeeze it.
  *
  * The card itself is the studio's renderer untouched, which is the whole
  * point: it prefers the published PNG PassKit serves to the phone, so this
- * page cannot drift away from the pass the way a hand-drawn mock did.
+ * page cannot drift away from the pass the way a hand-drawn mock did. No
+ * switcher goes with it: the customer has one wallet, and the preview is the
+ * one this phone has (Google on Android, Apple otherwise), as the add button
+ * under it is named.
  *
  * Hidden from assistive tech and summarised in words instead — read out
  * element by element it is a pile of unlabelled fragments, and the summary
@@ -57,40 +36,34 @@ export function PassStage({
   card: CardPublic;
   /** The card's serial — what the barcode encodes. */
   serial: string;
-  /** The name the customer just gave, printed in the pass's name field.
-   * Without it the renderer prints its sample name, which is the right
-   * default in the studio and plainly wrong on someone's own card. */
+  /** The name the customer just gave, printed in the pass's name field. */
   holderName?: string;
   className?: string;
 }) {
   const { t } = useTranslation();
-  const platform = devicePlatform();
+  const platform = deviceWallet() === "google" ? "google" : "apple";
   // The hook lives here rather than at the call sites: both of them render
   // this behind a loading/error branch, where a hook can't go.
   const value = usePublicCardPreview(card, serial, holderName);
 
   return (
-    <div className={cn("theme-lit w-full", className)}>
-      {/* An object arriving, not a paragraph revealing. `animate-scale-in` is
-          already in the vocabulary and the reduced-motion block in index.css
-          already switches it off, so this needs nothing new. */}
-      <div
-        aria-hidden="true"
-        className="animate-scale-in mx-auto w-full max-w-[300px]"
+    <div className={cn("-mx-4 flex justify-center sm:mx-0", className)}>
+      <LitPanel
+        light="field"
+        radius="card"
+        className="flex w-[340px] max-w-full justify-center overflow-hidden px-5 py-6"
       >
-        {platform === "apple" ? (
-          <AppleCardPreview {...value} />
-        ) : (
-          <GoogleCardPreview {...value} />
-        )}
-      </div>
-      <p className="sr-only">
-        {t("onboarding.preview.summary", {
-          name: value.businessName,
-          count: value.stampsRequired,
-          reward: value.rewardDescription,
-        })}
-      </p>
+        <div aria-hidden="true" className="w-[300px] shrink-0">
+          {platform === "apple" ? <AppleCardPreview {...value} /> : <GoogleCardPreview {...value} />}
+        </div>
+        <p className="sr-only">
+          {t("onboarding.preview.summary", {
+            name: value.businessName,
+            count: value.stampsRequired,
+            reward: value.rewardDescription,
+          })}
+        </p>
+      </LitPanel>
     </div>
   );
 }

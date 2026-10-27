@@ -43,6 +43,9 @@ export function publicCardPreview(
     labelColor: card.label_color,
     design: card.design ?? {},
     serial,
+    // Known and left to Phase 3 (the public brief's §7.10): with no name —
+    // `/c` never has one, and a join may skip it — the previews print their
+    // sample name, where the real pass prints "Member".
     holderName: holderName?.trim() || undefined,
   };
 }
