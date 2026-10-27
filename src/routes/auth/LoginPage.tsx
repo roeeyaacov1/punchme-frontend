@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { Navigate, useLocation, useNavigate, Link } from "react-router-dom";
+import { useEffect, useRef, type ReactNode } from "react";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 import type { TokenPair } from "../../api/auth";
@@ -10,10 +10,8 @@ import {
   useEmailPasswordAuth,
   type AuthMode,
 } from "../../components/auth/useEmailPasswordAuth";
-import { StepShell } from "../../components/onboarding/StepShell";
-import { TopBar } from "../../components/onboarding/TopBar";
-import { focusRing } from "../../components/marketing/primitives";
-import { cn } from "../../lib/cn";
+import { Button, LinkButton, LitPanel, Loading, Notice, Skeleton } from "../../components/kit";
+import { PublicPage } from "../public/PublicPage";
 import { hasDraftInProgress, loadDraft } from "../onboarding/draft";
 
 /**
@@ -36,12 +34,12 @@ function signedInDestination(mode: AuthMode = "signin"): string {
 }
 
 /**
- * Sign in — the returning owner's door. Same paper panel, same form and
- * same top bar as the wizard, because it is the same product; the only
- * difference is what happens after: this page goes back to wherever the
- * owner was headed, the wizard saves the card. New owners are pointed at
- * the wizard, where the account comes last — and an owner who is already
- * signed in is never asked for a password they have already given.
+ * Sign in — the returning owner's door. One lit panel on the wall, the form
+ * built from the kit around the fields it shares with `/invite` and the
+ * wizard's account step; what happens after is this page's own: back to
+ * wherever the owner was headed. New owners are pointed at the wizard,
+ * where the account comes last — and an owner who is already signed in is
+ * never asked for a password they have already given.
  */
 export function LoginPage() {
   const { t } = useTranslation();
@@ -67,9 +65,15 @@ export function LoginPage() {
   // backend is the difference between a slow sign-in and none at all.
   if (isLoading && getRefreshToken()) {
     return (
-      <LoginShell>
-        <p className="py-6 text-center text-sm text-ink-muted">{t("auth.loadingSession")}</p>
-      </LoginShell>
+      <LoginFrame>
+        <LitPanel as="section" className="p-5 sm:p-6">
+          <Loading className="flex flex-col gap-4">
+            <Skeleton className="h-8 w-2/3" />
+            <Skeleton className="h-12 w-full rounded-field" />
+            <Skeleton className="h-12 w-full rounded-field" />
+          </Loading>
+        </LitPanel>
+      </LoginFrame>
     );
   }
 
@@ -79,60 +83,87 @@ export function LoginPage() {
   }
 
   return (
-    <LoginShell>
-      <StepShell
-        title={signup ? t("auth.signUpTitle") : t("auth.signInTitle")}
-        subtitle={signup ? t("auth.signUpSubtitle") : t("auth.signInSubtitle")}
-        onNext={() => auth.submitPassword()}
-        nextLabel={signup ? t("auth.signUpCta") : t("auth.signInCta")}
-        nextBusy={auth.submitting}
-        nextDisabled={!auth.canSubmit}
-        error={auth.error}
-        footer={
-          <>
-            <AuthAlternatives
-              mode={auth.mode}
-              onToggleMode={auth.toggleMode}
-              onGoogle={auth.submitGoogle}
-              onGoogleError={() => auth.setError(t("auth.error"))}
-            />
-            <Link
-              to="/onboarding"
-              className={cn(
-                "mt-2 inline-flex min-h-[44px] items-center justify-center gap-1.5 self-center rounded-lg px-3 text-sm font-semibold text-primary-text hover:underline",
-                focusRing,
-              )}
-            >
-              {t("auth.newHere")}
-              <ArrowRight size={16} aria-hidden="true" className="rtl:-scale-x-100" />
-            </Link>
-          </>
-        }
-      >
-        <AuthFields
-          idPrefix="login"
-          mode={auth.mode}
-          email={auth.email}
-          password={auth.password}
-          onEmail={auth.setEmail}
-          onPassword={auth.setPassword}
+    <LoginFrame>
+      <LitPanel as="section" aria-labelledby="login-title" className="flex flex-col gap-5 p-5 sm:p-6">
+        <Heading
+          id="login-title"
+          title={signup ? t("auth.signUpTitle") : t("auth.signInTitle")}
+          subtitle={signup ? t("auth.signUpSubtitle") : t("auth.signInSubtitle")}
         />
-      </StepShell>
-    </LoginShell>
+        <form
+          noValidate
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (auth.canSubmit) void auth.submitPassword();
+          }}
+          className="flex flex-col gap-4"
+        >
+          <AuthFields
+            mode={auth.mode}
+            email={auth.email}
+            password={auth.password}
+            onEmail={auth.setEmail}
+            onPassword={auth.setPassword}
+          />
+          {auth.error && (
+            <Notice tone="danger" role="alert">
+              {auth.error}
+            </Notice>
+          )}
+          <Button
+            type="submit"
+            size="lg"
+            busy={auth.submitting}
+            disabled={!auth.canSubmit}
+            className="w-full"
+          >
+            {signup ? t("auth.signUpCta") : t("auth.signInCta")}
+          </Button>
+        </form>
+        <AuthAlternatives
+          mode={auth.mode}
+          onToggleMode={auth.toggleMode}
+          onGoogle={auth.submitGoogle}
+          onGoogleError={() => auth.setError(t("auth.error"))}
+        />
+      </LitPanel>
+      <LinkButton
+        to="/onboarding"
+        variant="secondary"
+        iconEnd={<ArrowRight aria-hidden className="rtl:-scale-x-100" />}
+        className="mt-5 max-w-full self-center !whitespace-normal text-balance text-center"
+      >
+        {t("auth.newHere")}
+      </LinkButton>
+    </LoginFrame>
   );
 }
 
-/** The panel every state of this page sits in — form, or the line that
- * stands in for it while the session resolves. */
-function LoginShell({ children }: { children: ReactNode }) {
+/** The page's title and what it is for. The title takes focus when the form
+ * mounts, so a screen reader starts at the question, not the top bar. */
+function Heading({ id, title, subtitle }: { id: string; title: string; subtitle: string }) {
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    heading.current?.focus({ preventScroll: true });
+  }, []);
   return (
-    <div className="theme-purple theme-raised min-h-screen bg-background text-ink">
-      <TopBar />
-      <main className="mx-auto w-full max-w-md px-3 pb-16 sm:max-w-lg sm:px-0">
-        <section className="rounded-2xl border border-border bg-surface px-5 py-7 shadow-card sm:px-8">
-          {children}
-        </section>
-      </main>
+    <div className="flex flex-col gap-2">
+      <h1 ref={heading} id={id} tabIndex={-1} className="type-title text-balance outline-none">
+        {title}
+      </h1>
+      <p className="type-body text-pretty text-ink-muted">{subtitle}</p>
     </div>
+  );
+}
+
+/** The frame every state of this page sits in: the form, or what stands in
+ * for it while the session resolves. A column on a phone; at most 26rem and
+ * centred from 640px. */
+function LoginFrame({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
+  return (
+    <PublicPage variant="team" title={t("auth.pageTitle")} className="items-stretch pb-16 pt-2 sm:items-center sm:pt-8">
+      <div className="flex w-full flex-col sm:max-w-[26rem]">{children}</div>
+    </PublicPage>
   );
 }

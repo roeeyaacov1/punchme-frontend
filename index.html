@@ -75,8 +75,11 @@
          /billing counts as the dashboard, since it only forwards there (it
          is where Stripe's portal sends the owner back). The two pages
          Stripe's checkout returns to stand outside the shell, on Lightbox,
-         at night when the dashboard is. Every other route is light and
-         gets nothing.
+         at night when the dashboard is. The public pages stand on Lightbox
+         by day only, with the wall as the status bar's colour, which
+         src/routes/public/PublicPage.tsx keeps once it mounts (it reuses
+         the meta marked data-public). Every other route is light and gets
+         nothing.
 
          The dashboard also runs edge to edge on a phone (viewport-fit=cover),
          which useShellViewport sets while it is mounted and takes away when
@@ -86,6 +89,15 @@
       (function () {
         var shell = /^\/(dashboard(\/|$)|billing\/?$)/.test(location.pathname);
         var returned = /^\/billing\/(success|cancel)\/?$/.test(location.pathname);
+        if (/^\/login\/?$/.test(location.pathname)) {
+          document.documentElement.classList.add("theme-lightbox");
+          var wall = document.createElement("meta");
+          wall.name = "theme-color";
+          wall.content = "#f6f2eb";
+          wall.setAttribute("data-public", "");
+          document.head.insertBefore(wall, document.querySelector('meta[name="theme-color"]'));
+          return;
+        }
         if (!shell && !returned) return;
         var viewport = document.querySelector('meta[name="viewport"]');
         if (shell && viewport && viewport.content.indexOf("viewport-fit") === -1) {
