@@ -39,10 +39,10 @@ Vite · React 18 · TypeScript · Tailwind 3.4 · react-router-dom 6 · TanStack
 
 Hand-rolled primitives — no shadcn, no Radix. New code uses the Lightbox set in
 `src/components/kit`, with its own outline `focusRing`; `/style-guide` shows
-every piece. Four older sets stay in use until Phase 10 deletes them:
-`src/components/ui`, `src/components/dashboard/primitives.tsx`,
-`src/components/card-studio/studio-primitives.tsx` and
-`src/components/onboarding`. Marketing layout primitives (`Section`,
+every piece. Three older sets stay in use until Phase 10 deletes them:
+`src/components/ui`, `src/components/dashboard/primitives.tsx` and
+`src/components/onboarding`. The card controls the studio and onboarding
+share are in `src/components/card-studio/controls`. Marketing layout primitives (`Section`,
 `Container`, `SectionHeader`, `Eyebrow`, `ctaClasses`, `focusRing`) in
 `src/components/marketing/primitives.tsx`. `src/lib` has
 `usePrefersReducedMotion` and `cn`. `useInView` and `useCountUp` are there too,
@@ -210,15 +210,18 @@ Already in place and must survive any redesign: skip link, visible focus rings
 
 ## Verification
 
-There are **no component or render tests** — the 36 test files cover pure logic
+There are **no component or render tests** — the 40 test files cover pure logic
 only: the API client, the calculator, the onboarding draft, the language a
 first visit opens in, the dashboard's navigation by role, the tour and where
 its card stands, the Overview and Activity logic, the scan's failure causes,
 the customer search, the messages' rules, their one-sentence summary, the
 sent history, drafts and dates, the referrals' facts, the team's refusals and
 who is new, Billing's states, the mark a return from checkout leaves and the
-wait for Stripe's word, the kit's wallpaper and arrow keys, the kit's copy in
-both languages, the price the copy writes out, and ten helpers in `src/lib`.
+wait for Stripe's word, the card controls' rules, the studio's draft and the
+reward on the back of the card, the server's check read by kind, a failed
+save or upload as a sentence, the kit's wallpaper and arrow keys, the kit's
+copy in both languages, the price the copy writes out, and ten helpers in
+`src/lib`.
 The browser is the safety net, so use it.
 
 Before calling any UI change done:
