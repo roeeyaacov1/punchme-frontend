@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GoogleAuthButton } from "../../auth/providers/GoogleAuthButton";
 import { Input, linkText } from "../kit";
@@ -62,6 +63,32 @@ export function AuthFields({
   );
 }
 
+/** Google draws its button at the width it is given and ignores its box, so
+ * the box is measured: its own 320px where the column has room, the
+ * column's width where it doesn't (303px at 375, 248px at 320), never under
+ * the 200px Google allows. Re-measured once a resize settles. */
+function useGoogleWidth() {
+  const box = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const measure = () => setWidth(Math.min(320, Math.max(200, Math.floor(el.clientWidth))));
+    measure();
+    let settle = 0;
+    const observer = new ResizeObserver(() => {
+      window.clearTimeout(settle);
+      settle = window.setTimeout(measure, 150);
+    });
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(settle);
+    };
+  }, []);
+  return { box, width };
+}
+
 /** Under the submit button: the other mode, then Google. */
 export function AuthAlternatives({
   mode,
@@ -75,6 +102,7 @@ export function AuthAlternatives({
   onGoogleError: () => void;
 }) {
   const { t, i18n } = useTranslation();
+  const google = useGoogleWidth();
   return (
     <div className="theme-lightbox flex flex-col gap-3 text-ink">
       <button
@@ -91,15 +119,20 @@ export function AuthAlternatives({
       </div>
       {/* The box follows the page's direction. Forcing it left to right
           reversed Google's Hebrew label. */}
-      <div className="flex justify-center">
-        {/* Google renders the button once per mount; a language or mode change
-            needs a fresh mount to relabel it. */}
-        <GoogleAuthButton
-          key={`${i18n.resolvedLanguage}-${mode}`}
-          text={mode === "signup" ? "signup_with" : "signin_with"}
-          onSuccess={onGoogle}
-          onError={onGoogleError}
-        />
+      <div ref={google.box} className="flex justify-center">
+        {/* Google renders the button once per mount; a change of language,
+            mode or width needs a fresh mount to redraw it. The label speaks
+            the page's language, not the browser's. */}
+        {google.width !== null && (
+          <GoogleAuthButton
+            key={`${i18n.resolvedLanguage}-${mode}-${google.width}`}
+            text={mode === "signup" ? "signup_with" : "signin_with"}
+            width={google.width}
+            locale={i18n.resolvedLanguage}
+            onSuccess={onGoogle}
+            onError={onGoogleError}
+          />
+        )}
       </div>
     </div>
   );
