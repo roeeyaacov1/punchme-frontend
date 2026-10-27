@@ -1,5 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { newerRead } from "./studioReads";
+import { newerRead, syncMovedPast } from "./studioReads";
+
+describe("syncMovedPast", () => {
+  it("waits while the sync is where it was before the save", () => {
+    expect(syncMovedPast("2026-10-27T10:00:00Z", "2026-10-27T10:00:00Z")).toBe(false);
+  });
+
+  it("is past once the sync has run since", () => {
+    expect(syncMovedPast("2026-10-27T10:00:00Z", "2026-10-27T10:00:04.5Z")).toBe(true);
+  });
+
+  it("is past for a card's first sync", () => {
+    expect(syncMovedPast(null, "2026-10-27T10:00:04Z")).toBe(true);
+  });
+
+  it("waits for a card that has never synced", () => {
+    expect(syncMovedPast(null, null)).toBe(false);
+  });
+
+  it("reads the time, not the text", () => {
+    expect(syncMovedPast("2026-10-27T10:00:00+00:00", "2026-10-27T12:00:00+02:00")).toBe(false);
+  });
+});
 
 describe("newerRead", () => {
   const was = { templates: 1000, design: 1000 };

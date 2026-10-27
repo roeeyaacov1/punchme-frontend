@@ -14,15 +14,19 @@ import {
   type HeldPictures,
   type HeldUse,
 } from "../../components/card-studio/studioDraft";
-import { newerRead, type ReadStamp } from "../../components/card-studio/studioReads";
+import { newerRead, syncMovedPast, type ReadStamp } from "../../components/card-studio/studioReads";
 import { saveProblem, uploadProblem, type StudioProblem } from "../../components/card-studio/studioProblems";
 import {
   dropKept,
+  dropSyncWait,
   keepEdits,
   keepPicture,
+  keepSyncWait,
   keepUploadedStamp,
   readKept,
+  readSyncWait,
   readUploadedStamp,
+  type SyncWait,
 } from "../../components/card-studio/studioSession";
 import { ReadProblem } from "../../components/dashboard/ReadProblem";
 import { Button, LinkButton, Notice, Skeleton, useToast } from "../../components/kit";
@@ -104,6 +108,7 @@ export function DesignPage() {
   const [editingField, setEditingField] = useState<number | null>(null);
   const [uploadedStamp, setUploadedStamp] = useState<string | null>(null);
   const [ownerCard, setOwnerCard] = useState<EnrollOut | null>(null);
+  const [syncWait, setSyncWait] = useState<SyncWait | null>(null);
 
   // The card the studio stands on (`saved`), and the reads it came from.
   const baseline = useRef<{ value: CardStudioValue; at: ReadStamp } | null>(null);
@@ -126,6 +131,7 @@ export function DesignPage() {
       setSaved(fresh);
       setLint(designQuery.data.lint);
       setUploadedStamp(readUploadedStamp(businessId, template.id));
+      setSyncWait(readSyncWait(businessId, template.id));
       const keptDraft = readKept(businessId, template.id);
       const value = keptDraft ? rebaseEdits(keptDraft.base, keptDraft.value, fresh) : fresh;
       if (keptDraft && changesBetween(fresh, value, keptDraft.held, keptDraft.follow).length > 0) {
@@ -174,6 +180,18 @@ export function DesignPage() {
     }
     keptPictures.current = held;
   }, [businessId, templateId, held]);
+
+  // After a save, the wallet's sync redraws the strip pictures on its own
+  // time, so a read made meanwhile still carries the ones drawn before it.
+  // Until the sync has run since, the stand-in (which is the saved card)
+  // stays; a later read brings the published pictures back.
+  const syncedAt = designQuery.data?.sync.synced_at ?? null;
+  const waitingForSync = !!syncWait && !syncMovedPast(syncWait.before, syncedAt);
+  useEffect(() => {
+    if (!syncWait || !businessId || !templateId || !syncMovedPast(syncWait.before, syncedAt)) return;
+    setSyncWait(null);
+    dropSyncWait(businessId, templateId);
+  }, [syncWait, syncedAt, businessId, templateId]);
 
   // Closing the tab or the app with changes asks first. Leaving the page
   // doesn't: the draft is kept in the tab.
@@ -252,6 +270,13 @@ export function DesignPage() {
     setFailure(null);
     setSaving(true);
     let sent = false;
+    // Anything that reaches the server is drawn into the passes by the next
+    // sync: until it has run, the published pictures are from before.
+    const syncBefore = designQuery.data?.sync.synced_at ?? null;
+    const waitForSync = () => {
+      setSyncWait({ before: syncBefore });
+      keepSyncWait(businessId, templateId, syncBefore);
+    };
     // The held pictures first, so one that is refused stops the save before
     // anything else reaches customers' cards.
     for (const use of HELD_ORDER) {
@@ -268,6 +293,7 @@ export function DesignPage() {
         hold(use, null);
       } catch (error) {
         setFailure({ problem: uploadProblem(use, error), partial: sent });
+        if (sent) waitForSync();
         setSaving(false);
         return;
       }
@@ -283,9 +309,11 @@ export function DesignPage() {
         setTray("wallet");
         setEditingField(problem.fieldIndex);
       }
+      if (sent) waitForSync();
       setSaving(false);
       return;
     }
+    waitForSync();
 
     // Read once more, after the last write, and start again from it.
     await queryClient.invalidateQueries({ queryKey: ["templates", businessId] });
@@ -414,7 +442,7 @@ export function DesignPage() {
         pictureLocked={savedPicture ? t("studio.picture.locked") : undefined}
         pictureNote={t("studio.picture.stays")}
         lint={reading}
-        unsaved={changed}
+        unsaved={changed || waitingForSync}
         bar={{
           changes: changes.length,
           saving,
