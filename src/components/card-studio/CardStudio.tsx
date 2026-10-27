@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { Gift, Minus, Pencil, Plus } from "lucide-react";
 import { cn } from "../../lib/cn";
@@ -79,6 +79,34 @@ function useInert<T extends HTMLElement>(on: boolean) {
   return ref;
 }
 
+/**
+ * While `on`, the dashboard's toasts stand 8px above `ref`, an element docked
+ * at the foot of the screen, through the shell's `--toast-above`: its fixed
+ * bottom and its height, less the safe area the toast region adds itself.
+ * As it goes, the toasts take their own place again.
+ */
+function useToastLift(ref: RefObject<HTMLElement>, on: boolean) {
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!on || !element) return;
+    const root = document.documentElement;
+    const set = () => {
+      const bottom = parseFloat(getComputedStyle(element).bottom) || 0;
+      const above = Math.round(bottom + element.offsetHeight + 8);
+      root.style.setProperty("--toast-above", `calc(${above}px - env(safe-area-inset-bottom))`);
+    };
+    set();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(set);
+    observer?.observe(element);
+    window.addEventListener("resize", set);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", set);
+      root.style.removeProperty("--toast-above");
+    };
+  }, [ref, on]);
+}
+
 /** The height a part of the page can't be under: the masthead, if there is one. */
 function topClearance(): number {
   const main = document.getElementById("dashboard-main");
@@ -148,15 +176,19 @@ function barLight(phase: BarPhase, reduced: boolean): string | undefined {
 function BarLight({
   phase,
   reduced,
+  lift = false,
   className,
   children,
 }: {
   phase: BarPhase;
   reduced: boolean;
+  /** Docked at the foot of the screen: the page's toasts stand above it. */
+  lift?: boolean;
   className?: string;
   children: ReactNode;
 }) {
   const ref = useInert<HTMLDivElement>(phase === "leaving");
+  useToastLift(ref, lift && phase !== "leaving");
   return (
     <div ref={ref} className={cn(className, barLight(phase, reduced))}>
       {children}
@@ -620,6 +652,7 @@ export function CardStudio({
           <BarLight
             phase={barPhase}
             reduced={reduced}
+            lift
             className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t border-border bg-surface px-4 pb-7 pt-3 md:bottom-0 md:pb-[max(0.75rem,env(safe-area-inset-bottom))]"
           >
             <div className="mx-auto max-w-2xl">{studioBar}</div>
