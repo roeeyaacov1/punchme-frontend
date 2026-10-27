@@ -7,11 +7,14 @@ import { readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
   HELD_ORDER,
+  rebaseEdits,
+  sameCard,
   withRewardOnBack,
   type CardStudioValue,
   type HeldPictures,
   type HeldUse,
 } from "../../components/card-studio/studioDraft";
+import { newerRead, type ReadStamp } from "../../components/card-studio/studioReads";
 import { saveProblem, uploadProblem, type StudioProblem } from "../../components/card-studio/studioProblems";
 import {
   dropKept,
@@ -102,27 +105,49 @@ export function DesignPage() {
   const [uploadedStamp, setUploadedStamp] = useState<string | null>(null);
   const [ownerCard, setOwnerCard] = useState<EnrollOut | null>(null);
 
-  // Seed the draft once per template, so a refetch never overwrites an edit.
-  // A draft kept in the tab from an earlier visit comes back in its place.
+  // The card the studio stands on (`saved`), and the reads it came from.
+  const baseline = useRef<{ value: CardStudioValue; at: ReadStamp } | null>(null);
+  const templatesAt = templatesQuery.dataUpdatedAt;
+  const designAt = designQuery.dataUpdatedAt;
+
+  // Seed the draft once per template. A draft kept in the tab from an
+  // earlier visit comes back as the owner's own changes on the card as it is
+  // now. After that, a read made since (the refetch behind a cached card, or
+  // a save made elsewhere) becomes the card the studio stands on, with the
+  // owner's edits on top, so Save never sends back an older card.
   const seededFor = useRef<string | null>(null);
   useEffect(() => {
-    if (!businessId || !template?.id || !designQuery.data || seededFor.current === template.id) return;
-    seededFor.current = template.id;
+    if (!businessId || !template?.id || !designQuery.data) return;
     const fresh = toStudioValue(template, designQuery.data);
-    setSaved(fresh);
-    setLint(designQuery.data.lint);
-    setUploadedStamp(readUploadedStamp(businessId, template.id));
-    const keptDraft = readKept(businessId, template.id);
-    if (keptDraft && changesBetween(fresh, keptDraft.value, keptDraft.held, keptDraft.follow).length > 0) {
-      setDraft(keptDraft.value);
-      setHeld(keptDraft.held);
-      setFollow(keptDraft.follow);
-      setKept(true);
-    } else {
-      if (keptDraft) dropKept(businessId, template.id);
-      setDraft(fresh);
+    const at = { templates: templatesAt, design: designAt };
+    if (seededFor.current !== template.id) {
+      seededFor.current = template.id;
+      baseline.current = { value: fresh, at };
+      setSaved(fresh);
+      setLint(designQuery.data.lint);
+      setUploadedStamp(readUploadedStamp(businessId, template.id));
+      const keptDraft = readKept(businessId, template.id);
+      const value = keptDraft ? rebaseEdits(keptDraft.base, keptDraft.value, fresh) : fresh;
+      if (keptDraft && changesBetween(fresh, value, keptDraft.held, keptDraft.follow).length > 0) {
+        setDraft(value);
+        setHeld(keptDraft.held);
+        setFollow(keptDraft.follow);
+        setKept(true);
+      } else {
+        if (keptDraft) dropKept(businessId, template.id);
+        setDraft(fresh);
+      }
+      return;
     }
-  }, [businessId, template, designQuery.data]);
+    // A save reads the card again itself, and starts from what it read.
+    const was = baseline.current;
+    if (saving || !was || !newerRead(was.at, at)) return;
+    baseline.current = { value: fresh, at };
+    if (sameCard(was.value, fresh)) return;
+    setSaved(fresh);
+    setDraft((current) => (current ? rebaseEdits(was.value, current, fresh) : fresh));
+    setLint(designQuery.data.lint);
+  }, [businessId, template, designQuery.data, templatesAt, designAt, saving]);
 
   const changes = saved && draft ? changesBetween(saved, draft, held, follow) : [];
   const changed = changes.length > 0;
@@ -133,13 +158,13 @@ export function DesignPage() {
   // and the next change is a draft of its own, not the one that came back.
   useEffect(() => {
     if (!businessId || !templateId || !draft || seededFor.current !== templateId) return;
-    if (changed) {
-      keepEdits(businessId, templateId, { value: draft, follow });
+    if (changed && saved) {
+      keepEdits(businessId, templateId, { base: saved, value: draft, follow });
       return;
     }
     dropKept(businessId, templateId);
     setKept(false);
-  }, [businessId, templateId, draft, follow, changed]);
+  }, [businessId, templateId, saved, draft, follow, changed]);
 
   const keptPictures = useRef<HeldPictures>({});
   useEffect(() => {
@@ -200,7 +225,10 @@ export function DesignPage() {
     });
   }, []);
 
-  function reseed(fresh: CardStudioValue, freshLint: string[]) {
+  /** Start again from a card, read at `at` (by default, the reads the
+   * studio already stands on). */
+  function reseed(fresh: CardStudioValue, freshLint: string[], at = baseline.current?.at) {
+    if (at) baseline.current = { value: fresh, at };
     setSaved(fresh);
     setDraft(fresh);
     setHeld({});
@@ -263,8 +291,13 @@ export function DesignPage() {
     await queryClient.invalidateQueries({ queryKey: ["templates", businessId] });
     const fresh = await designQuery.refetch();
     const freshTemplate = queryClient.getQueryData<CardTemplate[]>(["templates", businessId])?.[0];
-    if (fresh.data && freshTemplate) reseed(toStudioValue(freshTemplate, fresh.data), fresh.data.lint);
-    else reseed(sentValue, lint);
+    const readAt = {
+      templates: queryClient.getQueryState(["templates", businessId])?.dataUpdatedAt ?? 0,
+      design: queryClient.getQueryState(["design", templateId])?.dataUpdatedAt ?? 0,
+    };
+    if (fresh.data && freshTemplate) reseed(toStudioValue(freshTemplate, fresh.data), fresh.data.lint, readAt);
+    // Newer than either read, so only a later pair of reads takes over.
+    else reseed(sentValue, lint, { templates: Date.now(), design: Date.now() });
     setSaving(false);
     toast.show({ tone: "ok", title: t("studio.saved") });
     heading.current?.focus();
