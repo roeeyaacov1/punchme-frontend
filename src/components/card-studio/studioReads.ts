@@ -28,6 +28,17 @@ export function publishedArt(assets: readonly string[], uploaded: ArtCopies): Ar
   return art;
 }
 
+/** When this device sent each piece of art, by `Date.now()`. */
+export type ArtSent = Partial<Record<ArtUse, number>>;
+
+/** The art the card has: what the design read says, and art sent since that
+ * read landed, which no read has had the chance to name yet (as when the
+ * re-read after a save fails). A read that lands after it says for itself. */
+export function artOnCard(assets: readonly string[], readAt: number, sent: ArtSent): readonly string[] {
+  const since = ART_USES.filter((use) => (sent[use] ?? -Infinity) >= readAt && !assets.includes(use));
+  return since.length > 0 ? [...assets, ...since] : assets;
+}
+
 /** The re-read after a save counts only when both reads landed after it was
  * asked for. Neither call throws: a failed read keeps the card from before
  * the save, and one made offline waits, both with their old times. */
