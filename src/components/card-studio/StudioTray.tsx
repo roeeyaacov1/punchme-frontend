@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { cn } from "../../lib/cn";
@@ -27,7 +27,7 @@ function clearEdge(element: HTMLElement) {
  *
  * Not a modal, which is the point: no scrim over the card, and the page
  * stays live. It is a region named by its heading. Focus goes to the heading
- * as it opens; Escape, the close button, a drag down by its head or another
+ * as it opens, or to where the studio asks (`start`); Escape, the close button, a drag down by its head or another
  * chip closes it, and the studio puts focus back on the chip that opened it.
  * It is as tall as what it holds, up to half the screen, and scrolls inside
  * past that; the save bar sits at its foot, and the edge goes with it.
@@ -47,6 +47,7 @@ export function StudioTray({
   foot,
   footLeaving,
   busy = false,
+  start,
 }: {
   open: boolean;
   title: ReactNode;
@@ -61,6 +62,9 @@ export function StudioTray({
   /** A save is running: the tray holds still, open, with Save at its foot,
    * so what it sends is what the owner sees and focus stays on Save. */
   busy?: boolean;
+  /** Where focus goes as it opens, instead of its heading: the card's name,
+   * after a Save that found none. */
+  start?: RefObject<HTMLElement>;
 }) {
   const { t } = useTranslation();
   const reduced = useReducedMotion();
@@ -92,10 +96,10 @@ export function StudioTray({
   }, [open, reduced, drag.draggedOut]);
 
   // A new tray, or the same one opened again: its heading is read first,
-  // once the tray is there to hold it.
+  // once the tray is there to hold it, unless the studio asked for a field.
   useLayoutEffect(() => {
-    if (open && shown) heading.current?.focus({ preventScroll: true });
-  }, [open, shown, trayKey]);
+    if (open && shown) (start?.current ?? heading.current)?.focus({ preventScroll: true });
+  }, [open, shown, trayKey, start]);
 
   useEffect(() => {
     if (!open || busy) return;

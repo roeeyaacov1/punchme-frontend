@@ -85,6 +85,7 @@ export function AdminCatalogEditPage() {
   const [saveTried, setSaveTried] = useState(false);
   const [tray, setTray] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<number | null>(null);
+  const [nameFocus, setNameFocus] = useState(0);
 
   useEffect(() => {
     if (isNew || !catalogId) return;
@@ -181,6 +182,7 @@ export function AdminCatalogEditPage() {
     if (nameMissing(draft)) {
       setProblem(t("studio.problem.noName"));
       setTray("names");
+      setNameFocus((count) => count + 1);
       return;
     }
     if (descriptionTooLong) {
@@ -362,6 +364,7 @@ export function AdminCatalogEditPage() {
           onEditingField={setEditingField}
           extraTrays={extraTrays}
           sayNameMissing={!isNew || saveTried}
+          focusName={nameFocus}
         />
       </div>
     </div>

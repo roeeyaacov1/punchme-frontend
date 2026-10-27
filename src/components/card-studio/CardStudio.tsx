@@ -184,6 +184,9 @@ export interface CardStudioProps {
   extraTrays?: ExtraTray[];
   /** Names says the card has no name (see `NamesTray`). */
   sayNameMissing?: boolean;
+  /** Counted up when Save finds no name: with Names open, focus goes into
+   * the name field, where the message is, not to the tray's heading. */
+  focusName?: number;
   /** Where Save is, so a page can put focus back on it. */
   saveRef?: React.Ref<HTMLButtonElement>;
 }
@@ -225,6 +228,7 @@ export function CardStudio({
   onEditingField,
   extraTrays = [],
   sayNameMissing = true,
+  focusName = 0,
   saveRef,
 }: CardStudioProps) {
   const { t } = useTranslation();
@@ -239,6 +243,18 @@ export function CardStudio({
   const [trayHeight, setTrayHeight] = useState(0);
   const [shownTray, setShownTray] = useState(tray);
   const scrolledFor = useRef<string | null>(null);
+  // Save found no name: Names starts at the name field, until it closes or
+  // another tray takes its place. Followed while rendering, so the tray
+  // opens with it.
+  const nameField = useRef<HTMLInputElement>(null);
+  const [nameAsked, setNameAsked] = useState(focusName);
+  const [nameStart, setNameStart] = useState(false);
+  if (focusName !== nameAsked) {
+    setNameAsked(focusName);
+    setNameStart(true);
+  } else if (nameStart && tray !== "names") {
+    setNameStart(false);
+  }
 
   const owner = !!onHold;
   const back = backState(value.design, value.reward_description);
@@ -318,6 +334,14 @@ export function CardStudio({
     if (!tray) scrolledFor.current = null;
   }, [tray]);
 
+  // Names already in view (a tab, or the tray open on it): straight there.
+  // A tray still to rise starts there itself.
+  useEffect(() => {
+    if (focusName) nameField.current?.focus({ preventScroll: !wide });
+    // Only when Save asks again, not as the layout changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusName]);
+
   const onPart = (part: CardPart) => {
     if (part === "stamps") open("stamp");
     else if (part === "names") open("names");
@@ -352,6 +376,7 @@ export function CardStudio({
             savedFields={saved.design.fields ?? []}
             businessName={businessName}
             sayNameMissing={sayNameMissing}
+            nameRef={nameField}
           />
         );
       case "logo":
@@ -529,6 +554,7 @@ export function CardStudio({
         foot={barDrawn ? <div className={light}>{studioBar}</div> : undefined}
         footLeaving={barPhase === "leaving"}
         busy={busy}
+        start={nameStart ? nameField : undefined}
       >
         {body(tray ?? shownTray)}
       </StudioTray>
