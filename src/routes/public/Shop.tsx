@@ -53,10 +53,10 @@ export function ShopLine({ shop }: { shop: ShopFace }) {
     <div className="flex items-center justify-center gap-3">
       <ShopMark shop={shop} />
       <div className="min-w-0 text-start">
-        <p dir="auto" className="font-heading text-base font-medium leading-tight text-ink">
+        <p dir="auto" className="font-heading text-base font-medium leading-tight text-ink [overflow-wrap:anywhere]">
           {shop.business_name}
         </p>
-        <p dir="auto" className="text-sm leading-snug text-ink-muted">
+        <p dir="auto" className="text-sm leading-snug text-ink-muted [overflow-wrap:anywhere]">
           {shop.template_name}
         </p>
       </div>
@@ -72,10 +72,10 @@ export function CardChip({ shop }: { shop: ShopFace }) {
       className="w-full rounded-panel px-5 py-6 text-center"
       style={{ backgroundColor: shop.background_color, color: shop.foreground_color }}
     >
-      <p dir="auto" className="font-heading text-[1.1875rem] font-medium leading-tight">
+      <p dir="auto" className="font-heading text-[1.1875rem] font-medium leading-tight [overflow-wrap:anywhere]">
         {shop.business_name}
       </p>
-      <p dir="auto" className="mt-1 text-sm font-semibold" style={{ color: shop.label_color }}>
+      <p dir="auto" className="mt-1 text-sm font-semibold [overflow-wrap:anywhere]" style={{ color: shop.label_color }}>
         {shop.template_name}
       </p>
     </div>

@@ -94,7 +94,7 @@ export function ReferralJoin({
               <Trans
                 i18nKey="enroll.notTakingShop"
                 values={{ business: page.business_name }}
-                components={{ shop: <bdi /> }}
+                components={{ shop: <bdi className="[overflow-wrap:anywhere]" /> }}
               />
             ),
           }}
@@ -139,7 +139,7 @@ export function StaffDoor({
   }
   return (
     <p className={cn("type-body text-center text-ink-muted", className)}>
-      <Trans i18nKey="publicCard.card.staffHint" values={{ business }} components={{ shop: <bdi /> }} />{" "}
+      <Trans i18nKey="publicCard.card.staffHint" values={{ business }} components={{ shop: <bdi className="[overflow-wrap:anywhere]" /> }} />{" "}
       <Link
         to="/login"
         state={{ from: { pathname: `/p/${token}` } }}
