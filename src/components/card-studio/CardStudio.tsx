@@ -219,7 +219,9 @@ export function CardStudio({
     const bottom = window.innerHeight - trayHeight - 8;
     let delta = rect.bottom > bottom ? rect.bottom - bottom : 0;
     if (rect.top - delta < top) delta = rect.top - top;
-    if (Math.abs(delta) > 1) window.scrollBy({ top: delta, behavior: reduced ? "auto" : "smooth" });
+    // "instant", not "auto": a page that sets `scroll-behavior: smooth` would
+    // turn "auto" back into a glide.
+    if (Math.abs(delta) > 1) window.scrollBy({ top: delta, behavior: reduced ? "instant" : "smooth" });
     // partOf reads props that don't change while a tray is open.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wide, tray, trayHeight, reduced]);
@@ -280,7 +282,7 @@ export function CardStudio({
     }
   };
 
-  const barShown = bar.changes > 0 || !!bar.problem || !!bar.stale || !!bar.status;
+  const barShown = bar.changes > 0 || !!bar.problem || !!bar.stale;
   const studioBar = <StudioBar ref={saveRef} {...bar} />;
 
   const sampleRow = (

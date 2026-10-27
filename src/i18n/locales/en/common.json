@@ -61,7 +61,7 @@
           },
           "stamp_art": {
             "label": "Stamp picture",
-            "hint": "Circle-masked into every stamp, grey and faded until it is earned. Beats the icon chosen below."
+            "hint": "Circle-masked into every stamp, grey and faded until it is earned. Beats the symbol chosen in the stamp tray."
           },
           "stamped_art": {
             "label": "Earned stamp",
@@ -71,8 +71,16 @@
             "label": "Empty stamp",
             "hint": "The tile before it is earned. Pairs with the one above — upload both, or neither."
           }
-        }
-      }
+        },
+        "atOnce": "A picture is saved to the look straight away, without Save."
+      },
+      "chips": {
+        "shelf": "Shelf",
+        "art": "Art"
+      },
+      "saved": "Saved. Owners who pick this look from now on get it as it is.",
+      "changes_one": "1 change not saved yet",
+      "changes_other": "{{count}} changes not saved yet"
     },
     "staffOnly": "Staff area",
     "staffOnlyBody": "This area is for PunchMe staff. You're signed in as {{email}}, which doesn't have staff access.",

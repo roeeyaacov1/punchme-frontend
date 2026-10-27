@@ -21,8 +21,9 @@ export interface StudioBarProps {
   /** Passes in wallets were built by an older version: one save updates
    * them, even with nothing changed. */
   stale?: boolean;
-  /** The sentence while nothing has changed, when the page has one (admin's "saved"). */
-  status?: ReactNode;
+  /** What the changes are, when the page says it otherwise: a catalog look
+   * is on no customer's card. */
+  sentence?: string;
 }
 
 /**
@@ -35,7 +36,7 @@ export interface StudioBarProps {
  * happened; focus stays on Save.
  */
 export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function StudioBar(
-  { changes, saving, onSave, onDiscard, problem, kept, fieldProblems = 0, onFieldProblems, stale, status },
+  { changes, saving, onSave, onDiscard, problem, kept, fieldProblems = 0, onFieldProblems, stale, sentence },
   saveRef,
 ) {
   const { t } = useTranslation();
@@ -44,11 +45,9 @@ export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function 
     <div className="flex flex-col gap-2">
       {kept && changes > 0 && <p className="text-sm leading-snug text-ink-muted">{t("studio.kept")}</p>}
       {changes > 0 ? (
-        <p className="type-label text-ink">{t("studio.bar.changes", { count: changes })}</p>
-      ) : updateOnly ? (
-        <p className="type-label text-ink">{t("studio.sync.stale")}</p>
+        <p className="type-label text-ink">{sentence ?? t("studio.bar.changes", { count: changes })}</p>
       ) : (
-        status && <p role="status" className="type-label text-ink">{status}</p>
+        updateOnly && <p className="type-label text-ink">{t("studio.sync.stale")}</p>
       )}
       {fieldProblems > 0 && onFieldProblems && (
         <button type="button" onClick={onFieldProblems} className={cn(linkText, "w-fit text-start text-sm")}>
