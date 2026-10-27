@@ -6,7 +6,9 @@ import { CardStudio } from "../../components/card-studio/CardStudio";
 import { readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
+  fieldsOver,
   HELD_ORDER,
+  MAX_FIELDS,
   nameMissing,
   readDesign,
   rebaseEdits,
@@ -332,6 +334,18 @@ export function DesignPage() {
       setTray("names");
       return;
     }
+    // Fields added elsewhere can take the card past the most the API takes:
+    // said in Wallet details, and nothing is sent.
+    const tooMany = (value: CardStudioValue, partial: boolean) => {
+      const over = fieldsOver(value);
+      if (over === 0) return false;
+      const values = { count: over, total: over + MAX_FIELDS, max: MAX_FIELDS };
+      setFailure({ problem: { key: "studio.problem.over", values }, partial });
+      setTray("wallet");
+      setEditingField(null);
+      return true;
+    };
+    if (tooMany(draft, false)) return;
     setFailure(null);
     setSaving(true);
     // The pictures that reached the server: each stays held, drawn where it
@@ -400,6 +414,11 @@ export function DesignPage() {
       baseline.current = { value: now.value, at: now.at };
       setSaved(now.value);
       setDraft(sentValue);
+      if (tooMany(sentValue, sent.length > 0)) {
+        await stopPartWay();
+        setSaving(false);
+        return;
+      }
     }
     try {
       const answer = await patchTemplate(businessId, templateId, sentValue);
