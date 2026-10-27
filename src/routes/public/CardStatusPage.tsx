@@ -16,6 +16,9 @@ import { PublicPage } from "./PublicPage";
  * real pass (never a mock: this is the page for someone who can't find
  * theirs), and the button that adds this same card again.
  *
+ * The pass's stage lights on as it takes the skeleton's place (240ms): a
+ * return, not the join's ceremony.
+ *
  * A pass still being issued is re-checked here too, the same read every
  * 3 s for three minutes at most. A link that leads to no card says how to
  * get it back; a read that failed says so and offers the same read again,
@@ -55,7 +58,7 @@ export function CardStatusPage() {
             <Skeleton className="mx-auto h-[26rem] w-full max-w-[340px] !rounded-card" />
           </Loading>
         ) : card ? (
-          <JoinedCard serial={serial} card={card} returning />
+          <JoinedCard serial={serial} card={card} returning arrival="lights" />
         ) : notFound ? (
           <EmptyState titleAs="h1" title={t("enroll.status.notFoundTitle")} body={t("enroll.status.notFoundBody")} />
         ) : (
