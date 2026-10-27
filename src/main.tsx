@@ -9,58 +9,37 @@ import { watchForInstallPrompt } from "./pwa/installPrompt";
 import { registerServiceWorker } from "./pwa/registerServiceWorker";
 import { AuthProvider } from "./auth/AuthProvider";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
+import { RequireStaff } from "./auth/RequireStaff";
 import { BusinessProvider } from "./business/BusinessProvider";
 import { RequireBusiness } from "./business/RequireBusiness";
-import { RequireRole } from "./business/RequireRole";
 import { RootLayout } from "./routes/root";
-import { LandingPage } from "./routes/marketing/LandingPage";
+import { RouteLoading } from "./routes/RouteLoading";
 import { DebugPresetsPage } from "./routes/debug-presets";
 import { LoginPage } from "./routes/auth/LoginPage";
-import { OnboardingLayout } from "./routes/onboarding/OnboardingLayout";
-import { OnboardingIndex } from "./routes/onboarding/OnboardingIndex";
-import { OnboardingGate } from "./routes/onboarding/OnboardingGate";
-import { BusinessStep } from "./routes/onboarding/steps/BusinessStep";
-import { ColorStep } from "./routes/onboarding/steps/ColorStep";
-import { AccentStep } from "./routes/onboarding/steps/AccentStep";
-import { StampStep } from "./routes/onboarding/steps/StampStep";
-import { RewardStep } from "./routes/onboarding/steps/RewardStep";
-import { AccountStep } from "./routes/onboarding/steps/AccountStep";
-import { WalletStep } from "./routes/onboarding/steps/WalletStep";
-import { BillingStep } from "./routes/onboarding/steps/BillingStep";
 import { JoinPage } from "./routes/public/JoinPage";
 import { InvitePage } from "./routes/invite/InvitePage";
 import { CardStatusPage } from "./routes/public/CardStatusPage";
 import { PublicCardPage } from "./routes/public/PublicCardPage";
-import { DashboardLayout } from "./routes/dashboard/DashboardLayout";
-import {
-  DashboardNotFound,
-  DashboardPageError,
-} from "./components/dashboard/shell/ShellPages";
-import { DashboardOverview } from "./routes/dashboard/DashboardOverview";
-import { ScanPage } from "./routes/dashboard/ScanPage";
-import { DesignPage } from "./routes/dashboard/DesignPage";
-import { CustomersPage } from "./routes/dashboard/CustomersPage";
-import { ActivityPage } from "./routes/dashboard/ActivityPage";
-import { StandeePage } from "./routes/dashboard/StandeePage";
-import { BillingSettingsPage } from "./routes/dashboard/BillingSettingsPage";
-import { MessagesPage } from "./routes/dashboard/MessagesPage";
-import { TeamPage } from "./routes/dashboard/TeamPage";
-import { AutomationEditorPage } from "./routes/dashboard/AutomationEditorPage";
-import { BroadcastComposerPage } from "./routes/dashboard/BroadcastComposerPage";
-import { ReferralsPage } from "./routes/dashboard/ReferralsPage";
-import { BillingSuccessPage } from "./routes/billing/BillingSuccessPage";
-import { BillingCancelPage } from "./routes/billing/BillingCancelPage";
-import { RequireStaff } from "./auth/RequireStaff";
-import { AdminLayout } from "./routes/admin/AdminLayout";
-import { AdminCatalogListPage } from "./routes/admin/AdminCatalogListPage";
-import { AdminCatalogEditPage } from "./routes/admin/AdminCatalogEditPage";
+
+// The dashboard, the wizard, admin and the checkout returns load on demand,
+// each group as one chunk, and the landing page on its own, so a customer
+// at a counter downloads none of them before /join can draw a field. The
+// five public pages stay in the entry, so /join draws after one script
+// (on demand they would save the landing page 19 kB gzipped and cost
+// /join a round trip), and /login above all: the dashboard's sign-out
+// relies on a navigation to /login with nothing to load, which commits at
+// once.
+const dashboard = () => import("./routes/lazy/dashboard");
+const onboarding = () => import("./routes/lazy/onboarding");
+const admin = () => import("./routes/lazy/admin");
+const billing = () => import("./routes/lazy/billing");
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
     children: [
-      { index: true, element: <LandingPage /> },
+      { index: true, lazy: async () => ({ Component: (await import("./routes/marketing/LandingPage")).LandingPage }) },
       // Loaded on its own: the guide carries the whole redesign kit, and none
       // of it should ship to someone opening the landing page.
       {
@@ -86,20 +65,20 @@ const router = createBrowserRouter([
         // OnboardingGate asks for it there — inside the wizard, not via
         // /login — because by then the draft is what they came to keep.
         path: "onboarding",
-        element: <OnboardingLayout />,
+        lazy: async () => ({ Component: (await onboarding()).OnboardingLayout }),
         children: [
-          { index: true, element: <OnboardingIndex /> },
-          { path: "business", element: <BusinessStep /> },
-          { path: "color", element: <ColorStep /> },
-          { path: "accent", element: <AccentStep /> },
-          { path: "stamp", element: <StampStep /> },
-          { path: "reward", element: <RewardStep /> },
-          { path: "account", element: <AccountStep /> },
+          { index: true, lazy: async () => ({ Component: (await onboarding()).OnboardingIndex }) },
+          { path: "business", lazy: async () => ({ Component: (await onboarding()).BusinessStep }) },
+          { path: "color", lazy: async () => ({ Component: (await onboarding()).ColorStep }) },
+          { path: "accent", lazy: async () => ({ Component: (await onboarding()).AccentStep }) },
+          { path: "stamp", lazy: async () => ({ Component: (await onboarding()).StampStep }) },
+          { path: "reward", lazy: async () => ({ Component: (await onboarding()).RewardStep }) },
+          { path: "account", lazy: async () => ({ Component: (await onboarding()).AccountStep }) },
           {
-            element: <OnboardingGate />,
+            lazy: async () => ({ Component: (await onboarding()).OnboardingGate }),
             children: [
-              { path: "wallet", element: <WalletStep /> },
-              { path: "billing", element: <BillingStep /> },
+              { path: "wallet", lazy: async () => ({ Component: (await onboarding()).WalletStep }) },
+              { path: "billing", lazy: async () => ({ Component: (await onboarding()).BillingStep }) },
             ],
           },
           { path: "*", element: <Navigate to="/onboarding" replace /> },
@@ -116,11 +95,14 @@ const router = createBrowserRouter([
             children: [
               {
                 path: "admin",
-                element: <AdminLayout />,
+                lazy: async () => ({ Component: (await admin()).AdminLayout }),
                 children: [
-                  { index: true, element: <AdminCatalogListPage /> },
-                  { path: "catalog", element: <AdminCatalogListPage /> },
-                  { path: "catalog/:catalogId", element: <AdminCatalogEditPage /> },
+                  { index: true, lazy: async () => ({ Component: (await admin()).AdminCatalogListPage }) },
+                  { path: "catalog", lazy: async () => ({ Component: (await admin()).AdminCatalogListPage }) },
+                  {
+                    path: "catalog/:catalogId",
+                    lazy: async () => ({ Component: (await admin()).AdminCatalogEditPage }),
+                  },
                 ],
               },
             ],
@@ -137,60 +119,75 @@ const router = createBrowserRouter([
                 children: [
                   {
                     path: "dashboard",
-                    element: <DashboardLayout />,
+                    lazy: async () => ({ Component: (await dashboard()).DashboardLayout }),
                     children: [
                       {
                         // Between the shell and the pages, so a page that
                         // throws shows inside the shell, with the bar or the
                         // rail still there.
-                        errorElement: <DashboardPageError />,
+                        lazy: async () => {
+                          const { DashboardPageError } = await dashboard();
+                          return { errorElement: <DashboardPageError /> };
+                        },
                         children: [
                           // The counter — everyone on the team, staff included.
-                          { index: true, element: <DashboardOverview /> },
-                          { path: "scan", element: <ScanPage /> },
-                          { path: "customers", element: <CustomersPage /> },
-                          { path: "activity", element: <ActivityPage /> },
+                          { index: true, lazy: async () => ({ Component: (await dashboard()).DashboardOverview }) },
+                          { path: "scan", lazy: async () => ({ Component: (await dashboard()).ScanPage }) },
+                          { path: "customers", lazy: async () => ({ Component: (await dashboard()).CustomersPage }) },
+                          { path: "activity", lazy: async () => ({ Component: (await dashboard()).ActivityPage }) },
                           {
                             // Anything that changes what customers see. The nav
                             // already hides these from a hire; this is what
                             // answers when one types the URL anyway — and it
                             // says so, rather than bouncing them somewhere and
                             // looking like a broken link.
-                            element: <RequireRole minimum="manager" />,
+                            lazy: async () => {
+                              const { RequireRole } = await dashboard();
+                              return { element: <RequireRole minimum="manager" /> };
+                            },
                             children: [
-                              { path: "design", element: <DesignPage /> },
-                              { path: "standee", element: <StandeePage /> },
-                              { path: "messages", element: <MessagesPage /> },
-                              { path: "messages/new", element: <BroadcastComposerPage /> },
+                              { path: "design", lazy: async () => ({ Component: (await dashboard()).DesignPage }) },
+                              { path: "standee", lazy: async () => ({ Component: (await dashboard()).StandeePage }) },
+                              { path: "messages", lazy: async () => ({ Component: (await dashboard()).MessagesPage }) },
+                              {
+                                path: "messages/new",
+                                lazy: async () => ({ Component: (await dashboard()).BroadcastComposerPage }),
+                              },
                               {
                                 path: "messages/automations/new",
-                                element: <AutomationEditorPage />,
+                                lazy: async () => ({ Component: (await dashboard()).AutomationEditorPage }),
                               },
                               {
                                 path: "messages/automations/:automationId",
-                                element: <AutomationEditorPage />,
+                                lazy: async () => ({ Component: (await dashboard()).AutomationEditorPage }),
                               },
-                              { path: "referrals", element: <ReferralsPage /> },
+                              { path: "referrals", lazy: async () => ({ Component: (await dashboard()).ReferralsPage }) },
                             ],
                           },
                           {
                             // Money and the team.
-                            element: <RequireRole minimum="owner" />,
+                            lazy: async () => {
+                              const { RequireRole } = await dashboard();
+                              return { element: <RequireRole minimum="owner" /> };
+                            },
                             children: [
-                              { path: "team", element: <TeamPage /> },
-                              { path: "billing", element: <BillingSettingsPage /> },
+                              { path: "team", lazy: async () => ({ Component: (await dashboard()).TeamPage }) },
+                              {
+                                path: "billing",
+                                lazy: async () => ({ Component: (await dashboard()).BillingSettingsPage }),
+                              },
                             ],
                           },
                           // No page here: an old or mistyped link, said
                           // inside the shell rather than on the router's
                           // English developer page.
-                          { path: "*", element: <DashboardNotFound /> },
+                          { path: "*", lazy: async () => ({ Component: (await dashboard()).DashboardNotFound }) },
                         ],
                       },
                     ],
                   },
-                  { path: "billing/success", element: <BillingSuccessPage /> },
-                  { path: "billing/cancel", element: <BillingCancelPage /> },
+                  { path: "billing/success", lazy: async () => ({ Component: (await billing()).BillingSuccessPage }) },
+                  { path: "billing/cancel", lazy: async () => ({ Component: (await billing()).BillingCancelPage }) },
                   // Where Stripe's portal sends the owner back by default.
                   // Billing lives in the dashboard, so this only forwards.
                   { path: "billing", element: <Navigate to="/dashboard/billing" replace /> },
@@ -204,6 +201,20 @@ const router = createBrowserRouter([
   },
 ]);
 
+// A tab left open across a release asks for chunks the new build no longer
+// has. One reload fetches the new entry instead of landing on the router's
+// error page; the mark keeps a chunk that is really missing from looping.
+window.addEventListener("vite:preloadError", () => {
+  try {
+    const key = "punchme.chunkReload";
+    if (Date.now() - Number(sessionStorage.getItem(key) ?? 0) < 10_000) return;
+    sessionStorage.setItem(key, String(Date.now()));
+  } catch {
+    /* storage refused: reload all the same */
+  }
+  window.location.reload();
+});
+
 // Before render on purpose: `beforeinstallprompt` can fire while React is
 // still mounting, it only fires once, and there is no way to ask for it back.
 watchForInstallPrompt();
@@ -213,7 +224,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <RouterProvider router={router} />
+        <RouterProvider router={router} fallbackElement={<RouteLoading />} />
       </AuthProvider>
     </QueryClientProvider>
   </StrictMode>,
