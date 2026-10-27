@@ -58,7 +58,11 @@ export function ColoursTray({
           aria-expanded={more}
           aria-controls={moreId}
           onClick={() => setMore((open) => !open)}
-          className={cn("-ms-1 flex min-h-11 w-fit items-center gap-1.5 rounded-full px-1 type-label text-ink", focusRing)}
+          className={cn(
+            "-ms-3 flex min-h-11 w-fit touch-manipulation select-none items-center gap-1.5 rounded-full px-3 type-label text-ink",
+            "transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5",
+            focusRing,
+          )}
         >
           {t("studio.moreColours")}
           <ChevronDown aria-hidden className={cn("size-4 transition-transform duration-gentle", more && "rotate-180")} />

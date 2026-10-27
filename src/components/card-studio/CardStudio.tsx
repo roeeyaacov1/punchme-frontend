@@ -346,7 +346,8 @@ export function CardStudio({
   const studioBar = <StudioBar ref={saveRef} {...barProps} />;
 
   const sampleRow = (
-    <div className="flex items-center justify-center gap-3">
+    // Quick taps on + land one stamp each, never a double-tap zoom.
+    <div className="flex touch-manipulation items-center justify-center gap-3">
       <Button
         variant="secondary"
         size="icon"
@@ -379,7 +380,7 @@ export function CardStudio({
         onClick={() => open("reward")}
         className={cn(
           "theme-lit flex min-h-14 w-full items-center gap-3 rounded-panel border border-border bg-surface px-4 py-3 text-start shadow-panel",
-          "touch-manipulation transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5",
+          "touch-manipulation select-none transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5",
           noTapFlash,
           focusRingInset,
         )}
@@ -460,7 +461,7 @@ export function CardStudio({
       {sampleRow}
       {notices}
       {rewardRow}
-      <div role="group" aria-label={t("studio.chips.label")} className="flex flex-wrap gap-2">
+      <div role="group" aria-label={t("studio.chips.label")} className="flex touch-manipulation flex-wrap gap-2">
         {chipTrays.map(({ id, label }) => (
           <Button
             key={id}

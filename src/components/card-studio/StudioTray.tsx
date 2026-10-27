@@ -129,7 +129,16 @@ export function StudioTray({
           />
         </div>
       </div>
-      <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-5 pt-2 sm:px-5">{children}</div>
+      {/* With no bar at its foot, its own last row keeps clear of the home
+          indicator. */}
+      <div
+        className={cn(
+          "relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-2 sm:px-5",
+          foot ? "pb-5" : "pb-[max(1.25rem,env(safe-area-inset-bottom))]",
+        )}
+      >
+        {children}
+      </div>
       {foot && (
         <div className="shrink-0 border-t border-border px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 sm:px-5">
           {foot}

@@ -96,7 +96,11 @@ export function ColourPickerPanel({
             dir="ltr"
             value={typed}
             aria-label={t("cardControls.picker.hex", { label })}
+            // A code, not a word: no autocorrect turning "cafe" into
+            // "café", and capitals on the keyboard as in the field.
             spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="characters"
             autoComplete="off"
             maxLength={7}
             placeholder="000000"
