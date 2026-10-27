@@ -358,10 +358,12 @@ function FieldEditor({
         listClassName="gap-2"
       />
 
-      {field.binding === BACK_BINDING && (
+      {/* The back field carries the reward; a free-text field says what it's
+          given, as a repeated line of text mended into one does. */}
+      {(field.binding === BACK_BINDING || kind === "meta.custom") && (
         <Textarea
           label={t("studio.fields.backText")}
-          hint={t("studio.fields.backTextHint")}
+          hint={field.binding === BACK_BINDING ? t("studio.fields.backTextHint") : undefined}
           value={field.default_value ?? ""}
           onChange={(event) => onField({ ...field, default_value: event.target.value })}
           maxLength={TEXT_LIMITS.value}

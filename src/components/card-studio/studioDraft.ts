@@ -114,30 +114,48 @@ export function nextCustomBinding(fields: readonly DesignField[]): string {
   return freeCustomBinding(new Set(fields.map((field) => field.binding)));
 }
 
+const onFace = (field: DesignField) => (field.section ?? "BACK_FIELDS") !== "BACK_FIELDS";
+const wordsOf = (field: DesignField) => (field.default_value ?? "").trim();
+
 /**
  * The fields with one binding each, as the pass needs them: the old editor
  * let several share one, and the API refuses that now. Mended as the card is
  * read, so the next Save mends the card. A repeated free-text field gets a
  * binding of its own, as "Add field" gives one, so no words the owner typed
- * are lost; a repeat of a kind the card shows once shows the same thing as
- * the first, so the first is kept.
+ * are lost. A repeat of a kind the card shows once shows the same thing, so
+ * one copy is kept: the first on the card's face, so the stamp count never
+ * leaves it, or else the first. A repeated line of text with words of its
+ * own becomes free text with a binding of its own, words and all.
  */
 export function withUniqueBindings(fields: DesignField[]): DesignField[] {
   if (new Set(fields.map((field) => field.binding)).size === fields.length) return fields;
   const used = new Set(fields.map((field) => field.binding));
+  const kept = new Map<string, number>();
+  fields.forEach((field, index) => {
+    if (kindOf(field.binding) === CUSTOM) return;
+    const first = kept.get(field.binding);
+    if (first === undefined || (!onFace(fields[first]) && onFace(field))) kept.set(field.binding, index);
+  });
   const placed = new Set<string>();
   const unique: DesignField[] = [];
-  for (const field of fields) {
-    if (!placed.has(field.binding)) {
-      placed.add(field.binding);
+  const ownBinding = (field: DesignField) => {
+    const binding = freeCustomBinding(used);
+    used.add(binding);
+    unique.push({ ...field, binding });
+  };
+  fields.forEach((field, index) => {
+    const keep = kept.get(field.binding);
+    if (keep === undefined) {
+      if (!placed.has(field.binding)) {
+        placed.add(field.binding);
+        unique.push(field);
+      } else ownBinding(field);
+    } else if (keep === index) {
       unique.push(field);
-    } else if (kindOf(field.binding) === CUSTOM) {
-      const binding = freeCustomBinding(used);
-      used.add(binding);
-      placed.add(binding);
-      unique.push({ ...field, binding });
+    } else if (field.binding === BACK_BINDING && wordsOf(field) && wordsOf(field) !== wordsOf(fields[keep])) {
+      ownBinding(field);
     }
-  }
+  });
   return unique;
 }
 
