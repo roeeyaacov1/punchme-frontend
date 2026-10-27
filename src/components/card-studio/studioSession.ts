@@ -1,0 +1,62 @@
+import { dropDraft, readDraft, writeDraft } from "../messaging/sessionDraft";
+import { HELD_ORDER, type CardStudioValue, type HeldPictures, type HeldUse } from "./studioDraft";
+
+/**
+ * The studio's draft, kept in this tab as the message editors keep theirs,
+ * so leaving the page loses nothing.
+ *
+ * The edits are one small entry. Each held picture is an entry of its own:
+ * a stamp picture is at most 512px, but a strip background is at least
+ * 1125×432 and a logo can be anything, and one that doesn't fit the tab's
+ * storage is simply not kept. Its entry is cleared before it is written, so
+ * an older picture can never come back in its place.
+ */
+interface KeptEdits {
+  value: CardStudioValue;
+  follow: boolean;
+}
+
+export interface KeptDraft extends KeptEdits {
+  held: HeldPictures;
+}
+
+const editsKey = (businessId: string, templateId: string) => `${businessId}/design/${templateId}`;
+const pictureKey = (businessId: string, templateId: string, use: HeldUse) =>
+  `${editsKey(businessId, templateId)}/${use}`;
+const uploadedKey = (businessId: string, templateId: string) => `${editsKey(businessId, templateId)}/uploaded-stamp`;
+
+export function keepEdits(businessId: string, templateId: string, edits: KeptEdits): void {
+  writeDraft(editsKey(businessId, templateId), edits);
+}
+
+export function keepPicture(businessId: string, templateId: string, use: HeldUse, dataUrl: string | undefined): void {
+  const key = pictureKey(businessId, templateId, use);
+  dropDraft(key);
+  if (dataUrl) writeDraft(key, dataUrl);
+}
+
+export function readKept(businessId: string, templateId: string): KeptDraft | null {
+  const edits = readDraft<KeptEdits>(editsKey(businessId, templateId));
+  if (!edits?.value) return null;
+  const held: HeldPictures = {};
+  for (const use of HELD_ORDER) {
+    const picture = readDraft<string>(pictureKey(businessId, templateId, use));
+    if (picture) held[use] = picture;
+  }
+  return { value: edits.value, follow: !!edits.follow, held };
+}
+
+export function dropKept(businessId: string, templateId: string): void {
+  dropDraft(editsKey(businessId, templateId));
+  for (const use of HELD_ORDER) dropDraft(pictureKey(businessId, templateId, use));
+}
+
+/** The stamp picture this device sent, kept in the tab, so the stand-in can
+ * draw it after a save: the design read names it but doesn't carry it. */
+export function keepUploadedStamp(businessId: string, templateId: string, dataUrl: string): void {
+  writeDraft(uploadedKey(businessId, templateId), dataUrl);
+}
+
+export function readUploadedStamp(businessId: string, templateId: string): string | null {
+  return readDraft<string>(uploadedKey(businessId, templateId));
+}

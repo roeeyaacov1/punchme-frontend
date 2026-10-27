@@ -1,545 +1,438 @@
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { ChevronDown, CircleCheck, Info } from "lucide-react";
-import type { DesignDoc, ImageUse } from "../../api/designs";
-import { ChoiceGrid } from "../onboarding/ChoiceGrid";
-import { CARD_PALETTES, type CardPalette } from "../../lib/cardPalettes";
-import { CARD_PATTERNS, patternStyle, type CardPattern } from "../../lib/cardPatterns";
-import { STAMP_GLYPHS, STAMP_GLYPH_NAMES } from "../../lib/stampGlyphs";
-import { useDebounce } from "../../hooks/useDebounce";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { Trans, useTranslation } from "react-i18next";
+import { Gift, Minus, Pencil, Plus } from "lucide-react";
 import { cn } from "../../lib/cn";
-import { CardPreview } from "./CardPreviews";
-import { ColorWell } from "./ColorWell";
-import { FieldsEditor } from "./FieldsEditor";
-import { LabelsEditor } from "./LabelsEditor";
+import { Button } from "../kit/Button";
+import { focusRingInset, noTapFlash } from "../kit/classes";
+import { useReducedMotion } from "../kit/motion";
+import { Tab, TabList, TabPanel, Tabs } from "../kit/Tabs";
+import type { StampPicture } from "./controls";
+import type { LintReading } from "./lintProblems";
+import { StudioBar, type StudioBarProps } from "./StudioBar";
+import { StudioStage, type CardPart, type StageHandle, type Wallet } from "./StudioStage";
+import { StudioTray } from "./StudioTray";
 import {
-  PunchStrip,
-  StudioDisclosure,
-  StudioGroupLabel,
-  StudioPanel,
-  StudioSelect,
-  StudioSlider,
-  StudioText,
-  UploadButton,
-} from "./studio-primitives";
+  backState,
+  sampleStart,
+  type CardStudioImages,
+  type CardStudioValue,
+  type HeldPictures,
+  type HeldUse,
+} from "./studioDraft";
+import { ColoursTray } from "./trays/ColoursTray";
+import { LogoTray } from "./trays/LogoTray";
+import { NamesTray } from "./trays/NamesTray";
+import { BackDiffers, RewardTray } from "./trays/RewardTray";
+import { StampTray } from "./trays/StampTray";
+import { WalletDetailsTray } from "./trays/WalletDetailsTray";
 
-/** Everything the designer edits — the template's flat fields plus the
- * canonical design doc. Mirrors what PATCH .../templates/{id} accepts. */
-export interface CardStudioValue {
-  name: string;
-  stamps_required: number;
-  reward_description: string;
-  background_color: string;
-  foreground_color: string;
-  label_color: string;
-  design: DesignDoc;
+export type { CardStudioImages, CardStudioValue } from "./studioDraft";
+
+/** A tray only one page has (the catalog's shelf and art). */
+export interface ExtraTray {
+  id: string;
+  label: string;
+  body: ReactNode;
+  /** The part of the card it changes, brought into view above it. */
+  part?: CardPart;
 }
 
-export interface CardStudioImages {
-  logo?: string;
-  apple_logo?: string;
-  stamp_art?: string;
-  strip_base?: string;
-  stamped_art?: string;
-  unstamped_art?: string;
-  /** Published per-state artwork — the exact PNGs on the phone. */
-  strip_states?: Record<string, string>;
-  hero_states?: Record<string, string>;
+const PART_OF: Record<string, CardPart | undefined> = {
+  colours: "stamps",
+  stamp: "stamps",
+  reward: "stamps",
+  names: "names",
+  logo: "logo",
+};
+
+/** The device's own wallet first, as the Overview's own pass opens. */
+function deviceWallet(): Wallet {
+  return typeof navigator !== "undefined" && /iPhone|iPad|Macintosh/.test(navigator.userAgent) ? "apple" : "google";
+}
+
+/** From 1024px the trays become tabs beside a sticky card. */
+const WIDE = "(min-width: 1024px)";
+
+function useWide(): boolean {
+  const [wide, setWide] = useState(() => typeof window !== "undefined" && window.matchMedia(WIDE).matches);
+  useEffect(() => {
+    const query = window.matchMedia(WIDE);
+    const update = () => setWide(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  return wide;
+}
+
+/** The height a part of the page can't be under: the masthead, if there is one. */
+function topClearance(): number {
+  const main = document.getElementById("dashboard-main");
+  return (main ? parseFloat(getComputedStyle(main).scrollMarginTop) || 0 : 0) + 8;
 }
 
 export interface CardStudioProps {
   value: CardStudioValue;
-  onChange: (value: CardStudioValue) => void;
+  onChange: (next: CardStudioValue) => void;
+  /** The reward as saved, which the back of the card follows. */
+  savedReward: string;
+  /** The owner asked the back to say the reward. */
+  follow: boolean;
+  onFollow: () => void;
   businessName: string;
-  /** Existing image URLs (logo/art) for the preview. */
+  /** The business's trade: its glyph leads. */
+  niche?: string | null;
+  /** Published pictures (hosted URLs), or a catalog look's art. */
   images?: CardStudioImages;
-  /** When provided, upload controls appear (owned templates); catalog
-   * authoring may omit uses it can't host. */
-  onUpload?: (use: ImageUse, file: File) => Promise<void>;
-  /** Publish-readiness problems from the server (DesignOut.lint). */
-  lint?: string[];
-  /** Unsaved edits pending: the published artwork is stale, so the preview
-   * falls back to the live approximation until the design is saved. */
-  unsaved?: boolean;
-  /** Trim Advanced to colors + labels (e.g. tight onboarding flows) —
-   * wallet plumbing like barcode format and custom artwork stays out. */
-  simpleOnly?: boolean;
+  /** Pictures held for Save. With `onHold`, the owner's studio: a logo tray,
+   * a stamp picture of one's own, custom art. */
+  held?: HeldPictures;
+  onHold?: (use: HeldUse, dataUrl: string | null) => void;
+  stampPicture: StampPicture;
+  /** Why no glyph can be chosen now. */
+  pictureLocked?: ReactNode;
+  /** Said before a picture is chosen. */
+  pictureNote?: ReactNode;
+  lint: LintReading;
+  /** Edits not saved yet: the stand-in shows instead of the published card. */
+  unsaved: boolean;
+  bar: StudioBarProps;
+  /** Under the stage: the sync's notices and the check's. */
+  notices?: ReactNode;
+  /** At the foot: the owner's own pass. */
+  foot?: ReactNode;
+  /** The tray open (on a phone) or the tab shown (from 1024px). */
+  tray: string | null;
+  onTray: (tray: string | null) => void;
+  /** The field Wallet details shows in its editor. */
+  editingField: number | null;
+  onEditingField: (index: number | null) => void;
+  extraTrays?: ExtraTray[];
+  /** Where Save is, so a page can put focus back on it. */
+  saveRef?: React.Ref<HTMLButtonElement>;
 }
 
-const MIN_STAMPS = 2;
-const MAX_STAMPS = 12;
-
 /**
- * The Card Studio: a bench, and the card on a screen at the end of it.
+ * The card studio. The card is the map: it stands on its own wallpaper and
+ * never leaves the screen while it is edited.
  *
- * The stage used to be lit — a white slab held out of the dark page on the
- * grounds that the wallets draw a pass on white. They don't: Apple's list is
- * black, Google's follows the system, and the lock screen is whatever the
- * customer's wallpaper is. Nor was it ever true of the card itself, which is
- * whatever colour the owner painted it. So the stage is a panel like the ones
- * on the bench, with the pass in a well cut into it, and the whole studio
- * turns with the page. What separates card from ground after dark is not the
- * card's own shadow — a dark shadow on a dark well does nothing — but the
- * hairline rim `CardPreview` traces around the slot.
+ * On a phone, the card first, the sample under it, the reward said as a
+ * sentence, and a row of chips. A tap on the card's stamps, its names or its
+ * logo, or on a chip, opens what it shows in a tray over the lower half, so
+ * every choice lands on the card in view. From 1024px the trays are tabs in
+ * a working column, beside the card in a sticky column with Save under it.
  *
- * What is a spec match is the card, and it is untouched: its layout, its
- * colours and the white quiet zone under the barcode all belong to the two
- * wallets. The frame around it belongs to us.
- *
- * Pure controlled component — persistence (save/upload) belongs to the parent.
+ * Controlled: the page holds the draft, the held pictures and the save.
  */
 export function CardStudio({
   value,
   onChange,
+  savedReward,
+  follow,
+  onFollow,
   businessName,
+  niche,
   images = {},
-  onUpload,
+  held = {},
+  onHold,
+  stampPicture,
+  pictureLocked,
+  pictureNote,
   lint,
   unsaved,
-  simpleOnly = false,
+  bar,
+  notices,
+  foot,
+  tray,
+  onTray,
+  editingField,
+  onEditingField,
+  extraTrays = [],
+  saveRef,
 }: CardStudioProps) {
   const { t } = useTranslation();
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  // Starts at 0 — the state of a freshly issued card. Defaulting to a few
-  // punched stamps showed the designed stamp colour on a card that, in the
-  // owner's actual wallet, is entirely grey until someone earns a stamp.
-  const [sampleStamps, setSampleStamps] = useState(0);
-  const [uploading, setUploading] = useState<ImageUse | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const wide = useWide();
+  const reduced = useReducedMotion();
+  const stage = useRef<StageHandle>(null);
+  const chips = useRef(new Map<string, HTMLButtonElement>());
+  const [wallet, setWallet] = useState<Wallet>(deviceWallet);
+  const [sample, setSample] = useState(() => sampleStart(value.stamps_required));
+  const [trayHeight, setTrayHeight] = useState(0);
+  const [shownTray, setShownTray] = useState(tray);
+  const scrolledFor = useRef<string | null>(null);
 
-  const design = value.design;
-  const stampColor = design.stamp?.color || value.foreground_color;
-  const glyph = design.stamp?.glyph || "check";
-  const pattern = (design.pattern as CardPattern) || "none";
-  const GlyphIcon = STAMP_GLYPHS[glyph] ?? STAMP_GLYPHS.check;
+  const owner = !!onHold;
+  const back = backState(value.design, savedReward, follow);
+  const shownSample = Math.min(sample, value.stamps_required);
 
-  // Dragging either strip must not read out every tick.
-  const stampsText = t("studio.stampsHint", { count: value.stamps_required });
-  const spokenStamps = useDebounce(stampsText, 500);
-  const sampleText = t("studio.sampleStampsHint", { count: sampleStamps });
-  const spokenSample = useDebounce(sampleText, 500);
+  const trays: { id: string; label: string }[] = [
+    { id: "colours", label: t("studio.chips.colours") },
+    { id: "stamp", label: t("studio.chips.stamp") },
+    { id: "reward", label: t("studio.chips.reward") },
+    { id: "names", label: t("studio.chips.names") },
+    ...(owner ? [{ id: "logo", label: t("studio.chips.logo") }] : []),
+    { id: "wallet", label: t("studio.chips.wallet") },
+    ...extraTrays.map(({ id, label }) => ({ id, label })),
+  ];
+  const labelOf = (id: string | null) => trays.find((candidate) => candidate.id === id)?.label ?? "";
+  const partOf = (id: string) => PART_OF[id] ?? extraTrays.find((extra) => extra.id === id)?.part;
 
-  function update(patch: Partial<CardStudioValue>) {
-    onChange({ ...value, ...patch });
-  }
+  const open = useCallback(
+    (id: string) => {
+      // The stamp colour can't be seen on an empty card.
+      if ((id === "colours" || id === "stamp") && sample === 0) setSample(sampleStart(value.stamps_required));
+      onTray(id);
+    },
+    [onTray, sample, value.stamps_required],
+  );
 
-  function updateDesign(patch: Partial<DesignDoc>) {
-    update({ design: { ...design, ...patch } });
-  }
+  // What the tray shows while it leaves, so its words don't go first.
+  useEffect(() => {
+    if (tray) setShownTray(tray);
+  }, [tray]);
 
-  function setStampsRequired(count: number) {
-    update({ stamps_required: count });
-    setSampleStamps((current) => Math.min(current, count));
-  }
+  // From a phone to the wide layout with nothing open: the first tab. Back
+  // to a phone, nothing is open: a tray is something the owner opens.
+  const wasWide = useRef(wide);
+  useEffect(() => {
+    if (wide && !tray) onTray("colours");
+    if (!wide && wasWide.current) onTray(null);
+    wasWide.current = wide;
+  }, [wide, tray, onTray]);
 
-  async function handleUpload(use: ImageUse, file: File) {
-    if (!onUpload) return;
-    setUploadError(null);
-    setUploading(use);
-    try {
-      await onUpload(use, file);
-    } catch {
-      setUploadError(t("studio.uploadError"));
-    } finally {
-      setUploading(null);
+  const close = useCallback(() => {
+    const was = tray;
+    onTray(null);
+    if (was) chips.current.get(was)?.focus();
+  }, [tray, onTray]);
+
+  // Bring the part of the card the tray changes into view above it, once
+  // per tray: the stamps sit at the foot of Google's card, not under its logo.
+  useEffect(() => {
+    if (wide || !tray || !trayHeight) return;
+    if (scrolledFor.current === tray) return;
+    scrolledFor.current = tray;
+    const part = partOf(tray);
+    const rect = part ? stage.current?.rect(part) : null;
+    if (!rect) return;
+    const top = topClearance();
+    const bottom = window.innerHeight - trayHeight - 8;
+    let delta = rect.bottom > bottom ? rect.bottom - bottom : 0;
+    if (rect.top - delta < top) delta = rect.top - top;
+    if (Math.abs(delta) > 1) window.scrollBy({ top: delta, behavior: reduced ? "auto" : "smooth" });
+    // partOf reads props that don't change while a tray is open.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wide, tray, trayHeight, reduced]);
+
+  useEffect(() => {
+    if (!tray) scrolledFor.current = null;
+  }, [tray]);
+
+  const onPart = (part: CardPart) => {
+    if (part === "stamps") open("stamp");
+    else if (part === "names") open("names");
+    else open(owner ? "logo" : "names");
+  };
+
+  const body = (id: string | null) => {
+    switch (id) {
+      case "colours":
+        return <ColoursTray value={value} onChange={onChange} />;
+      case "stamp":
+        return (
+          <StampTray
+            value={value}
+            onChange={onChange}
+            niche={niche}
+            picture={stampPicture}
+            onPicture={onHold ? (dataUrl) => onHold("stamp_art", dataUrl) : undefined}
+            note={stampPicture.inUse ? undefined : pictureNote}
+            locked={pictureLocked}
+          />
+        );
+      case "reward":
+        return (
+          <RewardTray value={value} onChange={onChange} back={back} onFollow={onFollow} stampPicture={stampPicture.url} />
+        );
+      case "names":
+        return <NamesTray value={value} onChange={onChange} businessName={businessName} />;
+      case "logo":
+        return onHold ? (
+          <LogoTray
+            logo={held.logo ?? images.logo}
+            ground={value.background_color}
+            onPick={(dataUrl) => onHold("logo", dataUrl)}
+          />
+        ) : null;
+      case "wallet":
+        return (
+          <WalletDetailsTray
+            value={value}
+            onChange={onChange}
+            lint={lint}
+            editing={editingField}
+            onEditing={onEditingField}
+            art={onHold ? { held, images, onPick: onHold } : undefined}
+          />
+        );
+      default:
+        return extraTrays.find((extra) => extra.id === id)?.body ?? null;
     }
-  }
+  };
 
-  function uploadButton(use: ImageUse, label: string, preview?: string) {
-    if (!onUpload) return null;
-    return (
-      <UploadButton
-        key={use}
-        label={uploading === use ? t("common.loading") : label}
-        busy={uploading === use}
-        preview={preview}
-        onFile={(file) => void handleUpload(use, file)}
+  const barShown = bar.changes > 0 || !!bar.problem || !!bar.stale || !!bar.status;
+  const studioBar = <StudioBar ref={saveRef} {...bar} />;
+
+  const sampleRow = (
+    <div className="flex items-center justify-center gap-3">
+      <Button
+        variant="secondary"
+        size="icon"
+        icon={<Minus aria-hidden />}
+        aria-label={t("studio.sampleFewer")}
+        disabled={shownSample <= 0}
+        onClick={() => setSample(Math.max(0, shownSample - 1))}
       />
+      <p aria-live="polite" className="type-body min-w-0 text-center text-ink-muted">
+        {t("studio.sample", { count: shownSample, total: value.stamps_required })}
+      </p>
+      <Button
+        variant="secondary"
+        size="icon"
+        icon={<Plus aria-hidden />}
+        aria-label={t("studio.sampleMore")}
+        disabled={shownSample >= value.stamps_required}
+        onClick={() => setSample(Math.min(value.stamps_required, shownSample + 1))}
+      />
+    </div>
+  );
+
+  const rewardRow = (
+    <div className="flex flex-col gap-2">
+      <button
+        type="button"
+        onClick={() => open("reward")}
+        className={cn(
+          "theme-lit flex min-h-14 w-full items-center gap-3 rounded-panel border border-border bg-surface px-4 py-3 text-start shadow-panel",
+          "touch-manipulation transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5",
+          noTapFlash,
+          focusRingInset,
+        )}
+      >
+        <Gift aria-hidden className="size-5 shrink-0 text-ink" />
+        <span className="type-body min-w-0 flex-1 text-ink">
+          <Trans
+            i18nKey="studio.rewardSentence"
+            count={value.stamps_required}
+            values={{ reward: value.reward_description.trim() || t("studio.noReward") }}
+            components={{ b: <bdi className="font-semibold" /> }}
+          />
+        </span>
+        <Pencil aria-hidden className="size-5 shrink-0 text-ink-muted" />
+        <span className="sr-only">{t("studio.editReward")}</span>
+      </button>
+      {back.kind === "differs" && <BackDiffers text={back.text} onFollow={onFollow} />}
+    </div>
+  );
+
+  const stageView = (
+    <StudioStage
+      ref={stage}
+      value={value}
+      businessName={businessName}
+      images={images}
+      held={held}
+      stampPicture={stampPicture.url}
+      pictureMissing={stampPicture.inUse && !stampPicture.url}
+      unsaved={unsaved}
+      sample={shownSample}
+      wallet={wallet}
+      onWallet={setWallet}
+      onPart={onPart}
+    />
+  );
+
+  if (wide) {
+    const tab = tray ?? "colours";
+    return (
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="flex min-w-0 flex-col gap-5">
+          {notices}
+          <Tabs value={tab} onChange={onTray}>
+            {/* Wrapping rather than scrolling, so no tray hides past the column's edge. */}
+            <TabList label={t("studio.title")} className="flex-wrap overflow-visible">
+              {trays.map(({ id, label }) => (
+                <Tab key={id} value={id}>
+                  {label}
+                </Tab>
+              ))}
+            </TabList>
+            {trays.map(({ id }) => (
+              <TabPanel key={id} value={id} className="rounded-panel border border-border bg-surface p-5 shadow-panel">
+                {body(id)}
+              </TabPanel>
+            ))}
+          </Tabs>
+        </div>
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-8">
+          {stageView}
+          {sampleRow}
+          {barShown && <div className="rounded-panel border border-border bg-surface p-4 shadow-panel">{studioBar}</div>}
+          {rewardRow}
+          {foot}
+        </aside>
+      </div>
     );
   }
 
-  const paletteChoices = CARD_PALETTES.map((palette: CardPalette) => ({
-    value: palette.key,
-    label: t(`studio.palettes.${palette.key}`),
-    // The chip is a scrap of the card itself, drawn with the stamp the owner
-    // has actually chosen — so picking a glyph changes every palette, and the
-    // row reads as "here is mine, in six colourways" rather than as six
-    // abstract pinwheels.
-    render: (selected: boolean) => (
-      <span
-        className={cn(
-          "flex h-11 w-11 flex-col items-center justify-center gap-1 rounded-xl ring-offset-2 ring-offset-surface transition-shadow",
-          selected ? "ring-2 ring-ink" : "ring-1 ring-border-strong/70",
-        )}
-        style={{ backgroundColor: palette.background }}
-      >
-        <GlyphIcon size={16} strokeWidth={2.4} color={palette.stamp} aria-hidden="true" />
-        <span
-          className="h-[2px] w-5 rounded-full"
-          style={{ backgroundColor: palette.label }}
-        />
-      </span>
-    ),
-  }));
-
-  const glyphChoices = STAMP_GLYPH_NAMES.map((name) => {
-    const Icon = STAMP_GLYPHS[name];
-    return {
-      value: name,
-      label: t(`onboarding.stamp.glyphs.${name}`),
-      render: (selected: boolean) => (
-        <span
-          className={cn(
-            "flex h-11 w-11 items-center justify-center rounded-full ring-offset-2 ring-offset-surface transition-colors",
-            selected
-              ? "bg-navy-deep text-white ring-2 ring-ink"
-              : "bg-background text-ink ring-1 ring-border-strong/70",
-          )}
-        >
-          <Icon size={20} strokeWidth={2.2} aria-hidden="true" />
-        </span>
-      ),
-    };
-  });
-
-  // Each texture tile is a piece of the strip: the card colour with the
-  // pattern in the stamp colour, exactly as the renderer bakes it.
-  const patternChoices = CARD_PATTERNS.map((kind: CardPattern) => ({
-    value: kind,
-    label: t(`studio.patterns.${kind}`),
-    render: (selected: boolean) => (
-      <span
-        className={cn(
-          "flex h-12 w-full items-center justify-center rounded-xl ring-offset-2 ring-offset-surface transition-shadow",
-          selected ? "ring-2 ring-ink" : "ring-1 ring-border-strong/70",
-        )}
-        style={{
-          backgroundColor: value.background_color,
-          ...patternStyle(kind, stampColor),
-        }}
-      >
-        <span
-          className={cn(
-            "rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
-            selected ? "bg-surface text-ink" : "bg-surface/85 text-ink-muted",
-          )}
-        >
-          {t(`studio.patterns.${kind}`)}
-        </span>
-      </span>
-    ),
-  }));
-
+  const chipTrays = trays.filter(({ id }) => id !== "reward");
   return (
-    <div className="grid items-start gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
-      {/* ── The stage ─────────────────────────────────────────────────
-          First on a phone, because the whole point is watching the card
-          change; second column and sticky from `xl`, where it can sit beside
-          the controls instead of above them. */}
-      <div className="order-1 flex flex-col gap-4 xl:order-2 xl:sticky xl:top-6">
-        {/* A panel, built like the ones on the bench, so the two columns read
-            as one app rather than as a page with a window cut in it. */}
-        <div className="rounded-2xl border border-border bg-surface p-4 text-ink shadow-panel sm:p-5">
-          {/* The well the card sits in: one step under the panel in both
-              themes, so the pass reads as an object set down on a screen
-              rather than printed on the panel. */}
-          <div className="-mx-1 rounded-xl bg-background px-1 py-5 sm:px-2">
-            <CardPreview
-              businessName={businessName}
-              cardName={value.name}
-              stampsRequired={value.stamps_required}
-              currentStamps={sampleStamps}
-              rewardDescription={value.reward_description}
-              backgroundColor={value.background_color}
-              foregroundColor={value.foreground_color}
-              labelColor={value.label_color}
-              design={design}
-              logoUrl={images.logo}
-              appleLogoUrl={images.apple_logo}
-              stampArtUrl={images.stamp_art}
-              stampedArtUrl={images.stamped_art}
-              unstampedArtUrl={images.unstamped_art}
-              stripBaseUrl={images.strip_base}
-              stripStates={images.strip_states}
-              heroStates={images.hero_states}
-              unsaved={unsaved}
-            />
-          </div>
-
-          {/* Try it: punch the sample card and watch the pass above follow.
-              No rule above it — the well's own edge is the division now. */}
-          <div className="mt-4 flex flex-col gap-2.5">
-            <StudioSlider
-              label={t("studio.sampleStampsLabel")}
-              min={0}
-              max={value.stamps_required}
-              value={sampleStamps}
-              onChange={setSampleStamps}
-              valueText={sampleText}
-              spoken={spokenSample}
-            />
-            <PunchStrip
-              count={value.stamps_required}
-              filled={sampleStamps}
-              // Clicking the last punched dot lifts it again, so the empty
-              // card is one click away rather than a drag back to zero.
-              onPick={(picked) => setSampleStamps(picked === sampleStamps ? picked - 1 : picked)}
-              glyph={GlyphIcon}
-              stampArtUrl={images.stamp_art}
-              stampColor={stampColor}
-              cardColor={value.background_color}
-            />
-          </div>
-        </div>
-
-        {lint !== undefined &&
-          (lint.length === 0 ? (
-            <p className="flex items-start gap-2.5 rounded-xl bg-ok-bg px-4 py-3 text-sm text-ok">
-              <CircleCheck size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
-              <span className="min-w-0">{t("studio.lintClean")}</span>
-            </p>
-          ) : (
-            <div className="flex items-start gap-2.5 rounded-xl bg-warn-bg px-4 py-3 text-sm text-warn">
-              <Info size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
-              <div className="min-w-0">
-                <p className="font-medium">{t("studio.lintTitle")}</p>
-                <ul className="mt-1 list-disc space-y-0.5 ms-5">
-                  {lint.map((problem) => (
-                    <li key={problem} dir="ltr" className="text-start">
-                      {problem}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          ))}
-      </div>
-
-      {/* ── The bench ─────────────────────────────────────────────────── */}
-      <div className="order-2 flex flex-col gap-4 xl:order-1">
-        <StudioPanel title={t("studio.groups.card")}>
-          {/* Two short answers, side by side once there is room — a card name
-              does not need 700px of field to be typed into. */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <StudioText
-              label={t("studio.nameLabel")}
-              value={value.name}
-              onChange={(e) => update({ name: e.target.value })}
-              required
-            />
-
-            <StudioText
-              label={t("studio.rewardLabel")}
-              value={value.reward_description}
-              onChange={(e) => update({ reward_description: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="flex flex-col gap-2.5">
-            <StudioSlider
-              label={t("studio.stampsLabel")}
-              min={MIN_STAMPS}
-              max={MAX_STAMPS}
-              value={value.stamps_required}
-              onChange={setStampsRequired}
-              valueText={stampsText}
-              spoken={spokenStamps}
-            />
-            {/* The strip drawn at full length, so the choice is "how long is
-                my card" rather than a number on a rail. The first dot is
-                below the minimum and clamps up to it — a one-stamp loyalty
-                card is not a thing the renderer will draw. */}
-            <PunchStrip
-              count={MAX_STAMPS}
-              filled={value.stamps_required}
-              onPick={(picked) => setStampsRequired(Math.max(MIN_STAMPS, picked))}
-              glyph={GlyphIcon}
-              stampArtUrl={images.stamp_art}
-              stampColor={stampColor}
-              cardColor={value.background_color}
-            />
-          </div>
-        </StudioPanel>
-
-        <StudioPanel title={t("studio.groups.stamp")}>
-          <div className="flex flex-col gap-3">
-            <ChoiceGrid
-              name="studio-glyph"
-              legend={t("studio.glyphLabel")}
-              choices={glyphChoices}
-              // Uploaded art wins over any glyph in the doc — the renderer
-              // uses the picture, so no icon here is the selected one.
-              value={images.stamp_art ? null : glyph}
-              onChange={(name) => updateDesign({ stamp: { ...design.stamp, glyph: name } })}
-              columns={4}
-              smColumns={8}
-            />
-            {uploadButton("stamp_art", t("studio.uploadStampArt"), images.stamp_art)}
-          </div>
-        </StudioPanel>
-
-        <StudioPanel title={t("studio.groups.look")}>
-          <ChoiceGrid
-            name="studio-palette"
-            legend={t("studio.paletteLabel")}
-            choices={paletteChoices}
-            // A palette is a shortcut that writes four colours at once, not a
-            // stored choice — an owner who then nudges one colour has left it,
-            // and nothing should still look picked.
-            value={
-              CARD_PALETTES.find(
-                (p) =>
-                  p.background === value.background_color &&
-                  p.text === value.foreground_color &&
-                  p.label === value.label_color &&
-                  p.stamp === stampColor,
-              )?.key ?? null
-            }
-            onChange={(key) => {
-              const palette = CARD_PALETTES.find((p) => p.key === key);
-              if (!palette) return;
-              onChange({
-                ...value,
-                background_color: palette.background,
-                foreground_color: palette.text,
-                label_color: palette.label,
-                design: { ...design, stamp: { ...design.stamp, color: palette.stamp } },
-              });
+    <div className="flex flex-col gap-4">
+      {stageView}
+      {sampleRow}
+      {notices}
+      {rewardRow}
+      <div role="group" aria-label={t("studio.chips.label")} className="flex flex-wrap gap-2">
+        {chipTrays.map(({ id, label }) => (
+          <Button
+            key={id}
+            ref={(element) => {
+              if (element) chips.current.set(id, element);
+              else chips.current.delete(id);
             }}
-            columns={6}
-          />
-
-          <div className="flex flex-col gap-2">
-            <StudioGroupLabel>{t("studio.colorsLabel")}</StudioGroupLabel>
-            {/* One column below `sm`: the picker panel is wider than a
-                half-width cell and would run off a phone screen. */}
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              <ColorWell
-                label={t("studio.backgroundColor")}
-                value={value.background_color}
-                onChange={(color) => update({ background_color: color })}
-              />
-              <ColorWell
-                label={t("studio.stampColor")}
-                value={stampColor}
-                onChange={(color) => updateDesign({ stamp: { ...design.stamp, color } })}
-              />
-              <ColorWell
-                label={t("studio.textColor")}
-                value={value.foreground_color}
-                onChange={(color) => update({ foreground_color: color })}
-              />
-              <ColorWell
-                label={t("studio.labelColor")}
-                value={value.label_color}
-                onChange={(color) => update({ label_color: color })}
-              />
-            </div>
-          </div>
-
-          <ChoiceGrid
-            name="studio-pattern"
-            legend={t("studio.patternLabel")}
-            choices={patternChoices}
-            value={pattern}
-            onChange={(kind) => updateDesign({ pattern: kind })}
-            columns={4}
-            cellClassName="[&>span]:w-full"
-          />
-        </StudioPanel>
-
-        {onUpload && (
-          <StudioPanel title={t("studio.groups.logo")} hint={t("studio.logoHint")}>
-            {uploadButton("logo", t("studio.uploadLogo"), images.logo)}
-          </StudioPanel>
-        )}
-
-        {uploadError && (
-          <p role="alert" className="rounded-xl bg-danger-bg px-4 py-3 text-sm text-danger">
-            {uploadError}
-          </p>
-        )}
-
-        <StudioDisclosure
-          open={showAdvanced}
-          onToggle={() => setShowAdvanced((v) => !v)}
-          label={t("studio.groups.advanced")}
-          hint={t("studio.groups.advancedHint")}
-          icon={<ChevronDown size={18} />}
-        >
-          <LabelsEditor
-            fields={design.fields ?? []}
-            onChange={(fields) => updateDesign({ fields })}
-          />
-
-          {!simpleOnly && (
-            <>
-              <div className="flex flex-wrap gap-3">
-                <StudioSelect
-                  label={t("studio.languageLabel")}
-                  value={design.default_language ?? "HE"}
-                  onChange={(e) =>
-                    updateDesign({ default_language: e.target.value as "HE" | "EN" })
-                  }
-                >
-                  <option value="HE">{t("studio.languages.HE")}</option>
-                  <option value="EN">{t("studio.languages.EN")}</option>
-                </StudioSelect>
-                <StudioSelect
-                  label={t("studio.barcodeLabel")}
-                  value={design.barcode?.format ?? "QR"}
-                  onChange={(e) =>
-                    updateDesign({
-                      barcode: {
-                        ...design.barcode,
-                        format: e.target.value as NonNullable<DesignDoc["barcode"]>["format"],
-                      },
-                    })
-                  }
-                >
-                  {["QR", "PDF417", "AZTEC", "CODE128"].map((format) => (
-                    <option key={format} value={format}>
-                      {format}
-                    </option>
-                  ))}
-                </StudioSelect>
-              </div>
-
-              <StudioText
-                label={t("studio.orgNameLabel")}
-                hint={t("studio.orgNameHint")}
-                value={design.organization_name ?? ""}
-                onChange={(e) => updateDesign({ organization_name: e.target.value })}
-              />
-
-              {onUpload && (
-                <div className="flex flex-col gap-2">
-                  <StudioGroupLabel>{t("studio.artworkLabel")}</StudioGroupLabel>
-                  <p className="text-xs text-ink-subtle">{t("studio.artworkHint")}</p>
-                  <div className="mt-1 flex flex-col gap-2">
-                    {uploadButton("strip_base", t("studio.uploadStripBase"), images.strip_base)}
-                    {uploadButton("stamped_art", t("studio.uploadStampedArt"), images.stamped_art)}
-                    {uploadButton(
-                      "unstamped_art",
-                      t("studio.uploadUnstampedArt"),
-                      images.unstamped_art,
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="flex flex-col gap-2">
-                <StudioGroupLabel>{t("studio.fieldsLabel")}</StudioGroupLabel>
-                <FieldsEditor
-                  fields={design.fields ?? []}
-                  onChange={(fields) => updateDesign({ fields })}
-                />
-              </div>
-            </>
-          )}
-        </StudioDisclosure>
+            variant={tray === id ? "ink" : "secondary"}
+            aria-expanded={tray === id}
+            onClick={() => (tray === id ? close() : open(id))}
+          >
+            {label}
+          </Button>
+        ))}
       </div>
+      {foot}
+
+      <StudioTray
+        open={!!tray}
+        title={labelOf(tray ?? shownTray)}
+        trayKey={tray ?? shownTray ?? ""}
+        onClose={close}
+        onHeight={setTrayHeight}
+        foot={barShown ? studioBar : undefined}
+      >
+        {body(tray ?? shownTray)}
+      </StudioTray>
+
+      {!tray && barShown && (
+        <>
+          {/* Above the phone bar; its foot runs under the Scan circle that
+              stands out of it. From 768px there is no phone bar. */}
+          <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t border-border bg-surface px-4 pb-7 pt-3 md:bottom-0 md:pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <div className="mx-auto max-w-2xl">{studioBar}</div>
+          </div>
+          <div aria-hidden className="h-36" />
+        </>
+      )}
+      {/* Room under the page, so any part of the card can scroll above the tray. */}
+      {tray && <div aria-hidden style={{ height: trayHeight }} />}
     </div>
   );
 }

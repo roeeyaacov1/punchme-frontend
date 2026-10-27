@@ -34,6 +34,7 @@ export function StampPicker({
   picture,
   onPicture,
   note,
+  locked,
 }: {
   glyph: string;
   onGlyph: (name: string) => void;
@@ -43,10 +44,13 @@ export function StampPicker({
   onPicture?: (dataUrl: string) => void;
   /** Said before a picture is chosen, such as that it can't be taken back. */
   note?: ReactNode;
+  /** Why no glyph can be chosen now (a saved picture with no way back yet). */
+  locked?: ReactNode;
 }) {
   const { t } = useTranslation();
   const inputId = useId();
   const errorId = useId();
+  const lockedId = useId();
   const [error, setError] = useState<string | null>(null);
   const [reading, setReading] = useState(false);
 
@@ -104,8 +108,15 @@ export function StampPicker({
         tiles={tiles}
         value={picture.inUse ? null : glyph}
         onChange={onGlyph}
+        disabled={!!locked}
+        describedBy={locked ? lockedId : undefined}
         listClassName="grid grid-cols-[repeat(4,2.75rem)] justify-between gap-y-3 sm:flex sm:justify-start"
       />
+      {locked && (
+        <p id={lockedId} className="-mt-2 text-sm leading-snug text-ink-muted">
+          {locked}
+        </p>
+      )}
 
       <div className="flex flex-col gap-2">
         {note && <p className="text-sm leading-snug text-ink-muted">{note}</p>}

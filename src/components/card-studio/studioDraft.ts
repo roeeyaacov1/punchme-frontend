@@ -1,0 +1,283 @@
+import type { DesignDoc, DesignField, ImageUse } from "../../api/designs";
+import { normalizeHex, readableInk } from "../../lib/color";
+
+/**
+ * The card studio's draft, and the rules it keeps, pure so they can be
+ * tested: what changed and how many, the reward on the back of the card,
+ * the face's two labels, a free-text field's own binding, the API's text
+ * limits, and where the sample starts.
+ */
+
+/** Everything the studio edits: the template's flat fields and its design
+ * doc, as PATCH .../templates/{id} takes them. */
+export interface CardStudioValue {
+  name: string;
+  stamps_required: number;
+  reward_description: string;
+  background_color: string;
+  foreground_color: string;
+  label_color: string;
+  design: DesignDoc;
+}
+
+/** Published pictures, for the stage: hosted URLs, or a catalog look's art. */
+export interface CardStudioImages {
+  logo?: string;
+  apple_logo?: string;
+  stamp_art?: string;
+  strip_base?: string;
+  stamped_art?: string;
+  unstamped_art?: string;
+  /** The PNGs the phone gets, by stamp state. */
+  strip_states?: Record<string, string>;
+  hero_states?: Record<string, string>;
+}
+
+/** Pictures an owner has chosen and Save hasn't sent yet. */
+export type HeldUse = Exclude<ImageUse, "icon">;
+export type HeldPictures = Partial<Record<HeldUse, string>>;
+
+/** The order Save sends them in: the logo, the stamp, then the strip art. */
+export const HELD_ORDER: readonly HeldUse[] = ["logo", "stamp_art", "strip_base", "stamped_art", "unstamped_art"];
+
+/** The API's limits on what an owner types (CardTemplateIn, `_DesignDoc`). */
+export const TEXT_LIMITS = {
+  name: 80,
+  reward: 200,
+  label: 60,
+  changeMessage: 120,
+  value: 500,
+  organization: 120,
+} as const;
+
+/** At most this many fields; at least one, which the API requires. */
+export const MAX_FIELDS = 10;
+
+/** The back field that carries the reward to the pass. */
+export const BACK_BINDING = "universal.info";
+
+/** The two fields on the card's face, and their sections. */
+export const FACE_FIELDS = [
+  { binding: "person.displayName", section: "SECONDARY_FIELDS" },
+  { binding: "members.member.points", section: "AUXILIARY_FIELDS" },
+] as const;
+
+/** What a field can show. A free-text field may be added again and again,
+ * each with a binding of its own; the other four once each. */
+export const FIELD_KINDS = [
+  "person.displayName",
+  "members.member.points",
+  "members.tier.name",
+  "universal.info",
+  "meta.custom",
+] as const;
+export type FieldKind = (typeof FIELD_KINDS)[number];
+
+const CUSTOM = "meta.custom";
+
+/** A field's kind, from its binding: `meta.custom_3` is free text. */
+export function kindOf(binding: string): FieldKind | null {
+  if (binding === CUSTOM || /^meta\.custom_\d+$/.test(binding)) return CUSTOM;
+  return (FIELD_KINDS as readonly string[]).includes(binding) ? (binding as FieldKind) : null;
+}
+
+/** A free-text binding no field has yet: `meta.custom`, then `meta.custom_2`… */
+export function nextCustomBinding(fields: readonly DesignField[]): string {
+  const used = new Set(fields.map((field) => field.binding));
+  if (!used.has(CUSTOM)) return CUSTOM;
+  for (let n = 2; ; n += 1) if (!used.has(`${CUSTOM}_${n}`)) return `${CUSTOM}_${n}`;
+}
+
+/** The kinds "Add field" can offer: free text always, the rest only if absent. */
+export function addableKinds(fields: readonly DesignField[]): FieldKind[] {
+  if (fields.length >= MAX_FIELDS) return [];
+  const used = new Set(fields.map((field) => kindOf(field.binding)));
+  return FIELD_KINDS.filter((kind) => kind === CUSTOM || !used.has(kind));
+}
+
+/** A new field of a kind, on the back of the card. */
+export function newField(kind: FieldKind, fields: readonly DesignField[]): DesignField {
+  return {
+    binding: kind === CUSTOM ? nextCustomBinding(fields) : kind,
+    label: "",
+    section: "BACK_FIELDS",
+    alignment: "NATURAL",
+  };
+}
+
+/** The label a face field carries, or "" for the default. */
+export function faceLabel(fields: readonly DesignField[], binding: string): string {
+  return fields.find((field) => field.binding === binding)?.label ?? "";
+}
+
+/** Rename a face field. One typed where there was none adds the field;
+ * clearing one the studio added drops it again, rather than sending an
+ * empty label. These are the only editors of the two labels. */
+export function withFaceLabel(
+  fields: readonly DesignField[],
+  binding: string,
+  section: DesignField["section"],
+  label: string,
+): DesignField[] {
+  const index = fields.findIndex((field) => field.binding === binding);
+  if (index === -1) {
+    return label ? [...fields, { binding, label, section, alignment: "NATURAL" }] : [...fields];
+  }
+  const field = fields[index];
+  const plain =
+    field.section === section &&
+    !field.change_message &&
+    !field.default_value &&
+    (field.alignment === "NATURAL" || field.alignment === undefined);
+  if (!label && plain && fields.length > 1) return fields.filter((_, i) => i !== index);
+  return fields.map((f, i) => (i === index ? { ...f, label } : f));
+}
+
+/** What the back of the card says, against the reward. */
+export type BackState =
+  | { kind: "none" }
+  | { kind: "follows" }
+  | { kind: "differs"; text: string };
+
+/**
+ * The reward reaches the pass in one place, the back field's text. When it
+ * says the reward as saved (or nothing), it follows the reward; when it says
+ * something else it is left alone and said, unless the owner has asked for
+ * it to follow. A card without that field has nothing to follow: the
+ * server's defaults fill it from the reward themselves.
+ */
+export function backState(design: DesignDoc, savedReward: string, follow: boolean): BackState {
+  const field = design.fields?.find((candidate) => candidate.binding === BACK_BINDING);
+  if (!field) return { kind: "none" };
+  const text = (field.default_value ?? "").trim();
+  if (follow || !text || text === savedReward.trim()) return { kind: "follows" };
+  return { kind: "differs", text };
+}
+
+/** The draft as Save sends it: when the back follows, it says the reward. */
+export function withRewardOnBack(value: CardStudioValue, savedReward: string, follow: boolean): CardStudioValue {
+  if (backState(value.design, savedReward, follow).kind !== "follows") return value;
+  const fields = value.design.fields?.map((field) =>
+    field.binding === BACK_BINDING ? { ...field, default_value: value.reward_description } : field,
+  );
+  return { ...value, design: { ...value.design, fields } };
+}
+
+/** A new card colour. While the text colour is automatic (the ink that
+ * reads on the old colour), it moves to the ink that reads on the new one. */
+export function withBackground(value: CardStudioValue, background: string): CardStudioValue {
+  const automatic = sameColour(value.foreground_color, readableInk(value.background_color));
+  return {
+    ...value,
+    background_color: background,
+    foreground_color: automatic ? readableInk(background) : value.foreground_color,
+  };
+}
+
+/** The text colour as the shared control sees it: null is automatic. */
+export function textColourChoice(value: CardStudioValue): string | null {
+  return sameColour(value.foreground_color, readableInk(value.background_color)) ? null : value.foreground_color;
+}
+
+/** The stamp colour, which the design keeps (falling back to the text colour,
+ * as the renderer does). */
+export function stampColourOf(value: CardStudioValue): string {
+  return value.design.stamp?.color || value.foreground_color;
+}
+
+/** Where the sample opens: half the card, rounded down, at least 1, so the
+ * stamp colour shows from the first look. */
+export function sampleStart(stampsRequired: number): number {
+  return Math.max(1, Math.floor(stampsRequired / 2));
+}
+
+export type ChangeKind =
+  | "reward"
+  | "stamps"
+  | "colours"
+  | "stamp"
+  | "texture"
+  | "names"
+  | "logo"
+  | "fields"
+  | "language"
+  | "barcode"
+  | "art";
+
+function sameColour(a: string | undefined, b: string | undefined): boolean {
+  return (normalizeHex(a ?? "") ?? a ?? "") === (normalizeHex(b ?? "") ?? b ?? "");
+}
+
+function same(a: unknown, b: unknown): boolean {
+  return JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+}
+
+/** The fields with the face labels and the back's text set aside, which
+ * count as names and as the reward. A face field the label editor added or
+ * dropped, in its plain shape, is a name too. */
+function plainFields(fields: readonly DesignField[] | undefined): DesignField[] {
+  return (fields ?? [])
+    .filter((field) => {
+      const face = FACE_FIELDS.find((candidate) => candidate.binding === field.binding);
+      if (!face) return true;
+      const plain =
+        field.section === face.section &&
+        !field.change_message &&
+        !field.default_value &&
+        (field.alignment === "NATURAL" || field.alignment === undefined);
+      return !plain;
+    })
+    .map((field) => ({
+      ...field,
+      label: FACE_FIELDS.some((face) => face.binding === field.binding) ? "" : (field.label ?? ""),
+      default_value: field.binding === BACK_BINDING ? "" : (field.default_value ?? ""),
+    }));
+}
+
+function backText(fields: readonly DesignField[] | undefined): string {
+  return fields?.find((field) => field.binding === BACK_BINDING)?.default_value ?? "";
+}
+
+/**
+ * What changed between the saved card and the draft, one entry per kind the
+ * bar counts ("2 changes"). The reward counts once whether it changed on the
+ * front, on the back, or both.
+ */
+export function changesBetween(
+  saved: CardStudioValue,
+  draft: CardStudioValue,
+  held: HeldPictures = {},
+  follow = false,
+): ChangeKind[] {
+  const changes: ChangeKind[] = [];
+  const sd = saved.design;
+  const dd = draft.design;
+  const rewardOnBack = follow && backText(dd.fields) !== draft.reward_description;
+  if (saved.reward_description !== draft.reward_description || rewardOnBack || backText(sd.fields) !== backText(dd.fields)) {
+    changes.push("reward");
+  }
+  if (saved.stamps_required !== draft.stamps_required) changes.push("stamps");
+  if (
+    !sameColour(saved.background_color, draft.background_color) ||
+    !sameColour(saved.foreground_color, draft.foreground_color) ||
+    !sameColour(saved.label_color, draft.label_color) ||
+    !sameColour(sd.stamp?.color, dd.stamp?.color)
+  ) {
+    changes.push("colours");
+  }
+  if ((sd.stamp?.glyph ?? "check") !== (dd.stamp?.glyph ?? "check") || held.stamp_art) changes.push("stamp");
+  if ((sd.pattern ?? "none") !== (dd.pattern ?? "none")) changes.push("texture");
+  if (
+    saved.name !== draft.name ||
+    (sd.organization_name ?? "") !== (dd.organization_name ?? "") ||
+    FACE_FIELDS.some((face) => faceLabel(sd.fields ?? [], face.binding) !== faceLabel(dd.fields ?? [], face.binding))
+  ) {
+    changes.push("names");
+  }
+  if (held.logo) changes.push("logo");
+  if (!same(plainFields(sd.fields), plainFields(dd.fields))) changes.push("fields");
+  if ((sd.default_language ?? "HE") !== (dd.default_language ?? "HE")) changes.push("language");
+  if ((sd.barcode?.format ?? "QR") !== (dd.barcode?.format ?? "QR")) changes.push("barcode");
+  if (held.strip_base || held.stamped_art || held.unstamped_art) changes.push("art");
+  return changes;
+}
