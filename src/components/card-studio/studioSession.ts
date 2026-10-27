@@ -1,5 +1,6 @@
 import { dropDraft, readDraft, writeDraft } from "../messaging/sessionDraft";
 import { HELD_ORDER, type CardStudioValue, type HeldPictures, type HeldUse } from "./studioDraft";
+import { ART_USES, type ArtCopies, type ArtUse } from "./studioReads";
 
 /**
  * The studio's draft, kept in this tab as the message editors keep theirs,
@@ -27,7 +28,8 @@ export interface KeptDraft extends KeptEdits {
 const editsKey = (businessId: string, templateId: string) => `${businessId}/design/${templateId}`;
 const pictureKey = (businessId: string, templateId: string, use: HeldUse) =>
   `${editsKey(businessId, templateId)}/${use}`;
-const uploadedKey = (businessId: string, templateId: string) => `${editsKey(businessId, templateId)}/uploaded-stamp`;
+const uploadedKey = (businessId: string, templateId: string, use: ArtUse) =>
+  `${editsKey(businessId, templateId)}/uploaded/${use}`;
 const syncWaitKey = (businessId: string, templateId: string) => `${editsKey(businessId, templateId)}/sync-wait`;
 
 export function keepEdits(businessId: string, templateId: string, edits: KeptEdits): void {
@@ -58,14 +60,21 @@ export function dropKept(businessId: string, templateId: string): void {
   for (const use of HELD_ORDER) dropDraft(pictureKey(businessId, templateId, use));
 }
 
-/** The stamp picture this device sent, kept in the tab, so the stand-in can
- * draw it after a save: the design read names it but doesn't carry it. */
-export function keepUploadedStamp(businessId: string, templateId: string, dataUrl: string): void {
-  writeDraft(uploadedKey(businessId, templateId), dataUrl);
+/** The art this device sent (the stamp picture, the before and after art),
+ * kept in the tab, so its tile and the stand-in can draw it after a save:
+ * the design read names it in `assets` but doesn't carry it. Art is at most
+ * 512px, so it fits. */
+export function keepUploaded(businessId: string, templateId: string, use: ArtUse, dataUrl: string): void {
+  writeDraft(uploadedKey(businessId, templateId, use), dataUrl);
 }
 
-export function readUploadedStamp(businessId: string, templateId: string): string | null {
-  return readDraft<string>(uploadedKey(businessId, templateId));
+export function readUploaded(businessId: string, templateId: string): ArtCopies {
+  const copies: ArtCopies = {};
+  for (const use of ART_USES) {
+    const copy = readDraft<string>(uploadedKey(businessId, templateId, use));
+    if (copy) copies[use] = copy;
+  }
+  return copies;
 }
 
 /** Where the wallet's sync stood before a save (`sync.synced_at`), kept

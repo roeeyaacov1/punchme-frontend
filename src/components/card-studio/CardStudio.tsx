@@ -152,6 +152,8 @@ export interface CardStudioProps {
   niche?: string | null;
   /** Published pictures (hosted URLs), or a catalog look's art. */
   images?: CardStudioImages;
+  /** The art the card has (the design read's `assets`), drawn or not. */
+  assets?: readonly string[];
   /** Pictures held for Save. With `onHold`, the owner's studio: a logo tray,
    * a stamp picture of one's own, custom art. */
   held?: HeldPictures;
@@ -200,6 +202,7 @@ export function CardStudio({
   businessName,
   niche,
   images = {},
+  assets = [],
   held = {},
   onHold,
   stampPicture,
@@ -359,7 +362,7 @@ export function CardStudio({
             lint={lint}
             editing={editingField}
             onEditing={onEditingField}
-            art={onHold ? { held, images, onPick: onHold } : undefined}
+            art={onHold ? { held, images, assets, onPick: onHold } : undefined}
           />
         );
       default:

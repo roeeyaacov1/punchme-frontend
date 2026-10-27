@@ -46,6 +46,8 @@ const ART: { use: HeldUse; aspect: string }[] = [
 export interface WalletArt {
   held: HeldPictures;
   images: CardStudioImages;
+  /** The art the card has, which the design read names but doesn't carry. */
+  assets: readonly string[];
   onPick: (use: HeldUse, dataUrl: string) => void;
 }
 
@@ -196,6 +198,7 @@ function ArtTile({ use, aspect, art, ground }: { use: HeldUse; aspect: string; a
       title={t(`admin.catalog.art.uses.${use}.label`)}
       hint={t(`admin.catalog.art.uses.${use}.hint`)}
       src={typeof src === "string" ? src : undefined}
+      onCard={art.assets.includes(use)}
       aspect={aspect}
       ground={ground}
       error={error}

@@ -10,6 +10,24 @@ export interface ReadStamp {
   design: number;
 }
 
+/** The pictures the renderer composites itself: kept on the template, named
+ * in the design read's `assets`, but not carried by it. */
+export const ART_USES = ["stamp_art", "stamped_art", "unstamped_art"] as const;
+export type ArtUse = (typeof ART_USES)[number];
+export type ArtCopies = Partial<Record<ArtUse, string>>;
+
+/** This device's copies of the art (the upload echoes each back), for each
+ * picture the design read says is on the card now. One sent from another
+ * device has no copy here: its tile says it is on the card without it. */
+export function publishedArt(assets: readonly string[], uploaded: ArtCopies): ArtCopies {
+  const art: ArtCopies = {};
+  for (const use of ART_USES) {
+    const copy = uploaded[use];
+    if (copy && assets.includes(use)) art[use] = copy;
+  }
+  return art;
+}
+
 /** The re-read after a save counts only when both reads landed after it was
  * asked for. Neither call throws: a failed read keeps the card from before
  * the save, and one made offline waits, both with their old times. */
