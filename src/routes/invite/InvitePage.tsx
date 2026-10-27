@@ -93,11 +93,12 @@ export function InvitePage() {
       // next, and a cached 404 from before they had one would send them
       // round to the onboarding wizard instead.
       await queryClient.invalidateQueries({ queryKey: ["business", "me"] });
+      // Still busy on the way out: the dashboard may be a moment loading its
+      // code, and a second press would only be refused.
       navigate("/dashboard", { replace: true });
     } catch (err) {
       setWrongAccount(err instanceof ApiError && err.code === "invitation_email_mismatch");
       setRefusal(describe(err));
-    } finally {
       setAccepting(false);
     }
   }
@@ -122,6 +123,13 @@ export function InvitePage() {
     if (auth.mode === "signup") auth.toggleMode();
     setSwitched(true);
   }
+
+  // A pending invitation ends in the dashboard: its code starts on its way
+  // while the invitee reads and types.
+  const pending = invitation?.status === "pending";
+  useEffect(() => {
+    if (pending) void import("../lazy/dashboard");
+  }, [pending]);
 
   // The form takes the button's place, so focus goes to its first field
   // rather than falling to the page.
