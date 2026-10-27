@@ -1,4 +1,4 @@
-import type { Ref } from "react";
+import { useLayoutEffect, useRef, type Ref, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 import { CircleUserRound, Ellipsis, type LucideIcon } from "lucide-react";
@@ -26,6 +26,12 @@ export type FifthSlot = "more" | "account";
  * Its controls never open the long-press callout and never select text, and
  * `touch-manipulation` takes the double-tap zoom's wait off every tap. Hover
  * only where a pointer hovers.
+ *
+ * It grows with the reader's text size, and the bars docked on it (a
+ * broadcast's send, a rule's save, the studio's save) stand on its 4rem.
+ * A fifth of the phone doesn't grow, though: nothing in a slot is wider than
+ * the slot, the Scan circle rises only as far as it still needs to, and the
+ * five words step down together until the longest fits.
  */
 export function PhoneBar({
   frame,
@@ -49,8 +55,10 @@ export function PhoneBar({
   onFifth: () => void;
   className?: string;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { role } = useBusiness();
+  const list = useRef<HTMLUListElement>(null);
+  useWordsThatFit(list, `${i18n.language} ${role} ${fifth}`);
   return (
     <nav
       aria-label={t("dashboard.nav.label")}
@@ -60,7 +68,7 @@ export function PhoneBar({
         className,
       )}
     >
-      <ul className="flex h-16 items-stretch">
+      <ul ref={list} className="flex h-16 items-stretch">
         {barItems(role).map((item) => (
           <li key={item.key} className="relative flex min-w-0 flex-1 basis-0">
             {item.key === "scan" ? <ScanTab item={item} /> : <Tab item={item} />}
@@ -87,6 +95,58 @@ export function PhoneBar({
   );
 }
 
+/**
+ * The words keep the reader's text size until the longest no longer fits
+ * its fifth of the bar, as "Customers" doesn't at 200% on a 375px phone.
+ * Then all five step down together to the size at which it does, so none is
+ * cut short and none is louder than its neighbours. They never go below the
+ * ramp's 13px; a word still too long there truncates, as it always has. At
+ * 100% every word fits and nothing is set.
+ */
+function useWordsThatFit(list: RefObject<HTMLUListElement>, words: string) {
+  useLayoutEffect(() => {
+    const ul = list.current;
+    if (!ul) return;
+    const labels = [...ul.querySelectorAll<HTMLElement>("[data-bar-word]")];
+    // Each word's own width, its inset included, to the fraction of a pixel.
+    const widest = () => {
+      labels.forEach((label) => (label.style.width = "max-content"));
+      const width = Math.max(...labels.map((label) => label.getBoundingClientRect().width));
+      labels.forEach((label) => label.style.removeProperty("width"));
+      return width;
+    };
+    const fit = () => {
+      labels.forEach((label) => label.style.removeProperty("font-size"));
+      if (labels.length === 0) return;
+      const room = Math.min(...labels.map((label) => label.getBoundingClientRect().width));
+      const natural = parseFloat(getComputedStyle(labels[0]).fontSize);
+      const floor = Math.min(natural, 13);
+      // The inset doesn't shrink with the word, so each step lands a little
+      // short of fitting and the next one finishes it.
+      for (let size = natural, need = widest(); need > room && size > floor; need = widest()) {
+        size = Math.max(floor, Math.min(size - 0.25, Math.floor(((size * room) / need) * 4) / 4));
+        labels.forEach((label) => (label.style.fontSize = `${size}px`));
+      }
+    };
+    fit();
+    // A word's box changes height with the text size and width with the
+    // screen; a web font arriving changes neither, so it is listened for.
+    let frame = 0;
+    const refit = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(fit);
+    };
+    const observer = new ResizeObserver(refit);
+    labels.forEach((label) => observer.observe(label));
+    document.fonts.addEventListener("loadingdone", refit);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      document.fonts.removeEventListener("loadingdone", refit);
+    };
+  }, [list, words]);
+}
+
 function tabClasses(current: boolean) {
   return cn(
     "group flex h-16 w-full min-w-0 flex-col items-center justify-end gap-0.5 pb-1 [-webkit-tap-highlight-color:transparent]",
@@ -111,7 +171,8 @@ function Tab({ item }: { item: NavItem }) {
   );
 }
 
-/** Icon over word, and the rule at the bar's top edge for the current one. */
+/** Icon over word, and the rule at the bar's top edge for the current one.
+ * The well is never wider than its slot. */
 function TabFace({ Icon, label, current }: { Icon: LucideIcon; label: string; current: boolean }) {
   return (
     <>
@@ -121,12 +182,22 @@ function TabFace({ Icon, label, current }: { Icon: LucideIcon; label: string; cu
       />
       <span
         aria-hidden
-        className="flex h-8 w-14 items-center justify-center rounded-full transition-colors duration-press ease-out group-active:bg-ink/[0.06]"
+        className="flex h-8 w-14 max-w-full items-center justify-center rounded-full transition-colors duration-press ease-out group-active:bg-ink/[0.06]"
       >
         <Icon className="size-6" strokeWidth={current ? 2.25 : 1.75} />
       </span>
-      <span className="type-tag w-full truncate px-1 text-center">{label}</span>
+      <Word>{label}</Word>
     </>
+  );
+}
+
+/** A slot's word. Its inset stays 4px at any text size, so the room it
+ * leaves goes to the word. */
+function Word({ children }: { children: string }) {
+  return (
+    <span data-bar-word className="type-tag w-full truncate px-[4px] text-center">
+      {children}
+    </span>
   );
 }
 
@@ -139,6 +210,13 @@ function TabFace({ Icon, label, current }: { Icon: LucideIcon; label: string; cu
  *
  * The link runs from the circle's top to the bar's foot, so the whole
  * circle is its target and what the tour lights.
+ *
+ * It stands on the bar's foot and is as tall as the ring and the word under
+ * it, so whatever the bar can't hold rises out of it: 22px at 100%, the
+ * circle's top then 16px out past the bar's hairline and the ring's own.
+ * With large text the bar grows taller than a fifth of the phone is wide,
+ * the ring stops at the slot's width, and the circle sinks into the bar,
+ * all of it still the target.
  */
 function ScanTab({ item }: { item: NavItem }) {
   const { t } = useTranslation();
@@ -149,20 +227,18 @@ function ScanTab({ item }: { item: NavItem }) {
       data-tour={`nav-${item.key}`}
       className={({ isActive }) =>
         cn(
-          // 22px above the bar: the circle's top then stands 16px out of it,
-          // past the bar's hairline and the ring's own.
-          "group -mt-[1.375rem] flex h-[5.375rem] w-full min-w-0 flex-col items-center justify-between pb-1 outline-none [-webkit-tap-highlight-color:transparent]",
+          "group absolute inset-x-0 bottom-0 flex min-h-full min-w-0 flex-col items-center justify-end gap-px pb-1 outline-none [-webkit-tap-highlight-color:transparent]",
           isActive ? "text-ink" : "text-ink-muted hover-fine:text-ink",
         )
       }
     >
       <span
         aria-hidden
-        className="flex size-16 shrink-0 items-center justify-center rounded-full border-t border-border bg-surface"
+        className="flex aspect-square w-16 max-w-full shrink-0 items-center justify-center rounded-full border-t border-border bg-surface"
       >
         <ScanCircle />
       </span>
-      <span className="type-tag w-full truncate px-1 text-center">{t(`dashboard.nav.${item.key}`)}</span>
+      <Word>{t(`dashboard.nav.${item.key}`)}</Word>
     </NavLink>
   );
 }
