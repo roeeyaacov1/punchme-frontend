@@ -22,8 +22,9 @@ import { cn } from "../../lib/cn";
 import { PublicPage } from "../public/PublicPage";
 
 /** An address set left to right inside a Hebrew sentence, its "ל-" kept
- * with the Hebrew around it. */
-const address = <bdi dir="ltr" />;
+ * with the Hebrew around it, and free to break anywhere when it is longer
+ * than its line (as the team pages set one). */
+const address = <bdi dir="ltr" className="[overflow-wrap:anywhere]" />;
 
 /**
  * The other end of the link the owner sent over WhatsApp.
@@ -204,7 +205,7 @@ export function InvitePage() {
                 {refusal}
               </Notice>
             )}
-            <Button size="lg" busy={accepting} onClick={() => void accept()} className="w-full">
+            <Button size="lg" busy={accepting} onClick={() => void accept()} className="w-full !whitespace-normal text-center">
               {t("invite.joinCta")}
             </Button>
             <button
@@ -243,7 +244,7 @@ export function InvitePage() {
                 size="lg"
                 busy={auth.submitting || accepting}
                 disabled={!auth.canSubmit}
-                className="w-full"
+                className="w-full !whitespace-normal text-center"
               >
                 {auth.mode === "signup" ? t("invite.signUpCta") : t("invite.signInCta")}
               </Button>
@@ -276,7 +277,7 @@ function Invitation({ invitation, language }: { invitation: InvitationPreview; l
         <Trans
           i18nKey="invite.title"
           values={{ business: invitation.business_name }}
-          components={{ shop: <bdi /> }}
+          components={{ shop: <bdi className="[overflow-wrap:anywhere]" /> }}
         />
       </h1>
       <Badge>{t(`team.role.${invitation.role}`)}</Badge>

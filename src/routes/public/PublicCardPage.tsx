@@ -115,11 +115,11 @@ function YourCard({ page, serial }: { page: PublicCardPageData; serial: string }
     >
       <div className="flex w-full max-w-[30rem] flex-col items-center gap-5 text-center">
         <h1 className="type-title text-balance">
-          <Trans i18nKey="publicCard.yours.title" values={{ business: page.business_name }} components={{ shop: <bdi /> }} />
+          <Trans i18nKey="publicCard.yours.title" values={{ business: page.business_name }} components={{ shop: <bdi className="[overflow-wrap:anywhere]" /> }} />
         </h1>
         <CardChip shop={page} />
         {page.view === "join" && <p className="type-body text-pretty text-ink-muted">{t("publicCard.yours.hint")}</p>}
-        <LinkButton to={`/c/${serial}`} size="lg" className="w-full">
+        <LinkButton to={`/c/${serial}`} size="lg" className="w-full !whitespace-normal text-center">
           {t("publicCard.yours.open")}
         </LinkButton>
       </div>
@@ -142,7 +142,7 @@ function CardFace({
   return (
     <PublicPage variant="customer" title={page.business_name} className="items-center justify-center">
       <div className="flex w-full max-w-[30rem] flex-col items-center gap-5 text-center">
-        <h1 dir="auto" className="type-title text-balance">
+        <h1 dir="auto" className="type-title text-balance [overflow-wrap:anywhere]">
           {page.business_name}
         </h1>
         <CardChip shop={page} />
@@ -154,7 +154,7 @@ function CardFace({
             components={{ n: <bdi dir="ltr" className="type-figure" />, reward: <bdi /> }}
           />
         </p>
-        <LinkButton to={page.join_path} size="lg" className="w-full">
+        <LinkButton to={page.join_path} size="lg" className="w-full !whitespace-normal text-center">
           {t("publicCard.card.join")}
         </LinkButton>
         <StaffDoor token={token} business={page.business_name} signedIn={signedIn} className="mt-2" />

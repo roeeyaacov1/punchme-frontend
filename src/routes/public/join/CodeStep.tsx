@@ -82,7 +82,7 @@ export function CodeStep({ flow, band }: { flow: JoinFlow; band?: ReactNode }) {
               {t(flow.errors.form)}
             </Notice>
           )}
-          <Button type="submit" size="lg" busy={busy} disabled={code.length !== 6} className="w-full">
+          <Button type="submit" size="lg" busy={busy} disabled={code.length !== 6} className="w-full !whitespace-normal text-center">
             {t("enroll.verifyCta")}
           </Button>
           <div className="flex flex-wrap items-center justify-between gap-x-4">

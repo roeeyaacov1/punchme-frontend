@@ -115,7 +115,7 @@ export function LoginPage() {
             size="lg"
             busy={auth.submitting}
             disabled={!auth.canSubmit}
-            className="w-full"
+            className="w-full !whitespace-normal text-center"
           >
             {signup ? t("auth.signUpCta") : t("auth.signInCta")}
           </Button>

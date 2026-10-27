@@ -64,7 +64,7 @@ export function JoinedCard({
           <Trans
             i18nKey={returning ? "enroll.card.titleReturning" : "enroll.card.titleNew"}
             values={{ business: card.business_name }}
-            components={{ shop: <bdi /> }}
+            components={{ shop: <bdi className="[overflow-wrap:anywhere]" /> }}
           />
         </h1>
         <p className="type-body text-pretty text-ink-muted">

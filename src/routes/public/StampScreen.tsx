@@ -116,7 +116,7 @@ export function StampScreen({
     >
       <div className="flex w-full flex-col gap-5 sm:max-w-[26rem]">
         <div className="flex flex-col gap-1">
-          <p className="type-label text-ink-muted">
+          <p className="type-label text-ink-muted [overflow-wrap:anywhere]">
             <bdi>{page.business_name}</bdi> · <bdi>{page.template_name}</bdi>
           </p>
           <h1 ref={heading} tabIndex={-1} className="type-title text-balance outline-none">
@@ -124,10 +124,10 @@ export function StampScreen({
               <Trans
                 i18nKey="publicCard.stamp.demoTitle"
                 values={{ business: page.business_name }}
-                components={{ shop: <bdi /> }}
+                components={{ shop: <bdi className="[overflow-wrap:anywhere]" /> }}
               />
             ) : name ? (
-              <bdi>{name}</bdi>
+              <bdi className="[overflow-wrap:anywhere]">{name}</bdi>
             ) : (
               t("publicCard.stamp.noName")
             )}
@@ -155,7 +155,7 @@ export function StampScreen({
                 <p dir="auto" className="line-clamp-2 font-body text-lg font-semibold">
                   {page.reward_description}
                 </p>
-                <Button variant="ink" size="lg" busy={redeeming} onClick={() => void redeem(token)} className="w-full">
+                <Button variant="ink" size="lg" busy={redeeming} onClick={() => void redeem(token)} className="w-full !whitespace-normal text-center">
                   {t("dashboard.scan.result.redeem")}
                 </Button>
               </div>
@@ -163,7 +163,7 @@ export function StampScreen({
               <div className="flex flex-col items-center gap-4 p-5 text-center">
                 <Figure size="count" value={count} />
                 <StampRow total={stamp.stamps_required} filled={stamp.stamp_count} className="w-full max-w-[18rem]" />
-                <Button size="lg" busy={busy} onClick={() => void addStamp()} className="w-full">
+                <Button size="lg" busy={busy} onClick={() => void addStamp()} className="w-full !whitespace-normal text-center">
                   {t("publicCard.stamp.add")}
                 </Button>
               </div>
