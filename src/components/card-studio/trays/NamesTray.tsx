@@ -69,12 +69,15 @@ export function NamesTray({
       {FACE_FIELDS.map((face) => {
         // A label where there's no field adds one, and the card has no room.
         const full = faceLabelFull(fields, face.binding);
+        // The pass prints a label as it's given: one cleared shows nothing,
+        // whatever the placeholder suggests.
+        const blank = !full && fields.some((field) => field.binding === face.binding) && !faceLabel(fields, face.binding);
         return (
           <Input
             key={face.binding}
             label={t(FACE_LABELS[face.binding].label)}
             placeholder={t(FACE_LABELS[face.binding].placeholder)}
-            hint={full ? t("studio.names.full") : undefined}
+            hint={full ? t("studio.names.full") : blank ? t("studio.names.blank") : undefined}
             readOnly={full}
             value={faceLabel(fields, face.binding)}
             onChange={(event) =>

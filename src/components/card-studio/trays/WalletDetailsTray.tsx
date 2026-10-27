@@ -357,14 +357,20 @@ function FieldEditor({
         ))}
       </Select>
 
-      <ChoiceTiles
-        legend={t("studio.fields.alignment")}
-        tiles={alignTiles}
-        value={fromPass(field.alignment, rtl)}
-        onChange={(alignment) => onField({ ...field, alignment: toPass(alignment, rtl) })}
-        shape="pill"
-        listClassName="gap-2"
-      />
+      <div className="flex flex-col gap-2">
+        <ChoiceTiles
+          legend={t("studio.fields.alignment")}
+          tiles={alignTiles}
+          value={fromPass(field.alignment, rtl)}
+          onChange={(alignment) => onField({ ...field, alignment: toPass(alignment, rtl) })}
+          shape="pill"
+          listClassName="gap-2"
+        />
+        {/* Start and end are the card's, which the page's language may not
+            be; the pass keeps the side, so a new card language renames the
+            choice and moves nothing. */}
+        <p className="text-sm leading-snug text-ink-muted">{t(`studio.fields.alignSide.${rtl ? "HE" : "EN"}`)}</p>
+      </div>
 
       {/* The back field carries the reward; a free-text field says what it's
           given, as a repeated line of text mended into one does. */}
