@@ -29,6 +29,9 @@ export function CardStatusPage() {
     queryFn: () => getPublicCard(serial),
     enabled: !!serial,
     retry: false,
+    // Its own read on every load, even straight after a join that has the
+    // same card in the cache.
+    refetchOnMount: "always",
   });
 
   // Whoever opens this page holds the card: remember the token its wallet

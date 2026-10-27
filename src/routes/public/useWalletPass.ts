@@ -18,6 +18,10 @@ export function useWalletPass(serial: string, initial: CardPublic) {
     queryFn: () => getPublicCard(serial),
     initialData: initial,
     retry: false,
+    // Read on the 3 s clock only, never again because the customer came back
+    // from the Wallet app: the join's calls stay the ones it lists.
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     refetchInterval: (q) =>
       walletWait(q.state.data ?? initial, Date.now() - startedAt) === "waiting" ? WALLET_CHECK_MS : false,
   });
