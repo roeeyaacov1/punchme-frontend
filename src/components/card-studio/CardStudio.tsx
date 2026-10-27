@@ -288,6 +288,7 @@ export function CardStudio({
   // sends the card as it was pressed, and starts again from what it read.
   const busy = bar.saving;
   const working = useInert<HTMLDivElement>(busy);
+  const tabRow = useInert<HTMLDivElement>(busy);
   const chipRow = useInert<HTMLDivElement>(busy);
   const rewardBox = useInert<HTMLDivElement>(busy);
 
@@ -507,38 +508,53 @@ export function CardStudio({
   if (wide) {
     const tab = tray ?? "colours";
     return (
-      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="flex min-w-0 flex-col gap-5">
-          {notices}
-          <div ref={working}>
-            <Tabs value={tab} onChange={onTray}>
-              {/* Wrapping rather than scrolling, so no tray hides past the column's edge. */}
-              <TabList label={t("studio.title")} className="flex-wrap overflow-visible">
-                {trays.map(({ id, label }) => (
-                  <Tab key={id} value={id}>
-                    {label}
-                  </Tab>
-                ))}
-              </TabList>
-              {trays.map(({ id }) => (
-                <TabPanel key={id} value={id} className="rounded-panel border border-border bg-surface p-5 shadow-panel">
-                  {body(id)}
-                </TabPanel>
+      <div className="flex flex-col gap-5">
+        {notices}
+        <Tabs value={tab} onChange={onTray}>
+          {/* Across the whole studio, so every tray's tab fits on one line
+              from 1024px in either language; wrapping, never scrolling, past
+              that (200% text), so none hides past the edge. */}
+          <div ref={tabRow}>
+            <TabList label={t("studio.title")} className="flex-wrap overflow-visible">
+              {trays.map(({ id, label }) => (
+                <Tab key={id} value={id}>
+                  {label}
+                </Tab>
               ))}
-            </Tabs>
+            </TabList>
           </div>
-        </div>
-        <aside className="flex flex-col gap-4 lg:sticky lg:top-8">
-          {stageView}
-          {sampleRow}
-          {barDrawn && (
-            <BarLight phase={barPhase} reduced={reduced} className="rounded-panel border border-border bg-surface p-4 shadow-panel">
-              {studioBar}
-            </BarLight>
-          )}
-          {rewardRow}
-          {foot}
-        </aside>
+          <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+            <div className="flex min-w-0 flex-col gap-4">
+              <div ref={working}>
+                {trays.map(({ id }) => (
+                  <TabPanel key={id} value={id} className="rounded-panel border border-border bg-surface p-5 shadow-panel">
+                    {body(id)}
+                  </TabPanel>
+                ))}
+              </div>
+              {/* At the foot of what's open, as on a phone, held on screen
+                  while a long tray scrolls under it. It comes last, so its
+                  arrival pushes nothing, and the card's column never moves. */}
+              {barDrawn && (
+                <BarLight
+                  phase={barPhase}
+                  reduced={reduced}
+                  className="sticky bottom-4 z-10 rounded-panel border border-border bg-surface p-4 shadow-panel"
+                >
+                  {studioBar}
+                </BarLight>
+              )}
+            </div>
+            {/* Held clear of the masthead, which stands over the page until
+                1280px, as the page's own scroll margin is. */}
+            <aside className="flex flex-col gap-4 lg:sticky lg:top-[calc(5.5rem+env(safe-area-inset-top))] xl:top-8">
+              {stageView}
+              {sampleRow}
+              {rewardRow}
+              {foot}
+            </aside>
+          </div>
+        </Tabs>
       </div>
     );
   }
