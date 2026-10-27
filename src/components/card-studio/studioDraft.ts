@@ -104,6 +104,14 @@ export function kindOf(binding: string): FieldKind | null {
   return (FIELD_KINDS as readonly string[]).includes(binding) ? (binding as FieldKind) : null;
 }
 
+/** The direction of a field holding the owner's own words: the words' own
+ * once there are some, the page's while it's empty. `dir="auto"` alone
+ * reads an empty field as left to right, so in Hebrew its placeholder and
+ * caret would start at the wrong edge. */
+export function ownWordsDir(text: string): "auto" | undefined {
+  return text ? "auto" : undefined;
+}
+
 /** A field as the owner knows it: its label, or what it shows. */
 export function fieldName(field: DesignField, t: TFunction): string {
   const kind = kindOf(field.binding);

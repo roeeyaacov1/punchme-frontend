@@ -7,8 +7,10 @@ import { charactersLeft, REWARD_MAX } from "./controlRules";
 const COUNT_FROM = 160;
 
 /**
- * What customers get, in the owner's own words: `dir="auto"`, at most the
- * API's 200 characters, with a count of what is left once it nears that.
+ * What customers get, in the owner's own words: `dir="auto"` once there are
+ * some (empty, it follows the page, or a Hebrew placeholder sits left), at
+ * most the API's 200 characters, with a count of what is left once it nears
+ * that.
  */
 export const RewardField = forwardRef<
   HTMLInputElement,
@@ -36,7 +38,7 @@ export const RewardField = forwardRef<
       value={value}
       onChange={(event) => onChange(event.target.value)}
       maxLength={REWARD_MAX}
-      dir="auto"
+      dir={value ? "auto" : undefined}
       autoComplete="off"
       placeholder={t("onboarding.reward.rewardPlaceholder")}
       hint={hint}
