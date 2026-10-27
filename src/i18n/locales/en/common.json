@@ -256,8 +256,8 @@
       "unstamped_art": "the empty-stamp picture"
     },
     "problem": {
-      "field": "Field {{n}} in Wallet details isn't one the wallet takes, so nothing was saved.",
-      "invalid": "Something on the card isn't one the wallet takes, so nothing was saved.",
+      "field": "The wallet won't take the {{name}} field, so nothing was saved. It's open in Wallet details.",
+      "invalid": "The wallet won't take something on the card, so nothing was saved.",
       "small": "The strip background is too small: it needs at least 1125×432, and this one is {{width}}×{{height}}.",
       "unreadable": "We couldn't open {{picture}} as a picture. Try a PNG or JPG.",
       "wallet": "The wallet didn't take {{picture}} just now. Try again in a moment.",

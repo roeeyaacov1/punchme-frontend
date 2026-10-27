@@ -7,6 +7,7 @@ import { CardStudio, type ExtraTray } from "../../components/card-studio/CardStu
 import { readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
+  fieldName,
   nameMissing,
   readDesign,
   TEXT_LIMITS,
@@ -14,6 +15,7 @@ import {
   type CardStudioValue,
 } from "../../components/card-studio/studioDraft";
 import { saveProblem } from "../../components/card-studio/studioProblems";
+import { isolate } from "../dashboard/problem";
 import { Checkbox, focusRing, Input, Notice, Select } from "../../components/kit";
 import { CatalogArtPanel } from "./CatalogArtPanel";
 import {
@@ -248,7 +250,10 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
       heading.current?.focus();
     } catch (error) {
       const failed = saveProblem(error);
-      setProblem(t(failed.key, failed.values));
+      // A field the server refused is named as Wallet details names it.
+      const field = failed.fieldIndex !== undefined ? draft.design.fields?.[failed.fieldIndex] : undefined;
+      const key = failed.fieldIndex !== undefined && !field ? "studio.problem.invalid" : failed.key;
+      setProblem(t(key, { ...failed.values, name: field ? isolate(fieldName(field, t)) : "" }));
       if (failed.fieldIndex !== undefined) {
         setTray("wallet");
         setEditingField(failed.fieldIndex);

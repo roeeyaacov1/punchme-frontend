@@ -6,6 +6,7 @@ import { CardStudio } from "../../components/card-studio/CardStudio";
 import { readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
+  fieldName,
   fieldsOver,
   followField,
   HELD_ORDER,
@@ -49,6 +50,7 @@ import {
   type SyncWait,
 } from "../../components/card-studio/studioSession";
 import { ReadProblem } from "../../components/dashboard/ReadProblem";
+import { isolate } from "./problem";
 import { Button, LinkButton, Notice, Skeleton, useToast } from "../../components/kit";
 import { useBusiness } from "../../business/useBusiness";
 import { listTemplates, patchTemplate, type CardTemplate } from "../../api/businesses";
@@ -506,12 +508,20 @@ export function DesignPage() {
   const savedPicture = assets.includes("stamp_art");
   const art = publishedArt(assets, uploaded);
   const pictureName = failure?.problem.picture ? t(`studio.pictures.${failure.problem.picture}`) : "";
+  // A field the server refused is named as Wallet details names it.
+  const failedField =
+    failure?.problem.fieldIndex !== undefined ? draft.design.fields?.[failure.problem.fieldIndex] : undefined;
+  const failedKey = failure?.problem.fieldIndex !== undefined && !failedField ? "studio.problem.invalid" : failure?.problem.key;
 
-  const problem = failure && (
+  const problem = failure && failedKey && (
     <>
       {failure.partial && `${t("studio.problem.partial")} `}
-      {failure.problem.picture && failure.problem.key.startsWith("dashboard.") && `${t("studio.problem.notSent", { picture: pictureName })} `}
-      {t(failure.problem.key, { ...failure.problem.values, picture: pictureName })}
+      {failure.problem.picture && failedKey.startsWith("dashboard.") && `${t("studio.problem.notSent", { picture: pictureName })} `}
+      {t(failedKey, {
+        ...failure.problem.values,
+        picture: pictureName,
+        name: failedField ? isolate(fieldName(failedField, t)) : "",
+      })}
     </>
   );
 
