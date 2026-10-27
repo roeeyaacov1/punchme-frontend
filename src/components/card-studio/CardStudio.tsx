@@ -164,7 +164,8 @@ export interface CardStudioProps {
   /** Said before a picture is chosen. */
   pictureNote?: ReactNode;
   lint: LintReading;
-  /** Edits not saved yet: the stand-in shows instead of the published card. */
+  /** Edits not saved yet, or a save the wallet hasn't synced: the stand-in
+   * shows instead of the published card. */
   unsaved: boolean;
   bar: StudioBarProps;
   /** Under the stage: the sync's notices and the check's. */

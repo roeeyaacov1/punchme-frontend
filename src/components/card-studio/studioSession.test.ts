@@ -1,6 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CardStudioValue } from "./studioDraft";
-import { dropKept, keepEdits, keepPicture, readKept } from "./studioSession";
+import {
+  dropKept,
+  dropSyncWait,
+  keepEdits,
+  keepPicture,
+  keepSyncWait,
+  readKept,
+  readSyncWait,
+} from "./studioSession";
 
 const storage = new Map<string, string>();
 const sessionStorageStub = {
@@ -45,6 +53,16 @@ describe("the draft kept in the tab", () => {
   it("doesn't come back without the card its edits started from", () => {
     storage.set("punchme.draft:biz/design/tpl", JSON.stringify({ value: SAVED, follow: false }));
     expect(readKept("biz", "tpl")).toBeNull();
+  });
+
+  it("keeps where the sync stood before a save, a card that never synced too", () => {
+    expect(readSyncWait("biz", "tpl")).toBeNull();
+    keepSyncWait("biz", "tpl", null);
+    expect(readSyncWait("biz", "tpl")).toEqual({ before: null });
+    keepSyncWait("biz", "tpl", "2026-10-27T10:00:00Z");
+    expect(readSyncWait("biz", "tpl")).toEqual({ before: "2026-10-27T10:00:00Z" });
+    dropSyncWait("biz", "tpl");
+    expect(readSyncWait("biz", "tpl")).toBeNull();
   });
 
   it("goes, pictures and all, when dropped", () => {

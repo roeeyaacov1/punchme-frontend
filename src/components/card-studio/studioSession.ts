@@ -29,6 +29,7 @@ const editsKey = (businessId: string, templateId: string) => `${businessId}/desi
 const pictureKey = (businessId: string, templateId: string, use: HeldUse) =>
   `${editsKey(businessId, templateId)}/${use}`;
 const uploadedKey = (businessId: string, templateId: string) => `${editsKey(businessId, templateId)}/uploaded-stamp`;
+const syncWaitKey = (businessId: string, templateId: string) => `${editsKey(businessId, templateId)}/sync-wait`;
 
 export function keepEdits(businessId: string, templateId: string, edits: KeptEdits): void {
   writeDraft(editsKey(businessId, templateId), edits);
@@ -66,4 +67,24 @@ export function keepUploadedStamp(businessId: string, templateId: string, dataUr
 
 export function readUploadedStamp(businessId: string, templateId: string): string | null {
   return readDraft<string>(uploadedKey(businessId, templateId));
+}
+
+/** Where the wallet's sync stood before a save (`sync.synced_at`), kept
+ * until it has run since, so the published pictures drawn before the save
+ * don't come back on a return to the page. */
+export interface SyncWait {
+  before: string | null;
+}
+
+export function keepSyncWait(businessId: string, templateId: string, before: string | null): void {
+  writeDraft(syncWaitKey(businessId, templateId), { before } satisfies SyncWait);
+}
+
+export function readSyncWait(businessId: string, templateId: string): SyncWait | null {
+  const wait = readDraft<SyncWait>(syncWaitKey(businessId, templateId));
+  return wait && "before" in wait ? { before: wait.before ?? null } : null;
+}
+
+export function dropSyncWait(businessId: string, templateId: string): void {
+  dropDraft(syncWaitKey(businessId, templateId));
 }
