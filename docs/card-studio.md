@@ -114,8 +114,13 @@ These come from the wallet renderer, not from taste:
     logo or stamp reaches customers with the rest of the edit.
 - The draft is seeded once per template, so a refetch never overwrites an
   edit.
+- The draft is kept in the tab, so leaving the studio loses nothing.
+  Closing the tab with changes asks first from the studio only: from
+  another page, kept edits go without a question (Phase 3, step D, in the
+  brief's §14).
 - `/admin/catalog/:id` uses the same `CardStudio` for PunchMe staff, with
-  its own calls (see `docs/dashboard-routes.md`).
+  its own calls (see `docs/dashboard-routes.md`). Each look is its own
+  editor, keyed by its id, so a new look opened from another starts empty.
 
 ## Found while writing this
 
