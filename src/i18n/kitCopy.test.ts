@@ -13,7 +13,7 @@ import he from "./locales/he/common.json";
 type Tree = { [key: string]: string | Tree };
 
 const PLURAL = /_(zero|one|two|few|many|other)$/;
-const NAMESPACES = ["kit", "styleGuide", "standee", "messaging", "referrals", "team", "billing"] as const;
+const NAMESPACES = ["kit", "styleGuide", "standee", "messaging", "referrals", "team", "billing", "auth"] as const;
 const SINGLE_KEYS = ["common.close", "language.he", "language.en"] as const;
 
 /** Leaf paths under a subtree, each mapped to the plural forms it carries. */
@@ -72,11 +72,12 @@ describe.each(NAMESPACES)("the %s copy", (namespace) => {
 });
 
 /**
- * The owner pages' Hebrew, where a one-letter prefix before a Latin word
- * ("ב-Stripe", "ה-QR") takes a word joiner after its hyphen: without it a
- * line can break there and leave the prefix alone at the end of a line.
+ * The owner pages' and the public pages' Hebrew, where a one-letter prefix
+ * before a Latin word ("ב-Stripe", "ה-QR") takes a word joiner after its
+ * hyphen: without it a line can break there and leave the prefix alone at
+ * the end of a line.
  */
-const JOINED = ["team", "billing"] as const;
+const JOINED = ["team", "billing", "auth"] as const;
 
 describe.each(JOINED)("the %s Hebrew", (namespace) => {
   it("keeps a prefix with the Latin word after it", () => {

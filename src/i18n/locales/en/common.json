@@ -95,7 +95,6 @@
     "passwordLabel": "Password",
     "signInCta": "Sign in",
     "signUpCta": "Create account",
-    "submitting": "Please wait…",
     "orDivider": "or",
     "toggleToSignUp": "Don't have an account? Sign up",
     "toggleToSignIn": "Already have an account? Sign in",
@@ -105,7 +104,9 @@
     "signUpSubtitle": "Then design your card — free.",
     "newHere": "New here? Design your card first — it's free",
     "offline": "Can't reach the server — check your connection and try again.",
-    "signUpError": "Something went wrong creating your account. Please try again."
+    "signUpError": "Something went wrong creating your account. Please try again.",
+    "wrongDetails": "That email or password isn't right. Signed up with Google? Use the Google button.",
+    "weakPassword": "That password is too weak: at least 8 characters, not only digits, and not a common one or one like your email."
   },
   "onboardingPlaceholder": {
     "title": "Signed in successfully",
