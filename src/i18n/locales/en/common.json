@@ -135,8 +135,8 @@
       "advanced": "Wallet details",
       "advancedHint": "Field labels, card language, barcode, custom artwork."
     },
-    "save": "Save design",
-    "saved": "Saved ✓",
+    "save": "Save",
+    "saved": "Saved. Every pass already in a wallet updates itself.",
     "syncError": "The last wallet sync failed — your changes are safe and will be retried automatically.",
     "uploadError": "Upload failed — try a different image.",
     "nameLabel": "Card name",
@@ -169,7 +169,7 @@
       "stripes": "Stripes"
     },
     "logoLabel": "Logo",
-    "logoHint": "One upload becomes all three wallet assets (wide Apple logo, round Google badge, icon). No logo? We'll render your business name.",
+    "logoHint": "It becomes Apple's wide logo and Google's round badge. Without one, the card shows your business's name.",
     "uploadLogo": "Upload logo",
     "languageLabel": "Card language",
     "languages": {
@@ -197,18 +197,18 @@
     },
     "fields": {
       "bindingLabel": "Shows",
-      "label": "Label",
+      "label": "What it says above it",
       "section": "Position (Apple)",
       "alignment": "Alignment",
-      "changeMessage": "Update notification",
+      "changeMessage": "The message when it changes",
       "changeMessageHint": "%@ is replaced with the new value.",
       "add": "Add field",
       "binding": {
         "person.displayName": "Customer name",
         "members.member.points": "Stamp count",
-        "members.tier.name": "Tier name",
-        "universal.info": "Info text",
-        "meta.custom": "Custom text"
+        "members.tier.name": "Level",
+        "universal.info": "A line of text",
+        "meta.custom": "Free text"
       },
       "sections": {
         "HEADER_FIELDS": "Header",
@@ -222,8 +222,128 @@
         "LEFT": "Left",
         "CENTER": "Center",
         "RIGHT": "Right"
-      }
-    }
+      },
+      "title": "The fields on the card",
+      "full_one": "A card holds up to {{count}} field.",
+      "full_other": "A card holds up to {{count}} fields.",
+      "all": "All fields",
+      "shows": "What it shows",
+      "place": "Where it sits on Apple Wallet",
+      "places": {
+        "HEADER_FIELDS": "At the top, beside the logo",
+        "PRIMARY_FIELDS": "Over the strip, large",
+        "SECONDARY_FIELDS": "On the front, under the strip",
+        "AUXILIARY_FIELDS": "On the front, the row below",
+        "BACK_FIELDS": "On the back of the card"
+      },
+      "googleFace": "On Google Wallet: on the front of the card.",
+      "googleDetails": "On Google Wallet: in the details that open from the card.",
+      "align": {
+        "NATURAL": "By the language",
+        "START": "Start",
+        "CENTER": "Centre",
+        "END": "End"
+      },
+      "backText": "What it says",
+      "backTextHint": "This is where the reward reaches the pass.",
+      "changeHint": "The new value goes where you write",
+      "example": "Looks like:",
+      "remove": "Remove the field",
+      "removeNamed": "Remove the field {{name}}",
+      "removeTitle": "Remove the field {{name}}?",
+      "removeBody": "It comes off every customer's card at the next save.",
+      "lastOne": "A card needs at least one field."
+    },
+    "savedShort": "Saved.",
+    "readProblem": "The card didn't load",
+    "sampleName": "Dana Levi",
+    "stageSummary_zero": "{{name}}, shown with no stamps of {{total}}",
+    "stageSummary_one": "{{name}}, shown with 1 stamp of {{total}}",
+    "stageSummary_other": "{{name}}, shown with {{count}} stamps of {{total}}",
+    "sample_zero": "Shown with no stamps of {{total}}",
+    "sample_one": "Shown with 1 stamp of {{total}}",
+    "sample_other": "Shown with {{count}} stamps of {{total}}",
+    "sampleFewer": "Show one stamp fewer",
+    "sampleMore": "Show one stamp more",
+    "rewardSentence_one": "<b>{{reward}}</b> after 1 stamp",
+    "rewardSentence_other": "<b>{{reward}}</b> after {{count}} stamps",
+    "noReward": "No reward yet",
+    "editReward": "Change the reward",
+    "chips": {
+      "label": "What to change",
+      "colours": "Colours",
+      "stamp": "Stamp",
+      "reward": "Reward",
+      "names": "Names",
+      "logo": "Logo",
+      "wallet": "Wallet details"
+    },
+    "bar": {
+      "changes_one": "1 change · not on customers' cards yet",
+      "changes_other": "{{count}} changes · not on customers' cards yet",
+      "discard": "Discard changes"
+    },
+    "kept": "You have changes from your last visit that aren't saved yet.",
+    "back": {
+      "follows": "This is also what the back of the card says.",
+      "differs": "The back of the card says:",
+      "follow": "Put the reward there"
+    },
+    "picture": {
+      "stays": "The picture replaces the symbol on the card. Once saved, there is no going back to a symbol.",
+      "notHere": "Your picture is on the card. Until you save, a symbol stands in for it here.",
+      "locked": "Your picture is the stamp. Going back to a symbol isn't possible yet."
+    },
+    "pictures": {
+      "logo": "the logo",
+      "stamp_art": "the stamp picture",
+      "strip_base": "the strip background",
+      "stamped_art": "the stamped picture",
+      "unstamped_art": "the empty-stamp picture"
+    },
+    "problem": {
+      "field": "Field {{n}} in Wallet details isn't one the wallet takes, so nothing was saved.",
+      "invalid": "Something on the card isn't one the wallet takes, so nothing was saved.",
+      "small": "The strip background is too small: it needs at least 1125×432, and this one is {{width}}×{{height}}.",
+      "unreadable": "We couldn't open {{picture}} as a picture. Try a PNG or JPG.",
+      "wallet": "The wallet didn't take {{picture}} just now. Try again in a moment.",
+      "offline": "We didn't send {{picture}}: there's no connection. Check the network and try again.",
+      "notSent": "We didn't send {{picture}}.",
+      "partial": "A picture already went to customers' cards. The rest wasn't saved."
+    },
+    "check": {
+      "field": "The {{label}} field won't show on Google Wallet.",
+      "fieldsBar_one": "1 problem in Wallet details",
+      "fieldsBar_other": "{{count}} problems in Wallet details",
+      "other": "The server found a problem with the design, and passes won't update until it's fixed.",
+      "details": "The details",
+      "row": "Won't show on Google Wallet"
+    },
+    "sync": {
+      "failed": "The last update to passes in wallets didn't go through. We'll retry by ourselves; saving tries at once.",
+      "stale": "Passes in wallets were built with an older version. One save brings them up to date.",
+      "update": "Update the passes"
+    },
+    "moreColours": "More colours",
+    "labelColour": "Label colour",
+    "labelColourHint": "Only Apple Wallet shows it, over each value.",
+    "logoTitle": "Your logo",
+    "names": {
+      "google": "On Google Wallet:",
+      "holderLabel": "Above the customer's name",
+      "countLabel": "Above the stamp count",
+      "organization": "Business name on the card",
+      "organizationHint": "Leave it empty to show your business's name."
+    },
+    "languageHint": "The language of the words the wallet adds to the card itself.",
+    "barcodes": {
+      "QR": "QR (recommended)",
+      "PDF417": "PDF417",
+      "AZTEC": "Aztec",
+      "CODE128": "Code 128"
+    },
+    "artTitle": "Custom art",
+    "artHint": "Sent with everything else when you save."
   },
   "cardControls": {
     "looks": "Ready-made looks",

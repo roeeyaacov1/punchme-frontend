@@ -100,11 +100,13 @@ Search and filters run in the browser.
 | Load | `GET {biz}/templates/{template_id}/design` | `getTemplateDesign` |
 | Load | `POST {biz}/templates/{template_id}/preview`, then `GET /api/cards/{serial}` every 3 s until ready: the owner's own pass for "add to my wallet" | `previewCard`, `useWalletPass` |
 | 400 ms after each edit | `POST {biz}/templates/{template_id}/design/preview`: checks the draft, saves nothing | `previewTemplateDesign` |
-| Save | `PATCH {biz}/templates/{template_id}`, then the design is read again | `patchTemplate` |
-| Upload a picture | `POST {biz}/templates/{template_id}/images` (multipart `use`, `file`), then the design is read again | `uploadTemplateImage` |
+| Save, first | `POST {biz}/templates/{template_id}/images` (multipart `use`, `file`) for each picture held since the last save, in order: logo, stamp picture, strip background, then the before and after art. A refused one stops the save there | `uploadTemplateImage` |
+| Save, then | `PATCH {biz}/templates/{template_id}`, then the design is read again, once, after the last write | `patchTemplate`, `getTemplateDesign` |
 
 Picture `use` values: `logo`, `icon`, `strip_base`, `stamp_art`,
-`stamped_art`, `unstamped_art`.
+`stamped_art`, `unstamped_art`. A picture is chosen and cropped in the
+browser and held, with the rest of the draft, until Save (Phase 3, Roee's
+decision), so it reaches customers' passes with everything else.
 
 ### `/dashboard/standee`: Standee
 

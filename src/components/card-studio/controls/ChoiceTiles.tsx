@@ -40,6 +40,8 @@ export function ChoiceTiles<T extends string>({
   shape = "circle",
   className,
   listClassName,
+  disabled,
+  describedBy,
 }: {
   legend: string;
   hideLegend?: boolean;
@@ -50,19 +52,24 @@ export function ChoiceTiles<T extends string>({
   className?: string;
   /** The tiles' own layout: a wrapping row unless a grid is asked for. */
   listClassName?: string;
+  /** None of them can be chosen now; the page says why. */
+  disabled?: boolean;
+  /** The id of what says why. */
+  describedBy?: string;
 }) {
   const name = useId();
   return (
-    <fieldset className={cn("min-w-0", className)}>
+    <fieldset disabled={disabled} aria-describedby={describedBy} className={cn("group min-w-0", className)}>
       <legend className={hideLegend ? "sr-only" : "type-label mb-2 text-ink"}>{legend}</legend>
-      <div className={cn("flex flex-wrap gap-3", listClassName)}>
+      {/* Faded as a group when disabled, the legend left at full strength. */}
+      <div className={cn("flex flex-wrap gap-3 group-disabled:opacity-50", listClassName)}>
         {tiles.map((tile) => {
           const chosen = tile.value === value;
           return (
             <label
               key={tile.value}
               className={cn(
-                "relative flex min-h-11 min-w-11 cursor-pointer touch-manipulation select-none items-center justify-center",
+                "relative flex min-h-11 min-w-11 cursor-pointer touch-manipulation has-[:disabled]:cursor-not-allowed select-none items-center justify-center",
                 SHAPES[shape],
                 "ring-offset-surface transition-shadow duration-gentle ease-out",
                 chosen ? "ring-2 ring-ink ring-offset-2" : "ring-1 ring-field",
