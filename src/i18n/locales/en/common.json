@@ -225,6 +225,26 @@
       }
     }
   },
+  "cardControls": {
+    "looks": "Ready-made looks",
+    "cardColour": "Card colour",
+    "stampColour": "Stamp colour",
+    "own": "Your own colour",
+    "faint": "The stamp will barely show on this card.",
+    "glyph": "The stamp's symbol",
+    "picture": "Your own picture instead",
+    "pictureReplace": "Choose a different picture",
+    "pictureInUse": "A picture is the stamp",
+    "stampCount": "After how many stamps",
+    "reward": "What customers get",
+    "charactersLeft_one": "{{count}} character left",
+    "charactersLeft_other": "{{count}} characters left",
+    "picker": {
+      "shade": "{{label}}: shade and brightness",
+      "hue": "{{label}}: hue",
+      "hex": "{{label}}: hex code"
+    }
+  },
   "onboarding": {
     "steps": {
       "business": "Your business",

@@ -225,6 +225,28 @@
       }
     }
   },
+  "cardControls": {
+    "looks": "מראות מוכנים",
+    "cardColour": "צבע הכרטיס",
+    "stampColour": "צבע החותמת",
+    "own": "צבע משלכם",
+    "faint": "החותמת כמעט לא תיראה על הכרטיס הזה.",
+    "glyph": "הסמל של החותמת",
+    "picture": "תמונה משלכם במקום סמל",
+    "pictureReplace": "בחירת תמונה אחרת",
+    "pictureInUse": "החותמת היא תמונה",
+    "stampCount": "אחרי כמה חותמות",
+    "reward": "מה הלקוחות מקבלים",
+    "charactersLeft_one": "נשאר תו אחד",
+    "charactersLeft_two": "נשארו שני תווים",
+    "charactersLeft_many": "נשארו {{count}} תווים",
+    "charactersLeft_other": "נשארו {{count}} תווים",
+    "picker": {
+      "shade": "{{label}}: רוויה ובהירות",
+      "hue": "{{label}}: גוון",
+      "hex": "{{label}}: קוד הצבע"
+    }
+  },
   "onboarding": {
     "steps": {
       "business": "העסק שלכם",
