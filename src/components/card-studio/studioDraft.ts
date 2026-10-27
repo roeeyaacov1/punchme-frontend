@@ -97,11 +97,48 @@ export function kindOf(binding: string): FieldKind | null {
   return (FIELD_KINDS as readonly string[]).includes(binding) ? (binding as FieldKind) : null;
 }
 
-/** A free-text binding no field has yet: `meta.custom`, then `meta.custom_2`… */
-export function nextCustomBinding(fields: readonly DesignField[]): string {
-  const used = new Set(fields.map((field) => field.binding));
+function freeCustomBinding(used: ReadonlySet<string>): string {
   if (!used.has(CUSTOM)) return CUSTOM;
   for (let n = 2; ; n += 1) if (!used.has(`${CUSTOM}_${n}`)) return `${CUSTOM}_${n}`;
+}
+
+/** The design as the studio reads it, its fields one binding each. */
+export function readDesign(design: DesignDoc): DesignDoc {
+  if (!design.fields) return design;
+  const fields = withUniqueBindings(design.fields);
+  return fields === design.fields ? design : { ...design, fields };
+}
+
+/** A free-text binding no field has yet: `meta.custom`, then `meta.custom_2`… */
+export function nextCustomBinding(fields: readonly DesignField[]): string {
+  return freeCustomBinding(new Set(fields.map((field) => field.binding)));
+}
+
+/**
+ * The fields with one binding each, as the pass needs them: the old editor
+ * let several share one, and the API refuses that now. Mended as the card is
+ * read, so the next Save mends the card. A repeated free-text field gets a
+ * binding of its own, as "Add field" gives one, so no words the owner typed
+ * are lost; a repeat of a kind the card shows once shows the same thing as
+ * the first, so the first is kept.
+ */
+export function withUniqueBindings(fields: DesignField[]): DesignField[] {
+  if (new Set(fields.map((field) => field.binding)).size === fields.length) return fields;
+  const used = new Set(fields.map((field) => field.binding));
+  const placed = new Set<string>();
+  const unique: DesignField[] = [];
+  for (const field of fields) {
+    if (!placed.has(field.binding)) {
+      placed.add(field.binding);
+      unique.push(field);
+    } else if (kindOf(field.binding) === CUSTOM) {
+      const binding = freeCustomBinding(used);
+      used.add(binding);
+      placed.add(binding);
+      unique.push({ ...field, binding });
+    }
+  }
+  return unique;
 }
 
 /** The kinds "Add field" can offer: free text always, the rest only if absent. */
