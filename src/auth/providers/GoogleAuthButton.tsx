@@ -34,8 +34,16 @@ const SCRIPT_SRC = "https://accounts.google.com/gsi/client";
  * puts the script back in the new one before the next button draws. */
 function loadGoogleScript(locale?: string): Promise<void> {
   const src = locale ? `${SCRIPT_SRC}?hl=${encodeURIComponent(locale)}` : SCRIPT_SRC;
-  const loaded = document.querySelector(`script[src^="${SCRIPT_SRC}"]`);
+  const loaded = document.querySelector<HTMLScriptElement>(`script[src^="${SCRIPT_SRC}"]`);
   if (loaded && loaded.getAttribute("src") !== src) {
+    // A script still on its way in the old language would run after the
+    // swap and could win it, so it finishes first.
+    if (loaded.dataset.loaded !== "true") {
+      return new Promise<void>((settle) => {
+        loaded.addEventListener("load", () => settle(), { once: true });
+        loaded.addEventListener("error", () => settle(), { once: true });
+      }).then(() => loadGoogleScript(locale));
+    }
     loaded.remove();
     // Only the sign-in goes: anything else on `window.google` (the wizard's
     // Places search, say) stays where it is.
@@ -57,9 +65,15 @@ function loadGoogleScript(locale?: string): Promise<void> {
     script.src = src;
     script.async = true;
     script.defer = true;
-    script.onload = () => resolve();
-    script.onerror = () =>
+    script.onload = () => {
+      script.dataset.loaded = "true";
+      resolve();
+    };
+    script.onerror = () => {
+      // Marked too, so a language swap doesn't wait on it for ever.
+      script.dataset.loaded = "true";
       reject(new Error("Failed to load Google Identity Services"));
+    };
     document.head.appendChild(script);
   });
 }
