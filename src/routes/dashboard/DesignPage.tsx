@@ -35,6 +35,7 @@ import {
   keepPicture,
   keepSyncWait,
   keepUploaded,
+  notKeptNow,
   readKept,
   readSyncWait,
   readUploaded,
@@ -187,18 +188,19 @@ export function DesignPage() {
 
   // A picture that doesn't fit the tab's storage, even brought down to what
   // the renderer keeps, is said at its tile: it won't come back on a return.
+  // Save takes a picture out of the tab as it sends it, so one no longer
+  // held is never said, whatever the tab had.
   const keptPictures = useRef<HeldPictures>({});
   const [notKept, setNotKept] = useState<HeldUse[]>([]);
   useEffect(() => {
     if (!businessId || !templateId) return;
-    const kept = new Map<HeldUse, boolean>();
+    const written = new Map<HeldUse, boolean>();
     for (const use of HELD_ORDER) {
-      if (keptPictures.current[use] !== held[use]) kept.set(use, keepPicture(businessId, templateId, use, held[use]));
+      if (keptPictures.current[use] !== held[use]) written.set(use, keepPicture(businessId, templateId, use, held[use]));
     }
     keptPictures.current = held;
-    if (kept.size === 0) return;
     setNotKept((current) => {
-      const next = HELD_ORDER.filter((use) => (kept.has(use) ? !kept.get(use) : current.includes(use)));
+      const next = notKeptNow(current, written, held);
       return next.length === current.length && next.every((use, i) => use === current[i]) ? current : next;
     });
   }, [businessId, templateId, held]);

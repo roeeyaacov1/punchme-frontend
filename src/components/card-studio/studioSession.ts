@@ -47,6 +47,18 @@ export function keepPicture(businessId: string, templateId: string, use: HeldUse
   return readDraft<string>(key) === dataUrl;
 }
 
+/** The held pictures whose tiles say they won't come back on a return. One
+ * just written to the tab says for itself (`written`), the rest keep what
+ * they said, and one no longer held says nothing, however it went: a save
+ * took it out of the tab as it sent it, or a discard let it go. */
+export function notKeptNow(
+  said: readonly HeldUse[],
+  written: ReadonlyMap<HeldUse, boolean>,
+  held: HeldPictures,
+): HeldUse[] {
+  return HELD_ORDER.filter((use) => !!held[use] && (written.has(use) ? !written.get(use) : said.includes(use)));
+}
+
 export function readKept(businessId: string, templateId: string): KeptDraft | null {
   const edits = readDraft<KeptEdits>(editsKey(businessId, templateId));
   // Without the card they started from, there is no telling the owner's
