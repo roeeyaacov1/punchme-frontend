@@ -57,6 +57,11 @@ function useDocumentTitle(name: string) {
  *   the language switch at its end and nothing else, because the shop is
  *   the subject; PunchMe signs at the foot, as the standee does.
  * - `team` (`/login`, `/invite`): the mark home and the language switch.
+ *
+ * On a phone, nothing here flashes grey under a finger: the tap highlight
+ * is off for the whole frame (it inherits), and every control in it shows
+ * its own press instead. A long press never selects a button's words; the
+ * page's text stays selectable.
  */
 export function PublicPage({
   variant,
@@ -76,7 +81,7 @@ export function PublicPage({
   useDocumentTitle(title);
 
   return (
-    <div className="theme-lightbox flex min-h-dvh flex-col bg-background text-ink">
+    <div className="theme-lightbox flex min-h-dvh flex-col bg-background text-ink [-webkit-tap-highlight-color:transparent] [&_button]:select-none">
       <a
         href="#public-main"
         className={cn(
