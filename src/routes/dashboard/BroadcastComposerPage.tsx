@@ -350,7 +350,9 @@ export function BroadcastComposerPage() {
           )}
         </div>
 
-        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-8">
+        {/* Held clear of the masthead, which stands over the page until
+            1280px, as the page's own scroll margin is. */}
+        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-[calc(5.5rem+env(safe-area-inset-top))] xl:top-8">
           {template && design.data ? (
             <div className="-mx-4 flex justify-center sm:mx-0">
               <MessageStage

@@ -597,7 +597,9 @@ function AutomationEditor() {
       {notice}
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-8">
-        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-8 lg:order-last">
+        {/* Held clear of the masthead, which stands over the page until
+            1280px, as the page's own scroll margin is. */}
+        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-[calc(5.5rem+env(safe-area-inset-top))] lg:order-last xl:top-8">
           <LitPanel light="lit" className="flex flex-col gap-3 p-5">
             <p role="status" className="type-body text-ink">
               {pieces.length === 0 ? (
