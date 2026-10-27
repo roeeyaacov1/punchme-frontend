@@ -7,7 +7,6 @@ import { CardStudio, type ExtraTray } from "../../components/card-studio/CardStu
 import { readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
-  withRewardOnBack,
   type CardStudioImages,
   type CardStudioValue,
 } from "../../components/card-studio/studioDraft";
@@ -73,7 +72,6 @@ export function AdminCatalogEditPage() {
   const [draft, setDraft] = useState<CardStudioValue | null>(isNew ? EMPTY : null);
   const [savedShelf, setSavedShelf] = useState<Shelf>(NO_SHELF);
   const [shelf, setShelf] = useState<Shelf>(NO_SHELF);
-  const [follow, setFollow] = useState(false);
   const [art, setArt] = useState<Art>({});
   const [lint, setLint] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
@@ -129,7 +127,7 @@ export function AdminCatalogEditPage() {
     shelf.niche !== savedShelf.niche ||
     shelf.description !== savedShelf.description ||
     shelf.isPublished !== savedShelf.isPublished;
-  const changes = (saved && draft ? changesBetween(saved, draft, {}, follow).length : 0) + (shelfChanged ? 1 : 0);
+  const changes = (saved && draft ? changesBetween(saved, draft).length : 0) + (shelfChanged ? 1 : 0);
 
   const edit = useCallback((next: CardStudioValue) => {
     setDraft(next);
@@ -168,7 +166,7 @@ export function AdminCatalogEditPage() {
     setProblem(null);
     setSaving(true);
     try {
-      const value = withRewardOnBack(draft, saved.reward_description, follow);
+      const value = draft;
       const payload = { ...value, niche: shelf.niche, description: shelf.description, is_published: shelf.isPublished };
       if (isNew) {
         const created = await createCatalogEntry(payload);
@@ -183,7 +181,6 @@ export function AdminCatalogEditPage() {
       setSaved(value);
       setDraft(value);
       setSavedShelf(shelf);
-      setFollow(false);
       setJustSaved(true);
       heading.current?.focus();
     } catch (error) {
@@ -202,7 +199,6 @@ export function AdminCatalogEditPage() {
     if (!saved) return;
     setDraft(saved);
     setShelf(savedShelf);
-    setFollow(false);
     setProblem(null);
     setEditingField(null);
     // The bar goes with the changes: focus to the title, never to <body>.
@@ -306,9 +302,6 @@ export function AdminCatalogEditPage() {
         <CardStudio
           value={draft}
           onChange={edit}
-          savedReward={saved.reward_description}
-          follow={follow}
-          onFollow={() => setFollow(true)}
           businessName={draft.design.organization_name || "PunchMe"}
           niche={shelf.niche}
           images={images}

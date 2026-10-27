@@ -9,7 +9,6 @@ import {
   HELD_ORDER,
   rebaseEdits,
   sameCard,
-  withRewardOnBack,
   type CardStudioValue,
   type HeldPictures,
   type HeldUse,
@@ -99,7 +98,6 @@ export function DesignPage() {
   const [saved, setSaved] = useState<CardStudioValue | null>(null);
   const [draft, setDraft] = useState<CardStudioValue | null>(null);
   const [held, setHeld] = useState<HeldPictures>({});
-  const [follow, setFollow] = useState(false);
   const [kept, setKept] = useState(false);
   const [lint, setLint] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
@@ -134,10 +132,9 @@ export function DesignPage() {
       setSyncWait(readSyncWait(businessId, template.id));
       const keptDraft = readKept(businessId, template.id);
       const value = keptDraft ? rebaseEdits(keptDraft.base, keptDraft.value, fresh) : fresh;
-      if (keptDraft && changesBetween(fresh, value, keptDraft.held, keptDraft.follow).length > 0) {
+      if (keptDraft && changesBetween(fresh, value, keptDraft.held).length > 0) {
         setDraft(value);
         setHeld(keptDraft.held);
-        setFollow(keptDraft.follow);
         setKept(true);
       } else {
         if (keptDraft) dropKept(businessId, template.id);
@@ -155,7 +152,7 @@ export function DesignPage() {
     setLint(designQuery.data.lint);
   }, [businessId, template, designQuery.data, templatesAt, designAt, saving]);
 
-  const changes = saved && draft ? changesBetween(saved, draft, held, follow) : [];
+  const changes = saved && draft ? changesBetween(saved, draft, held) : [];
   const changed = changes.length > 0;
 
   // Kept in the tab while there are changes: the edits as one entry, each
@@ -165,12 +162,12 @@ export function DesignPage() {
   useEffect(() => {
     if (!businessId || !templateId || !draft || seededFor.current !== templateId) return;
     if (changed && saved) {
-      keepEdits(businessId, templateId, { base: saved, value: draft, follow });
+      keepEdits(businessId, templateId, { base: saved, value: draft });
       return;
     }
     dropKept(businessId, templateId);
     setKept(false);
-  }, [businessId, templateId, saved, draft, follow, changed]);
+  }, [businessId, templateId, saved, draft, changed]);
 
   const keptPictures = useRef<HeldPictures>({});
   useEffect(() => {
@@ -250,7 +247,6 @@ export function DesignPage() {
     setSaved(fresh);
     setDraft(fresh);
     setHeld({});
-    setFollow(false);
     setKept(false);
     setLint(freshLint);
     setEditingField(null);
@@ -299,7 +295,9 @@ export function DesignPage() {
       }
     }
 
-    const sentValue = withRewardOnBack(draft, saved.reward_description, follow);
+    // The draft as Save was pressed, the back's words included: what the
+    // owner sees is what is sent.
+    const sentValue = draft;
     try {
       await patchTemplate(businessId, templateId, sentValue);
     } catch (error) {
@@ -436,12 +434,6 @@ export function DesignPage() {
       <CardStudio
         value={draft}
         onChange={edit}
-        savedReward={saved.reward_description}
-        follow={follow}
-        onFollow={() => {
-          setFollow(true);
-          setFailure(null);
-        }}
         businessName={business.name}
         niche={business.niche}
         images={designImageUrls(design)}

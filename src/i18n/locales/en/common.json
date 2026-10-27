@@ -235,6 +235,7 @@
     "back": {
       "follows": "This is also what the back of the card says.",
       "differs": "The back of the card says:",
+      "empty": "The back of the card says nothing yet.",
       "follow": "Put the reward there"
     },
     "picture": {

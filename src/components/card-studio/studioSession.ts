@@ -18,7 +18,6 @@ import { HELD_ORDER, type CardStudioValue, type HeldPictures, type HeldUse } fro
 interface KeptEdits {
   base: CardStudioValue;
   value: CardStudioValue;
-  follow: boolean;
 }
 
 export interface KeptDraft extends KeptEdits {
@@ -51,7 +50,7 @@ export function readKept(businessId: string, templateId: string): KeptDraft | nu
     const picture = readDraft<string>(pictureKey(businessId, templateId, use));
     if (picture) held[use] = picture;
   }
-  return { base: edits.base, value: edits.value, follow: !!edits.follow, held };
+  return { base: edits.base, value: edits.value, held };
 }
 
 export function dropKept(businessId: string, templateId: string): void {

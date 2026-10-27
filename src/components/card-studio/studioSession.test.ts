@@ -40,18 +40,17 @@ const SAVED: CardStudioValue = {
 describe("the draft kept in the tab", () => {
   it("comes back with the card its edits started from", () => {
     const value = { ...SAVED, reward_description: "מאפה חינם" };
-    keepEdits("biz", "tpl", { base: SAVED, value, follow: false });
+    keepEdits("biz", "tpl", { base: SAVED, value });
     keepPicture("biz", "tpl", "logo", "data:image/png;base64,AAAA");
     expect(readKept("biz", "tpl")).toEqual({
       base: SAVED,
       value,
-      follow: false,
       held: { logo: "data:image/png;base64,AAAA" },
     });
   });
 
   it("doesn't come back without the card its edits started from", () => {
-    storage.set("punchme.draft:biz/design/tpl", JSON.stringify({ value: SAVED, follow: false }));
+    storage.set("punchme.draft:biz/design/tpl", JSON.stringify({ value: SAVED }));
     expect(readKept("biz", "tpl")).toBeNull();
   });
 
@@ -66,7 +65,7 @@ describe("the draft kept in the tab", () => {
   });
 
   it("goes, pictures and all, when dropped", () => {
-    keepEdits("biz", "tpl", { base: SAVED, value: SAVED, follow: false });
+    keepEdits("biz", "tpl", { base: SAVED, value: SAVED });
     keepPicture("biz", "tpl", "logo", "data:image/png;base64,AAAA");
     dropKept("biz", "tpl");
     expect(storage.size).toBe(0);

@@ -14,6 +14,7 @@ import { StudioTray } from "./StudioTray";
 import {
   backState,
   sampleStart,
+  withRewardOnBack,
   type CardStudioImages,
   type CardStudioValue,
   type HeldPictures,
@@ -144,11 +145,6 @@ function barLight(phase: BarPhase, reduced: boolean): string | undefined {
 export interface CardStudioProps {
   value: CardStudioValue;
   onChange: (next: CardStudioValue) => void;
-  /** The reward as saved, which the back of the card follows. */
-  savedReward: string;
-  /** The owner asked the back to say the reward. */
-  follow: boolean;
-  onFollow: () => void;
   businessName: string;
   /** The business's trade: its glyph leads. */
   niche?: string | null;
@@ -198,9 +194,6 @@ export interface CardStudioProps {
 export function CardStudio({
   value,
   onChange,
-  savedReward,
-  follow,
-  onFollow,
   businessName,
   niche,
   images = {},
@@ -235,7 +228,10 @@ export function CardStudio({
   const scrolledFor = useRef<string | null>(null);
 
   const owner = !!onHold;
-  const back = backState(value.design, savedReward, follow);
+  const back = backState(value.design, value.reward_description);
+  // "Put the reward there" is an edit like any other: the back's words
+  // change in the draft, and Wallet details shows them.
+  const onFollow = () => onChange(withRewardOnBack(value));
   const shownSample = Math.min(sample, value.stamps_required);
   // While Save runs, nothing that changes the draft can be reached: Save
   // sends the card as it was pressed, and starts again from what it read.
@@ -417,7 +413,7 @@ export function CardStudio({
         <Pencil aria-hidden className="size-5 shrink-0 text-ink-muted" />
         <span className="sr-only">{t("studio.editReward")}</span>
       </button>
-      {back.kind === "differs" && <BackDiffers text={back.text} onFollow={onFollow} />}
+      <BackDiffers back={back} onFollow={onFollow} />
     </div>
   );
 

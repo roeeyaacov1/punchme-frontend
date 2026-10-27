@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../kit/Button";
 import { RewardField, StampCountControl } from "../controls";
-import { stampColourOf, type BackState, type CardStudioValue } from "../studioDraft";
+import { stampColourOf, withReward, type BackState, type CardStudioValue } from "../studioDraft";
 
 /** What customers get, after how many stamps, and what the back of the card says. */
 export const RewardTray = forwardRef<
@@ -22,10 +22,10 @@ export const RewardTray = forwardRef<
         <RewardField
           ref={ref}
           value={value.reward_description}
-          onChange={(reward) => onChange({ ...value, reward_description: reward })}
+          onChange={(reward) => onChange(withReward(value, reward))}
           note={back.kind === "follows" ? t("studio.back.follows") : undefined}
         />
-        {back.kind === "differs" && <BackDiffers text={back.text} onFollow={onFollow} />}
+        <BackDiffers back={back} onFollow={onFollow} />
       </div>
       <StampCountControl
         value={value.stamps_required}
@@ -39,14 +39,21 @@ export const RewardTray = forwardRef<
   );
 });
 
-/** The back says something other than the reward: said, never overwritten
- * without the owner asking. */
-export function BackDiffers({ text, onFollow }: { text: string; onFollow: () => void }) {
+/** The back says something other than the reward, or nothing: said, never
+ * overwritten without the owner asking. Nothing when it says the reward. */
+export function BackDiffers({ back, onFollow }: { back: BackState; onFollow: () => void }) {
   const { t } = useTranslation();
+  if (back.kind !== "differs" && back.kind !== "empty") return null;
   return (
     <div className="flex flex-col items-start gap-1">
       <p className="text-sm leading-snug text-ink-muted">
-        {t("studio.back.differs")} <bdi className="text-ink">{text}</bdi>
+        {back.kind === "differs" ? (
+          <>
+            {t("studio.back.differs")} <bdi className="text-ink">{back.text}</bdi>
+          </>
+        ) : (
+          t("studio.back.empty")
+        )}
       </p>
       <Button variant="secondary" onClick={onFollow}>
         {t("studio.back.follow")}

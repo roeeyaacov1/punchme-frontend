@@ -13,6 +13,7 @@ import {
   textColourChoice,
   withBackground,
   withFaceLabel,
+  withReward,
   withRewardOnBack,
   type CardStudioValue,
 } from "./studioDraft";
@@ -33,47 +34,72 @@ const SAVED: CardStudioValue = {
   design: { fields: FIELDS, stamp: { glyph: "coffee", color: "#FFFFFF" }, pattern: "none" },
 };
 
+const backOf = (value: CardStudioValue) =>
+  value.design.fields?.find((field) => field.binding === "universal.info")?.default_value;
+
+/** The saved card, its back saying words of its own. */
+const OWN_BACK: CardStudioValue = {
+  ...SAVED,
+  design: { ...SAVED.design, fields: [FIELDS[0], FIELDS[1], { ...FIELDS[2], default_value: "קפה שמיני חינם" }] },
+};
+
 describe("backState", () => {
-  it("follows when the back says the saved reward", () => {
-    expect(backState(SAVED.design, "קפה חינם", false)).toEqual({ kind: "follows" });
+  it("follows when the back says the reward", () => {
+    expect(backState(SAVED.design, "קפה חינם")).toEqual({ kind: "follows" });
   });
 
-  it("follows when the back says nothing", () => {
+  it("is empty when the back says nothing", () => {
     const design = { fields: [{ ...FIELDS[2], default_value: "" }] };
-    expect(backState(design, "קפה חינם", false)).toEqual({ kind: "follows" });
+    expect(backState(design, "קפה חינם")).toEqual({ kind: "empty" });
   });
 
   it("is left alone, and said, when the back says something else", () => {
-    const design = { fields: [{ ...FIELDS[2], default_value: "קפה שמיני חינם" }] };
-    expect(backState(design, "קפה חינם", false)).toEqual({ kind: "differs", text: "קפה שמיני חינם" });
-  });
-
-  it("follows once the owner asks it to", () => {
-    const design = { fields: [{ ...FIELDS[2], default_value: "קפה שמיני חינם" }] };
-    expect(backState(design, "קפה חינם", true)).toEqual({ kind: "follows" });
+    expect(backState(OWN_BACK.design, "קפה חינם")).toEqual({ kind: "differs", text: "קפה שמיני חינם" });
   });
 
   it("has nothing to follow on a card without the field", () => {
-    expect(backState({ fields: FIELDS.slice(0, 2) }, "קפה חינם", false)).toEqual({ kind: "none" });
+    expect(backState({ fields: FIELDS.slice(0, 2) }, "קפה חינם")).toEqual({ kind: "none" });
+  });
+});
+
+describe("withReward", () => {
+  it("writes the new reward on the back too when the back says the reward", () => {
+    expect(backOf(withReward(SAVED, "מאפה חינם"))).toBe("מאפה חינם");
+  });
+
+  it("writes it on a back that says nothing", () => {
+    const empty = { ...SAVED, design: { fields: [{ ...FIELDS[2], default_value: "" }] } };
+    expect(backOf(withReward(empty, "מאפה חינם"))).toBe("מאפה חינם");
+  });
+
+  it("never overwrites words the back says of its own", () => {
+    const next = withReward(OWN_BACK, "מאפה חינם");
+    expect(next.reward_description).toBe("מאפה חינם");
+    expect(backOf(next)).toBe("קפה שמיני חינם");
+  });
+
+  it("adds no field to a card that has none", () => {
+    const draft = { ...SAVED, design: { fields: FIELDS.slice(0, 2) } };
+    expect(withReward(draft, "מאפה חינם").design.fields).toHaveLength(2);
   });
 });
 
 describe("withRewardOnBack", () => {
-  it("writes the new reward into the back field when it follows", () => {
-    const draft = { ...SAVED, reward_description: "מאפה חינם" };
-    const sent = withRewardOnBack(draft, SAVED.reward_description, false);
-    expect(sent.design.fields?.find((f) => f.binding === "universal.info")?.default_value).toBe("מאפה חינם");
+  it("puts the reward on the back in the draft, where Wallet details shows it", () => {
+    expect(backOf(withRewardOnBack(OWN_BACK))).toBe("קפה חינם");
   });
 
-  it("never overwrites words the back says of its own", () => {
-    const design = { ...SAVED.design, fields: [FIELDS[0], { ...FIELDS[2], default_value: "קפה שמיני חינם" }] };
-    const draft = { ...SAVED, design, reward_description: "מאפה חינם" };
-    expect(withRewardOnBack(draft, SAVED.reward_description, false)).toBe(draft);
+  it("makes the back follow the next change of the reward", () => {
+    expect(backOf(withReward(withRewardOnBack(OWN_BACK), "מאפה חינם"))).toBe("מאפה חינם");
   });
 
-  it("adds no field to a card that has none", () => {
-    const draft = { ...SAVED, design: { fields: FIELDS.slice(0, 2) }, reward_description: "מאפה חינם" };
-    expect(withRewardOnBack(draft, SAVED.reward_description, false).design.fields).toHaveLength(2);
+  it("lets words typed on the back afterwards win", () => {
+    const put = withRewardOnBack(OWN_BACK);
+    const typed = {
+      ...put,
+      design: { ...put.design, fields: put.design.fields?.map((f) => (f.binding === "universal.info" ? { ...f, default_value: "שתייה חמה חינם" } : f)) },
+    };
+    expect(backOf(withReward(typed, "מאפה חינם"))).toBe("שתייה חמה חינם");
   });
 });
 
@@ -178,10 +204,12 @@ describe("changesBetween", () => {
     ]);
   });
 
-  it("counts the back asked to follow as the reward", () => {
-    const design = { ...SAVED.design, fields: [FIELDS[0], FIELDS[1], { ...FIELDS[2], default_value: "קפה שמיני חינם" }] };
-    const saved = { ...SAVED, design };
-    expect(changesBetween(saved, saved, {}, true)).toEqual(["reward"]);
+  it("counts the reward put on the back as the reward", () => {
+    expect(changesBetween(OWN_BACK, withRewardOnBack(OWN_BACK))).toEqual(["reward"]);
+  });
+
+  it("counts a new reward once, on the front and the back", () => {
+    expect(changesBetween(SAVED, withReward(SAVED, "מאפה חינם"))).toEqual(["reward"]);
   });
 });
 
