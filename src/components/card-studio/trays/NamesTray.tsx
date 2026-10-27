@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import { useTranslation } from "react-i18next";
 import type { DesignField } from "../../../api/designs";
 import { Input } from "../../kit/Input";
@@ -29,6 +30,7 @@ export function NamesTray({
   savedFields,
   businessName,
   sayNameMissing,
+  nameRef,
 }: {
   value: CardStudioValue;
   onChange: (next: CardStudioValue) => void;
@@ -39,6 +41,8 @@ export function NamesTray({
   /** Say that the card has no name: at once on a card that had one, and
    * only after Save on a catalog look still being made. */
   sayNameMissing: boolean;
+  /** The card's name field, where focus goes when Save finds no name. */
+  nameRef?: Ref<HTMLInputElement>;
 }) {
   const { t } = useTranslation();
   const fields = value.design.fields ?? [];
@@ -46,6 +50,7 @@ export function NamesTray({
   return (
     <div className="flex flex-col gap-5">
       <Input
+        ref={nameRef}
         label={t("studio.nameLabel")}
         value={value.name}
         onChange={(event) => onChange({ ...value, name: event.target.value })}

@@ -132,6 +132,7 @@ export function DesignPage() {
   const [artSent, setArtSent] = useState<ArtSent>({});
   const [ownerCard, setOwnerCard] = useState<EnrollOut | null>(null);
   const [syncWait, setSyncWait] = useState<SyncWait | null>(null);
+  const [nameFocus, setNameFocus] = useState(0);
 
   // The card the studio stands on (`saved`), and the reads it came from.
   const baseline = useRef<{ value: CardStudioValue; at: ReadStamp } | null>(null);
@@ -336,6 +337,7 @@ export function DesignPage() {
     if (nameMissing(draft)) {
       setFailure({ problem: { key: "studio.problem.noName" }, partial: false });
       setTray("names");
+      setNameFocus((count) => count + 1);
       return;
     }
     // Fields added elsewhere can take the card past the most the API takes:
@@ -592,6 +594,7 @@ export function DesignPage() {
         onTray={setTray}
         editingField={editingField}
         onEditingField={setEditingField}
+        focusName={nameFocus}
       />
     </div>
   );
