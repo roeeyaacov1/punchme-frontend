@@ -74,6 +74,7 @@
         "art": "Art"
       },
       "saved": "Saved. Owners who pick this look from now on get it as it is.",
+      "savedHidden": "Saved. Owners won't see this look until it's published.",
       "changes_one": "1 change not saved yet",
       "changes_other": "{{count}} changes not saved yet"
     },
