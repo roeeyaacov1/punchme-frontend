@@ -49,7 +49,7 @@ afterwards.
 Four questions went to Roee on the way, and he saw the `/join` structures on
 a canvas before picking one. His answers are in §6.
 
-Read "In short" first. Section 7 is what step B builds, and §12 is for the
+Read "In short" first. Section 7 is what step B builds, and §12 records the
 review.
 
 1. In short
@@ -1067,4 +1067,11 @@ staged and never redrawn.
 
 ## 12. Review notes for step B
 
-(For Roee's review.)
+Roee approved the brief as written on 27 Oct, so step B builds §7 to §9 as
+they stand, their stand-ins included: the sign without the shop's face
+until the backend gives it (§7.3), and the sample name on a nameless pass,
+recorded as known, until Phase 3's "no name" lands (§7.10). §10's four
+questions stay open: the shop's face, "Member" on the real pass, the Google
+button's language, and password recovery. The critique snapshots in
+`.impeccable/critique/` are committed with this note, for step D's
+`/impeccable polish`.
