@@ -86,7 +86,9 @@ export function useJoinFlow(calls: JoinCalls) {
       setStep({ kind: "form" });
       refuse({ phone: answer.key });
     } else if (answer.kind === "field") {
-      refuse({ code: answer.key });
+      // A code refused while the form is showing (codes off here, on at the
+      // API) has no field to stand under: it is said over the button.
+      refuse(step.kind === "code" ? { code: answer.key } : { form: answer.key });
     } else {
       refuse({ form: answer.key });
     }
