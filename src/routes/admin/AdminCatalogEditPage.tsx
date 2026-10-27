@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
-import { CardStudio } from "../../components/card-studio/CardStudio";
+import { CardStudio, type ExtraTray } from "../../components/card-studio/CardStudio";
 import { readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
@@ -12,12 +12,7 @@ import {
   type CardStudioValue,
 } from "../../components/card-studio/studioDraft";
 import { saveProblem } from "../../components/card-studio/studioProblems";
-import {
-  StudioPanel,
-  StudioSelect,
-  StudioText,
-} from "../../components/card-studio/studio-primitives";
-import { focusRing } from "../../components/kit";
+import { Checkbox, focusRing, Input, Notice, Select } from "../../components/kit";
 import { CatalogArtPanel } from "./CatalogArtPanel";
 import {
   createCatalogEntry,
@@ -50,17 +45,18 @@ interface Shelf {
   isPublished: boolean;
 }
 
+const NO_SHELF: Shelf = { niche: "cafe", description: "", isPublished: false };
+
 /**
- * Catalog authoring: the same Card Studio an owner designs in, plus the two
- * things only a catalog entry has — where it belongs in the wizard, and the
- * artwork it hands out.
+ * Catalog authoring: the same card studio an owner designs in, plus the two
+ * things only a catalog look has, as two more trays: its shelf (where it sits
+ * in the wizard, and whether owners see it yet) and its art.
  *
  * The studio runs against the staff-only stateless preview endpoint, so
- * there is no owned template behind any of this and nothing is provisioned
- * on the wallet provider. What *is* stored is the artwork: uploads land the
- * moment they are picked, against the entry's id, which is why a brand-new
- * template is saved once before the art panel opens. Saving keeps you on the
- * page — authoring a look is a loop of small changes.
+ * there is no owned template behind it and nothing is provisioned on the
+ * wallet provider. What *is* stored at once is the art, against the look's
+ * id, which is why a brand-new look is saved once before its art opens.
+ * Saving keeps you on the page: authoring a look is a loop of small changes.
  *
  * It sits under `AdminLayout`, which has no theme, so it wraps its own
  * content in Lightbox, by day only: the admin area has no night.
@@ -71,11 +67,12 @@ export function AdminCatalogEditPage() {
   const isNew = catalogId === "new";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const heading = useRef<HTMLHeadingElement>(null);
 
   const [saved, setSaved] = useState<CardStudioValue | null>(isNew ? EMPTY : null);
   const [draft, setDraft] = useState<CardStudioValue | null>(isNew ? EMPTY : null);
-  const [savedShelf, setSavedShelf] = useState<Shelf>({ niche: "cafe", description: "", isPublished: false });
-  const [shelf, setShelf] = useState<Shelf>(savedShelf);
+  const [savedShelf, setSavedShelf] = useState<Shelf>(NO_SHELF);
+  const [shelf, setShelf] = useState<Shelf>(NO_SHELF);
   const [follow, setFollow] = useState(false);
   const [art, setArt] = useState<Art>({});
   const [lint, setLint] = useState<string[]>([]);
@@ -99,15 +96,15 @@ export function AdminCatalogEditPage() {
           label_color: entry.label_color ?? "#000000",
           design: (entry.design ?? {}) as CardStudioValue["design"],
         };
-        const loadedShelf = {
+        const loaded = {
           niche: entry.niche ?? "cafe",
           description: entry.description ?? "",
           isPublished: entry.is_published ?? false,
         };
         setSaved(value);
         setDraft(value);
-        setSavedShelf(loadedShelf);
-        setShelf(loadedShelf);
+        setSavedShelf(loaded);
+        setShelf(loaded);
         setArt((entry.art ?? {}) as Art);
       })
       .catch(() => setLoadFailed(true));
@@ -146,8 +143,8 @@ export function AdminCatalogEditPage() {
     setJustSaved(false);
   };
 
-  // Uploads are stored against the entry's id, so a template still being
-  // typed has nowhere to put one. Null closes the panel and says why.
+  // Pictures are stored against the look's id, so one still being typed for
+  // the first time has nowhere to put them: null, and the tray says why.
   const handleUpload = isNew
     ? null
     : async (use: CatalogArtUse, file: File) => {
@@ -176,8 +173,8 @@ export function AdminCatalogEditPage() {
       if (isNew) {
         const created = await createCatalogEntry(payload);
         await queryClient.invalidateQueries({ queryKey: ["admin-catalog"] });
-        // Onto the entry's own URL rather than back to the list: the id it
-        // was just given is what the artwork uploads need.
+        // Onto the look's own URL rather than back to the list: the id it
+        // was just given is what its art needs.
         navigate(`/admin/catalog/${created.id}`, { replace: true });
         return;
       }
@@ -188,6 +185,7 @@ export function AdminCatalogEditPage() {
       setSavedShelf(shelf);
       setFollow(false);
       setJustSaved(true);
+      heading.current?.focus();
     } catch (error) {
       const failed = saveProblem(error);
       setProblem(t(failed.key, failed.values));
@@ -206,6 +204,9 @@ export function AdminCatalogEditPage() {
     setShelf(savedShelf);
     setFollow(false);
     setProblem(null);
+    setEditingField(null);
+    // The bar goes with the changes: focus to the title, never to <body>.
+    heading.current?.focus();
   }
 
   const frame = "theme-lightbox -mx-6 -my-8 min-h-full bg-background px-4 pb-8 pt-6 text-ink sm:px-6";
@@ -221,6 +222,55 @@ export function AdminCatalogEditPage() {
   }
 
   const images: CardStudioImages = art;
+  const extraTrays: ExtraTray[] = [
+    {
+      id: "shelf",
+      label: t("admin.catalog.chips.shelf"),
+      body: (
+        <div className="flex flex-col gap-5">
+          <p className="text-sm leading-snug text-ink-muted">{t("admin.catalog.shelfHint")}</p>
+          <Select
+            label={t("admin.catalog.nicheLabel")}
+            value={shelf.niche}
+            onChange={(event) => editShelf({ niche: event.target.value })}
+          >
+            {NICHES.map((key) => (
+              <option key={key} value={key}>
+                {t(`onboarding.business.niches.${key}`)}
+              </option>
+            ))}
+          </Select>
+          <Input
+            label={t("admin.catalog.descriptionLabel")}
+            hint={t("admin.catalog.descriptionHint")}
+            value={shelf.description}
+            onChange={(event) => editShelf({ description: event.target.value })}
+            dir="auto"
+            autoComplete="off"
+          />
+          <Checkbox
+            checked={shelf.isPublished}
+            onChange={(checked) => editShelf({ isPublished: checked })}
+            label={t("admin.catalog.publishedLabel")}
+            description={t("admin.catalog.publishedHint")}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "art",
+      label: t("admin.catalog.chips.art"),
+      part: "stamps",
+      body: (
+        <CatalogArtPanel
+          art={art}
+          onUpload={handleUpload}
+          onRemove={handleRemoveArt}
+          backgroundColor={draft.background_color}
+        />
+      ),
+    },
+  ];
 
   return (
     <div className={frame}>
@@ -228,13 +278,16 @@ export function AdminCatalogEditPage() {
         <div className="flex flex-col gap-1">
           <Link
             to="/admin/catalog"
-            className={cn("inline-flex min-h-11 w-fit items-center gap-1.5 rounded-full text-sm text-ink-muted hover:text-ink", focusRing)}
+            className={cn(
+              "inline-flex min-h-11 w-fit items-center gap-1.5 rounded-full text-sm text-ink-muted hover:text-ink",
+              focusRing,
+            )}
           >
             {/* Flips with the page: a "back" arrow points back in Hebrew too. */}
             <ArrowLeft size={15} aria-hidden="true" className="rtl:rotate-180" />
             {t("admin.catalog.title")}
           </Link>
-          <h1 className="type-title text-ink">
+          <h1 ref={heading} tabIndex={-1} className="type-title text-ink outline-none">
             {isNew ? t("admin.catalog.createTitle") : draft.name || t("admin.catalog.editTitle")}
           </h1>
           {!isNew && (
@@ -244,48 +297,11 @@ export function AdminCatalogEditPage() {
           )}
         </div>
 
-        <StudioPanel title={t("admin.catalog.shelfTitle")} hint={t("admin.catalog.shelfHint")}>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <StudioSelect
-              label={t("admin.catalog.nicheLabel")}
-              value={shelf.niche}
-              onChange={(e) => editShelf({ niche: e.target.value })}
-            >
-              {NICHES.map((key) => (
-                <option key={key} value={key}>
-                  {t(`onboarding.business.niches.${key}`)}
-                </option>
-              ))}
-            </StudioSelect>
-
-            <StudioText
-              label={t("admin.catalog.descriptionLabel")}
-              hint={t("admin.catalog.descriptionHint")}
-              value={shelf.description}
-              onChange={(e) => editShelf({ description: e.target.value })}
-            />
-          </div>
-
-          <label className="flex min-h-[44px] items-start gap-3 text-sm text-ink">
-            <input
-              type="checkbox"
-              checked={shelf.isPublished}
-              onChange={(e) => editShelf({ isPublished: e.target.checked })}
-              className="mt-0.5 h-4 w-4 accent-[rgb(var(--c-primary))]"
-            />
-            <span>
-              <span className="font-medium">{t("admin.catalog.publishedLabel")}</span>
-              <span className="block text-xs text-ink-subtle">{t("admin.catalog.publishedHint")}</span>
-            </span>
-          </label>
-        </StudioPanel>
-
-        <CatalogArtPanel
-          art={art}
-          onUpload={handleUpload}
-          onRemove={handleRemoveArt}
-          backgroundColor={draft.background_color}
-        />
+        {justSaved && (
+          <Notice tone="ok" lit role="status">
+            {t("admin.catalog.saved")}
+          </Notice>
+        )}
 
         <CardStudio
           value={draft}
@@ -305,12 +321,13 @@ export function AdminCatalogEditPage() {
             onSave: () => void handleSave(),
             onDiscard: discard,
             problem,
-            status: justSaved ? t("studio.savedShort") : undefined,
+            sentence: t("admin.catalog.changes", { count: changes }),
           }}
           tray={tray}
           onTray={setTray}
           editingField={editingField}
           onEditingField={setEditingField}
+          extraTrays={extraTrays}
         />
       </div>
     </div>
