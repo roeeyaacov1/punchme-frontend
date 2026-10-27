@@ -222,22 +222,29 @@ export const StudioStage = forwardRef<
   // the overshoot, on the stand-in's own stamp, found in the frozen grid and
   // never drawn here; with reduced motion it is there at its size after the
   // 150ms fade. Set before paint, so the stamp never shows a frame early.
-  // Anything else that moves the sample, or the next stamp, settles it at
-  // once. The published picture has no stamp to land: it just changes.
+  // Each landing runs out on its own, so quick presses ripple rather than cut
+  // one another short; only a stamp the sample no longer reaches, or a card
+  // drawn afresh, settles at once. The published picture has no stamp to
+  // land: it just changes.
+  const landing = useRef(new Map<HTMLElement, { count: number; settle: () => void }>());
   const handled = useRef(landed);
   useLayoutEffect(() => {
+    for (const [stamp, { count, settle }] of landing.current) {
+      if (count > sample || !stamp.isConnected) settle();
+    }
     if (landed === handled.current) return;
     handled.current = landed;
     const stamp = stampAt(slot.current, wallet, sample);
     if (!stamp) return;
     const motion = reduced ? "animate-gentle-in" : "animate-stamp-land";
-    const done = () => stamp.classList.remove(motion);
-    stamp.classList.add(motion);
-    stamp.addEventListener("animationend", done, { once: true });
-    return () => {
-      stamp.removeEventListener("animationend", done);
-      done();
+    const settle = () => {
+      stamp.removeEventListener("animationend", settle);
+      stamp.classList.remove(motion);
+      landing.current.delete(stamp);
     };
+    stamp.classList.add(motion);
+    stamp.addEventListener("animationend", settle);
+    landing.current.set(stamp, { count: sample, settle });
   }, [landed, sample, wallet, reduced]);
 
   const summary = t("studio.stageSummary", {
