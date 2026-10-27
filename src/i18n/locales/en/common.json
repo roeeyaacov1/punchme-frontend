@@ -596,23 +596,16 @@
     "privacyNotice": "Providing your details is not required by law and is entirely voluntary; without them we cannot enroll you in the club and issue your loyalty card. The details you provide (name, mobile number, and birthday — if you chose to share it) are stored in this business's customer database (the data controller) and processed on its behalf by PunchMe, the digital loyalty-card service, for managing the club, awarding stamps and rewards, and issuing a card to your digital wallet (Apple Wallet / Google Wallet) via wallet infrastructure providers. Your data is not shared with other third parties except as required by law.\n\nYou have the right to access data about you, to request correction or deletion of data that is inaccurate, incomplete, or outdated (sections 13–14 of the Israeli Privacy Protection Law, 1981), and to demand in writing deletion from the direct-mailing database (section 17F).",
     "sendCodeCta": "Send SMS verification code",
     "codeTitle": "Enter the code",
-    "codeSentTo": "We sent a 6-digit code to {{phone}}",
     "codeLabel": "Verification code",
     "verifyCta": "Verify & join",
     "editPhone": "Edit number",
     "resend": "Send a new code",
-    "resendIn": "You can resend in {{seconds}}s",
     "otpInvalid": "Wrong or expired code — try again or request a new one",
     "otpThrottled": "Too many codes sent — wait a moment and try again",
     "phoneInvalid": "That doesn't look like a valid Israeli mobile number",
     "genericError": "Something went wrong. Please try again in a moment.",
     "submit": "Add to my wallet",
     "upgradeRequired": "This shop isn't taking new members yet.",
-    "successTitle": "Your card is ready! Add it to your wallet",
-    "successEyebrow": "You're in at {{businessName}}",
-    "scanMeanwhile": "No need to wait — staff can scan the code above right now.",
-    "statusTitle": "Your card",
-    "alreadyMemberTitle": "You already have a card here — here it is",
     "pageTitle": "Join the card",
     "pageTitleCard": "Your card at {{business}}",
     "phoneMissing": "A mobile number is needed to join.",
@@ -623,7 +616,10 @@
       "line": "A stamp every visit, and a reward when the card is full.",
       "cost": "Just your mobile number and an SMS code.",
       "costNoCode": "Just your mobile number.",
-      "join": "Join"
+      "join": "Join",
+      "lineShop_one": "<n>{{count}}</n> stamp, then <reward>{{reward}}</reward>.",
+      "lineShop_other": "<n>{{count}}</n> stamps, then <reward>{{reward}}</reward>.",
+      "under": "A stamp every visit, straight onto the card in your wallet."
     },
     "dead": {
       "title": "This code no longer leads to a card",
@@ -659,7 +655,8 @@
       "notFoundTitle": "This link doesn't lead to a card",
       "notFoundBody": "Scan the sign at the counter and join with the same mobile number: if your card still exists, it comes back with its stamps.",
       "failedTitle": "We couldn't load the card"
-    }
+    },
+    "notTakingShop": "<shop>{{business}}</shop> isn't taking new members yet."
   },
   "standee": {
     "title": "Print signage",
@@ -1980,15 +1977,15 @@
     "pageTitleLoading": "Team invitation"
   },
   "publicCard": {
-    "eyebrow": "PunchMe loyalty card",
-    "notFound": "This card can't be found. It may have been removed, or the link is wrong.",
-    "failed": "Something went wrong loading this card. Try again.",
+    "notFound": "It may have been removed, or the link is wrong.",
     "card": {
       "reward": "Collect {{stamps}} stamps and get: {{reward}}",
       "join": "Get your own card",
-      "staffHint": "Working at {{business}}?",
-      "signIn": "Sign in to add a stamp",
-      "notYourShop": "You're signed in, but this card isn't from your shop."
+      "staffHint": "Working at <shop>{{business}}</shop>?",
+      "signIn": "Sign in to stamp",
+      "notYourShop": "You're signed in, but this card isn't from your shop.",
+      "collect_one": "Collect <n>{{count}}</n> stamp and get: <reward>{{reward}}</reward>",
+      "collect_other": "Collect <n>{{count}}</n> stamps and get: <reward>{{reward}}</reward>"
     },
     "stamp": {
       "title": "Add a stamp to {{name}}'s card",
@@ -2012,13 +2009,15 @@
     },
     "join": {
       "invitedBy": "{{name}} invited you",
-      "invited": "You've been invited to join"
+      "invited": "You've been invited"
     },
     "yours": {
-      "title": "This is your card",
+      "title": "This is your card at <shop>{{business}}</shop>",
       "hint": "Friends who scan it get a card of their own here.",
       "open": "Open your card"
-    }
+    },
+    "notFoundTitle": "This card can't be found",
+    "pageTitle": "Loyalty card"
   },
   "referrals": {
     "title": "Refer a friend",
