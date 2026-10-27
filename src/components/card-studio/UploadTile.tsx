@@ -1,6 +1,6 @@
 import { useId, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { Check, CircleAlert, ImagePlus, Trash2 } from "lucide-react";
+import { Check, CircleAlert, ImagePlus, Info, Trash2 } from "lucide-react";
 import { cn } from "../../lib/cn";
 import { Button } from "../kit/Button";
 import { noTapFlash } from "../kit/classes";
@@ -22,6 +22,7 @@ export function UploadTile({
   ground,
   busy,
   error,
+  note,
   disabled,
   onFile,
   onRemove,
@@ -40,6 +41,8 @@ export function UploadTile({
   ground: string;
   busy?: boolean;
   error?: string | null;
+  /** Said under the hint: what the owner should know about this picture now. */
+  note?: ReactNode;
   disabled?: boolean;
   onFile: (file: File) => void;
   /** Where a picture can be taken away (the catalog's art). */
@@ -121,6 +124,12 @@ export function UploadTile({
         )}
       </div>
       {hint && <p className="text-sm leading-snug text-ink-muted">{hint}</p>}
+      {note && (
+        <p className="flex items-start gap-1.5 text-sm leading-snug text-ink">
+          <Info aria-hidden className="mt-px size-4 shrink-0" />
+          <span>{note}</span>
+        </p>
+      )}
       {error && (
         <p id={errorId} role="alert" className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-danger">
           <CircleAlert aria-hidden className="mt-px size-4 shrink-0" />

@@ -11,7 +11,7 @@ import { Textarea } from "../../kit/Textarea";
 import { isolate } from "../../../routes/dashboard/problem";
 import { ChoiceTiles, type Tile } from "../controls/ChoiceTiles";
 import { problemsFor, type LintReading } from "../lintProblems";
-import { pictureSize, readPicture, STRIP_MIN } from "../pictureFiles";
+import { fitPicture, pictureSize, readPicture, STRIP_MIN, type FittedUse } from "../pictureFiles";
 import {
   BACK_BINDING,
   MAX_FIELDS,
@@ -37,7 +37,9 @@ const GOOGLE_FACE = ["person.displayName", "members.member.points"];
 /** A stamp count, for the change message's example. */
 const EXAMPLE_VALUE = "5";
 
-const ART: { use: HeldUse; aspect: string }[] = [
+type ArtTileUse = Exclude<FittedUse, "logo">;
+
+const ART: { use: ArtTileUse; aspect: string }[] = [
   { use: "strip_base", aspect: "1125 / 432" },
   { use: "stamped_art", aspect: "1 / 1" },
   { use: "unstamped_art", aspect: "1 / 1" },
@@ -48,6 +50,8 @@ export interface WalletArt {
   images: CardStudioImages;
   /** The art the card has, which the design read names but doesn't carry. */
   assets: readonly string[];
+  /** Held pictures that didn't fit the tab's storage. */
+  notKept: readonly HeldUse[];
   onPick: (use: HeldUse, dataUrl: string) => void;
 }
 
@@ -189,7 +193,7 @@ export function WalletDetailsTray({
   );
 }
 
-function ArtTile({ use, aspect, art, ground }: { use: HeldUse; aspect: string; art: WalletArt; ground: string }) {
+function ArtTile({ use, aspect, art, ground }: { use: ArtTileUse; aspect: string; art: WalletArt; ground: string }) {
   const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const src = art.held[use] ?? art.images[use as keyof CardStudioImages];
@@ -202,6 +206,7 @@ function ArtTile({ use, aspect, art, ground }: { use: HeldUse; aspect: string; a
       aspect={aspect}
       ground={ground}
       error={error}
+      note={art.notKept.includes(use) ? t("studio.picture.notKept") : undefined}
       onFile={async (file) => {
         setError(null);
         try {
@@ -213,7 +218,7 @@ function ArtTile({ use, aspect, art, ground }: { use: HeldUse; aspect: string; a
               return;
             }
           }
-          art.onPick(use, dataUrl);
+          art.onPick(use, await fitPicture(dataUrl, use));
         } catch (err) {
           setError(
             err instanceof Error && err.message === "too large"

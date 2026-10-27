@@ -73,6 +73,20 @@ describe("the draft kept in the tab", () => {
     expect(readUploaded("biz", "tpl")).toEqual({ stamp_art: "data:stamp", stamped_art: "data:full" });
   });
 
+  it("says whether a picture was kept, and keeps no older one in its place", () => {
+    expect(keepPicture("biz", "tpl", "logo", "data:small")).toBe(true);
+    // The tab's storage is full: nothing more fits.
+    vi.stubGlobal("sessionStorage", {
+      ...sessionStorageStub,
+      setItem: () => {
+        throw new DOMException("quota", "QuotaExceededError");
+      },
+    });
+    expect(keepPicture("biz", "tpl", "logo", "data:a-photo")).toBe(false);
+    expect(readKept("biz", "tpl")).toBeNull();
+    expect(storage.has("punchme.draft:biz/design/tpl/logo")).toBe(false);
+  });
+
   it("goes, pictures and all, when dropped", () => {
     keepEdits("biz", "tpl", { base: SAVED, value: SAVED });
     keepPicture("biz", "tpl", "logo", "data:image/png;base64,AAAA");

@@ -36,10 +36,15 @@ export function keepEdits(businessId: string, templateId: string, edits: KeptEdi
   writeDraft(editsKey(businessId, templateId), edits);
 }
 
-export function keepPicture(businessId: string, templateId: string, use: HeldUse, dataUrl: string | undefined): void {
+/** Keep a held picture, or let one go. Whether it was kept: read back, since
+ * storage that is full says nothing, so the page can say a picture won't
+ * come back if the owner leaves. */
+export function keepPicture(businessId: string, templateId: string, use: HeldUse, dataUrl: string | undefined): boolean {
   const key = pictureKey(businessId, templateId, use);
   dropDraft(key);
-  if (dataUrl) writeDraft(key, dataUrl);
+  if (!dataUrl) return true;
+  writeDraft(key, dataUrl);
+  return readDraft<string>(key) === dataUrl;
 }
 
 export function readKept(businessId: string, templateId: string): KeptDraft | null {

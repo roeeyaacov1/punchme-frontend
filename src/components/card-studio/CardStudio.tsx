@@ -154,6 +154,9 @@ export interface CardStudioProps {
   images?: CardStudioImages;
   /** The art the card has (the design read's `assets`), drawn or not. */
   assets?: readonly string[];
+  /** Held pictures that didn't fit the tab's storage: they won't come back
+   * if the owner leaves the page, and their tiles say so. */
+  notKept?: readonly HeldUse[];
   /** Pictures held for Save. With `onHold`, the owner's studio: a logo tray,
    * a stamp picture of one's own, custom art. */
   held?: HeldPictures;
@@ -203,6 +206,7 @@ export function CardStudio({
   niche,
   images = {},
   assets = [],
+  notKept = [],
   held = {},
   onHold,
   stampPicture,
@@ -352,6 +356,7 @@ export function CardStudio({
             logo={held.logo ?? images.logo}
             ground={value.background_color}
             onPick={(dataUrl) => onHold("logo", dataUrl)}
+            notKept={notKept.includes("logo")}
           />
         ) : null;
       case "wallet":
@@ -362,7 +367,7 @@ export function CardStudio({
             lint={lint}
             editing={editingField}
             onEditing={onEditingField}
-            art={onHold ? { held, images, assets, onPick: onHold } : undefined}
+            art={onHold ? { held, images, assets, notKept, onPick: onHold } : undefined}
           />
         );
       default:
