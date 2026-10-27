@@ -27,8 +27,9 @@ function clearEdge(element: HTMLElement) {
  *
  * Not a modal, which is the point: no scrim over the card, and the page
  * stays live. It is a region named by its heading. Focus goes to the heading
- * as it opens, or to where the studio asks (`start`); Escape, the close button, a drag down by its head or another
- * chip closes it, and the studio puts focus back on the chip that opened it.
+ * as it opens, or to where the studio asks (`start`); Escape, the close
+ * button, a drag down by its head or another chip closes it, and the studio
+ * puts focus back on the chip that opened it.
  * It is as tall as what it holds, up to half the screen, and scrolls inside
  * past that; the save bar sits at its foot, and the edge goes with it.
  *

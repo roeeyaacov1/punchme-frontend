@@ -264,7 +264,8 @@ export function CardStudio({
   const [landed, setLanded] = useState(0);
   const [trayHeight, setTrayHeight] = useState(0);
   const [shownTray, setShownTray] = useState(tray);
-  const scrolledFor = useRef<string | null>(null);
+  // The tray the card was last fitted above, and how tall it was then.
+  const fitted = useRef<{ tray: string; height: number } | null>(null);
   // Save found no name: Names starts at the name field, until it closes or
   // another tray takes its place. Followed while rendering, so the tray
   // opens with it.
@@ -333,19 +334,27 @@ export function CardStudio({
     if (was) chips.current.get(was)?.focus();
   }, [tray, onTray]);
 
-  // Bring the part of the card the tray changes into view above it, once
-  // per tray: the stamps sit at the foot of Google's card, not under its logo.
+  // Bring the part of the card the tray changes into view above it as the
+  // tray opens: the stamps sit at the foot of Google's card, not under its
+  // logo. And again when the same tray grows over it (the bar arriving at its
+  // foot), by what it now covers, if it was in view; never as it shrinks, or
+  // when the owner has scrolled the part away.
   useEffect(() => {
     if (wide || !tray || !trayHeight) return;
-    if (scrolledFor.current === tray) return;
-    scrolledFor.current = tray;
+    const was = fitted.current;
+    fitted.current = { tray, height: trayHeight };
+    const grown = was && was.tray === tray ? was.height : null;
+    if (grown !== null && trayHeight <= grown) return;
     const part = partOf(tray);
     const rect = part ? stage.current?.rect(part) : null;
     if (!rect) return;
     const top = topClearance();
     const bottom = window.innerHeight - trayHeight - 8;
-    let delta = rect.bottom > bottom ? rect.bottom - bottom : 0;
-    if (rect.top - delta < top) delta = rect.top - top;
+    const wasInView = grown === null || rect.bottom <= window.innerHeight - grown - 8 + 1;
+    if (!wasInView) return;
+    let delta = Math.max(0, rect.bottom - bottom);
+    // Opening, it may also scroll back up to the part; growing, only down.
+    if (rect.top - delta < top) delta = grown === null ? rect.top - top : Math.max(0, rect.top - top);
     // "instant", not "auto": a page that sets `scroll-behavior: smooth` would
     // turn "auto" back into a glide.
     if (Math.abs(delta) > 1) window.scrollBy({ top: delta, behavior: reduced ? "instant" : "smooth" });
@@ -354,7 +363,7 @@ export function CardStudio({
   }, [wide, tray, trayHeight, reduced]);
 
   useEffect(() => {
-    if (!tray) scrolledFor.current = null;
+    if (!tray) fitted.current = null;
   }, [tray]);
 
   // Names already in view (a tab, or the tray open on it): straight there.
