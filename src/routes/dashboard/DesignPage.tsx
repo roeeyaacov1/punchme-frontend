@@ -128,10 +128,17 @@ export function DesignPage() {
   const changed = changes.length > 0;
 
   // Kept in the tab while there are changes: the edits as one entry, each
-  // picture as its own, written only when it changes.
+  // picture as its own, written only when it changes. Edits brought back to
+  // the saved card drop it, so a reload can't bring back a change undone,
+  // and the next change is a draft of its own, not the one that came back.
   useEffect(() => {
     if (!businessId || !templateId || !draft || seededFor.current !== templateId) return;
-    if (changed) keepEdits(businessId, templateId, { value: draft, follow });
+    if (changed) {
+      keepEdits(businessId, templateId, { value: draft, follow });
+      return;
+    }
+    dropKept(businessId, templateId);
+    setKept(false);
   }, [businessId, templateId, draft, follow, changed]);
 
   const keptPictures = useRef<HeldPictures>({});
