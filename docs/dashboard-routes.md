@@ -101,7 +101,8 @@ Search and filters run in the browser.
 | Load | `POST {biz}/templates/{template_id}/preview`, then `GET /api/cards/{serial}` every 3 s until ready: the owner's own pass for "add to my wallet" | `previewCard`, `useWalletPass` |
 | 400 ms after each edit | `POST {biz}/templates/{template_id}/design/preview`: checks the draft, saves nothing | `previewTemplateDesign` |
 | Save, first | `POST {biz}/templates/{template_id}/images` (multipart `use`, `file`) for each picture held since the last save, in order: logo, stamp picture, strip background, then the before and after art. A refused one stops the save there | `uploadTemplateImage` |
-| Save, then | `PATCH {biz}/templates/{template_id}`, then the design is read again, once, after the last write. A save that stops after a picture went (a later picture refused, or the PATCH) reads the design once too, so the studio knows which pictures reached the cards | `patchTemplate`, `getTemplateDesign` |
+| Save, then | `GET {biz}/templates` and `GET {biz}/templates/{template_id}/design`, the two reads the page loads with, made again after the pictures: the owner's edits go on the card as it is now, so a save made elsewhere since the last read is never sent back undone. A field changed on both sides is merged property by property. If the reads don't land, the edits go on the card last read | `listTemplates`, `getTemplateDesign` |
+| Save, last | `PATCH {biz}/templates/{template_id}`, then both reads again, once, after the last write. A save that stops after a picture went (a later picture refused, or the PATCH) reads the design once too, so the studio knows which pictures reached the cards | `patchTemplate`, `listTemplates`, `getTemplateDesign` |
 
 Picture `use` values: `logo`, `icon`, `strip_base`, `stamp_art`,
 `stamped_art`, `unstamped_art`. A picture is chosen and cropped in the

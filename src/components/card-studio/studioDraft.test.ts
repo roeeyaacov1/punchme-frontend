@@ -339,6 +339,61 @@ describe("rebaseEdits", () => {
     ]);
   });
 
+  it("merges a field changed on both sides property by property", () => {
+    // Here: a new reward, which writes the back's words too.
+    const draft = withReward(SAVED, "מאפה חינם");
+    // Elsewhere: the back field's label, place and change message.
+    const back = { ...FIELDS[2], label: "מה מקבלים", section: "AUXILIARY_FIELDS" as const, change_message: "חדש: %@" };
+    const fresh = { ...SAVED, design: { ...SAVED.design, fields: [FIELDS[0], FIELDS[1], back] } };
+    const rebased = rebaseEdits(SAVED, draft, fresh);
+    expect(rebased.reward_description).toBe("מאפה חינם");
+    expect(rebased.design.fields?.[2]).toEqual({ ...back, default_value: "מאפה חינם" });
+  });
+
+  it("gives a free-text field added elsewhere a binding of its own when the owner's new one took it", () => {
+    const ours = { ...newField("meta.custom", FIELDS), label: "שעות" };
+    const theirs = { ...newField("meta.custom", FIELDS), label: "כתובת" };
+    expect(ours.binding).toBe(theirs.binding);
+    const draft = { ...SAVED, design: { ...SAVED.design, fields: [...FIELDS, ours] } };
+    const fresh = { ...SAVED, design: { ...SAVED.design, fields: [...FIELDS, theirs] } };
+    expect(rebaseEdits(SAVED, draft, fresh).design.fields).toEqual([
+      ...FIELDS,
+      ours,
+      { ...theirs, binding: "meta.custom_2" },
+    ]);
+  });
+
+  it("passes over a binding the fresh card takes further on", () => {
+    const ours = { binding: "meta.custom", label: "שעות" };
+    const theirs = [
+      { binding: "meta.custom", label: "כתובת" },
+      { binding: "meta.custom_2", label: "טלפון" },
+    ];
+    const draft = { ...SAVED, design: { ...SAVED.design, fields: [...FIELDS, ours] } };
+    const fresh = { ...SAVED, design: { ...SAVED.design, fields: [...FIELDS, ...theirs] } };
+    expect(rebaseEdits(SAVED, draft, fresh).design.fields?.map((f) => f.binding)).toEqual([
+      ...FIELDS.map((f) => f.binding),
+      "meta.custom",
+      "meta.custom_3",
+      "meta.custom_2",
+    ]);
+  });
+
+  it("adds the owner's new field once when the fresh card already has it", () => {
+    // As after a save whose answer never came back, though the card took it.
+    const ours = { ...newField("meta.custom", FIELDS), label: "שעות" };
+    const draft = { ...SAVED, design: { ...SAVED.design, fields: [...FIELDS, ours] } };
+    expect(rebaseEdits(SAVED, draft, draft).design.fields).toEqual([...FIELDS, ours]);
+  });
+
+  it("keeps the owner's own of a kind the card shows once, when both sides added it", () => {
+    const ours = { binding: "members.tier.name", label: "רמה", section: "BACK_FIELDS" as const };
+    const theirs = { ...ours, label: "דרגה" };
+    const draft = { ...SAVED, design: { ...SAVED.design, fields: [...FIELDS, ours] } };
+    const fresh = { ...SAVED, design: { ...SAVED.design, fields: [...FIELDS, theirs] } };
+    expect(rebaseEdits(SAVED, draft, fresh).design.fields).toEqual([...FIELDS, ours]);
+  });
+
   it("keeps a field the owner changed even where the fresh card dropped it", () => {
     const draft = { ...SAVED, design: { ...SAVED.design, fields: [FIELDS[0], { ...FIELDS[1], label: "ביקורים" }, FIELDS[2]] } };
     const fresh = { ...SAVED, design: { ...SAVED.design, fields: [FIELDS[0], FIELDS[2]] } };
