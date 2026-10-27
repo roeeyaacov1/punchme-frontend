@@ -8,6 +8,7 @@ import {
   faceLabel,
   faceLabelFull,
   nameMissing,
+  ownWordsDir,
   withFaceLabel,
   type CardStudioValue,
 } from "../studioDraft";
@@ -57,7 +58,7 @@ export function NamesTray({
         maxLength={TEXT_LIMITS.name}
         required
         error={sayNameMissing && nameMissing(value) ? t("studio.names.nameMissing") : undefined}
-        dir="auto"
+        dir={ownWordsDir(value.name)}
         autoComplete="off"
         hint={
           <>
@@ -86,7 +87,7 @@ export function NamesTray({
               })
             }
             maxLength={TEXT_LIMITS.label}
-            dir="auto"
+            dir={ownWordsDir(faceLabel(fields, face.binding))}
             autoComplete="off"
           />
         );
@@ -98,7 +99,7 @@ export function NamesTray({
         value={value.design.organization_name ?? ""}
         onChange={(event) => onChange({ ...value, design: { ...value.design, organization_name: event.target.value } })}
         maxLength={TEXT_LIMITS.organization}
-        dir="auto"
+        dir={ownWordsDir(value.design.organization_name ?? "")}
         autoComplete="off"
       />
     </div>

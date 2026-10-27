@@ -9,6 +9,7 @@ import {
   changesBetween,
   fieldName,
   nameMissing,
+  ownWordsDir,
   readDesign,
   TEXT_LIMITS,
   type CardStudioImages,
@@ -318,7 +319,7 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
                   })
                 : undefined
             }
-            dir="auto"
+            dir={ownWordsDir(shelf.description)}
             autoComplete="off"
           />
           <Checkbox

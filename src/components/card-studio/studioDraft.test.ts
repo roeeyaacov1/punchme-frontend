@@ -12,6 +12,7 @@ import {
   readDesign,
   newField,
   nextCustomBinding,
+  ownWordsDir,
   rebaseEdits,
   rewardForRow,
   sameCard,
@@ -271,6 +272,13 @@ describe("sampleStart", () => {
     expect(sampleStart(8)).toBe(4);
     expect(sampleStart(7)).toBe(3);
     expect(sampleStart(2)).toBe(1);
+  });
+});
+
+describe("ownWordsDir", () => {
+  it("follows the page while empty, and the words once there are some", () => {
+    expect(ownWordsDir("")).toBeUndefined();
+    expect(ownWordsDir("קפה")).toBe("auto");
   });
 });
 

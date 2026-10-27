@@ -22,6 +22,7 @@ import {
   kindOf,
   newField,
   nextCustomBinding,
+  ownWordsDir,
   type CardStudioImages,
   type CardStudioValue,
   type FieldKind,
@@ -339,7 +340,7 @@ function FieldEditor({
         value={field.label ?? ""}
         onChange={(event) => onField({ ...field, label: event.target.value })}
         maxLength={TEXT_LIMITS.label}
-        dir="auto"
+        dir={ownWordsDir(field.label ?? "")}
         autoComplete="off"
       />
 
@@ -374,7 +375,7 @@ function FieldEditor({
           value={field.default_value ?? ""}
           onChange={(event) => onField({ ...field, default_value: event.target.value })}
           maxLength={TEXT_LIMITS.value}
-          dir="auto"
+          dir={ownWordsDir(field.default_value ?? "")}
         />
       )}
 
@@ -394,7 +395,7 @@ function FieldEditor({
         value={message}
         onChange={(event) => onField({ ...field, change_message: event.target.value })}
         maxLength={TEXT_LIMITS.changeMessage}
-        dir="auto"
+        dir={ownWordsDir(message)}
         autoComplete="off"
       />
 
