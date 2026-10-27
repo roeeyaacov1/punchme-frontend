@@ -489,10 +489,16 @@ export function DesignPage() {
     return (
       <div className="flex flex-col gap-5">
         {title}
-        <div className="flex flex-col items-center gap-4">
-          <Skeleton className="h-11 w-56 rounded-full" />
-          <div data-tour="design-studio" className="flex w-full justify-center">
-            <Skeleton className="h-[29rem] w-[340px] max-w-full rounded-glass" />
+        {/* In the studio's own shape, so nothing jumps as it lands: from
+            1024px the tab row, the open tray, and the card beside it. */}
+        <Skeleton className="hidden h-11 w-full max-w-xl rounded-field lg:block" />
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+          <Skeleton className="hidden h-[28rem] rounded-panel lg:block" />
+          <div className="flex flex-col items-center gap-4">
+            <Skeleton className="h-11 w-56 rounded-full" />
+            <div data-tour="design-studio" className="flex w-full justify-center">
+              <Skeleton className="h-[29rem] w-[340px] max-w-full rounded-glass" />
+            </div>
           </div>
         </div>
       </div>
