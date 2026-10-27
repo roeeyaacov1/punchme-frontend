@@ -44,15 +44,9 @@
       "hasArt": "Carries artwork the wizard tile does not draw yet",
       "publishedHint": "Published entries are what the onboarding wizard offers, in catalog order, up to three per trade.",
       "descriptionHint": "Staff-facing note. Owners never see it.",
-      "unsaved": "Unsaved changes",
-      "shelfTitle": "Where it sits",
       "shelfHint": "The trade this look is offered for, and whether owners can see it yet.",
       "art": {
-        "title": "Artwork",
-        "hint": "Copied onto the business's own card when someone picks this template. No logo here — that one is theirs.",
         "lockedNew": "Save this template once and the artwork opens up — pictures are stored against its id.",
-        "upload": "Upload",
-        "replace": "Replace",
         "removeNamed": "Remove {{name}}",
         "uses": {
           "strip_base": {
@@ -134,26 +128,9 @@
   },
   "studio": {
     "title": "Card Studio",
-    "subtitle": "Design your loyalty card and watch it update live on both wallets. Saving pushes the new design to every installed pass.",
-    "groups": {
-      "card": "The deal",
-      "look": "Color and texture",
-      "stamp": "The stamp",
-      "logo": "Your logo",
-      "advanced": "Wallet details",
-      "advancedHint": "Field labels, card language, barcode, custom artwork."
-    },
     "save": "Save",
     "saved": "Saved. Every pass already in a wallet updates itself.",
-    "syncError": "The last wallet sync failed — your changes are safe and will be retried automatically.",
-    "uploadError": "Upload failed — try a different image.",
     "nameLabel": "Card name",
-    "stampsLabel": "Stamps to reward",
-    "stampsHint": "{{count}} stamps",
-    "rewardLabel": "Reward",
-    "glyphLabel": "Stamp icon",
-    "uploadStampArt": "Upload your own stamp image",
-    "paletteLabel": "Color palettes",
     "palettes": {
       "espresso": "Espresso",
       "cream": "Cream",
@@ -162,13 +139,6 @@
       "blush": "Blush",
       "ocean": "Ocean"
     },
-    "colorsLabel": "Colors",
-    "labelsLabel": "Field labels",
-    "labelsHint": "What the card calls the customer's name and their stamp count. Leave empty for the defaults.",
-    "backgroundColor": "Card background",
-    "stampColor": "Stamp color",
-    "textColor": "Text color",
-    "labelColor": "Label color",
     "patternLabel": "Background pattern",
     "patterns": {
       "none": "None",
@@ -176,27 +146,13 @@
       "dots": "Dots",
       "stripes": "Stripes"
     },
-    "logoLabel": "Logo",
     "logoHint": "It becomes Apple's wide logo and Google's round badge. Without one, the card shows your business's name.",
-    "uploadLogo": "Upload logo",
     "languageLabel": "Card language",
     "languages": {
       "HE": "Hebrew",
       "EN": "English"
     },
     "barcodeLabel": "Barcode format",
-    "orgNameLabel": "Organization name",
-    "orgNameHint": "Shown on the pass instead of your business name (optional).",
-    "artworkLabel": "Custom artwork",
-    "artworkHint": "A full strip background, or separate before/after punch images.",
-    "uploadStripBase": "Upload strip background (min 1125×432)",
-    "uploadStampedArt": "Upload punched-stamp artwork",
-    "uploadUnstampedArt": "Upload empty-stamp artwork",
-    "fieldsLabel": "Card fields",
-    "sampleStampsLabel": "Preview stamps",
-    "sampleStampsHint": "{{count}} punched",
-    "lintClean": "Ready to publish — this card renders fully on both wallets.",
-    "lintTitle": "Not publish-ready yet:",
     "preview": {
       "apple": "Apple Wallet",
       "google": "Google Wallet",
@@ -204,12 +160,9 @@
       "pointsLabel": "Visits"
     },
     "fields": {
-      "bindingLabel": "Shows",
       "label": "What it says above it",
-      "section": "Position (Apple)",
       "alignment": "Alignment",
       "changeMessage": "The message when it changes",
-      "changeMessageHint": "%@ is replaced with the new value.",
       "add": "Add field",
       "binding": {
         "person.displayName": "Customer name",
@@ -217,19 +170,6 @@
         "members.tier.name": "Level",
         "universal.info": "A line of text",
         "meta.custom": "Free text"
-      },
-      "sections": {
-        "HEADER_FIELDS": "Header",
-        "PRIMARY_FIELDS": "Primary",
-        "SECONDARY_FIELDS": "Secondary",
-        "AUXILIARY_FIELDS": "Auxiliary",
-        "BACK_FIELDS": "Back of card"
-      },
-      "alignments": {
-        "NATURAL": "Automatic",
-        "LEFT": "Left",
-        "CENTER": "Center",
-        "RIGHT": "Right"
       },
       "title": "The fields on the card",
       "full_one": "A card holds up to {{count}} field.",
@@ -262,7 +202,6 @@
       "removeBody": "It comes off every customer's card at the next save.",
       "lastOne": "A card needs at least one field."
     },
-    "savedShort": "Saved.",
     "readProblem": "The card didn't load",
     "sampleName": "Dana Levi",
     "stageSummary_zero": "{{name}}, shown with no stamps of {{total}}",
