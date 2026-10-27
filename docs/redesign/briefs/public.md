@@ -1075,3 +1075,97 @@ questions stay open: the shop's face, "Member" on the real pass, the Google
 button's language, and password recovery. The critique snapshots in
 `.impeccable/critique/` are committed with this note, for step D's
 `/impeccable polish`.
+
+**After step B** (27 Oct, for steps C and D). Built as §7 to §9 say, in
+twelve commits from `3f0ed7f` to `a8d6660`, each page checked in both
+languages at 375 and 1280 (320 where the pass stands) in headless Chrome,
+with focus, the keyboard path and 200% text there; then five more from a
+code review of the whole branch, `6a8bc07` to `871c9c0` (below). Two real
+writes: one join with a new number on Demo Coffee through `/join` (named
+"בדיקת שלב 8") and one stamp on that card, as staff (now 1/8); one
+signed-out load of a Coffee `/p` recorded one referral click. Every other
+answer came from a wrapped `fetch`. Where step B departed or decided, for
+the review to overturn:
+- **Google's button** (§7.9, §10.3 answered): Roee allowed the phase's one
+  change to `src/auth`, two optional props on `GoogleAuthButton`. Its
+  label takes the language Google's script loads in (its `hl`);
+  `renderButton`'s own `locale` does nothing there, so the script reloads
+  in the page's language when it changes, taking only `google.accounts`
+  with it. Google's "initialize() is called multiple times" console line
+  on each re-mount is Google's and stays.
+- **The card screen's live region** (§7.4) keeps to what changes after the
+  heading's focus has read the arrival out: the button arriving, the slow
+  line.
+- **A full card coming back** says "הכרטיסייה מלאה: {reward} מחכה לכם
+  בקופה." (§8 had no line for it).
+- **"Not taking" and "dead" without the face** come back on the sign on
+  submit; "כבר יש לכם כרטיסייה כאן? קבלו אותה שוב" waits for the flag.
+  `/join` says `enroll.upgradeRequired`, reworded, having no shop name;
+  the friend's join names the shop.
+- **No motion of its own** (§7.13 is step C's): the 800 ms rotate went, so
+  the pass appears in place; only the kit's motion came along (the
+  skeleton's breath, the sheet, the press, Scan's snap).
+- **The pass's stage reaches into the gutter** on a phone, as `OwnPass`
+  stands its wallpaper, so the pass keeps its 300px at 320.
+- **Titles §8 left open:** the friend's join "הצטרפות לכרטיסייה", the face
+  the shop's name, your card and `/c` "הכרטיסייה שלכם ב-{business}".
+- **Signed in to another shop on the friend's join**, the foot says the
+  face's "not your shop" line instead of offering a sign-in.
+- **The Referrals settings' picture of the friend's join**
+  (`ReferralSettings.tsx`) reads `publicCard.join.invitedBy`,
+  `.join.invited` and `.card.reward` through `t()`, so those keys stay plain
+  strings with their variables, in the page's new words; the face has its
+  own tagged `publicCard.card.collect`, and the friend's sign isolates the
+  name with the dashboard's `isolate()`.
+- **The stamp screen** reads a 409 from the page's own data (cancelled when
+  it says so, else full), where Scan looks the card up by serial; its
+  spoken line is Scan's `speak()`, copied because `ScanPage.tsx` is left
+  alone (Phase 10 can share it).
+- **`/p`'s missing card** keeps its own words ("ייתכן שהוסרה, או שהקישור
+  שגוי."), not `/c`'s, which tell someone to rejoin.
+- **`AuthFields`'s `idPrefix`** is unused now (the kit's `Field` ties
+  labels) and kept, because the account step passes it.
+- **The copy test** covers `auth`, `invite`, `enroll`, `wallet` and
+  `publicCard`, the word joiner rule included.
+- **The bundle** (§7.11): the landing page loads on demand as well; the
+  five public pages stay in the entry so `/join` draws after one script
+  (the numbers are in `92ab4f1`). Vite's `preloadError` reloads a tab left
+  open across a release, once.
+- **Other people's text breaks where it must** (`a8d6660`): shop, card and
+  customer names and addresses wrap anywhere rather than widen the page,
+  and the full-width buttons wrap a long label, found at 200% text on
+  `/invite`.
+
+The code review read the branch whole and found what the page-by-page
+checks hadn't. Each is fixed in its own commit and checked in headless
+Chrome, with the group's code held back where the bug lived in that wait:
+- The ways into the dashboard and the wizard (signing in on `/login`, the
+  redirect for an account with no business, `/billing`'s forward) drew a
+  blank page while their code arrived, and `/invite`'s accept could be
+  pressed again in that wait. They hold the screen now, and `/login` and
+  `/invite` start that code on its way early (`871c9c0`).
+- "Not you?" read the invitation again after the sign-out (`e5f6dcf`).
+- The wallet wait also read the card on focus and reconnect, and `/c`
+  opened just after a join showed the cached card unread (`10c7075`).
+  `/c`'s own read still comes again on focus once 30 s old, as it always
+  has.
+- A code refused while the form shows said nothing (`559bc58`).
+- Two quick language switches could leave Google's button in the old one
+  (`6a8bc07`).
+
+Left for step C: §7.13 as written: the card's activation, the sign giving
+way to the form (mirrored), `/c`'s pass lighting on.
+
+Left for step D:
+- The Referrals settings still draw the old friend's join (the reward line
+  and a gradient button) where the page now opens on the sign. It is
+  Phase 6's page; its picture should follow the sign.
+- A nameless pass prints the renderer's sample name, "דנה לוי", on every
+  `/c` and after a join without a name: Phase 3's (§7.10), as known.
+- The service worker's caching of the new chunks, and the reload on a
+  missing chunk, run only in a production build: check them on one.
+
+Outside the redesign, unchanged: the shop's face and its flag (§10.1),
+"Member" on the real pass (§10.2), a `code` on each 401, password recovery
+(§10.4). §11's `src/auth` line is done (above). Three test files are new
+(`authErrors`, `joinRules`, `wallet`): the suite is 39 files and 451 tests.
