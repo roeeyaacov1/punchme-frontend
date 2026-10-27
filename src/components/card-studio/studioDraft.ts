@@ -137,30 +137,44 @@ export function withFaceLabel(
 export type BackState =
   | { kind: "none" }
   | { kind: "follows" }
+  | { kind: "empty" }
   | { kind: "differs"; text: string };
 
 /**
  * The reward reaches the pass in one place, the back field's text. When it
- * says the reward as saved (or nothing), it follows the reward; when it says
- * something else it is left alone and said, unless the owner has asked for
- * it to follow. A card without that field has nothing to follow: the
- * server's defaults fill it from the reward themselves.
+ * says the reward it follows the reward; when it says nothing, the next
+ * reward fills it; when it says something else it is left alone and said.
+ * A card without that field has nothing to follow: the server's defaults
+ * fill it from the reward themselves.
  */
-export function backState(design: DesignDoc, savedReward: string, follow: boolean): BackState {
+export function backState(design: DesignDoc, reward: string): BackState {
   const field = design.fields?.find((candidate) => candidate.binding === BACK_BINDING);
   if (!field) return { kind: "none" };
   const text = (field.default_value ?? "").trim();
-  if (follow || !text || text === savedReward.trim()) return { kind: "follows" };
+  if (text === reward.trim()) return { kind: "follows" };
+  if (!text) return { kind: "empty" };
   return { kind: "differs", text };
 }
 
-/** The draft as Save sends it: when the back follows, it says the reward. */
-export function withRewardOnBack(value: CardStudioValue, savedReward: string, follow: boolean): CardStudioValue {
-  if (backState(value.design, savedReward, follow).kind !== "follows") return value;
+function withBackText(value: CardStudioValue, text: string): CardStudioValue {
   const fields = value.design.fields?.map((field) =>
-    field.binding === BACK_BINDING ? { ...field, default_value: value.reward_description } : field,
+    field.binding === BACK_BINDING ? { ...field, default_value: text } : field,
   );
   return { ...value, design: { ...value.design, fields } };
+}
+
+/** A new reward. A back that says the reward, or nothing, says the new one
+ * too, in the draft, where Wallet details shows it; words of its own stay. */
+export function withReward(value: CardStudioValue, reward: string): CardStudioValue {
+  const next = { ...value, reward_description: reward };
+  const back = backState(value.design, value.reward_description).kind;
+  return back === "follows" || back === "empty" ? withBackText(next, reward) : next;
+}
+
+/** "Put the reward there": the back says the reward, in the draft, and
+ * follows it from then on, until words are typed there by hand. */
+export function withRewardOnBack(value: CardStudioValue): CardStudioValue {
+  return withBackText(value, value.reward_description);
 }
 
 /** A new card colour. While the text colour is automatic (the ink that
@@ -314,17 +328,11 @@ function backText(fields: readonly DesignField[] | undefined): string {
  * bar counts ("2 changes"). The reward counts once whether it changed on the
  * front, on the back, or both.
  */
-export function changesBetween(
-  saved: CardStudioValue,
-  draft: CardStudioValue,
-  held: HeldPictures = {},
-  follow = false,
-): ChangeKind[] {
+export function changesBetween(saved: CardStudioValue, draft: CardStudioValue, held: HeldPictures = {}): ChangeKind[] {
   const changes: ChangeKind[] = [];
   const sd = saved.design;
   const dd = draft.design;
-  const rewardOnBack = follow && backText(dd.fields) !== draft.reward_description;
-  if (saved.reward_description !== draft.reward_description || rewardOnBack || backText(sd.fields) !== backText(dd.fields)) {
+  if (saved.reward_description !== draft.reward_description || backText(sd.fields) !== backText(dd.fields)) {
     changes.push("reward");
   }
   if (saved.stamps_required !== draft.stamps_required) changes.push("stamps");
