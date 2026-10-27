@@ -124,22 +124,44 @@ function useBarPresence(bar: StudioBarProps, reduced: boolean) {
 }
 
 /**
- * The bar arriving by light, up 8px on the ease-out, and leaving as a fade,
- * no longer pressable; with reduced motion, the fade alone. Transitions, not
- * keyframes: the next change can turn it round halfway.
+ * The bar arriving by light, up 8px on the ease-out, and leaving as a fade;
+ * with reduced motion, the fade alone. Transitions, not keyframes: the next
+ * change can turn it round halfway.
  */
 function barLight(phase: BarPhase, reduced: boolean): string | undefined {
   if (phase === "still") return undefined;
   const arriving = phase === "arriving";
   if (reduced) {
-    return cn(
-      "transition-opacity duration-gentle ease-out",
-      arriving ? "[@starting-style]:opacity-0" : "pointer-events-none opacity-0",
-    );
+    return cn("transition-opacity duration-gentle ease-out", arriving ? "[@starting-style]:opacity-0" : "opacity-0");
   }
   return arriving
     ? "transition-[opacity,transform] duration-lights ease-out-strong [@starting-style]:translate-y-2 [@starting-style]:opacity-0"
-    : "pointer-events-none opacity-0 transition-[opacity,transform] duration-exit ease-out";
+    : "opacity-0 transition-[opacity,transform] duration-exit ease-out";
+}
+
+/**
+ * Where the bar stands, lit as it comes and goes. A bar on its way out is
+ * `inert`: out of reach of a finger, the keyboard and a screen reader, which
+ * would otherwise still find its buttons for the length of the fade. Whatever
+ * took it (a save, a discard) has already put focus on the page's title.
+ */
+function BarLight({
+  phase,
+  reduced,
+  className,
+  children,
+}: {
+  phase: BarPhase;
+  reduced: boolean;
+  className?: string;
+  children: ReactNode;
+}) {
+  const ref = useInert<HTMLDivElement>(phase === "leaving");
+  return (
+    <div ref={ref} className={cn(className, barLight(phase, reduced))}>
+      {children}
+    </div>
+  );
 }
 
 export interface CardStudioProps {
@@ -405,7 +427,6 @@ export function CardStudio({
   };
 
   const { drawn: barDrawn, props: barProps, phase: barPhase } = useBarPresence(bar, reduced);
-  const light = barLight(barPhase, reduced);
   const studioBar = <StudioBar ref={saveRef} {...barProps} />;
 
   const sampleRow = (
@@ -511,7 +532,9 @@ export function CardStudio({
           {stageView}
           {sampleRow}
           {barDrawn && (
-            <div className={cn("rounded-panel border border-border bg-surface p-4 shadow-panel", light)}>{studioBar}</div>
+            <BarLight phase={barPhase} reduced={reduced} className="rounded-panel border border-border bg-surface p-4 shadow-panel">
+              {studioBar}
+            </BarLight>
           )}
           {rewardRow}
           {foot}
@@ -551,7 +574,13 @@ export function CardStudio({
         trayKey={tray ?? shownTray ?? ""}
         onClose={close}
         onHeight={setTrayHeight}
-        foot={barDrawn ? <div className={light}>{studioBar}</div> : undefined}
+        foot={
+          barDrawn ? (
+            <BarLight phase={barPhase} reduced={reduced}>
+              {studioBar}
+            </BarLight>
+          ) : undefined
+        }
         footLeaving={barPhase === "leaving"}
         busy={busy}
         start={nameStart ? nameField : undefined}
@@ -563,14 +592,13 @@ export function CardStudio({
         <>
           {/* Above the phone bar; its foot runs under the Scan circle that
               stands out of it. From 768px there is no phone bar. */}
-          <div
-            className={cn(
-              "fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t border-border bg-surface px-4 pb-7 pt-3 md:bottom-0 md:pb-[max(0.75rem,env(safe-area-inset-bottom))]",
-              light,
-            )}
+          <BarLight
+            phase={barPhase}
+            reduced={reduced}
+            className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t border-border bg-surface px-4 pb-7 pt-3 md:bottom-0 md:pb-[max(0.75rem,env(safe-area-inset-bottom))]"
           >
             <div className="mx-auto max-w-2xl">{studioBar}</div>
-          </div>
+          </BarLight>
           <div aria-hidden className="h-36" />
         </>
       )}
