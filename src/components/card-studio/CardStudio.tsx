@@ -157,6 +157,8 @@ export function CardStudio({
   const chips = useRef(new Map<string, HTMLButtonElement>());
   const [wallet, setWallet] = useState<Wallet>(deviceWallet);
   const [sample, setSample] = useState(() => sampleStart(value.stamps_required));
+  // Stamps a hand has added to the sample with +: each one lands on the card.
+  const [landed, setLanded] = useState(0);
   const [trayHeight, setTrayHeight] = useState(0);
   const [shownTray, setShownTray] = useState(tray);
   const scrolledFor = useRef<string | null>(null);
@@ -304,7 +306,10 @@ export function CardStudio({
         icon={<Plus aria-hidden />}
         aria-label={t("studio.sampleMore")}
         disabled={shownSample >= value.stamps_required}
-        onClick={() => setSample(Math.min(value.stamps_required, shownSample + 1))}
+        onClick={() => {
+          setSample(Math.min(value.stamps_required, shownSample + 1));
+          setLanded((count) => count + 1);
+        }}
       />
     </div>
   );
@@ -348,6 +353,7 @@ export function CardStudio({
       pictureMissing={stampPicture.inUse && !stampPicture.url}
       unsaved={unsaved}
       sample={shownSample}
+      landed={landed}
       wallet={wallet}
       onWallet={setWallet}
       onPart={onPart}

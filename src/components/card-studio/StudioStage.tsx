@@ -12,6 +12,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { Info } from "lucide-react";
 import { cn } from "../../lib/cn";
+import { useReducedMotion } from "../kit/motion";
 import { SegmentedControl } from "../kit/SegmentedControl";
 import { WallpaperStage } from "../kit/WallpaperStage";
 import { AppleCardPreview, GoogleCardPreview, type CardPreviewValue } from "./CardPreviews";
@@ -75,6 +76,14 @@ function boxOf(card: Element, from: number, to: number, origin: DOMRect): Box | 
   return { top: first.top - origin.top, left: 0, width: origin.width, height: last.bottom - first.top };
 }
 
+/** The stand-in's stamp at a count, in the frozen grid's own order: none
+ * while the published picture stands in the grid's place. */
+function stampAt(frame: HTMLElement | null, wallet: Wallet, count: number): HTMLElement | null {
+  const strip = frame?.firstElementChild?.children[ROWS[wallet].stamps[0]];
+  if (!(strip instanceof HTMLDivElement) || count < 1) return null;
+  return strip.querySelectorAll<HTMLElement>(":scope > div > span")[count - 1] ?? null;
+}
+
 /**
  * The card on its own wallpaper: the kit's `WallpaperStage`, a nested day
  * scope that keeps its light at night, with the pass in its 300px slot,
@@ -95,6 +104,8 @@ export const StudioStage = forwardRef<
     pictureMissing: boolean;
     unsaved: boolean;
     sample: number;
+    /** Goes up each time a hand adds a stamp to the sample: that stamp lands. */
+    landed: number;
     wallet: Wallet;
     onWallet: (wallet: Wallet) => void;
     onPart: (part: CardPart) => void;
@@ -102,10 +113,25 @@ export const StudioStage = forwardRef<
     foot?: ReactNode;
   }
 >(function StudioStage(
-  { value, businessName, images, held, stampPicture, pictureMissing, unsaved, sample, wallet, onWallet, onPart, foot },
+  {
+    value,
+    businessName,
+    images,
+    held,
+    stampPicture,
+    pictureMissing,
+    unsaved,
+    sample,
+    landed,
+    wallet,
+    onWallet,
+    onPart,
+    foot,
+  },
   ref,
 ) {
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
   const slot = useRef<HTMLDivElement>(null);
   const [boxes, setBoxes] = useState<Partial<Record<CardPart, Box>>>({});
   const [lit, setLit] = useState<CardPart | null>(null);
@@ -191,6 +217,28 @@ export const StudioStage = forwardRef<
     const id = window.setTimeout(() => setLit(null), 120);
     return () => window.clearTimeout(id);
   }, [lit]);
+
+  // A stamp a hand adds lands on the card: the kit's stamp-land, 340ms on
+  // the overshoot, on the stand-in's own stamp, found in the frozen grid and
+  // never drawn here; with reduced motion it is there at its size after the
+  // 150ms fade. Set before paint, so the stamp never shows a frame early.
+  // Anything else that moves the sample, or the next stamp, settles it at
+  // once. The published picture has no stamp to land: it just changes.
+  const handled = useRef(landed);
+  useLayoutEffect(() => {
+    if (landed === handled.current) return;
+    handled.current = landed;
+    const stamp = stampAt(slot.current, wallet, sample);
+    if (!stamp) return;
+    const motion = reduced ? "animate-gentle-in" : "animate-stamp-land";
+    const done = () => stamp.classList.remove(motion);
+    stamp.classList.add(motion);
+    stamp.addEventListener("animationend", done, { once: true });
+    return () => {
+      stamp.removeEventListener("animationend", done);
+      done();
+    };
+  }, [landed, sample, wallet, reduced]);
 
   const summary = t("studio.stageSummary", {
     name: value.name,
