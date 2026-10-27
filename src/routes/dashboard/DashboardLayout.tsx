@@ -172,8 +172,15 @@ export function DashboardLayout() {
             pages that move to Lightbox can confirm what the owner did. On a
             phone they rise clear of the bar and of the Scan circle standing
             out of it (64 + 20 + a gap); the region adds the safe area
-            itself. */}
-        <ToastProvider className={cn(frame, "[--toast-offset:5.75rem] md:[--toast-offset:1rem]")}>
+            itself. A page with something docked at the foot (the studio's
+            save bar) raises them above it by setting `--toast-above` on
+            <html>, so a toast never covers its button. */}
+        <ToastProvider
+          className={cn(
+            frame,
+            "[--toast-offset:max(5.75rem,var(--toast-above,0px))] md:[--toast-offset:max(1rem,var(--toast-above,0px))]",
+          )}
+        >
           <div className="min-h-dvh bg-background text-ink">
             {/* It focuses the page itself: a bare #fragment is a history step to
                 the router, which would put the old scroll position back and undo
