@@ -24,6 +24,14 @@ decision for the owner, and the redesign guide asks for it first.
 | `wallet-card/PassBarcode.tsx` | The barcode, drawn for real in all four formats |
 | `src/lib/passBarcode.ts`, `cardPatterns.ts`, `stampGlyphs.ts`; `designImageUrls` in `src/api/designs.ts` | The logic those files rely on (already protected as `src/lib` and `src/api`) |
 
+One correction has been made to this table's files, on 27 Oct 2026 with
+Roee's yes (Phase 3, `docs/redesign/briefs/card-studio.md` §7 and §13).
+`StampGrid` drew a filled stamp's glyph in white whatever the stamp's
+colour, so a white stamp was a blank disc. The server knocks the glyph out
+in white or near-black (`#202024`), whichever contrasts more with the fill
+(`strips.py`, `_glyph_ink`). The stand-in now uses the same rule, and nothing
+else in the file changed.
+
 Staging around the card is ours to change: the frame, the well, the shadow
 and the motion. One constraint applies. The previews are built for a 300px
 slot, because Apple's type is scaled by 300/343. At other widths the px-sized

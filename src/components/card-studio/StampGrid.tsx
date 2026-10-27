@@ -1,5 +1,6 @@
 import { STAMP_GLYPHS } from "../../lib/stampGlyphs";
 import { patternStyle, type CardPattern } from "../../lib/cardPatterns";
+import { contrastRatio } from "../../lib/color";
 
 export interface StampGridProps {
   stampsRequired: number;
@@ -18,6 +19,19 @@ export interface StampGridProps {
   stripBaseUrl?: string;
   /** Tile size in px. */
   size?: number;
+}
+
+/** The two inks the server knocks a filled stamp's glyph out in, and its
+ * rule for choosing (strips.py, `_glyph_ink`): whichever reads more against
+ * the stamp's fill, white on a tie. A hardcoded white drew a white stamp as a
+ * blank disc, where the phone draws its glyph near-black. */
+const GLYPH_INK_LIGHT = "#FFFFFF";
+const GLYPH_INK_DARK = "#202024";
+
+function glyphInk(fill: string): string {
+  return contrastRatio(fill, GLYPH_INK_LIGHT) >= contrastRatio(fill, GLYPH_INK_DARK)
+    ? GLYPH_INK_LIGHT
+    : GLYPH_INK_DARK;
 }
 
 /** Client-side mirror of the server strip renderer (apps/wallet/strips.py),
@@ -106,7 +120,7 @@ export function StampGrid({
                   <Glyph
                     size={size * 0.55}
                     strokeWidth={2.4}
-                    color={stamped ? "#FFFFFF" : "#AAAAAF"}
+                    color={stamped ? glyphInk(stampColor) : "#AAAAAF"}
                   />
                 )}
               </span>
