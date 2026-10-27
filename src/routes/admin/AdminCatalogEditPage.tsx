@@ -365,15 +365,18 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
             {isNew ? t("admin.catalog.createTitle") : draft.name || t("admin.catalog.editTitle")}
           </h1>
           {!isNew && (
-            <p className="text-sm text-ink-muted" dir="ltr">
-              <bdi>{catalogId}</bdi>
+            // Under the title, on its side of the page; only the id itself runs
+            // left to right.
+            <p className="text-sm text-ink-muted">
+              <bdi dir="ltr">{catalogId}</bdi>
             </p>
           )}
         </div>
 
         {justSaved && (
           <Notice tone="ok" lit role="status">
-            {t("admin.catalog.saved")}
+            {/* A look no owner sees yet goes to nobody: it says so. */}
+            {t(savedShelf.isPublished ? "admin.catalog.saved" : "admin.catalog.savedHidden")}
           </Notice>
         )}
 
