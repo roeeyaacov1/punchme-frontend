@@ -228,7 +228,8 @@
     "bar": {
       "changes_one": "1 change · not on customers' cards yet",
       "changes_other": "{{count}} changes · not on customers' cards yet",
-      "discard": "Discard changes"
+      "discard": "Discard changes",
+      "saving": "Saving…"
     },
     "kept": "You have changes from your last visit that aren't saved yet.",
     "back": {

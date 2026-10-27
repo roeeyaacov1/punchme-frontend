@@ -46,6 +46,7 @@ export function StudioTray({
   children,
   foot,
   footLeaving,
+  busy = false,
 }: {
   open: boolean;
   title: ReactNode;
@@ -57,6 +58,9 @@ export function StudioTray({
   foot?: ReactNode;
   /** The foot is on its way out: the edge comes down as it goes. */
   footLeaving?: boolean;
+  /** A save is running: the tray holds still, open, with Save at its foot,
+   * so what it sends is what the owner sees and focus stays on Save. */
+  busy?: boolean;
 }) {
   const { t } = useTranslation();
   const reduced = useReducedMotion();
@@ -64,11 +68,18 @@ export function StudioTray({
   const panel = useRef<HTMLElement>(null);
   const ghost = useRef<HTMLSpanElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const headBox = useRef<HTMLDivElement>(null);
   const bodyBox = useRef<HTMLDivElement>(null);
   const footBox = useRef<HTMLDivElement>(null);
   // The panel's height as last laid out, before whatever changes it now.
   const height = useRef(0);
-  const drag = useSheetDrag({ panel, scrim: ghost, enabled: open, reduced, onClose });
+  const drag = useSheetDrag({ panel, scrim: ghost, enabled: open && !busy, reduced, onClose });
+
+  // `inert` set on the element: React 18 doesn't know the attribute.
+  useLayoutEffect(() => {
+    if (headBox.current) headBox.current.inert = busy;
+    if (bodyBox.current) bodyBox.current.inert = busy;
+  });
   const [shown, setShown] = useState(open);
 
   useEffect(() => {
@@ -87,7 +98,7 @@ export function StudioTray({
   }, [open, shown, trayKey]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || busy) return;
     const onKey = (event: KeyboardEvent) => {
       // A dialog over the tray (removing a field) takes its own Escape.
       if (event.key !== "Escape" || event.defaultPrevented || document.querySelector("dialog[open]")) return;
@@ -96,7 +107,7 @@ export function StudioTray({
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, busy, onClose]);
 
   useLayoutEffect(() => {
     const element = panel.current;
@@ -191,7 +202,7 @@ export function StudioTray({
       )}
     >
       <span ref={ghost} aria-hidden className="pointer-events-none absolute size-0" />
-      <div {...drag.handlers} className="shrink-0 max-md:touch-none max-md:select-none">
+      <div ref={headBox} {...drag.handlers} className="shrink-0 max-md:touch-none max-md:select-none">
         <span aria-hidden className="mx-auto mt-2.5 block h-1 w-10 rounded-full bg-border-strong md:hidden" />
         <div className="flex items-center gap-3 px-4 pt-2 sm:px-5">
           <h2 ref={heading} id={headingId} tabIndex={-1} className="type-card-title min-w-0 flex-1 text-ink outline-none">

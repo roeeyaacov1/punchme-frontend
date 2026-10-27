@@ -31,9 +31,10 @@ export interface StudioBarProps {
  * customers' cards yet", the one coral button, and a quiet "Discard changes"
  * that asks nothing, since the saved card is still there to go back to.
  *
- * Save goes busy in place (the kit's `busy`: same width, focus kept). A
- * failure is said under it, in words and an icon, and announced where it
- * happened; focus stays on Save.
+ * Save goes busy in place (the kit's `busy`: same width, focus kept), and
+ * the line over it says it is saving, once, to a screen reader too; the
+ * studio holds still meanwhile. A failure is said under it, in words and an
+ * icon, and announced where it happened; focus stays on Save.
  */
 export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function StudioBar(
   { changes, saving, onSave, onDiscard, problem, kept, fieldProblems = 0, onFieldProblems, stale, sentence },
@@ -43,14 +44,25 @@ export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function 
   const updateOnly = changes === 0 && !!stale;
   return (
     <div className="flex flex-col gap-2">
+      {/* There before it speaks, so the words are read when they come. */}
+      <p role="status" className="sr-only">
+        {saving ? t("studio.bar.saving") : ""}
+      </p>
       {kept && changes > 0 && <p className="text-sm leading-snug text-ink-muted">{t("studio.kept")}</p>}
-      {changes > 0 ? (
+      {saving ? (
+        <p className="type-label text-ink">{t("studio.bar.saving")}</p>
+      ) : changes > 0 ? (
         <p className="type-label text-ink">{sentence ?? t("studio.bar.changes", { count: changes })}</p>
       ) : (
         updateOnly && <p className="type-label text-ink">{t("studio.sync.stale")}</p>
       )}
       {fieldProblems > 0 && onFieldProblems && (
-        <button type="button" onClick={onFieldProblems} className={cn(linkText, "w-fit text-start text-sm")}>
+        <button
+          type="button"
+          onClick={onFieldProblems}
+          disabled={saving}
+          className={cn(linkText, "w-fit text-start text-sm")}
+        >
           {t("studio.check.fieldsBar", { count: fieldProblems })}
         </button>
       )}
