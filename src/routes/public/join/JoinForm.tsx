@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronRight } from "lucide-react";
 import { Button, Checkbox, Input, LitPanel, Notice, Sheet, focusRing } from "../../../components/kit";
@@ -16,7 +16,7 @@ import type { JoinFlow } from "./useJoinFlow";
  * unticked box (Spam Law), and the privacy notice (s.11) one tap away, in a
  * sheet, so reading it never moves the form or the button.
  */
-export function JoinForm({ flow, band }: { flow: JoinFlow; band?: ReactNode }) {
+export function JoinForm({ flow }: { flow: JoinFlow }) {
   const { t } = useTranslation();
   const heading = useRef<HTMLHeadingElement>(null);
   const phone = useRef<HTMLInputElement>(null);
@@ -36,7 +36,6 @@ export function JoinForm({ flow, band }: { flow: JoinFlow; band?: ReactNode }) {
 
   return (
     <div className="flex flex-col gap-5">
-      {band}
       <h1 ref={heading} tabIndex={-1} className="type-title text-balance outline-none">
         {t("enroll.form.heading")}
       </h1>

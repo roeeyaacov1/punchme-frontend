@@ -1,5 +1,6 @@
 import { ApiError } from "../../../api/errors";
 import { isLikelyIlPhone } from "../../../lib/phone";
+import type { JoinStep } from "./useJoinFlow";
 
 /**
  * What a join's failure says, and where. Both joins (`/join` and the
@@ -40,6 +41,19 @@ export function phoneProblem(phone: string): "enroll.phoneMissing" | "enroll.pho
  * is already theirs, is a returning one: "your card at…", not "you're in". */
 export function isReturning(joined: { stampCount: number; alreadyMember?: boolean }): boolean {
   return Boolean(joined.alreadyMember) || joined.stampCount > 0;
+}
+
+/** Where each of the join's places stands in its order: the sign holding an
+ * answer is the sign again. */
+const STEP_ORDER: Record<JoinStep["kind"], number> = { sign: 0, held: 0, form: 1, code: 2, card: 3 };
+
+/** Which way the join moved, so the next place comes in from that side: on
+ * to the next one, or back to an earlier one ("Edit number", a refused
+ * phone, the sign coming back holding an answer). Null when it didn't move. */
+export function stepDirection(from: JoinStep["kind"], to: JoinStep["kind"]): "forward" | "back" | null {
+  const delta = STEP_ORDER[to] - STEP_ORDER[from];
+  if (delta === 0) return null;
+  return delta > 0 ? "forward" : "back";
 }
 
 /** Which sentence goes under the card's heading. */
