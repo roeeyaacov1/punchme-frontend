@@ -195,6 +195,10 @@
         "CENTER": "Centre",
         "END": "End"
       },
+      "alignSide": {
+        "HE": "On a Hebrew card, start is the right-hand side.",
+        "EN": "On an English card, start is the left-hand side."
+      },
       "backText": "What it says",
       "backTextHint": "This is where the reward reaches the pass.",
       "changeHint": "The new value goes where you write",
@@ -277,7 +281,7 @@
       "row": "Won't show on Google Wallet"
     },
     "sync": {
-      "failed": "The last update to passes in wallets didn't go through. We'll retry by ourselves; saving tries at once.",
+      "failed": "The last update to passes in wallets didn't go through. We'll try again by ourselves, and Save tries right away.",
       "stale": "Passes in wallets were built with an older version. One save brings them up to date.",
       "update": "Update the passes"
     },
@@ -291,6 +295,7 @@
       "countLabel": "Above the stamp count",
       "organization": "Business name on the card",
       "organizationHint": "Leave it empty to show your business's name.",
+      "blank": "Empty: nothing shows above it on the card.",
       "nameMissing": "The card needs a name.",
       "full": "The card already has the most fields it can hold. To add this label, remove one in Wallet details."
     },
