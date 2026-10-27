@@ -720,9 +720,10 @@ Run template D from §7 on `/style-guide`, then merge `redesign/foundation`.
 
 **Why this order**
 
-The phases keep their numbers, but since 21 Oct they run in the order 2, 5,
-6, 7, 3, 4, 8, 9. Once the shell was in, Roee chose to finish the dashboard
-first.
+The phases keep their numbers, but run in the order 2, 5, 6, 7, then 3 and 8
+side by side, then 4 and 9. Once the shell was in, Roee chose to finish the
+dashboard first (21 Oct); then he moved Phase 8 up beside Phase 3, each in
+its own worktree (27 Oct).
 
 1. **The shell comes first** because it decides how much room every page
    gets, the card studio included.
@@ -732,9 +733,14 @@ first.
 3. **The card studio comes before onboarding.** Onboarding's design steps
    are second copies of the studio's controls, so the shared controls get
    decided once.
-4. **The public pages come before the landing page,** because a customer
+4. **The public pages run beside the card studio, and before onboarding.**
+   The two phases touch different pages, and what they share, the pass
+   previews, is Phase 3's. Onboarding's account step shares its sign-in
+   parts with `/login` and `/invite`, so Phase 8 settles them once and
+   Phase 4 builds on them.
+5. **The public pages come before the landing page,** because a customer
    meets `/join` right after scanning a QR code.
-5. **The landing page comes last,** so it can show the real, finished
+6. **The landing page comes last,** so it can show the real, finished
    product and pass instead of drawings.
 
 ### The loop: four steps per phase
