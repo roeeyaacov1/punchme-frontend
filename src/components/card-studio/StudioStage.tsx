@@ -109,6 +109,8 @@ export const StudioStage = forwardRef<
     wallet: Wallet;
     onWallet: (wallet: Wallet) => void;
     onPart: (part: CardPart) => void;
+    /** A save is running: the card's places open nothing meanwhile. */
+    busy?: boolean;
     /** Under the stage: the owner's own pass, to add to their wallet. */
     foot?: ReactNode;
   }
@@ -126,6 +128,7 @@ export const StudioStage = forwardRef<
     wallet,
     onWallet,
     onPart,
+    busy = false,
     foot,
   },
   ref,
@@ -286,13 +289,14 @@ export const StudioStage = forwardRef<
                   key={part}
                   type="button"
                   tabIndex={-1}
+                  disabled={busy}
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => {
                     setLit(part);
                     onPart(part);
                   }}
                   className={cn(
-                    "absolute cursor-pointer touch-manipulation rounded-[18px] outline-offset-[-2px] [-webkit-tap-highlight-color:transparent]",
+                    "absolute cursor-pointer touch-manipulation rounded-[18px] outline-offset-[-2px] [-webkit-tap-highlight-color:transparent] disabled:pointer-events-none",
                     lit === part ? "outline outline-2 outline-ink" : "hover-fine:outline hover-fine:outline-2 hover-fine:outline-ink/40",
                   )}
                   style={{ top: box.top, left: box.left, width: box.width, height: box.height }}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { Gift, Minus, Pencil, Plus } from "lucide-react";
 import { cn } from "../../lib/cn";
@@ -63,6 +63,19 @@ function useWide(): boolean {
     return () => query.removeEventListener("change", update);
   }, []);
   return wide;
+}
+
+/**
+ * A ref that makes its element `inert` while `on`: out of reach of a finger,
+ * the keyboard and a screen reader. Set on the element itself, since React 18
+ * doesn't know the attribute.
+ */
+function useInert<T extends HTMLElement>(on: boolean) {
+  const ref = useRef<T>(null);
+  useLayoutEffect(() => {
+    if (ref.current) ref.current.inert = on;
+  });
+  return ref;
 }
 
 /** The height a part of the page can't be under: the masthead, if there is one. */
@@ -223,6 +236,12 @@ export function CardStudio({
   const owner = !!onHold;
   const back = backState(value.design, savedReward, follow);
   const shownSample = Math.min(sample, value.stamps_required);
+  // While Save runs, nothing that changes the draft can be reached: Save
+  // sends the card as it was pressed, and starts again from what it read.
+  const busy = bar.saving;
+  const working = useInert<HTMLDivElement>(busy);
+  const chipRow = useInert<HTMLDivElement>(busy);
+  const rewardBox = useInert<HTMLDivElement>(busy);
 
   const trays: { id: string; label: string }[] = [
     { id: "colours", label: t("studio.chips.colours") },
@@ -374,7 +393,7 @@ export function CardStudio({
   );
 
   const rewardRow = (
-    <div className="flex flex-col gap-2">
+    <div ref={rewardBox} className="flex flex-col gap-2">
       <button
         type="button"
         onClick={() => open("reward")}
@@ -416,6 +435,7 @@ export function CardStudio({
       wallet={wallet}
       onWallet={setWallet}
       onPart={onPart}
+      busy={busy}
     />
   );
 
@@ -425,21 +445,23 @@ export function CardStudio({
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="flex min-w-0 flex-col gap-5">
           {notices}
-          <Tabs value={tab} onChange={onTray}>
-            {/* Wrapping rather than scrolling, so no tray hides past the column's edge. */}
-            <TabList label={t("studio.title")} className="flex-wrap overflow-visible">
-              {trays.map(({ id, label }) => (
-                <Tab key={id} value={id}>
-                  {label}
-                </Tab>
+          <div ref={working}>
+            <Tabs value={tab} onChange={onTray}>
+              {/* Wrapping rather than scrolling, so no tray hides past the column's edge. */}
+              <TabList label={t("studio.title")} className="flex-wrap overflow-visible">
+                {trays.map(({ id, label }) => (
+                  <Tab key={id} value={id}>
+                    {label}
+                  </Tab>
+                ))}
+              </TabList>
+              {trays.map(({ id }) => (
+                <TabPanel key={id} value={id} className="rounded-panel border border-border bg-surface p-5 shadow-panel">
+                  {body(id)}
+                </TabPanel>
               ))}
-            </TabList>
-            {trays.map(({ id }) => (
-              <TabPanel key={id} value={id} className="rounded-panel border border-border bg-surface p-5 shadow-panel">
-                {body(id)}
-              </TabPanel>
-            ))}
-          </Tabs>
+            </Tabs>
+          </div>
         </div>
         <aside className="flex flex-col gap-4 lg:sticky lg:top-8">
           {stageView}
@@ -461,7 +483,7 @@ export function CardStudio({
       {sampleRow}
       {notices}
       {rewardRow}
-      <div role="group" aria-label={t("studio.chips.label")} className="flex touch-manipulation flex-wrap gap-2">
+      <div ref={chipRow} role="group" aria-label={t("studio.chips.label")} className="flex touch-manipulation flex-wrap gap-2">
         {chipTrays.map(({ id, label }) => (
           <Button
             key={id}
@@ -487,6 +509,7 @@ export function CardStudio({
         onHeight={setTrayHeight}
         foot={barDrawn ? <div className={light}>{studioBar}</div> : undefined}
         footLeaving={barPhase === "leaving"}
+        busy={busy}
       >
         {body(tray ?? shownTray)}
       </StudioTray>
