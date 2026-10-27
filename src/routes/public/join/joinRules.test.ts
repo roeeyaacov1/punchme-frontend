@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ApiError } from "../../../api/errors";
-import { cardLine, isReturning, joinAnswer, phoneProblem } from "./joinRules";
+import { cardLine, isReturning, joinAnswer, phoneProblem, stepDirection } from "./joinRules";
 
 describe("joinAnswer", () => {
   it("says a Free shop isn't taking customers, from the code request too", () => {
@@ -47,6 +47,26 @@ describe("isReturning", () => {
     expect(isReturning({ stampCount: 0 })).toBe(false);
     expect(isReturning({ stampCount: 3 })).toBe(true);
     expect(isReturning({ stampCount: 0, alreadyMember: true })).toBe(true);
+  });
+});
+
+describe("stepDirection", () => {
+  it("goes forward from the sign to the form, the code and the card", () => {
+    expect(stepDirection("sign", "form")).toBe("forward");
+    expect(stepDirection("form", "code")).toBe("forward");
+    expect(stepDirection("code", "card")).toBe("forward");
+    expect(stepDirection("form", "card")).toBe("forward");
+  });
+
+  it("goes back on 'Edit number', a refused phone, and the sign holding an answer", () => {
+    expect(stepDirection("code", "form")).toBe("back");
+    expect(stepDirection("form", "held")).toBe("back");
+    expect(stepDirection("code", "held")).toBe("back");
+  });
+
+  it("doesn't move between the sign and the sign holding an answer", () => {
+    expect(stepDirection("sign", "held")).toBeNull();
+    expect(stepDirection("form", "form")).toBeNull();
   });
 });
 

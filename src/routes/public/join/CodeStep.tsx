@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { Button, Field, LitPanel, Notice, linkText } from "../../../components/kit";
 import { fieldBox } from "../../../components/kit/classes";
@@ -12,7 +12,7 @@ import type { JoinFlow } from "./useJoinFlow";
  * still in it, and "Send a new code" waits out its 60 seconds, readable all
  * the while.
  */
-export function CodeStep({ flow, band }: { flow: JoinFlow; band?: ReactNode }) {
+export function CodeStep({ flow }: { flow: JoinFlow }) {
   const { t } = useTranslation();
   const heading = useRef<HTMLHeadingElement>(null);
   const field = useRef<HTMLInputElement>(null);
@@ -36,7 +36,6 @@ export function CodeStep({ flow, band }: { flow: JoinFlow; band?: ReactNode }) {
 
   return (
     <div className="flex flex-col gap-5">
-      {band}
       <div className="flex flex-col gap-2">
         <h1 ref={heading} tabIndex={-1} className="type-title text-balance outline-none">
           {t("enroll.codeTitle")}

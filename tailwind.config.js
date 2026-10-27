@@ -296,6 +296,10 @@ export default {
         "drawer-out": "drawer-out var(--duration-exit) var(--ease-drawer) both",
         "dialog-in": "dialog-in var(--duration-lights) var(--ease-out-strong) both",
         "dialog-out": "dialog-out var(--duration-exit) var(--ease-out-strong) both",
+        // A step of the join, lights on from the side it comes from: the
+        // next one from the end edge, a step back from the start.
+        "step-forward": "step-from-end var(--duration-lights) var(--ease-out-strong) both",
+        "step-back": "step-from-start var(--duration-lights) var(--ease-out-strong) both",
         // The shop's sign, the day it switches on: unlit for a beat, then a
         // tube catching over the ceremony's 600ms, or the gentle fade.
         "sign-catch": "sign-catch var(--duration-ceremony) linear var(--delay-switch-on) both",

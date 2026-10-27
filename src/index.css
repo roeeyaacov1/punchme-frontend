@@ -466,8 +466,8 @@ html.theme-lightbox {
   --duration-stamp-snap: 240ms;
   --delay-stamp-snap: 60ms;
 
-  /* Which way the end edge is, for the one keyframe that travels sideways:
-     the sheet coming in from the end on a wide screen. */
+  /* Which way the end edge is, for the keyframes that travel sideways: the
+     sheet coming in from the end on a wide screen, and a step of the join. */
   --kit-dir: 1;
 }
 
@@ -604,6 +604,30 @@ html.theme-lightbox {
   to {
     opacity: 0;
     transform: scale(0.96);
+  }
+}
+
+/* A step of a flow arriving by light from the side it comes from, 8px at
+   most: the next step from the end edge, a step back from the start. */
+@keyframes step-from-end {
+  from {
+    opacity: 0;
+    transform: translateX(calc(8px * var(--kit-dir, 1)));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes step-from-start {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-8px * var(--kit-dir, 1)));
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
