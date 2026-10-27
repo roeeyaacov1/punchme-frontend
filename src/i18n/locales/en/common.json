@@ -1988,24 +1988,11 @@
       "collect_other": "Collect <n>{{count}}</n> stamps and get: <reward>{{reward}}</reward>"
     },
     "stamp": {
-      "title": "Add a stamp to {{name}}'s card",
-      "anonymous": "this customer",
-      "preview": "This is your own preview card.",
-      "confirm": "Add a stamp",
-      "working": "Adding…",
-      "full": "The card is full — time to hand over: {{reward}}",
-      "redeem": "Reward handed over — start the card again",
-      "redeeming": "Resetting…",
-      "openScanner": "Open the scanner instead",
-      "result": {
-        "stamped": "Stamped.",
-        "rewardReady": "That was the last stamp — the reward is ready!",
-        "redeemed": "Reward redeemed. The card starts again from zero.",
-        "tooSoon": "This card was stamped a moment ago. Wait a little before adding another.",
-        "conflict": "This card is already full. Hand over the reward first.",
-        "unknownCard": "This card isn't yours to stamp.",
-        "offline": "Couldn't reach the server. Check the connection and try again."
-      }
+      "add": "Add a stamp",
+      "noName": "A customer with no name",
+      "demoTitle": "<shop>{{business}}</shop>'s demo card",
+      "toScanner": "To the scanner",
+      "pageTitle": "Stamp for {{name}}"
     },
     "join": {
       "invitedBy": "{{name}} invited you",
