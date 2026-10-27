@@ -145,6 +145,8 @@ function barLight(phase: BarPhase, reduced: boolean): string | undefined {
 export interface CardStudioProps {
   value: CardStudioValue;
   onChange: (next: CardStudioValue) => void;
+  /** The card as saved, which the draft started from. */
+  saved: CardStudioValue;
   businessName: string;
   /** The business's trade: its glyph leads. */
   niche?: string | null;
@@ -194,6 +196,7 @@ export interface CardStudioProps {
 export function CardStudio({
   value,
   onChange,
+  saved,
   businessName,
   niche,
   images = {},
@@ -332,7 +335,14 @@ export function CardStudio({
           <RewardTray value={value} onChange={onChange} back={back} onFollow={onFollow} stampPicture={stampPicture.url} />
         );
       case "names":
-        return <NamesTray value={value} onChange={onChange} businessName={businessName} />;
+        return (
+          <NamesTray
+            value={value}
+            onChange={onChange}
+            savedFields={saved.design.fields ?? []}
+            businessName={businessName}
+          />
+        );
       case "logo":
         return onHold ? (
           <LogoTray

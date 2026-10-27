@@ -434,6 +434,7 @@ export function DesignPage() {
       <CardStudio
         value={draft}
         onChange={edit}
+        saved={saved}
         businessName={business.name}
         niche={business.niche}
         images={designImageUrls(design)}

@@ -128,16 +128,23 @@ describe("bindings", () => {
 
 describe("withFaceLabel", () => {
   it("renames a face field in place", () => {
-    const fields = withFaceLabel(FIELDS, "person.displayName", "SECONDARY_FIELDS", "שם");
+    const fields = withFaceLabel(FIELDS, "person.displayName", "SECONDARY_FIELDS", "שם", FIELDS);
     expect(fields[0].label).toBe("שם");
     expect(fields).toHaveLength(3);
   });
 
   it("adds the field when the card has none, and drops it again when cleared", () => {
     const without = FIELDS.slice(1);
-    const added = withFaceLabel(without, "person.displayName", "SECONDARY_FIELDS", "שם");
+    const added = withFaceLabel(without, "person.displayName", "SECONDARY_FIELDS", "שם", without);
     expect(added).toHaveLength(3);
-    expect(withFaceLabel(added, "person.displayName", "SECONDARY_FIELDS", "")).toHaveLength(2);
+    expect(withFaceLabel(added, "person.displayName", "SECONDARY_FIELDS", "", without)).toHaveLength(2);
+  });
+
+  it("keeps a field the card came with in its place, with an empty label", () => {
+    const named = FIELDS.map((f, i) => (i === 0 ? { ...f, label: "שם" } : f));
+    const cleared = withFaceLabel(named, "person.displayName", "SECONDARY_FIELDS", "", named);
+    expect(cleared).toHaveLength(3);
+    expect(cleared[0]).toEqual({ ...FIELDS[0], label: "" });
   });
 });
 
@@ -187,8 +194,13 @@ describe("changesBetween", () => {
   });
 
   it("counts a renamed label as a name, not as a field", () => {
-    const draft = { ...SAVED, design: { ...SAVED.design, fields: withFaceLabel(FIELDS, "members.member.points", "AUXILIARY_FIELDS", "ביקורים") } };
-    expect(changesBetween(SAVED, draft)).toEqual(["names"]);
+    const fields = withFaceLabel(FIELDS, "members.member.points", "AUXILIARY_FIELDS", "ביקורים", FIELDS);
+    expect(changesBetween(SAVED, { ...SAVED, design: { ...SAVED.design, fields } })).toEqual(["names"]);
+  });
+
+  it("counts a label cleared on a field the card came with as a name", () => {
+    const fields = withFaceLabel(FIELDS, "members.member.points", "AUXILIARY_FIELDS", "", FIELDS);
+    expect(changesBetween(SAVED, { ...SAVED, design: { ...SAVED.design, fields } })).toEqual(["names"]);
   });
 
   it("counts a field added in Wallet details as a field", () => {
