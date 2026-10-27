@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { newerRead, syncMovedPast } from "./studioReads";
+import { bothLandedSince, newerRead, syncMovedPast } from "./studioReads";
+
+describe("bothLandedSince", () => {
+  it("is true only when both reads landed after they were asked for", () => {
+    expect(bothLandedSince(1000, { templates: 1200, design: 1100 })).toBe(true);
+    // A failed or offline read keeps the time of the one before the save.
+    expect(bothLandedSince(1000, { templates: 1200, design: 400 })).toBe(false);
+    expect(bothLandedSince(1000, { templates: 400, design: 1100 })).toBe(false);
+  });
+});
 
 describe("syncMovedPast", () => {
   it("waits while the sync is where it was before the save", () => {

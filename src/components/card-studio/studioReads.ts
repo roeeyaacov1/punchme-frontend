@@ -10,6 +10,13 @@ export interface ReadStamp {
   design: number;
 }
 
+/** The re-read after a save counts only when both reads landed after it was
+ * asked for. Neither call throws: a failed read keeps the card from before
+ * the save, and one made offline waits, both with their old times. */
+export function bothLandedSince(asked: number, at: ReadStamp): boolean {
+  return at.templates >= asked && at.design >= asked;
+}
+
 /**
  * Whether the wallet's sync has run since a save: its `synced_at` later than
  * it was before. The sync is asynchronous, so a read just after the save
