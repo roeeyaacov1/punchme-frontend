@@ -302,6 +302,7 @@ export function AdminCatalogEditPage() {
         <CardStudio
           value={draft}
           onChange={edit}
+          saved={saved}
           businessName={draft.design.organization_name || "PunchMe"}
           niche={shelf.niche}
           images={images}

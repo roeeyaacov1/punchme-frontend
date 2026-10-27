@@ -112,24 +112,28 @@ export function faceLabel(fields: readonly DesignField[], binding: string): stri
 
 /** Rename a face field. One typed where there was none adds the field;
  * clearing one the studio added drops it again, rather than sending an
- * empty label. These are the only editors of the two labels. */
+ * empty label. A field the card came with (`savedFields`) keeps its place
+ * with an empty label: clearing the words above the customer's name never
+ * takes the name off the card. These are the only editors of the two labels. */
 export function withFaceLabel(
   fields: readonly DesignField[],
   binding: string,
   section: DesignField["section"],
   label: string,
+  savedFields: readonly DesignField[],
 ): DesignField[] {
   const index = fields.findIndex((field) => field.binding === binding);
   if (index === -1) {
     return label ? [...fields, { binding, label, section, alignment: "NATURAL" }] : [...fields];
   }
   const field = fields[index];
+  const added = !savedFields.some((saved) => saved.binding === binding);
   const plain =
     field.section === section &&
     !field.change_message &&
     !field.default_value &&
     (field.alignment === "NATURAL" || field.alignment === undefined);
-  if (!label && plain && fields.length > 1) return fields.filter((_, i) => i !== index);
+  if (!label && added && plain && fields.length > 1) return fields.filter((_, i) => i !== index);
   return fields.map((f, i) => (i === index ? { ...f, label } : f));
 }
 

@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import type { DesignField } from "../../../api/designs";
 import { Input } from "../../kit/Input";
 import { FACE_FIELDS, TEXT_LIMITS, faceLabel, withFaceLabel, type CardStudioValue } from "../studioDraft";
 
@@ -16,10 +17,14 @@ const FACE_LABELS: Record<(typeof FACE_FIELDS)[number]["binding"], { label: stri
 export function NamesTray({
   value,
   onChange,
+  savedFields,
   businessName,
 }: {
   value: CardStudioValue;
   onChange: (next: CardStudioValue) => void;
+  /** The card's fields as saved: a face field it came with stays when its
+   * label is cleared. */
+  savedFields: readonly DesignField[];
   businessName: string;
 }) {
   const { t } = useTranslation();
@@ -50,7 +55,10 @@ export function NamesTray({
           onChange={(event) =>
             onChange({
               ...value,
-              design: { ...value.design, fields: withFaceLabel(fields, face.binding, face.section, event.target.value) },
+              design: {
+                ...value.design,
+                fields: withFaceLabel(fields, face.binding, face.section, event.target.value, savedFields),
+              },
             })
           }
           maxLength={TEXT_LIMITS.label}
