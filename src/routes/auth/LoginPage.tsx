@@ -69,8 +69,8 @@ export function LoginPage() {
         <LitPanel as="section" className="p-5 sm:p-6">
           <Loading className="flex flex-col gap-4">
             <Skeleton className="h-8 w-2/3" />
-            <Skeleton className="h-12 w-full rounded-field" />
-            <Skeleton className="h-12 w-full rounded-field" />
+            <Skeleton className="h-12 w-full !rounded-field" />
+            <Skeleton className="h-12 w-full !rounded-field" />
           </Loading>
         </LitPanel>
       </LoginFrame>
