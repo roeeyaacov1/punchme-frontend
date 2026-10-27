@@ -47,6 +47,15 @@ export function syncMovedPast(before: string | null, now: string | null): boolea
   return Date.parse(now) > Date.parse(before);
 }
 
+/** The later of two `synced_at`s, either of which may be missing: where the
+ * sync stood before a save, from the design read and from the PATCH's own
+ * answer (the template carries it as `design_synced_at`). The read can be
+ * from before an earlier save in the same visit, whose sync has run since. */
+export function laterSync(a: string | null | undefined, b: string | null | undefined): string | null {
+  if (!a || !b) return a || b || null;
+  return Date.parse(b) > Date.parse(a) ? b : a;
+}
+
 /** A pair of reads made since the card the studio stands on: either landed
  * again and neither is older. A card made of one new read and one older than
  * the studio's own (as after a save whose re-read failed) waits for both. */
