@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, useNavigation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 import type { TokenPair } from "../../api/auth";
@@ -45,9 +45,17 @@ export function LoginPage() {
   const { t } = useTranslation();
   const { isAuthenticated, isLoading, login } = useAuth();
   const navigate = useNavigate();
+  const navigation = useNavigation();
   const location = useLocation();
 
   const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? null;
+
+  // The dashboard and the wizard load on demand: their code starts on its
+  // way while the owner types, so signing in rarely waits for it.
+  useEffect(() => {
+    void import("../lazy/dashboard");
+    void import("../lazy/onboarding");
+  }, []);
 
   const auth = useEmailPasswordAuth({
     initialMode: "signin",
@@ -63,7 +71,9 @@ export function LoginPage() {
   // refresh token for it to find. Waiting without one would hold the form
   // behind a request that is going to fail anyway, which on a stopped
   // backend is the difference between a slow sign-in and none at all.
-  if (isLoading && getRefreshToken()) {
+  // Signed in and on the way out, while the next page's code is still
+  // arriving, the frame stays too, rather than a blank page.
+  if ((isLoading && getRefreshToken()) || (isAuthenticated && navigation.state !== "idle")) {
     return (
       <LoginFrame>
         <LitPanel as="section" className="p-5 sm:p-6">
@@ -77,9 +87,11 @@ export function LoginPage() {
     );
   }
 
-  // Signed in already: pressing "Sign in" means "take me to my cards".
+  // Signed in already: pressing "Sign in" means "take me to my cards". The
+  // mode goes along, so a sign-up still goes to the wizard if this renders
+  // before its own navigation has landed.
   if (isAuthenticated) {
-    return <Navigate to={from ?? signedInDestination()} replace />;
+    return <Navigate to={from ?? signedInDestination(auth.mode)} replace />;
   }
 
   return (

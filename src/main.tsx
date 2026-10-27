@@ -12,6 +12,7 @@ import { ProtectedRoute } from "./auth/ProtectedRoute";
 import { RequireStaff } from "./auth/RequireStaff";
 import { BusinessProvider } from "./business/BusinessProvider";
 import { RequireBusiness } from "./business/RequireBusiness";
+import { BusinessLoading } from "./components/dashboard/shell/BusinessPages";
 import { RootLayout } from "./routes/root";
 import { RouteLoading } from "./routes/RouteLoading";
 import { DebugPresetsPage } from "./routes/debug-presets";
@@ -189,8 +190,17 @@ const router = createBrowserRouter([
                   { path: "billing/success", lazy: async () => ({ Component: (await billing()).BillingSuccessPage }) },
                   { path: "billing/cancel", lazy: async () => ({ Component: (await billing()).BillingCancelPage }) },
                   // Where Stripe's portal sends the owner back by default.
-                  // Billing lives in the dashboard, so this only forwards.
-                  { path: "billing", element: <Navigate to="/dashboard/billing" replace /> },
+                  // Billing lives in the dashboard, so this only forwards,
+                  // the dashboard's stand-in on screen while its code arrives.
+                  {
+                    path: "billing",
+                    element: (
+                      <>
+                        <Navigate to="/dashboard/billing" replace />
+                        <BusinessLoading />
+                      </>
+                    ),
+                  },
                 ],
               },
             ],

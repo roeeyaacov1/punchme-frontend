@@ -15,7 +15,16 @@ export function RequireBusiness() {
   const { status } = useBusiness();
 
   if (status === "loading") return <BusinessLoading />;
-  if (status === "none") return <Navigate to="/onboarding" replace />;
+  // The wizard loads on demand: its stand-in holds the screen while its code
+  // arrives, where the redirect alone would leave a blank page.
+  if (status === "none") {
+    return (
+      <>
+        <Navigate to="/onboarding" replace />
+        <BusinessLoading />
+      </>
+    );
+  }
   if (status === "signedOut") return <SessionEnded />;
   if (status === "failed") return <BusinessLoadFailed />;
   return <Outlet />;
