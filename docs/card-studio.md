@@ -24,13 +24,19 @@ decision for the owner, and the redesign guide asks for it first.
 | `wallet-card/PassBarcode.tsx` | The barcode, drawn for real in all four formats |
 | `src/lib/passBarcode.ts`, `cardPatterns.ts`, `stampGlyphs.ts`; `designImageUrls` in `src/api/designs.ts` | The logic those files rely on (already protected as `src/lib` and `src/api`) |
 
-One correction has been made to this table's files, on 27 Oct 2026 with
-Roee's yes (Phase 3, `docs/redesign/briefs/card-studio.md` §7 and §13).
-`StampGrid` drew a filled stamp's glyph in white whatever the stamp's
-colour, so a white stamp was a blank disc. The server knocks the glyph out
-in white or near-black (`#202024`), whichever contrasts more with the fill
-(`strips.py`, `_glyph_ink`). The stand-in now uses the same rule, and nothing
-else in the file changed.
+Two corrections have been made to this table's files, both on 27 Oct 2026
+with Roee's yes (Phase 3, `docs/redesign/briefs/card-studio.md` §7 and §13,
+and step D). In each, nothing else in the file changed.
+
+- `StampGrid` drew a filled stamp's glyph in white whatever the stamp's
+  colour, so a white stamp was a blank disc. The server knocks the glyph out
+  in white or near-black (`#202024`), whichever contrasts more with the fill
+  (`strips.py`, `_glyph_ink`). The stand-in now uses the same rule.
+- `fieldLabel` in `CardPreviews.tsx` printed the default label ("שם",
+  "ביקורים") whenever a field's label was empty. The pass prints a field's
+  label as it is given (`apps/wallet/design.py`, `_build_data_field`), so a
+  cleared label shows nothing on the real card. The previews now fall back
+  to the default only when the card has no such field.
 
 Staging around the card is ours to change: the frame, the well, the shadow
 and the motion. One constraint applies. The previews are built for a 300px

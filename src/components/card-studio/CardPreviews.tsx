@@ -81,7 +81,7 @@ function pattern(value: CardPreviewValue): CardPattern {
 
 function fieldLabel(value: CardPreviewValue, binding: string, fallback: string): string {
   const field = value.design.fields?.find((f) => f.binding === binding);
-  return field?.label || fallback;
+  return field ? (field.label ?? "") : fallback;
 }
 
 /** Google's two header lines. They are different things and the card shows
