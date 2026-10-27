@@ -4,7 +4,9 @@ import {
   addableKinds,
   backState,
   changesBetween,
+  faceLabelFull,
   kindOf,
+  nameMissing,
   newField,
   nextCustomBinding,
   rebaseEdits,
@@ -141,6 +143,15 @@ describe("withFaceLabel", () => {
     expect(withFaceLabel(added, "person.displayName", "SECONDARY_FIELDS", "", without)).toHaveLength(2);
   });
 
+  it("adds no eleventh field: the card holds ten", () => {
+    const ten = [FIELDS[1], ...Array.from({ length: 9 }, (_, i) => ({ binding: `meta.custom_${i + 2}` }))];
+    expect(faceLabelFull(ten, "person.displayName")).toBe(true);
+    expect(withFaceLabel(ten, "person.displayName", "SECONDARY_FIELDS", "שם", ten)).toHaveLength(10);
+    // The other face field is on the card, so its label can still change.
+    expect(faceLabelFull(ten, "members.member.points")).toBe(false);
+    expect(faceLabelFull(FIELDS.slice(1), "person.displayName")).toBe(false);
+  });
+
   it("keeps a field the card came with in its place, with an empty label", () => {
     const named = FIELDS.map((f, i) => (i === 0 ? { ...f, label: "שם" } : f));
     const cleared = withFaceLabel(named, "person.displayName", "SECONDARY_FIELDS", "", named);
@@ -223,6 +234,13 @@ describe("changesBetween", () => {
 
   it("counts a new reward once, on the front and the back", () => {
     expect(changesBetween(SAVED, withReward(SAVED, "מאפה חינם"))).toEqual(["reward"]);
+  });
+});
+
+describe("nameMissing", () => {
+  it("reads a name of spaces as no name, which the API refuses", () => {
+    expect(nameMissing({ ...SAVED, name: "  " })).toBe(true);
+    expect(nameMissing(SAVED)).toBe(false);
   });
 });
 

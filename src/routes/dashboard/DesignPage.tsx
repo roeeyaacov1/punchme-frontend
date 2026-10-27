@@ -7,6 +7,7 @@ import { readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
   HELD_ORDER,
+  nameMissing,
   rebaseEdits,
   sameCard,
   withoutSent,
@@ -284,6 +285,12 @@ export function DesignPage() {
 
   async function save() {
     if (!businessId || !templateId || !draft || !saved || saving) return;
+    // The one limit typing can't hold: said in Names, and nothing is sent.
+    if (nameMissing(draft)) {
+      setFailure({ problem: { key: "studio.problem.noName" }, partial: false });
+      setTray("names");
+      return;
+    }
     setFailure(null);
     setSaving(true);
     // The pictures that reached the server: each stays held, drawn where it

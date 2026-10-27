@@ -44,6 +44,7 @@
       "hasArt": "Carries artwork the wizard tile does not draw yet",
       "publishedHint": "Published entries are what the onboarding wizard offers, in catalog order, up to three per trade.",
       "descriptionHint": "Staff-facing note. Owners never see it.",
+      "descriptionTooLong": "At most {{max}} characters. This one has {{length}}.",
       "shelfHint": "The trade this look is offered for, and whether owners can see it yet.",
       "art": {
         "lockedNew": "Save this template once and the artwork opens up — pictures are stored against its id.",
@@ -260,7 +261,8 @@
       "wallet": "The wallet didn't take {{picture}} just now. Try again in a moment.",
       "offline": "We didn't send {{picture}}: there's no connection. Check the network and try again.",
       "notSent": "We didn't send {{picture}}.",
-      "partial": "A picture already went to customers' cards. The rest wasn't saved."
+      "partial": "A picture already went to customers' cards. The rest wasn't saved.",
+      "noName": "The card needs a name before it can be saved."
     },
     "check": {
       "field": "The {{label}} field won't show on Google Wallet.",
@@ -284,7 +286,9 @@
       "holderLabel": "Above the customer's name",
       "countLabel": "Above the stamp count",
       "organization": "Business name on the card",
-      "organizationHint": "Leave it empty to show your business's name."
+      "organizationHint": "Leave it empty to show your business's name.",
+      "nameMissing": "The card needs a name.",
+      "full": "The card already has the most fields it can hold. To add this label, remove one in Wallet details."
     },
     "languageHint": "The language of the words the wallet adds to the card itself.",
     "barcodes": {
