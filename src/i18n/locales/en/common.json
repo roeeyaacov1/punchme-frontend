@@ -2361,5 +2361,12 @@
       "warn": "Note",
       "danger": "Error"
     }
+  },
+  "session": {
+    "unreachable": {
+      "title": "Can't reach PunchMe",
+      "offline": "This device is offline. You're still signed in, and the page opens by itself when the connection is back.",
+      "server": "PunchMe isn't answering right now. You're still signed in, and we'll keep trying."
+    }
   }
 }
