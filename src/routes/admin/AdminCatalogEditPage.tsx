@@ -112,14 +112,19 @@ export function AdminCatalogEditPage() {
       .catch(() => setLoadFailed(true));
   }, [catalogId, isNew]);
 
-  // The same 400ms check as the owner's studio, against the staff preview.
+  // The same 400ms check as the owner's studio, against the staff preview,
+  // and the same rule: an answer for a draft no longer on the page is let go.
   const debouncedDraft = useDebounce(draft, 400);
+  const onPage = useRef(draft);
+  useEffect(() => {
+    onPage.current = draft;
+  }, [draft]);
   useEffect(() => {
     if (!debouncedDraft) return;
     let cancelled = false;
     previewCatalogDesign({ ...debouncedDraft, name: debouncedDraft.name || "Preview" })
       .then((result) => {
-        if (!cancelled) setLint(result.lint);
+        if (!cancelled && onPage.current === debouncedDraft) setLint(result.lint);
       })
       .catch(() => {});
     return () => {

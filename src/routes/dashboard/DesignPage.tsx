@@ -226,13 +226,19 @@ export function DesignPage() {
 
   // The server's check, 400ms after each edit: the stateless preview applies
   // the draft in memory and answers with its lint. A failure keeps the last.
+  // An answer for a draft no longer on the page (one a discard or a save has
+  // replaced, while the debounce still held it) is let go.
   const debouncedDraft = useDebounce(changed ? draft : null, 400);
+  const onPage = useRef(draft);
+  useEffect(() => {
+    onPage.current = draft;
+  }, [draft]);
   useEffect(() => {
     if (!debouncedDraft || !businessId || !templateId) return;
     let cancelled = false;
     previewTemplateDesign(businessId, templateId, debouncedDraft)
       .then((result) => {
-        if (!cancelled) setLint(result.lint);
+        if (!cancelled && onPage.current === debouncedDraft) setLint(result.lint);
       })
       .catch(() => {});
     return () => {
