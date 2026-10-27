@@ -242,7 +242,8 @@
       "stays": "The picture replaces the symbol on the card. Once saved, there is no going back to a symbol.",
       "notHere": "Your picture is on the card. Until you save, a symbol stands in for it here.",
       "locked": "Your picture is the stamp. Going back to a symbol isn't possible yet.",
-      "onCard": "On the card now. Choose another to replace it."
+      "onCard": "On the card now. Choose another to replace it.",
+      "notKept": "This picture is too big to wait here if you leave the page. Save first, or you'll choose it again."
     },
     "pictures": {
       "logo": "the logo",

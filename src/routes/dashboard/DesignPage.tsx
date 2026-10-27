@@ -181,13 +181,22 @@ export function DesignPage() {
     setKept(false);
   }, [businessId, templateId, saved, draft, changed]);
 
+  // A picture that doesn't fit the tab's storage, even brought down to what
+  // the renderer keeps, is said at its tile: it won't come back on a return.
   const keptPictures = useRef<HeldPictures>({});
+  const [notKept, setNotKept] = useState<HeldUse[]>([]);
   useEffect(() => {
     if (!businessId || !templateId) return;
+    const kept = new Map<HeldUse, boolean>();
     for (const use of HELD_ORDER) {
-      if (keptPictures.current[use] !== held[use]) keepPicture(businessId, templateId, use, held[use]);
+      if (keptPictures.current[use] !== held[use]) kept.set(use, keepPicture(businessId, templateId, use, held[use]));
     }
     keptPictures.current = held;
+    if (kept.size === 0) return;
+    setNotKept((current) => {
+      const next = HELD_ORDER.filter((use) => (kept.has(use) ? !kept.get(use) : current.includes(use)));
+      return next.length === current.length && next.every((use, i) => use === current[i]) ? current : next;
+    });
   }, [businessId, templateId, held]);
 
   // After a save, the wallet's sync redraws the strip pictures on its own
@@ -473,6 +482,7 @@ export function DesignPage() {
         niche={business.niche}
         images={{ ...designImageUrls(design), ...art }}
         assets={design.assets}
+        notKept={notKept}
         held={held}
         onHold={hold}
         stampPicture={{ url: held.stamp_art ?? art.stamp_art ?? null, inUse: !!held.stamp_art || savedPicture }}
