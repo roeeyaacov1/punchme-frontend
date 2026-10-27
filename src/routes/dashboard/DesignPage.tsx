@@ -9,6 +9,7 @@ import {
   HELD_ORDER,
   rebaseEdits,
   sameCard,
+  withoutSent,
   type CardStudioValue,
   type HeldPictures,
   type HeldUse,
@@ -286,7 +287,13 @@ export function DesignPage() {
           keepUploadedStamp(businessId, templateId, url);
           setUploadedStamp(url);
         }
-        hold(use, null);
+        // Off the tab's copy at once, even if the page was left meanwhile,
+        // so a picture that reached customers' cards is never sent twice.
+        if (keptPictures.current[use] === dataUrl) {
+          keepPicture(businessId, templateId, use, undefined);
+          keptPictures.current = withoutSent(keptPictures.current, use, dataUrl);
+        }
+        setHeld((current) => withoutSent(current, use, dataUrl));
       } catch (error) {
         setFailure({ problem: uploadProblem(use, error), partial: sent });
         if (sent) waitForSync();
@@ -312,6 +319,9 @@ export function DesignPage() {
       return;
     }
     waitForSync();
+    // Saved: the tab's copy goes now, not after the re-read, in case the
+    // page is left meanwhile.
+    dropKept(businessId, templateId);
 
     // Read once more, after the last write, and start again from it. If
     // either read didn't land, the studio starts from what was sent, stamped

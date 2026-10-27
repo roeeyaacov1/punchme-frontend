@@ -40,6 +40,15 @@ export type HeldPictures = Partial<Record<HeldUse, string>>;
 /** The order Save sends them in: the logo, the stamp, then the strip art. */
 export const HELD_ORDER: readonly HeldUse[] = ["logo", "stamp_art", "strip_base", "stamped_art", "unstamped_art"];
 
+/** The held pictures once one of them has been sent: it goes, unless
+ * another was chosen in its place while it was on its way. */
+export function withoutSent(held: HeldPictures, use: HeldUse, sent: string): HeldPictures {
+  if (held[use] !== sent) return held;
+  const next = { ...held };
+  delete next[use];
+  return next;
+}
+
 /** The API's limits on what an owner types (CardTemplateIn, `_DesignDoc`). */
 export const TEXT_LIMITS = {
   name: 80,
