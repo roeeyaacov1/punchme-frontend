@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { CardStudio, type ExtraTray } from "../../components/card-studio/CardStudio";
@@ -62,14 +62,30 @@ const NO_SHELF: Shelf = { niche: "cafe", description: "", isPublished: false };
  *
  * It sits under `AdminLayout`, which has no theme, so it wraps its own
  * content in Lightbox, by day only: the admin area has no night.
+ *
+ * Each look is its own editor: the route stays mounted from one id to the
+ * next, so the page is keyed by it, and a new look reached from an existing
+ * one starts empty rather than on that look's draft.
  */
 export function AdminCatalogEditPage() {
-  const { t } = useTranslation();
   const { catalogId } = useParams<{ catalogId: string }>();
+  return <CatalogEditor key={catalogId} catalogId={catalogId} />;
+}
+
+/** What a look's first save hands to the editor of its own URL. */
+interface Created {
+  created?: boolean;
+}
+
+function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
+  const { t } = useTranslation();
   const isNew = catalogId === "new";
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const heading = useRef<HTMLHeadingElement>(null);
+  // Just made by the editor before this one: say it's saved, once.
+  const [created] = useState(() => !!(location.state as Created | null)?.created);
 
   const [saved, setSaved] = useState<CardStudioValue | null>(isNew ? EMPTY : null);
   const [draft, setDraft] = useState<CardStudioValue | null>(isNew ? EMPTY : null);
@@ -78,7 +94,14 @@ export function AdminCatalogEditPage() {
   const [art, setArt] = useState<Art>({});
   const [lint, setLint] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const [justSaved, setJustSaved] = useState(false);
+  const [justSaved, setJustSaved] = useState(created);
+
+  // Off the history entry, so a reload doesn't say it again.
+  useEffect(() => {
+    if (created) navigate(location.pathname, { replace: true, state: null });
+    // Once, as the editor opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [loadFailed, setLoadFailed] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   // A look still being made says it has no name only once Save is pressed.
@@ -113,6 +136,13 @@ export function AdminCatalogEditPage() {
       })
       .catch(() => setLoadFailed(true));
   }, [catalogId, isNew]);
+
+  // A look just made lands on its title, where the saved notice is, never
+  // on <body>.
+  const loaded = !!draft;
+  useEffect(() => {
+    if (created && loaded) heading.current?.focus();
+  }, [created, loaded]);
 
   // The same 400ms check as the owner's studio, against the staff preview,
   // and the same rule: an answer for a draft no longer on the page is let go.
@@ -201,11 +231,12 @@ export function AdminCatalogEditPage() {
       const value = draft;
       const payload = { ...value, niche: shelf.niche, description: shelf.description, is_published: shelf.isPublished };
       if (isNew) {
-        const created = await createCatalogEntry(payload);
+        const made = await createCatalogEntry(payload);
         await queryClient.invalidateQueries({ queryKey: ["admin-catalog"] });
         // Onto the look's own URL rather than back to the list: the id it
-        // was just given is what its art needs.
-        navigate(`/admin/catalog/${created.id}`, { replace: true });
+        // was just given is what its art needs. Its editor reads it afresh.
+        const state: Created = { created: true };
+        navigate(`/admin/catalog/${made.id}`, { replace: true, state });
         return;
       }
       await patchCatalogEntry(catalogId!, payload);
