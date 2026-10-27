@@ -162,6 +162,37 @@ describe("withUniqueBindings", () => {
     const twice = [FIELDS[0], FIELDS[2], { ...FIELDS[0], label: "שם הלקוח" }];
     expect(withUniqueBindings(twice)).toEqual([FIELDS[0], FIELDS[2]]);
   });
+
+  it("keeps the copy on the card's face over one on the back, so the stamp count stays on the face", () => {
+    const back = { ...FIELDS[1], label: "ביקורים", section: "BACK_FIELDS" as const };
+    expect(withUniqueBindings([back, FIELDS[0], FIELDS[1]])).toEqual([FIELDS[0], FIELDS[1]]);
+    // A field with no place is on the back, as the API reads it.
+    const placeless = { binding: "members.member.points", label: "ביקורים" };
+    expect(withUniqueBindings([placeless, FIELDS[1]])).toEqual([FIELDS[1]]);
+    // Two on the back: the first.
+    expect(withUniqueBindings([back, { ...back, label: "כוסות" }])).toEqual([back]);
+  });
+
+  it("turns a repeated line of text with words of its own into free text, words and all", () => {
+    const hours = { ...FIELDS[2], label: "שעות", default_value: "א-ה 8-20" };
+    expect(withUniqueBindings([...FIELDS, hours])).toEqual([...FIELDS, { ...hours, binding: "meta.custom" }]);
+  });
+
+  it("lets a repeated line of text go when it says nothing, or what the kept one says", () => {
+    const empty = { ...FIELDS[2], label: "עוד", default_value: "" };
+    const same = { ...FIELDS[2], label: "ההטבה שלך", default_value: " קפה חינם " };
+    expect(withUniqueBindings([...FIELDS, empty, same])).toEqual(FIELDS);
+  });
+
+  it("gives the free text a binding no other field has", () => {
+    const custom = { binding: "meta.custom", label: "כתובת" };
+    const hours = { ...FIELDS[2], label: "שעות", default_value: "א-ה 8-20" };
+    expect(withUniqueBindings([...FIELDS, custom, hours]).map((f) => f.binding)).toEqual([
+      ...FIELDS.map((f) => f.binding),
+      "meta.custom",
+      "meta.custom_2",
+    ]);
+  });
 });
 
 describe("withFaceLabel", () => {
