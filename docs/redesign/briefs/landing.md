@@ -37,8 +37,11 @@ headless Chrome and profile:
 - **B, detector:** ran Impeccable's detector over the page's files and over
   the live page in both languages at both widths.
 
-Read "In short" first. Sections 9 to 11 are what step B builds; §12 holds
-what is still open.
+Four questions went to Roee at the end, with the three dealt structures
+drawn on a canvas; his answers are in §8, and §12 keeps the questions as
+they were put.
+
+Read "In short" first. Sections 9 to 11 are what step B builds.
 
 1. In short
 2. The page today
@@ -51,7 +54,7 @@ what is still open.
 9. The new page
 10. Copy
 11. What step B keeps, touches and checks
-12. Open questions for Roee
+12. The questions put to Roee
 13. Left for other phases, and outside the redesign
 
 ---
@@ -75,7 +78,7 @@ what is still open.
   pass is under the fold and its stamp lands there unseen; inside the phone
   mock-up it is squeezed to about 216px, against the 300px rule; the English
   pass reads "דנה לוי" (§4, §5).
-- **Recommended structure: the counter** (§8, §9; Roee picks, §12): the
+- **The structure is the counter** (Roee, from Impeccable's roll, §8): the
   first screen is the sign, the customer's pass at 300px and the owner's
   scan, each labelled in the product's own word, and the stamp lands once
   where a phone sees it. Then the sign, the card and the scan in turn, what
@@ -88,11 +91,12 @@ what is still open.
   calculator's model, tests, link and live region, the anchors (Billing's
   `#calculator` included), every destination, the real `AppleCardPreview`
   from `heroTemplates.ts`, ₪99 with the keys onboarding reads, no tracking.
-- **Dials 5 / 4 / 3,** density one lower than asked, because DESIGN.md's
-  landing rhythm is Taste's 1–3 (§7). Motion is lights on, four named
-  moments, one loop (§4).
-- **Four questions for Roee** (§12): the structure, the FAQ's "message
-  us", whether onboarding appears, the density dial.
+- **Dials 5 / 4 / 3** (Roee), density one lower than first asked, because
+  DESIGN.md's landing rhythm is Taste's 1–3 (§7). Motion is lights on, four
+  named moments, one loop (§4).
+- **Roee's other two answers** (§8): the FAQ answers a new phone with what
+  the product already does, so no "message us" and no contact line until
+  there is a WhatsApp number; and no section shows onboarding.
 
 ## 2. The page today
 
@@ -565,7 +569,9 @@ stay; structure, order, sections, visuals, motion and copy are open.
 four times and a centred pair), motion 6 (everything rises, four loops,
 dealt cards and dropped banners, a staged hero), density 4.
 
-| Dial | Asked | Mine | Why |
+Roee took these on 27 Oct (§8).
+
+| Dial | Asked | Set | Why |
 |---|---|---|---|
 | DESIGN_VARIANCE | 5 | **5** | The page is an argument read in order. Offsets, one asymmetric composition per section and a start-aligned hero are enough, and each one has to mirror in Hebrew and fold to one column at 375 anyway. Above 5 the layout spends the reader's attention the claim needs. At 5 Taste's anti-centre rule binds: the hero is not centred |
 | MOTION_INTENSITY | 4 | **4** | Today's page runs at about 6, and its motion is half of what makes it read as a template. Lightbox's lights-on is a 4. But at 4 a builder may leave the product's verbs as stills, so four moments are named and must happen, each once and in view: the stamp landing, a message arriving, the sign switching on, the hero's one breath (§4) |
@@ -596,12 +602,12 @@ photography, "organic" numbers, invented brand names and SVG logo walls
 
 ## 8. Decisions made in this step
 
-| # | Question | Where it stands |
+| # | Question | Roee's answer (27 Oct) |
 |---|---|---|
-| 1 | How `/` is laid out | **Open, for Roee** (§12, question 1). Impeccable's roll (`concept-seed --scope surface --mode persuade`, seed `1ac49613`) dealt positions 7, 4 and 6 of seven ranked structures: the owner's first month (the dealt lead), the counter, and paper against the pass. They are drawn at 375 in Hebrew, in Lightbox, with the real pass, on a canvas: [Landing page structures](https://claude.ai/artifact/BW8v2zeZUvseMYHprDjmwV) (private). This brief recommends **the counter** and builds §9 on it; §9.3 says what changes under the other two |
-| 2 | The FAQ's "message us" | **Open, for Roee** (§12, question 2) |
-| 3 | Whether any section shows onboarding | **Open, for Roee** (§12, question 3). Phase 4 is redesigning it now |
-| 4 | The dials | **Open, for Roee** (§12, question 4): 5 / 4 / 3 recommended, against 5 / 4 / 4 asked (§7) |
+| 1 | How `/` is laid out | **The counter.** Impeccable's roll (`concept-seed --scope surface --mode persuade`, seed `1ac49613`) dealt positions 7, 4 and 6 of seven ranked structures: the owner's first month (the dealt lead), the counter, and paper against the pass. They were drawn at 375 in Hebrew, in Lightbox, with the real pass, on a canvas ([Landing page structures](https://claude.ai/artifact/BW8v2zeZUvseMYHprDjmwV), private), and he took the counter, the one this brief recommended. §9 builds it; §9.3 keeps a note of the other two |
+| 2 | The FAQ's "message us", with no WhatsApp number on any page | **Answer with what the product does today:** on a new phone, scan the sign and join with the same mobile number, and the card comes back with its stamps (`enroll_customer` returns the existing card). No contact line until there is a number (§13) |
+| 3 | Whether any section shows onboarding, which Phase 4 is redesigning | **No.** The setup section shows the sign and the card, and "Start free" opens `/onboarding` as today. Nothing on the page depends on Phase 4's screens |
+| 4 | The dials | **5 / 4 / 3**, density one step under the 4 first asked, to match DESIGN.md's landing rhythm (§7) |
 
 The seven structures for `/`, ranked in writing before the roll:
 1. a card's life: one sample card, named by its trade, followed from the
@@ -813,9 +819,8 @@ none is a row of equal cards:
   free, and seen on the owner's own phone before anything is paid; then a
   sign is printed for the window, the counter or a table. The piece: two
   `StandeeSheet` formats side by side (the A4 and the table tent), with a
-  line saying printing opens with Pro. Whether this subsection shows
-  onboarding's own screens is §12's question 3; by default it shows the
-  sign and the card, not the wizard.
+  line saying printing opens with Pro. It shows the sign and the card, never
+  the wizard's screens (Roee, §8).
 - **The card** (the customer's side): the customer scans the sign, gives a
   mobile number and the code from an SMS, and the card goes into Apple
   Wallet or Google Wallet; name and birthday are optional, offers only to
@@ -910,8 +915,8 @@ The model stays; the section is rebuilt on the kit:
   the menu is the kit's `Sheet` from the end edge: a name, a real focus
   trap, focus back on the menu button when it closes.
 - **The footer:** on the wall, not navy: the wordmark, the anchors, sign
-  in, the language, "© 2026 PunchMe". A contact line waits for §12's
-  question 2.
+  in, the language, "© 2026 PunchMe". No contact line until there is a
+  WhatsApp number (Roee, §8).
 
 ### 9.10 Motion, for step C
 
@@ -1004,10 +1009,12 @@ D's `clarify` reads them again:
 **The FAQ,** six corrected and two new:
 - **No app:** as today, and "they give a mobile number and a code from a
   text" said once.
-- **Changing phones:** §12, question 2 (the recommended answer: "the card
-  is kept with us, not on the phone; on the new phone, scan the sign again
-  and join with the same mobile number, and it comes back with its stamps",
-  which is what the join does, `enroll_customer`).
+- **Changing phones** (Roee, §8): "הכרטיסייה שמורה אצלנו, לא בטלפון.
+  בטלפון החדש סורקים שוב את השילוט בקופה ומצטרפים עם אותו מספר נייד,
+  והכרטיסייה חוזרת עם כל החותמות." / "The card is kept with us, not on the
+  phone. On the new phone, scan the sign at the counter again and join with
+  the same mobile number: the card comes back with all its stamps." It is
+  what the join does (`enroll_customer`), and "message us" goes.
 - **Cost and when:** "₪99 a month, including VAT, only once you activate".
 - **Changing the design:** as today.
 - **iPhone and Android:** both scanned the same way; the messages differ,
@@ -1081,7 +1088,11 @@ FAQ, the close and the footer; then the removals.
 - `impeccable detect` over the page's files and the live page;
 - Lighthouse on a phone profile.
 
-## 12. Open questions for Roee
+## 12. The questions put to Roee
+
+Asked on 27 Oct with the recommendation first; he took all four
+recommendations (§8). Nothing in this brief is still open; what waits on
+other work is in §13.
 
 1. **Which structure?** The canvas has all three at 375 in Hebrew:
    [Landing page structures](https://claude.ai/artifact/BW8v2zeZUvseMYHprDjmwV).
@@ -1120,7 +1131,9 @@ FAQ, the close and the footer; then the removals.
 - **The official Apple and Google Wallet badges:** trademark files nobody
   has yet (`WalletMarks.tsx`'s TODO). Until then the page says the names in
   words.
-- **The WhatsApp number,** the product's (§12, question 2).
+- **The WhatsApp number,** the product's. Until it exists the FAQ answers a
+  new phone with the join (§8, decision 2), and the day it does, a contact
+  line in the footer is a small change of its own.
 - **Terms, Privacy and Contact pages:** none exist; the footer links them
   the day they do.
 - **Open Graph and a meta description** for a link shared on WhatsApp:
