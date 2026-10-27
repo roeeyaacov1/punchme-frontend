@@ -1,5 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { bothLandedSince, newerRead, syncMovedPast } from "./studioReads";
+import { bothLandedSince, newerRead, publishedArt, syncMovedPast } from "./studioReads";
+
+describe("publishedArt", () => {
+  it("draws this device's copy of each picture the design read says is on the card", () => {
+    const uploaded = { stamp_art: "data:stamp", stamped_art: "data:full", unstamped_art: "data:empty" };
+    expect(publishedArt(["stamp_art", "stamped_art", "unstamped_art"], uploaded)).toEqual(uploaded);
+  });
+
+  it("drops a copy whose picture is no longer on the card", () => {
+    expect(publishedArt(["stamped_art"], { stamp_art: "data:stamp", stamped_art: "data:full" })).toEqual({
+      stamped_art: "data:full",
+    });
+  });
+
+  it("has nothing to draw for a picture sent from another device", () => {
+    expect(publishedArt(["unstamped_art"], {})).toEqual({});
+  });
+});
 
 describe("bothLandedSince", () => {
   it("is true only when both reads landed after they were asked for", () => {

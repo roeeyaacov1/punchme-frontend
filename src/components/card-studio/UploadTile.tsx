@@ -1,6 +1,6 @@
 import { useId, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { CircleAlert, ImagePlus, Trash2 } from "lucide-react";
+import { Check, CircleAlert, ImagePlus, Trash2 } from "lucide-react";
 import { cn } from "../../lib/cn";
 import { Button } from "../kit/Button";
 import { noTapFlash } from "../kit/classes";
@@ -17,6 +17,7 @@ export function UploadTile({
   title,
   hint,
   src,
+  onCard,
   aspect = "1 / 1",
   ground,
   busy,
@@ -30,6 +31,9 @@ export function UploadTile({
   hint?: ReactNode;
   /** The picture in use or held, if any. */
   src?: string;
+  /** The card has a picture here that this device can't draw (sent from
+   * another one): said, so the tile never offers "Upload" over it. */
+  onCard?: boolean;
   /** The renderer's shape: "1 / 1", or "1125 / 432" for the strip. */
   aspect?: string;
   /** The card colour behind the picture. */
@@ -70,6 +74,10 @@ export function UploadTile({
           >
             {src ? (
               <img src={src} alt="" className="size-full object-cover" />
+            ) : onCard ? (
+              <span className="flex size-9 items-center justify-center rounded-full bg-surface text-ink">
+                <Check className="size-5" />
+              </span>
             ) : (
               <span className="flex size-9 items-center justify-center rounded-full bg-surface text-ink">
                 <ImagePlus className="size-5" />
@@ -79,7 +87,10 @@ export function UploadTile({
           <span className="flex min-w-0 flex-col">
             <span className="type-body font-semibold text-ink">{title}</span>
             <span className="text-sm leading-snug text-ink-muted">
-              {busy ? t("common.loading") : (chooseLabel ?? (src ? t("cardControls.pictureReplace") : t("onboarding.stamp.uploadCta")))}
+              {busy
+                ? t("common.loading")
+                : (chooseLabel ??
+                  (src ? t("cardControls.pictureReplace") : onCard ? t("studio.picture.onCard") : t("onboarding.stamp.uploadCta")))}
             </span>
           </span>
           <input

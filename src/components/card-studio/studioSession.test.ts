@@ -6,8 +6,10 @@ import {
   keepEdits,
   keepPicture,
   keepSyncWait,
+  keepUploaded,
   readKept,
   readSyncWait,
+  readUploaded,
 } from "./studioSession";
 
 const storage = new Map<string, string>();
@@ -62,6 +64,13 @@ describe("the draft kept in the tab", () => {
     expect(readSyncWait("biz", "tpl")).toEqual({ before: "2026-10-27T10:00:00Z" });
     dropSyncWait("biz", "tpl");
     expect(readSyncWait("biz", "tpl")).toBeNull();
+  });
+
+  it("keeps this device's copy of each art picture it sent, past a dropped draft", () => {
+    keepUploaded("biz", "tpl", "stamp_art", "data:stamp");
+    keepUploaded("biz", "tpl", "stamped_art", "data:full");
+    dropKept("biz", "tpl");
+    expect(readUploaded("biz", "tpl")).toEqual({ stamp_art: "data:stamp", stamped_art: "data:full" });
   });
 
   it("goes, pictures and all, when dropped", () => {

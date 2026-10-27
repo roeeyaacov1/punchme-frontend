@@ -14,7 +14,16 @@ import {
   type HeldPictures,
   type HeldUse,
 } from "../../components/card-studio/studioDraft";
-import { bothLandedSince, newerRead, syncMovedPast, type ReadStamp } from "../../components/card-studio/studioReads";
+import {
+  ART_USES,
+  bothLandedSince,
+  newerRead,
+  publishedArt,
+  syncMovedPast,
+  type ArtCopies,
+  type ArtUse,
+  type ReadStamp,
+} from "../../components/card-studio/studioReads";
 import { saveProblem, uploadProblem, type StudioProblem } from "../../components/card-studio/studioProblems";
 import {
   dropKept,
@@ -22,10 +31,10 @@ import {
   keepEdits,
   keepPicture,
   keepSyncWait,
-  keepUploadedStamp,
+  keepUploaded,
   readKept,
   readSyncWait,
-  readUploadedStamp,
+  readUploaded,
   type SyncWait,
 } from "../../components/card-studio/studioSession";
 import { ReadProblem } from "../../components/dashboard/ReadProblem";
@@ -58,6 +67,8 @@ function toStudioValue(template: CardTemplate, design: DesignOut): CardStudioVal
     design: design.design,
   };
 }
+
+const isArt = (use: HeldUse): use is ArtUse => (ART_USES as readonly string[]).includes(use);
 
 interface Failure {
   problem: StudioProblem;
@@ -105,7 +116,7 @@ export function DesignPage() {
   const [failure, setFailure] = useState<Failure | null>(null);
   const [tray, setTray] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<number | null>(null);
-  const [uploadedStamp, setUploadedStamp] = useState<string | null>(null);
+  const [uploaded, setUploaded] = useState<ArtCopies>({});
   const [ownerCard, setOwnerCard] = useState<EnrollOut | null>(null);
   const [syncWait, setSyncWait] = useState<SyncWait | null>(null);
 
@@ -129,7 +140,7 @@ export function DesignPage() {
       baseline.current = { value: fresh, at };
       setSaved(fresh);
       setLint(designQuery.data.lint);
-      setUploadedStamp(readUploadedStamp(businessId, template.id));
+      setUploaded(readUploaded(businessId, template.id));
       setSyncWait(readSyncWait(businessId, template.id));
       const keptDraft = readKept(businessId, template.id);
       const value = keptDraft ? rebaseEdits(keptDraft.base, keptDraft.value, fresh) : fresh;
@@ -266,7 +277,9 @@ export function DesignPage() {
     if (!businessId || !templateId || !draft || !saved || saving) return;
     setFailure(null);
     setSaving(true);
-    let sent = false;
+    // The pictures that reached the server: each stays held, drawn where it
+    // was, until the save is over.
+    const sent: [HeldUse, string][] = [];
     // Anything that reaches the server is drawn into the passes by the next
     // sync: until it has run, the published pictures are from before.
     const syncBefore = designQuery.data?.sync.synced_at ?? null;
@@ -278,9 +291,11 @@ export function DesignPage() {
     // cards, so wait for its sync, and read the design again, once, so the
     // studio knows which pictures are there.
     const stopPartWay = () => {
-      if (!sent) return;
+      if (sent.length === 0) return;
       waitForSync();
-      void queryClient.refetchQueries({ queryKey: ["design", templateId], exact: true });
+      const letGo = () =>
+        setHeld((current) => sent.reduce((rest, [use, dataUrl]) => withoutSent(rest, use, dataUrl), current));
+      void queryClient.refetchQueries({ queryKey: ["design", templateId], exact: true }).finally(letGo);
     };
     // The held pictures first, so one that is refused stops the save before
     // anything else reaches customers' cards.
@@ -288,12 +303,13 @@ export function DesignPage() {
       const dataUrl = held[use];
       if (!dataUrl) continue;
       try {
-        const uploaded = await uploadTemplateImage(businessId, templateId, use, dataUrlToFile(dataUrl, use));
-        sent = true;
-        if (use === "stamp_art") {
-          const url = uploaded.url || dataUrl;
-          keepUploadedStamp(businessId, templateId, url);
-          setUploadedStamp(url);
+        const answer = await uploadTemplateImage(businessId, templateId, use, dataUrlToFile(dataUrl, use));
+        sent.push([use, dataUrl]);
+        if (isArt(use)) {
+          // The upload echoes the art back; the design read only names it.
+          const copy = answer.url || dataUrl;
+          keepUploaded(businessId, templateId, use, copy);
+          setUploaded((current) => ({ ...current, [use]: copy }));
         }
         // Off the tab's copy at once, even if the page was left meanwhile,
         // so a picture that reached customers' cards is never sent twice.
@@ -301,9 +317,8 @@ export function DesignPage() {
           keepPicture(businessId, templateId, use, undefined);
           keptPictures.current = withoutSent(keptPictures.current, use, dataUrl);
         }
-        setHeld((current) => withoutSent(current, use, dataUrl));
       } catch (error) {
-        setFailure({ problem: uploadProblem(use, error), partial: sent });
+        setFailure({ problem: uploadProblem(use, error), partial: sent.length > 0 });
         stopPartWay();
         setSaving(false);
         return;
@@ -317,7 +332,7 @@ export function DesignPage() {
       await patchTemplate(businessId, templateId, sentValue);
     } catch (error) {
       const problem = saveProblem(error);
-      setFailure({ problem, partial: sent });
+      setFailure({ problem, partial: sent.length > 0 });
       if (problem.fieldIndex !== undefined) {
         setTray("wallet");
         setEditingField(problem.fieldIndex);
@@ -396,6 +411,7 @@ export function DesignPage() {
   const reading = readLint(lint);
   const sync = design.sync;
   const savedPicture = design.assets.includes("stamp_art");
+  const art = publishedArt(design.assets, uploaded);
   const pictureName = failure?.problem.picture ? t(`studio.pictures.${failure.problem.picture}`) : "";
 
   const problem = failure && (
@@ -455,10 +471,11 @@ export function DesignPage() {
         saved={saved}
         businessName={business.name}
         niche={business.niche}
-        images={designImageUrls(design)}
+        images={{ ...designImageUrls(design), ...art }}
+        assets={design.assets}
         held={held}
         onHold={hold}
-        stampPicture={{ url: held.stamp_art ?? uploadedStamp, inUse: !!held.stamp_art || savedPicture }}
+        stampPicture={{ url: held.stamp_art ?? art.stamp_art ?? null, inUse: !!held.stamp_art || savedPicture }}
         pictureLocked={savedPicture ? t("studio.picture.locked") : undefined}
         pictureNote={t("studio.picture.stays")}
         lint={reading}
