@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Clock, Gift, TriangleAlert } from "lucide-react";
@@ -17,7 +17,10 @@ import { cn } from "../../lib/cn";
 import { currentDeviceId } from "../../lib/deviceId";
 import { browserStorage, heldCardSerial } from "../../lib/heldCards";
 import { classifyScanError } from "../../lib/scan";
-import { ReferralJoin } from "./ReferralJoin";
+import { Button, EmptyState, LinkButton, Loading, Skeleton } from "../../components/kit";
+import { PublicPage } from "./PublicPage";
+import { ReferralJoin, StaffDoor } from "./ReferralJoin";
+import { CardChip } from "./Shop";
 
 /**
  * The page behind the wallet QR: `/p/:token`.
@@ -72,7 +75,7 @@ export function PublicCardPage() {
   const deviceId = useMemo(() => currentDeviceId(), []);
   const heldSerial = useMemo(() => heldCardSerial(browserStorage(), token), [token]);
 
-  const { data: page, isLoading, error } = useQuery({
+  const { data: page, isLoading, error, refetch, isFetching } = useQuery({
     // The session is part of the key: the answer changes when it does.
     queryKey: ["publicCard", token, auth.isAuthenticated],
     queryFn: () => getPublicCardPage(token!, deviceId),
@@ -83,16 +86,10 @@ export function PublicCardPage() {
   const pending = auth.isLoading || isLoading;
   const notFound = error instanceof ApiError && error.status === 404;
 
-  return (
-    <div className="theme-purple theme-raised min-h-screen bg-background px-5 py-10 text-ink sm:py-16">
-      <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-6 rounded-2xl border border-border bg-surface px-5 py-8 shadow-card sm:px-8">
-        {pending ? (
-          <p className="font-mono text-sm text-ink-subtle">{t("common.loading")}</p>
-        ) : !page || !token ? (
-          <p className="text-center font-body text-ink">
-            {t(notFound ? "publicCard.notFound" : "publicCard.failed")}
-          </p>
-        ) : page.view === "stamp" && page.stamp ? (
+  if (page?.view === "stamp" && page.stamp && token) {
+    return (
+      <div className="theme-purple theme-raised min-h-screen bg-background px-5 py-10 text-ink sm:py-16">
+        <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-6 rounded-2xl border border-border bg-surface px-5 py-8 shadow-card sm:px-8">
           <StampScreen
             token={token}
             page={page}
@@ -101,16 +98,44 @@ export function PublicCardPage() {
               void queryClient.invalidateQueries({ queryKey: ["publicCard", token] })
             }
           />
-        ) : heldSerial ? (
-          <YourCard page={page} serial={heldSerial} />
-        ) : page.view === "join" ? (
-          <ReferralJoin token={token} page={page} deviceId={deviceId} />
-        ) : (
-          <CardFace token={token} page={page} signedIn={auth.isAuthenticated} />
-        )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (pending || !page || !token) {
+    return (
+      <PublicPage variant="customer" title={t("publicCard.pageTitle")} className="items-center pt-2">
+        <div className="flex w-full max-w-[30rem] flex-col">
+          {pending ? (
+            <Loading className="flex flex-col items-center gap-4">
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-28 w-full !rounded-panel" />
+              <Skeleton className="h-4 w-2/3" />
+            </Loading>
+          ) : notFound ? (
+            <EmptyState titleAs="h1" title={t("publicCard.notFoundTitle")} body={t("publicCard.notFound")} />
+          ) : (
+            <EmptyState
+              titleAs="h1"
+              title={t("enroll.status.failedTitle")}
+              action={
+                <Button variant="secondary" busy={isFetching} onClick={() => void refetch()}>
+                  {t("common.retry")}
+                </Button>
+              }
+            />
+          )}
+        </div>
+      </PublicPage>
+    );
+  }
+
+  if (heldSerial) return <YourCard page={page} serial={heldSerial} />;
+  if (page.view === "join") {
+    return <ReferralJoin token={token} page={page} deviceId={deviceId} signedIn={auth.isAuthenticated} />;
+  }
+  return <CardFace token={token} page={page} signedIn={auth.isAuthenticated} />;
 }
 
 /** One thing to do. The count and the button are the whole screen; the
@@ -267,26 +292,28 @@ function OutcomeNote({ outcome }: { outcome: Outcome }) {
  * and — while the shop's program is on — what showing it to a friend does. */
 function YourCard({ page, serial }: { page: PublicCardPageData; serial: string }) {
   const { t } = useTranslation();
-
   return (
-    <>
-      <div className="flex flex-col items-center gap-1 text-center">
-        <p className="text-sm font-semibold text-ink-muted">
-          {page.business_name} · {page.template_name}
-        </p>
-        <h1 className="text-2xl font-heading font-bold text-ink">{t("publicCard.yours.title")}</h1>
+    <PublicPage
+      variant="customer"
+      title={t("enroll.pageTitleCard", { business: page.business_name })}
+      className="items-center justify-center"
+    >
+      <div className="flex w-full max-w-[30rem] flex-col items-center gap-5 text-center">
+        <h1 className="type-title text-balance">
+          <Trans i18nKey="publicCard.yours.title" values={{ business: page.business_name }} components={{ shop: <bdi /> }} />
+        </h1>
+        <CardChip shop={page} />
+        {page.view === "join" && <p className="type-body text-pretty text-ink-muted">{t("publicCard.yours.hint")}</p>}
+        <LinkButton to={`/c/${serial}`} size="lg" className="w-full">
+          {t("publicCard.yours.open")}
+        </LinkButton>
       </div>
-      {page.view === "join" && (
-        <p className="text-center font-body text-ink-muted">{t("publicCard.yours.hint")}</p>
-      )}
-      <Link to={`/c/${serial}`} className={ctaClasses("gradient", "lg", "w-full max-w-[300px]")}>
-        {t("publicCard.yours.open")}
-      </Link>
-    </>
+    </PublicPage>
   );
 }
 
-/** Whose card this is, and how to get one. Nothing about the holder. */
+/** Whose card this is, and how to get one. Nothing about the holder.
+ * PunchMe signs at the foot, as everywhere a customer stands. */
 function CardFace({
   token,
   page,
@@ -297,48 +324,26 @@ function CardFace({
   signedIn: boolean;
 }) {
   const { t } = useTranslation();
-
   return (
-    <>
-      <p className="text-xs font-semibold uppercase tracking-wide text-ink-subtle">
-        {t("publicCard.eyebrow")}
-      </p>
-      {/* The card's own colours, so the page reads as the pass it came from. */}
-      <div
-        className="w-full rounded-2xl px-5 py-6 text-center shadow-card"
-        style={{ backgroundColor: page.background_color, color: page.foreground_color }}
-      >
-        <p className="text-2xl font-heading font-bold">{page.business_name}</p>
-        <p className="mt-1 text-sm font-semibold opacity-80">{page.template_name}</p>
+    <PublicPage variant="customer" title={page.business_name} className="items-center justify-center">
+      <div className="flex w-full max-w-[30rem] flex-col items-center gap-5 text-center">
+        <h1 dir="auto" className="type-title text-balance">
+          {page.business_name}
+        </h1>
+        <CardChip shop={page} />
+        <p className="type-body text-pretty text-ink">
+          <Trans
+            i18nKey="publicCard.card.collect"
+            count={page.stamps_required}
+            values={{ count: page.stamps_required, reward: page.reward_description }}
+            components={{ n: <bdi dir="ltr" className="type-figure" />, reward: <bdi /> }}
+          />
+        </p>
+        <LinkButton to={page.join_path} size="lg" className="w-full">
+          {t("publicCard.card.join")}
+        </LinkButton>
+        <StaffDoor token={token} business={page.business_name} signedIn={signedIn} className="mt-2" />
       </div>
-      <p className="text-center font-body text-ink">
-        {t("publicCard.card.reward", {
-          stamps: page.stamps_required,
-          reward: page.reward_description,
-        })}
-      </p>
-      <Link to={page.join_path} className={ctaClasses("gradient", "lg", "w-full max-w-[300px]")}>
-        {t("publicCard.card.join")}
-      </Link>
-      <p className="text-center text-sm text-ink-muted">
-        {signedIn ? (
-          t("publicCard.card.notYourShop")
-        ) : (
-          <>
-            {t("publicCard.card.staffHint", { business: page.business_name })}{" "}
-            <Link
-              to="/login"
-              state={{ from: { pathname: `/p/${token}` } }}
-              className={cn(
-                "inline-flex min-h-[44px] items-center align-middle font-semibold text-primary-text underline hover:no-underline",
-                focusRing,
-              )}
-            >
-              {t("publicCard.card.signIn")}
-            </Link>
-          </>
-        )}
-      </p>
-    </>
+    </PublicPage>
   );
 }
