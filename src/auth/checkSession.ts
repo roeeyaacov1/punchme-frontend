@@ -39,7 +39,8 @@ export interface SessionCheck {
  *
  * A try gets 4 s. One that hasn't answered by then counts as one that
  * didn't get through, so the pages waiting on the check can stop, and a
- * request hanging on a bad connection doesn't hold up the next try. If it
+ * request hanging on a bad connection doesn't hold up the next try; the
+ * refresh every try shares is called off by api/client at 10 s. If it
  * answers after all, a user or a refusal still counts.
  */
 export function checkSession<U>({

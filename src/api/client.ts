@@ -29,42 +29,59 @@ function buildUrl(path: string, query?: RequestOptions["query"]): string {
   return url.toString();
 }
 
+/** Every request with a 401 waits on the one refresh, so a connection that
+ * dropped without the browser noticing mustn't hold them all for the minutes
+ * the browser itself would wait. */
+const REFRESH_PATIENCE_MS = 10_000;
+
 let refreshPromise: Promise<boolean> | null = null;
 
 async function refreshAccessToken(): Promise<boolean> {
   const refresh = getRefreshToken();
   if (!refresh) return false;
 
-  // No answer at all (offline, or cut off) throws from here, before the
-  // tokens are touched: nothing has said the session is over.
-  const res = await fetch(buildUrl("/api/auth/refresh"), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh }),
-  });
+  const call = new AbortController();
+  const patience = setTimeout(() => call.abort(), REFRESH_PATIENCE_MS);
+  try {
+    // No answer at all (offline, or cut off) throws from here, before the
+    // tokens are touched: nothing has said the session is over.
+    const res = await fetch(buildUrl("/api/auth/refresh"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh }),
+      signal: call.signal,
+    });
 
-  // The session can end (sign-out) or change hands (another owner signs in)
-  // while this is in flight. Applying the result then would put a live access
-  // token for the *old* user back into a store that no longer belongs to
-  // them; clearing on failure would wipe the new owner's tokens instead.
-  // Either way the answer is stale — drop it and let the caller see its 401.
-  if (getRefreshToken() !== refresh) return false;
+    // The session can end (sign-out) or change hands (another owner signs in)
+    // while this is in flight. Applying the result then would put a live access
+    // token for the *old* user back into a store that no longer belongs to
+    // them; clearing on failure would wipe the new owner's tokens instead.
+    // Either way the answer is stale — drop it and let the caller see its 401.
+    if (getRefreshToken() !== refresh) return false;
 
-  if (!res.ok) {
-    const error = await ApiError.fromResponse(res);
-    // Only a refused token ends the session. The throttle's 429 or a 5xx
-    // leaves it standing, and the caller hears that answer rather than its
-    // own 401, which every page reads as signed out.
-    if (!endsSession(error)) throw error;
-    // Reading the answer took a turn; it is still only ours to clear if
-    // the session hasn't changed hands in it.
-    if (getRefreshToken() === refresh) clearTokens();
-    return false;
+    if (!res.ok) {
+      const error = await ApiError.fromResponse(res);
+      // Only a refused token ends the session. The throttle's 429 or a 5xx
+      // leaves it standing, and the caller hears that answer rather than its
+      // own 401, which every page reads as signed out.
+      if (!endsSession(error)) throw error;
+      // Reading the answer took a turn; it is still only ours to clear if
+      // the session hasn't changed hands in it.
+      if (getRefreshToken() === refresh) clearTokens();
+      return false;
+    }
+
+    const data = (await res.json()) as { access: string };
+    setAccessToken(data.access);
+    return true;
+  } catch (error) {
+    // Called off at the time limit: the same, to every request waiting, as
+    // getting no answer at all.
+    if (call.signal.aborted) throw new TypeError("The session's refresh got no answer");
+    throw error;
+  } finally {
+    clearTimeout(patience);
   }
-
-  const data = (await res.json()) as { access: string };
-  setAccessToken(data.access);
-  return true;
 }
 
 export async function apiFetch<T>(
