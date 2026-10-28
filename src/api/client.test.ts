@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { api } from "./client";
+import { api, RefreshUnavailable } from "./client";
+import { ApiError } from "./errors";
 import {
   clearTokens,
   getAccessToken,
@@ -140,12 +141,21 @@ describe("the refresh's answer", () => {
     expect(getAccessToken()).toBeNull();
   });
 
-  it.each([429, 500, 503])("keeps the session through a %i, and says so rather than a 401", async (status) => {
-    serve(async () => json(status, { detail: "Not now" }));
+  it.each([429, 500, 503])(
+    "keeps the session through a %i, and fails the request as unavailable rather than as its own answer",
+    async (status) => {
+      serve(async () => json(status, { detail: "Not now" }));
 
-    await expect(api.get("/api/businesses/me")).rejects.toMatchObject({ status });
-    expect(getRefreshToken()).toBe("good-refresh");
-  });
+      const failure = await api.get("/api/businesses/me").catch((err) => err);
+      // Not a 401, which reads as signed out, and not an ApiError carrying the
+      // refresh's status, which a scan would read as its own 429: "stamped
+      // moments ago".
+      expect(failure).not.toBeInstanceOf(ApiError);
+      expect(failure).toBeInstanceOf(RefreshUnavailable);
+      expect((failure as RefreshUnavailable).answer).toMatchObject({ status });
+      expect(getRefreshToken()).toBe("good-refresh");
+    },
+  );
 
   it("keeps the session when the refresh gets no answer at all", async () => {
     const offline = new TypeError("Failed to fetch");
@@ -164,7 +174,7 @@ describe("the refresh's answer", () => {
         : json(200, { access: "renewed-access" });
     });
 
-    await expect(api.get("/api/businesses/me")).rejects.toMatchObject({ status: 503 });
+    await expect(api.get("/api/businesses/me")).rejects.toBeInstanceOf(RefreshUnavailable);
     await expect(api.get("/api/businesses/me")).resolves.toEqual({ id: "biz-1" });
     expect(getAccessToken()).toBe("renewed-access");
   });

@@ -29,6 +29,24 @@ function buildUrl(path: string, query?: RequestOptions["query"]): string {
   return url.toString();
 }
 
+/**
+ * The session couldn't be renewed just now: the refresh was answered, but
+ * not with a refusal (the throttle's 429, a 5xx). The request waiting on it
+ * never ran, so this is how it fails: not with its own 401, which every page
+ * reads as signed out, and not with the refresh's status, which a page would
+ * take for its own endpoint's answer — to a scan, a 429 is "stamped moments
+ * ago". Pages show their general failure; the refresh's answer is `answer`.
+ */
+export class RefreshUnavailable extends Error {
+  readonly answer: ApiError;
+
+  constructor(answer: ApiError) {
+    super(answer.message);
+    this.name = "RefreshUnavailable";
+    this.answer = answer;
+  }
+}
+
 /** Every request with a 401 waits on the one refresh, so a connection that
  * dropped without the browser noticing mustn't hold them all for the minutes
  * the browser itself would wait. */
@@ -61,10 +79,9 @@ async function refreshAccessToken(): Promise<boolean> {
 
     if (!res.ok) {
       const error = await ApiError.fromResponse(res);
-      // Only a refused token ends the session. The throttle's 429 or a 5xx
-      // leaves it standing, and the caller hears that answer rather than its
-      // own 401, which every page reads as signed out.
-      if (!endsSession(error)) throw error;
+      // Only a refused token ends the session. Any other answer leaves it
+      // standing, and the request fails as unavailable.
+      if (!endsSession(error)) throw new RefreshUnavailable(error);
       // Reading the answer took a turn; it is still only ours to clear if
       // the session hasn't changed hands in it.
       if (getRefreshToken() === refresh) clearTokens();
