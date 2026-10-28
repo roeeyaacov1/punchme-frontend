@@ -77,6 +77,22 @@ export interface DashboardTheme {
 }
 
 /**
+ * What <html> wears, each class on or off: one scope, Lightbox or the old
+ * pair, with night beside it after dark. Off matters as much as on. On a
+ * cold load of the dashboard the pre-paint script in index.html has already
+ * put the old pair there, and a page that claims Lightbox from its first
+ * render (the failure pages in front of the shell) has to take it off, or
+ * the two scopes stack and the old one's ground wins.
+ */
+export function rootClasses({ lightbox, isDark }: { lightbox: boolean; isDark: boolean }): Record<string, boolean> {
+  return {
+    [FRAME_CLASS]: lightbox,
+    ...Object.fromEntries(THEME_CLASSES.map((name) => [name, !lightbox])),
+    [NIGHT_CLASS]: isDark,
+  };
+}
+
+/**
  * `lightbox`: a page that has moved to Lightbox is on screen (see
  * `lightboxPage.ts`), so <html> wears `theme-lightbox` in place of the old
  * pair, with `theme-night` beside it after dark as before.
@@ -102,9 +118,9 @@ export function useDashboardTheme({ lightbox = false }: { lightbox?: boolean } =
   // in index.html covers the gap before React mounts at all.
   useLayoutEffect(() => {
     const root = document.documentElement;
-    if (lightbox) root.classList.add(FRAME_CLASS);
-    else root.classList.add(...THEME_CLASSES);
-    root.classList.toggle(NIGHT_CLASS, isDark);
+    for (const [name, on] of Object.entries(rootClasses({ lightbox, isDark }))) {
+      root.classList.toggle(name, on);
+    }
 
     // Installed on a phone, the dashboard owns the status bar behind it, and
     // index.html's `theme-color` metas can only answer to the *system*
