@@ -25,9 +25,9 @@ honesty costs more than any conversion it buys.
 
 The same goes for what the product does. Sends are capped, so nothing is
 "unlimited". Joining takes a mobile number and an SMS code, so the promise is
-no app, no account, no password, never "no signup" (the standee still says
-it, until Phase 6). A quote goes on the page only when a real
-customer said it and agreed to its use, and a figure only with a source in
+no app, no account, no password, never "no signup". A quote goes on the page
+only when a real customer said it and agreed to its use, and a figure only
+with a source in
 `src/components/marketing/sources.ts`. One line on the landing page is still
 wrong: the FAQ's "message us" doesn't say how, because no page carries the
 WhatsApp number yet (`docs/landing-page.md`).
@@ -112,8 +112,9 @@ kept to its contract:
 8. Public pages and sign-in: `docs/public-pages.md`, which phase 8 writes first
 9. Landing page: `docs/landing-page.md`
 
-Phases 2, 5, 6 and 7 are done. Phases 3 and 8 run side by side, each in its
-own worktree; then 4, which builds on both, and 9 last.
+Phases 2, 5, 6, 7 and 3 are done. Phases 8, 4 and 9 run side by side, each in
+its own worktree; 4's build waits for 8, whose sign-in parts its account step
+takes.
 
 A phase changes only its own pages, and checks any page that shares code it
 touched. Beyond its contract, everything about a page is open, within the
@@ -210,7 +211,7 @@ Already in place and must survive any redesign: skip link, visible focus rings
 
 ## Verification
 
-There are **no component or render tests** — the 43 test files cover pure logic
+There are **no component or render tests** — the 46 test files cover pure logic
 only: the API client, the calculator, the onboarding draft, the language a
 first visit opens in, the dashboard's navigation by role, the tour and where
 its card stands, the Overview and Activity logic, the scan's failure causes,
@@ -221,8 +222,9 @@ wait for Stripe's word, the card controls' rules, the studio's draft and the
 reward on the back of the card, the studio's reads, the draft it keeps in
 the tab and the size a held picture is kept at, the server's check read by
 kind, a failed save or upload as a sentence, the kit's wallpaper and arrow
-keys, the kit's copy in both languages, the price the copy writes out, and
-ten helpers in `src/lib`.
+keys, the kit's copy in both languages, the price the copy writes out, a
+refused sign-in in the page's language, the join's answers and which way its
+steps move, when the wallet wait stops, and ten helpers in `src/lib`.
 The browser is the safety net, so use it.
 
 Before calling any UI change done:
