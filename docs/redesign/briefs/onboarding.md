@@ -1182,25 +1182,34 @@ Phase 8's `AuthFields`, `AuthAlternatives`, `useEmailPasswordAuth` and
 
 ## 10. Open questions for Roee
 
+Answered on 29 Oct; each answer follows its question.
+
 1. **Fewer screens than routes.** In "Your card, ready", `/color`, `/accent`
    and `/stamp` stop being stops on the road: each opens its tray over the
    card at `/reward`, and the business's Next goes straight to the card. All
    eight routes stay, each still renders, and the forward guard holds; but
    the road shows five screens where there are eight routes. Is that your
    yes?
+   **Yes.** Five screens on the road; the eight routes stay.
 2. **Catalog look names.** A catalog look has one name, typed in `/admin`,
    and today every trade's is English. Ask the backend for a name per
    language? Until then the wizard names catalog looks by their place.
+   **Ask the backend,** as its own task outside the redesign. Until it
+   lands, the wizard names the looks by their place.
 3. **An English name in a Hebrew card,** inside the frozen previews: Apple
    prints ".Danny’s Barbershop & Beard Co", Google truncates the name's
    start, because its text inherits the page's direction. The wallets set
    each string by its own first letter. A one-attribute correction
    (`dir="auto"` on the name's text) in `CardPreviews.tsx`, like StampGrid's
    ink fix in Phase 3? It needs your yes, being a frozen file.
+   **Yes, like StampGrid's.** Step B makes it, changes nothing else in the
+   file, and records it in `docs/card-studio.md` beside the other two
+   corrections.
 4. **Full storage and the language** (`src/i18n`, outside the phases): the
    language detector proves storage works by writing a test key, so with
    storage full it skips the saved language and opens in the browser's. A
    small fix of its own, outside the redesign?
+   **Yes, as its own small fix,** outside the redesign and not in Phase 4.
 
 ## 11. Left for other phases, and outside the redesign
 
