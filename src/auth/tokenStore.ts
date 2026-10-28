@@ -16,13 +16,25 @@ export function setAccessToken(token: string | null): void {
   accessToken = token;
 }
 
+// Storage can be switched off (Safari blocking every cookie, a QR reader's
+// web view), and then touching it throws. Every page reads the session,
+// so asking must not take them down: blocked storage reads as no session,
+// and a sign-in then lasts as long as this tab's access token.
 export function getRefreshToken(): string | null {
-  return localStorage.getItem(REFRESH_TOKEN_KEY);
+  try {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  } catch {
+    return null;
+  }
 }
 
 export function setRefreshToken(token: string | null): void {
-  if (token) localStorage.setItem(REFRESH_TOKEN_KEY, token);
-  else localStorage.removeItem(REFRESH_TOKEN_KEY);
+  try {
+    if (token) localStorage.setItem(REFRESH_TOKEN_KEY, token);
+    else localStorage.removeItem(REFRESH_TOKEN_KEY);
+  } catch {
+    // Nowhere to keep it; see above.
+  }
 }
 
 export function setTokens(tokens: { access: string; refresh: string }): void {
