@@ -121,6 +121,12 @@ what is still open.
   - a failed Activate drops focus to the page and says "something went
     wrong" with no reason;
   - the wallet status still pulses under reduced motion.
+- **Two things are out of reach or out of contrast:** a colour of one's own
+  opens its picker inside the panel's clip, so on both colour steps most of
+  it is cut off where no scroll can reach (the detector's one serious find);
+  and field edges, chip borders and swatch rings measure 1.25 to 1.57:1,
+  where a control's edge needs 3:1. The shared controls' inline picker and
+  the kit's Field Edge (3.35:1) answer both.
 - **Not this phase's to fix,** each in §10 or §11: the frozen previews
   printing an English name backwards in a Hebrew card, the language lost
   with full storage (`src/i18n`), catalog looks with one name in one
@@ -178,10 +184,26 @@ Reviewer A's keystroke-level estimate, at 375×812 (not timed users):
   24px tall at 667, and every step's first two Tab stops after the top bar.
 - **The keyboard path to the question** crosses the skip link, the mark, the
   language, sign-in, the two wallet buttons and one 28×28 link per finished
-  step: 11 stops before the email field on the account step.
+  step: 12 stops before the email field on the account step.
 - **Focus:** each step's `h1` takes focus as it mounts; a failed Activate
   drops it to `<body>`; the account step's own changes (saving, "already
-  has a card") move nothing.
+  has a card") move nothing. Every Tab stop draws a visible ring, the theme's
+  at 5.7–6.14:1, except the two old `components/ui` fields: the name
+  (`PlacesAutocomplete.tsx:164`, 1.99:1) and the colour well
+  (`ColorField.tsx:189`, 1.98:1).
+- **A colour of one's own is out of reach:** the `ColorField` popover opens
+  inside the stage's `overflow-hidden` (`OnboardingLayout.tsx:185`) and the
+  document ends where the panel does. On the stamp colour step at 375×812,
+  240 of its 334px are cut; on the card colour step 257px at 375 and 241px
+  at 1280×900. Only the top of the saturation square shows; the hue rail,
+  the hex field, the eyedropper and the swatches can't be reached by touch,
+  and moving focus into it scrolls the panel and the phone out of view.
+- **Contrast:** no enabled text fails on the purple and lavender grounds.
+  The name field's placeholder is 2.56:1 (`PlacesAutocomplete.tsx:163`), the
+  emptied reward's 3.52:1, and the wallet's pulsing status drops to 2.58:1 at
+  the bottom of each pulse. Non-text (WCAG 1.4.11): field edges 1.57:1 (the
+  name field 1.38:1), chip borders 1.57:1, swatch rings 1.36:1, look tiles
+  1.25:1, the upcoming dots 1.57:1.
 - **Under 44px:** the island's buttons (38px, 24px at 667), the stamp tabs
   (40px), "לדלג בינתיים" (67×20), "להתחבר עם חשבון אחר", and the progress
   dots' 28px width (their 44px hit area is height only).
@@ -191,11 +213,22 @@ Reviewer A's keystroke-level estimate, at 375×812 (not timed users):
 - **Plex Mono, which has no Hebrew:** the slider's figure. **Under 13px:**
   the texture labels (11px) and the look names (12px).
 - **Reduced motion:** the wallet status keeps pulsing
-  (`WalletStep.tsx:225`), and the choice cells and progress dots still grow
-  on hover.
+  (`WalletStep.tsx:225`, missing from `index.css`'s list at 1335–1349); the
+  choice cells and progress dots still grow on hover; the folds' chevrons
+  still turn; the old buttons still nudge on a press
+  (`marketing/primitives.tsx:220`). The phone's height, the pill, the wake
+  layer and smooth scrolling do stop.
+- **The crop:** on the reward and wallet steps the "short" cut runs 5.8px
+  into the barcode's white plate, where `index.css:1039-1045` says it should
+  stop above it.
+- **English runs longer:** at 375×812 the business and billing questions wrap
+  to two lines in English and their pages scroll 26px and 11px; in Hebrew
+  both fit.
 - **The Google button on main** reverses its Hebrew label ("Google הרשמה
-  באמצעות") inside a forced `dir="ltr"` box and runs 320px wide in a 309px
-  column. Phase 8 fixed both on `redesign/public`.
+  באמצעות") inside a forced `dir="ltr"` box, runs 320px wide in a 309px
+  column, and speaks Google's language rather than the page's (no `locale`,
+  `GoogleAuthButton.tsx:83`): the English wizard showed a Hebrew button.
+  Phase 8 fixed all three on `redesign/public`.
 - **The console** is clean apart from the known lines: the two 401s of a
   cold boot, React Router's future-flag warning, and a GSI warning that
   Google's library was initialised twice.
@@ -376,7 +409,44 @@ Activate is cut off and "Not now" is below the fold, with no word on VAT.
 
 ### 3.9 The detector
 
-Reviewer B (the bundled detector over `src/routes/onboarding`, `src/components/onboarding` and `src/components/auth`, and live scans over CDP) was still running when this step stopped at the session's usage limit, so its findings are not in this brief. Step D runs the detector anyway (Template D, item 3); until then the audit (§4) stands on the measurements in §2 and the keyboard pass.
+Reviewer B, in its own headless Chrome with every call answered in the page.
+No overlay was shown to anyone: the scans ran headless.
+
+**The file scan** (the bundled engine, 0.1.12) exits 0 on
+`src/routes/onboarding` and `src/components/onboarding`, with 27 advisories:
+- 22 card colours in `looks.ts`, 2 in `draft.test.ts` and the server's
+  default card colour at `draft.ts:217`: customer card data with measured
+  ratios, not interface colour. False positives.
+- `PhoneFrame.tsx:48`, the bezel's `#0b0d16`: real, low impact, and gone
+  with the bezel.
+- `StampStep.tsx:106`, `text-[11px]`: real, the texture labels.
+- Without the project's config, two bounce-easing advisories return
+  (`OnboardingLayout.tsx:231`, `StepProgress.tsx:71`), which
+  `.impeccable/config.json` waives on purpose for the stamp's overshoot.
+
+`src/components/auth` exits 0 with nothing, with or without config.
+
+**The live scans** (engine 4.7.0, `detect --cdp`, 22 states: every step in
+Hebrew at 375, three in English at 1280, the wallet ready and preparing, a
+picker open) all report something:
+- **nested cards in every state:** the frozen pass inside the phone's slot.
+  False positive. The ones that are real: the "מתקדם" box
+  (`AccentStep.tsx:96`) and the wallet's "preparing" box
+  (`WalletStep.tsx:213`).
+- **a radial spotlight glow:** the bezel's wallpaper, the lock screen's
+  recipe on purpose; no text sits on it. It goes with the bezel.
+- **low contrast:** the name's placeholder, 2.56:1. Real.
+- **a straggler:** "שתרצו." alone on the free note's last line, in Hebrew at
+  375. Real.
+- **repeating stripes:** the textures the owner picks. False positive.
+- **a clipped overflow container:** the colour picker cut off inside the
+  stage (§2). Real, and the most serious finding of the critique's
+  technical half.
+
+Where the detector and A agree: the old scope and primitives, the 11px and
+12px labels, the island's size, the pulse. What the detector caught that A
+didn't: the clipped picker, the placeholder's contrast, the straggler. What
+it can't see: every truth problem in §3.7.
 
 ### 3.10 Minor observations
 
@@ -393,11 +463,26 @@ Reviewer B (the bundled detector over `src/routes/onboarding`, `src/components/o
 - **States:** neither the first step nor billing says the card is free until
   activation.
 
+### 3.11 The critique's questions, and where §7 answers them
+
+- **Could design be three screens: the business, "here's your card, tap to
+  change anything", the reward?** Two: the business, then the card with the
+  reward as its question (Roee, §6; §7.7).
+- **Should the reward, the one question with money in it, come before the
+  look?** It leads the card screen, said as a sentence under the card
+  (§7.5, §7.7).
+- **Is a drawn phone the right stage at 375, given the 300px rule?** No: the
+  card's own wallpaper, the pass in its slot (§7.5).
+- **What if "Not now" were designed as carefully as Activate?** It stands
+  beside Activate, in the same panel, inside the first screen (§7.10).
+- **Should billing hand the owner to the calculator?** Under the panel, as
+  the dashboard's Billing does (§7.10).
+
 ## 4. Audit
 
 | # | Dimension | Score | Key finding |
 |---|---|---|---|
-| 1 | Accessibility | 2 | The keyboard path crosses up to 11 stops before the question; focus falls to `<body>` after a failed Activate and doesn't follow the account step's states; a disabled Next with no reason; 38px and 24px wallet buttons, 40px tabs, a 67×20 link; the pulse under reduced motion |
+| 1 | Accessibility | 2 | A colour picker out of reach; field edges, chips and swatch rings at 1.25–1.57:1; the keyboard path crosses up to 12 stops before the question; focus falls to `<body>` after a failed Activate and doesn't follow the account step's states; a disabled Next with no reason; 38px and 24px wallet buttons, 40px tabs, a 67×20 link; the pulse under reduced motion |
 | 2 | Performance | 3 | Light: one chunk on Phase 8's branch, Places loaded on the first keystroke, the pill on a transform. The phone's height is a layout animation, once per step |
 | 3 | Theming | 1 | The old purple scope, three old primitive sets, and hard-coded colours (`bg-navy-deep`, `text-red-700`, `bg-red-50`, the bezel's `#0b0d16`, a black and white island) |
 | 4 | Responsive | 2 | Works on a phone; Next below the fold on every desktop step; the pass scales with the screen's height and is never 300px; 200% breaks the progress row and the island |
@@ -411,6 +496,14 @@ storage) are implementation, not taste.
 ### Findings by severity
 
 **P1**
+- **A colour of one's own can't be finished:** the picker opens inside the
+  stage's `overflow-hidden` and is cut off on both colour steps, past any
+  scroll (§2, §3.9). `OnboardingLayout.tsx:185`, `ColorField.tsx:213-223`.
+  The shared controls' `ColourPickerPanel` sits inline, never in a popover.
+  → adapt.
+- **Controls' edges under 3:1:** field edges 1.57:1 (the name 1.38:1), chip
+  borders 1.57:1, swatch rings 1.36:1, look tiles 1.25:1. WCAG 1.4.11. The
+  kit's Field Edge is 3.35:1. → colorize.
 - **The reward contradicts the count** (§3.7). `common.json`
   `onboarding.card.reward.*`, `draft.ts:248`, `looks.ts:164`.
   → harden, clarify.
@@ -426,7 +519,8 @@ storage) are implementation, not taste.
   under it), and the error is "משהו השתבש. נסו שוב בעוד רגע." whatever the
   cause (`BillingStep.tsx:73`). WCAG 2.4.3. → harden.
 - **The wallet status pulses under reduced motion** (`WalletStep.tsx:225`,
-  `animate-pulse` without `motion-reduce:`). WCAG 2.3.3. → animate.
+  `animate-pulse` without `motion-reduce:`), and at the bottom of each pulse
+  its words drop to 2.58:1. WCAG 2.3.3 and 1.4.3. → animate.
 - **Touch targets under 44px:** the island (38px, 24px at 667), the stamp
   tabs (40px), "לדלג בינתיים" (67×20), "להתחבר עם חשבון אחר".
   WCAG 2.5.8 and the product's 44px rule. → adapt.
@@ -447,12 +541,15 @@ storage) are implementation, not taste.
   labels, the cut pass. → adapt.
 - **Hex codes as accessible names** for the stamp colours
   (`onboarding.accent.swatchLabel`). → clarify.
+- **The name's placeholder at 2.56:1,** and two focus rings at 1.98–1.99:1,
+  all from the old `components/ui` fields. → colorize.
 
 **P3**
 - Plex Mono on the slider's figure; texture labels at 11px and look names at
-  12px; hover scales on choice cells and dots under reduced motion; a
-  violet focus ring (`ring-primary-text`) on the trade chips instead of the
-  kit's ink outline. → typeset, polish.
+  12px; hover scales, the folds' chevrons and the old buttons' press nudge
+  under reduced motion; a violet focus ring (`ring-primary-text`) on the
+  trade chips instead of the kit's ink outline; "שתרצו." alone on the free
+  note's last line. → typeset, polish.
 
 ### Patterns
 
@@ -466,9 +563,10 @@ storage) are implementation, not taste.
 ### Positive findings
 
 Native radio groups for every set of choices; a skip link; the step's `h1`
-taking focus; a debounced live summary of the card; `dir="auto"` on the
-reward; the draft's careful parsing; a save that looks before it creates.
-Keep all of it.
+taking focus; a visible ring on every Tab stop; outside the pass, Hebrew set
+in Assistant and Rubik throughout (read from the fonts as rendered); a
+debounced live summary of the card; `dir="auto"` on the reward; the draft's
+careful parsing; a save that looks before it creates. Keep all of it.
 
 ## 5. The worst cases
 
@@ -1008,8 +1106,8 @@ upload*` (the controls and the studio), `onboarding.preview.summary`
 `RewardField`, which is the point.
 
 **Go** once nothing reads them: `onboarding.billing.bullets`, `.priceNote`,
-`.freeNote`, `.activateCta`; `onboarding.wallet.ready`, `.skip`'s old
-destination; `onboarding.preview.ariaLabel`; `onboarding.color.custom` and
+`.freeNote`, `.activateCta`; `onboarding.wallet.ready`;
+`onboarding.preview.ariaLabel`; `onboarding.color.custom` and
 `.customLabel`; `onboarding.looks.legend` and `.orColor`;
 `onboarding.stamp.tabs.*`, `.gridLabel`, `.textureLabel`, `.artMissing`.
 The `onboarding.design.*` set belongs to `ui/BackgroundPicker`,
@@ -1044,7 +1142,9 @@ unchanged.
 - the keys in §8, in `en` and `he`;
 - `docs/onboarding-flow.md`: the road and the progress line, the trays'
   routes, the wallet's Skip going to billing, the card screen's states, the
-  hire, and its "Known gaps" and "Found while writing this" marked as fixed;
+  hire, and its "Known gaps" and "Found while writing this" marked as fixed
+  (its note on billing's raw price key is already stale: `b8bc369` fixed
+  it);
   `docs/card-studio.md`'s controls table (the reward field's two lines).
   CLAUDE.md's count of test files is Roee's to change.
 
