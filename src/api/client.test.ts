@@ -116,11 +116,11 @@ describe("the refresh's answer", () => {
 
   // The access token has expired, so the protected call answers 401 until
   // it carries the renewed one; what happens next is the refresh's answer.
-  function serve(refresh: () => Promise<Response>) {
+  function serve(refresh: (init?: RequestInit) => Promise<Response>) {
     vi.stubGlobal(
       "fetch",
       vi.fn(async (url: unknown, init?: unknown) => {
-        if (isRefresh(url)) return refresh();
+        if (isRefresh(url)) return refresh(init as RequestInit | undefined);
         return bearer(init)?.Authorization === "Bearer renewed-access"
           ? json(200, { id: "biz-1" })
           : json(401, { detail: "Unauthorized" });
@@ -167,5 +167,37 @@ describe("the refresh's answer", () => {
     await expect(api.get("/api/businesses/me")).rejects.toMatchObject({ status: 503 });
     await expect(api.get("/api/businesses/me")).resolves.toEqual({ id: "biz-1" });
     expect(getAccessToken()).toBe("renewed-access");
+  });
+
+  it("gives up on a refresh with no answer after 10 s, keeping the session, and the next 401 refreshes again", async () => {
+    vi.useFakeTimers();
+    try {
+      let refreshes = 0;
+      serve((init) => {
+        refreshes += 1;
+        if (refreshes > 1) return Promise.resolve(json(200, { access: "renewed-access" }));
+        // A connection that dropped without the browser noticing: nothing
+        // comes back until the request is called off.
+        return new Promise<Response>((_, reject) => {
+          init?.signal?.addEventListener("abort", () =>
+            reject(new DOMException("The operation was aborted.", "AbortError")),
+          );
+        });
+      });
+
+      const first = api.get("/api/businesses/me").catch((err) => err);
+      await vi.advanceTimersByTimeAsync(9_999);
+      expect(await Promise.race([first, Promise.resolve("still waiting")])).toBe("still waiting");
+      await vi.advanceTimersByTimeAsync(1);
+      // Read like any request that got no answer: the scan says "No
+      // connection", the business gate offers Try again.
+      expect(await first).toBeInstanceOf(TypeError);
+      expect(getRefreshToken()).toBe("good-refresh");
+
+      await expect(api.get("/api/businesses/me")).resolves.toEqual({ id: "biz-1" });
+      expect(refreshes).toBe(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
