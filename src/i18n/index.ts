@@ -9,6 +9,7 @@ import {
   languageFromBrowser,
   type SupportedLang,
 } from "./languages";
+import { saveLanguage, savedLanguage } from "./savedLanguage";
 
 export { SUPPORTED_LANGS, type SupportedLang };
 
@@ -20,10 +21,27 @@ function applyDirection(lang: string) {
   document.documentElement.lang = lang;
 }
 
+/** This browser's localStorage, or null where even reaching for it throws
+ * (storage blocked). */
+function browserStorage(): Storage | null {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+// The language saved last time, read and kept by `savedLanguage.ts` rather
+// than the detector's own "localStorage" lookup (savedLanguage.ts says why).
+const detector = new LanguageDetector();
+detector.addDetector({
+  name: "savedLanguage",
+  lookup: () => savedLanguage(browserStorage()),
+  cacheUserLanguage: (lng) => saveLanguage(browserStorage(), lng),
+});
 // The browser's languages, read by `languageFromBrowser` rather than the
 // detector's own "navigator" lookup (languages.ts says why). It always
 // names a language the app is written in.
-const detector = new LanguageDetector();
 detector.addDetector({
   name: "browserOrHebrew",
   lookup: () =>
@@ -48,12 +66,13 @@ i18n
     fallbackLng: "en",
     supportedLngs: SUPPORTED_LANGS,
     detection: {
-      // The language this browser had last time wins: the detector keeps
-      // it in localStorage, so a switch with the toggle sticks. A first
-      // visit opens in the browser's language, and in Hebrew when the
-      // browser asks for neither (decision D11).
-      order: ["localStorage", "browserOrHebrew"],
-      caches: ["localStorage"],
+      // The language this browser had last time wins: it is kept in
+      // localStorage, so a switch with the toggle sticks, and it is read
+      // back even when the phone's storage is full. A first visit opens in
+      // the browser's language, and in Hebrew when the browser asks for
+      // neither (decision D11).
+      order: ["savedLanguage", "browserOrHebrew"],
+      caches: ["savedLanguage"],
     },
     interpolation: { escapeValue: false },
   });
