@@ -1440,12 +1440,13 @@
       "starter": "That's how the rules come set up, and you can change any of them."
     },
     "pricing": {
-      "title": "Simple, fair plans",
-      "body": "Designing your card, previewing it on your own phone and using the dashboard are free for as long as you like. You pay only when you activate the card for real customers.",
-      "calcNote": "Based on your numbers, that's ₪{{amount}} left over this year.",
+      "title": "The sign switches on when you activate",
+      "body": "Designing the card, trying it on your own phone and the whole dashboard stay free, before you activate and after. You pay only while customers can join.",
+      "calcNote": "Based on your numbers, that's <ltr>₪{{amount}}</ltr> left over this year.",
       "free": {
         "price": "Free",
         "name": "Getting started",
+        "body": "The sign is designed and its code isn't live yet, so customers can't join.",
         "features": [
           "Design the card and preview it",
           "The full dashboard",
@@ -1455,7 +1456,7 @@
       },
       "pro": {
         "price": "₪99",
-        "per": "/month",
+        "per": "a month, including VAT",
         "name": "Pro",
         "features": [
           "Unlimited customers",
@@ -1464,8 +1465,15 @@
           "Analytics and performance reports",
           "Full custom branding"
         ],
+        "opens": [
+          "Customers join by scanning the sign",
+          "Messages go out: up to two broadcasts a week, plus the automatic rules",
+          "The sign prints",
+          "Refer a friend can be turned on"
+        ],
         "cta": "Go Pro"
-      }
+      },
+      "stop": "You can cancel any time, from Billing in the dashboard."
     },
     "footer": {
       "tagline": "Digital loyalty for today's small businesses.",

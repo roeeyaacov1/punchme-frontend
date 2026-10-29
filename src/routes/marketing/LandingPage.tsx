@@ -8,7 +8,7 @@ import { Hero } from "../../components/marketing/Hero";
 import { HowItWorks } from "../../components/marketing/HowItWorks";
 import { AfterTheyLeave } from "../../components/marketing/AfterTheyLeave";
 import { RevenueCalculator } from "../../components/marketing/RevenueCalculator";
-import { PricingBand } from "../../components/marketing/PricingBand";
+import { Pricing } from "../../components/marketing/Pricing";
 import { Faq } from "../../components/marketing/Faq";
 import { FinalCta } from "../../components/marketing/FinalCta";
 import { SiteFooter } from "../../components/marketing/SiteFooter";
@@ -120,11 +120,12 @@ export function LandingPage() {
         <Hero trade={trade} onTrade={setTrade} />
         <HowItWorks trade={trade} />
         <AfterTheyLeave trade={trade} />
+        <Pricing
+          trade={trade}
+          netAnnual={netAnnual === null ? null : formatCurrency(netAnnual, i18n.resolvedLanguage ?? "en")}
+        />
         <div className="theme-purple mt-20 bg-background text-ink lg:mt-36">
           <RevenueCalculator onTouchedResult={handleCalculatorResult} />
-          <PricingBand
-            netAnnual={netAnnual === null ? null : formatCurrency(netAnnual, i18n.resolvedLanguage ?? "en")}
-          />
           <Faq />
           <FinalCta />
         </div>
