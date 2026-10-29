@@ -39,3 +39,15 @@ export function authErrorKey(
   }
   return generic;
 }
+
+/**
+ * A sign-up address checked for its shape before the account is made: a
+ * name, an "@" and a domain with a dot in it. The API takes any string as
+ * an address, and with no password recovery anywhere, an account made
+ * under "roee@gmail" by mistake can't be got back. Only the shape, never
+ * whether the address exists; sign-in needs no check, since a wrong
+ * address is refused there anyway.
+ */
+export function signUpEmailProblem(email: string): "auth.emailIncomplete" | null {
+  return /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(email.trim()) ? null : "auth.emailIncomplete";
+}
