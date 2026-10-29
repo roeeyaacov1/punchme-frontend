@@ -62,7 +62,7 @@ export function ControlsSection({ version }: { version: string }) {
       <Specimen title={t("styleGuide.controls.linkButton")}>
         <Row name="LinkButton">
           <LinkButton to="/onboarding" variant="secondary">
-            {t("landing.nav.designCta")}
+            {t("landing.hero.cta")}
           </LinkButton>
         </Row>
       </Specimen>
