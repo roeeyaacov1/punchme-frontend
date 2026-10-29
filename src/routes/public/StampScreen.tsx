@@ -8,6 +8,7 @@ import type { PublicCardPage, PublicCardStamp } from "../../api/referrals";
 import { Button, Figure, LitPanel, SnapFlash, StampRow, linkText } from "../../components/kit";
 import { cn } from "../../lib/cn";
 import { classifyScanError } from "../../lib/scan";
+import { isolate } from "../dashboard/problem";
 import { ScanAnswer } from "../dashboard/scan/ScanAnswer";
 import { CAUSE_KEYS, CHIMES, failureCause, type Answer, type AnswerState } from "../dashboard/scan/answer";
 import { buzz, chime, primeAudio } from "../dashboard/scan/feedback";
@@ -111,7 +112,7 @@ export function StampScreen({
   return (
     <PublicPage
       variant="team"
-      title={t("publicCard.stamp.pageTitle", { name: name || t("publicCard.stamp.noName") })}
+      title={t("publicCard.stamp.pageTitle", { name: name ? isolate(name) : t("publicCard.stamp.noName") })}
       className="items-stretch pb-10 pt-2 sm:items-center sm:pt-6"
     >
       <div className="flex w-full flex-col gap-5 sm:max-w-[26rem]">
@@ -152,7 +153,10 @@ export function StampScreen({
                 <p className="type-answer">{t("dashboard.scan.result.rewardReady")}</p>
                 <Figure size="count" value={count} />
                 <StampRow total={stamp.stamps_required} filled={stamp.stamp_count} className="w-full max-w-[18rem]" />
-                <p dir="auto" className="line-clamp-2 font-body text-lg font-semibold">
+                {/* Whole, not clamped: it is what the staff member is about
+                    to hand over, conditions included, and the page has the
+                    room Scan's viewfinder doesn't. */}
+                <p dir="auto" className="font-body text-lg font-semibold text-pretty [overflow-wrap:anywhere]">
                   {page.reward_description}
                 </p>
                 <Button variant="ink" size="lg" busy={redeeming} onClick={() => void redeem(token)} className="w-full !whitespace-normal text-center">
@@ -176,7 +180,11 @@ export function StampScreen({
           {answer ? speak(answer.state, page.reward_description, t) : ""}
         </p>
 
-        <Link to="/dashboard/scan" className={cn(linkText, "type-body inline-flex min-h-11 items-center self-center")}>
+        {/* At least 44px wide too: in Hebrew the word is a short one. */}
+        <Link
+          to="/dashboard/scan"
+          className={cn(linkText, "type-body inline-flex min-h-11 min-w-11 items-center justify-center self-center")}
+        >
           {t("publicCard.stamp.toScanner")}
         </Link>
       </div>
