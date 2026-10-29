@@ -93,6 +93,8 @@ export function JoinForm({ flow }: { flow: JoinFlow }) {
             hint={t("enroll.birthdayHint")}
             type="date"
             dir="ltr"
+            // The phone can fill it in from its own card.
+            autoComplete="bday"
             // The picker offers only the days the API takes; a date typed
             // past them is said under the field (`birthdayProblem`).
             min={BIRTHDAY_MIN}
