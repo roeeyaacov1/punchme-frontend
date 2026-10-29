@@ -1970,8 +1970,7 @@
       "accepted": "It has already been used. If that was you, just sign in."
     },
     "failed": {
-      "title": "We couldn't load the invitation",
-      "body": "Check the connection and try again."
+      "title": "We couldn't load the invitation"
     },
     "error": {
       "wrongAccount": "This invite is for <email>{{email}}</email>, not this account.",
