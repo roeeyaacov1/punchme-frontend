@@ -98,8 +98,10 @@ export function PublicPage({
       {variant === "team" ? (
         <PublicTopBar />
       ) : (
-        <header className="flex h-14 items-center justify-end px-1">
-          <LanguageSwitch />
+        // Over the customer's column, as the team's bar stands over theirs,
+        // so on a wide screen the switch isn't left in the window's corner.
+        <header className="mx-auto flex h-14 w-full max-w-[30rem] items-center justify-end px-4 sm:px-0">
+          <LanguageSwitch className="-me-3" />
         </header>
       )}
       <main id="public-main" tabIndex={-1} className={cn("flex w-full flex-1 flex-col px-4 outline-none", className)}>
