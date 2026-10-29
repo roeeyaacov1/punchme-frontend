@@ -1253,8 +1253,12 @@
       "faq": "FAQ",
       "designCta": "Design your card",
       "openMenu": "Open menu",
-      "closeMenu": "Close menu",
+      "menu": "Menu",
+      "label": "On this page",
       "skipToContent": "Skip to content"
+    },
+    "meta": {
+      "title": "PunchMe: your punch card in your customers' wallets"
     },
     "hero": {
       "eyebrow": "The next generation of customer clubs",
