@@ -124,8 +124,8 @@ export function LandingPage() {
           trade={trade}
           netAnnual={netAnnual === null ? null : formatCurrency(netAnnual, i18n.resolvedLanguage ?? "en")}
         />
+        <RevenueCalculator onTouchedResult={handleCalculatorResult} />
         <div className="theme-purple mt-20 bg-background text-ink lg:mt-36">
-          <RevenueCalculator onTouchedResult={handleCalculatorResult} />
           <Faq />
           <FinalCta />
         </div>

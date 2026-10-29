@@ -1311,9 +1311,9 @@
       ]
     },
     "calculator": {
-      "title": "How many regulars does PunchMe need to pay for itself?",
-      "lead": "Fewer than you would think. Move the sliders to match your shop — nothing you type here leaves your browser.",
-      "presetsLabel": "Start from a typical",
+      "title": "How many new regulars would cover a year of PunchMe?",
+      "lead": "Your shop's numbers. Nothing you type leaves your browser, and the answer can be no.",
+      "presetsLabel": "Start from a typical shop",
       "yourCard": "Your card",
       "presets": {
         "cafe": "Café",
@@ -1323,7 +1323,7 @@
       "inputs": {
         "ticket": "Average spend per visit (₪)",
         "stamps": "Stamps to earn the reward",
-        "regulars": "Customers who become regulars this year",
+        "regulars": "New regulars this year",
         "margin": "Gross margin (%)"
       },
       "fineTune": {
@@ -1331,11 +1331,11 @@
         "note": "Only worth changing if you know your margin. Everything above works without touching it."
       },
       "result": {
-        "regularsNeeded_one": "{{count}} regular",
-        "regularsNeeded_other": "{{count}} regulars",
-        "headline_one": "regular covers a whole year of PunchMe.",
-        "headline_other": "regulars cover a whole year of PunchMe.",
-        "regularsDetail": "One customer who fills a {{stamps}}-stamp card at ₪{{ticket}} a visit leaves you ₪{{cardNet}} in gross profit. A year of PunchMe is ₪{{annual}}.",
+        "regularsNeeded_one": "{{count}} new regular",
+        "regularsNeeded_other": "{{count}} new regulars",
+        "headline_one": "new regular covers a year of PunchMe.",
+        "headline_other": "new regulars cover a year of PunchMe.",
+        "regularsDetail": "One customer who fills a {{stamps}}-stamp card at <ltr>₪{{ticket}}</ltr> a visit leaves you <ltr>₪{{cardNet}}</ltr> in gross profit. A year of PunchMe is <ltr>₪{{annual}}</ltr>.",
         "cardTitle": "What one regular is worth",
         "cardRevenue": "Spent filling one card",
         "cardNet": "Gross profit, after their reward",
@@ -1343,12 +1343,12 @@
         "totalGross": "Gross profit",
         "rewardCost": "Rewards you hand over",
         "rewardCostWhy": "Why the rewards cost so little",
-        "rewardCostTooltip": "A reward is costed at what the free item costs you to provide — ₪{{amount}} here — not at its shelf price. You are giving away one item to someone who has already paid you {{stamps}} times.",
+        "rewardCostReason": "A reward costs you what it costs to give, the item or the time in the chair, not its price: <ltr>₪{{amount}}</ltr> here. And it goes to someone who has already paid you {{stamps}} times.",
         "subscription": "PunchMe for the year",
         "net": "Left over",
         "netSub": "in your pocket, after rewards and PunchMe",
-        "negative": "You would need {{count}} regulars before PunchMe pays for itself at these numbers. Drag the last slider up, or add a stamp or two to the card.",
-        "footnote": "An estimate from the numbers you entered, assuming those customers fill their card. Nothing is sent anywhere — it runs in your browser.",
+        "negative": "At these numbers, PunchMe doesn't pay for itself: it takes {{count}} new regulars, and you've put in {{regulars}}. If that's the arithmetic, don't activate it. Designing stays free, and you can come back when the numbers change.",
+        "footnote": "An estimate from the numbers you entered, assuming those customers fill their card. Nothing is sent anywhere: it runs in your browser.",
         "orMonthly_one": "Or: one extra visit covers your first month.",
         "orMonthly_other": "Or: {{count}} extra visits cover your first month.",
         "projectionLabel_one": "If one customer becomes a regular this year",
@@ -1358,8 +1358,9 @@
         "shekels": "{{value}} shekels",
         "percent": "{{value}} percent",
         "stamps": "{{value}} stamps",
-        "regulars": "{{value}} customers",
-        "summary": "{{count}} regulars cover a year of PunchMe. Projected {{net}} left over."
+        "regulars": "{{value}} new regulars",
+        "summary": "{{count}} new regulars cover a year of PunchMe. Projected {{net}} left over.",
+        "loss": "At these numbers it doesn't pay for itself."
       }
     },
     "faq": {
