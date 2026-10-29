@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useLayoutEffect, useState, type ReactNode } from "react";
 import { useReducedMotion } from "../../../components/kit";
 import { toNameCase } from "../../../lib/name";
 import { CodeStep } from "./CodeStep";
@@ -21,6 +21,11 @@ const STEP_MOTION = { forward: "animate-step-forward", back: "animate-step-back"
  * band comes in once, with the form, and holds still while the form and the
  * code take turns under it, so only what changed moves. The card arrives
  * its own way, with the activation (`PassStage`).
+ *
+ * Every place after the first opens at the top of the page, before it is
+ * painted: the form is taller than a phone with its keyboard up, and after
+ * a scrolled form the card would arrive with its heading above the screen,
+ * where the heading's focus (`preventScroll`) wouldn't bring it back.
  */
 export function JoinSteps({
   flow,
@@ -39,6 +44,11 @@ export function JoinSteps({
     moved: null,
   });
   if (shown.kind !== step.kind) setShown({ kind: step.kind, moved: stepDirection(shown.kind, step.kind) });
+
+  // `instant`: the page's own scroll behaviour is smooth.
+  useLayoutEffect(() => {
+    if (shown.moved) window.scrollTo({ top: 0, behavior: "instant" });
+  }, [shown]);
 
   let motion: string | undefined;
   if (shown.moved) motion = reduced ? "animate-gentle-in" : STEP_MOTION[shown.moved];
