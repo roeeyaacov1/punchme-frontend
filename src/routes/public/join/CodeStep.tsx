@@ -108,13 +108,17 @@ export function CodeStep({ flow }: { flow: JoinFlow }) {
             >
               {flow.resendIn > 0 ? (
                 // The seconds in tabular figures, so the line holds still
-                // while they count down.
-                <Trans
-                  i18nKey="enroll.code.resendIn"
-                  count={flow.resendIn}
-                  values={{ count: flow.resendIn }}
-                  components={{ n: <bdi dir="ltr" className="type-figure" /> }}
-                />
+                // while they count down. One span round the words: inside
+                // the button's flex box, the text on each side of the
+                // figure would be its own item and lose its spaces.
+                <span>
+                  <Trans
+                    i18nKey="enroll.code.resendIn"
+                    count={flow.resendIn}
+                    values={{ count: flow.resendIn }}
+                    components={{ n: <bdi dir="ltr" className="type-figure" /> }}
+                  />
+                </span>
               ) : (
                 t("enroll.resend")
               )}
