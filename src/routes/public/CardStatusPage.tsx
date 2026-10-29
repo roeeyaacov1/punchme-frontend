@@ -52,10 +52,17 @@ export function CardStatusPage() {
     <PublicPage variant="customer" title={title} className="items-center pt-2">
       <div className="flex w-full max-w-[30rem] flex-col">
         {isLoading ? (
-          <Loading className="flex flex-col gap-4">
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="mx-auto h-[26rem] w-full max-w-[340px] !rounded-card" />
+          // The card screen's own rhythm, so the stage lights on where its
+          // placeholder stood: the title's row and the line's, a third row
+          // on a phone (where the shop's name or the line usually wraps),
+          // then the stage at its height.
+          <Loading className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <Skeleton className="my-[5px] h-6 w-3/4" />
+              <Skeleton className="my-1 h-4 w-full" />
+              <Skeleton className="my-1 h-4 w-2/3 sm:hidden" />
+            </div>
+            <Skeleton className="mx-auto h-[25rem] w-full max-w-[340px] !rounded-card" />
           </Loading>
         ) : card ? (
           <JoinedCard serial={serial} card={card} returning arrival="lights" />
