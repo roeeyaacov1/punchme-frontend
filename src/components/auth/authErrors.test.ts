@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ApiError } from "../../api/errors";
-import { authErrorKey } from "./authErrors";
+import { authErrorKey, signUpEmailProblem } from "./authErrors";
 
 const passwordSignIn = { mode: "signin", method: "password" } as const;
 const passwordSignUp = { mode: "signup", method: "password" } as const;
@@ -49,5 +49,22 @@ describe("authErrorKey", () => {
       "auth.signUpError",
     );
     expect(authErrorKey(new Error("boom"), googleSignIn)).toBe("auth.error");
+  });
+});
+
+describe("signUpEmailProblem", () => {
+  it("takes an address with a name, an @ and a domain with a dot", () => {
+    expect(signUpEmailProblem("roee@gmail.com")).toBeNull();
+    expect(signUpEmailProblem("first.last+billing@sub.example.co.il")).toBeNull();
+    expect(signUpEmailProblem("  a@b.co  ")).toBeNull();
+  });
+
+  it("refuses the typos an account can't come back from", () => {
+    expect(signUpEmailProblem("roee@gmail")).toBe("auth.emailIncomplete");
+    expect(signUpEmailProblem("roee.gmail.com")).toBe("auth.emailIncomplete");
+    expect(signUpEmailProblem("roee@gmail.")).toBe("auth.emailIncomplete");
+    expect(signUpEmailProblem("roee@.com")).toBe("auth.emailIncomplete");
+    expect(signUpEmailProblem("roee @gmail.com")).toBe("auth.emailIncomplete");
+    expect(signUpEmailProblem("")).toBe("auth.emailIncomplete");
   });
 });

@@ -7,7 +7,7 @@ import {
   type TokenPair,
 } from "../../api/auth";
 import { ApiError } from "../../api/errors";
-import { authErrorKey, type AuthMethod } from "./authErrors";
+import { authErrorKey, signUpEmailProblem, type AuthMethod } from "./authErrors";
 
 export type AuthMode = "signup" | "signin";
 
@@ -69,10 +69,18 @@ export function useEmailPasswordAuth({
     error,
     setError,
     canSubmit: email.trim().length > 0 && password.length > 0,
-    submitPassword: () =>
-      run("password", () =>
+    submitPassword: async () => {
+      // A sign-up address that can't be one is caught before the account
+      // is made under it (`signUpEmailProblem`).
+      const problem = mode === "signup" ? signUpEmailProblem(email) : null;
+      if (problem) {
+        setError(t(problem));
+        return;
+      }
+      await run("password", () =>
         mode === "signup" ? signUpWithPassword(email, password) : signInWithPassword(email, password),
-      ),
+      );
+    },
     submitGoogle: (idToken: string) => run("google", () => signInWithGoogle(idToken)),
   };
 }
