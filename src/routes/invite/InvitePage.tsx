@@ -162,14 +162,15 @@ export function InvitePage() {
 
   // A link the server doesn't know (404) is dead. A read that failed (no
   // connection, a 5xx, the throttle) says so and offers the same read
-  // again: it is no reason to ask the owner for a new link.
+  // again: it is no reason to ask the owner for a new link. Its cause is
+  // said only when it is known, as no connection.
   const unread = preview.isError && !(preview.error instanceof ApiError && preview.error.status === 404);
   if (unread) {
     return (
       <InviteFrame title={t("invite.failed.title")}>
         <Dead
           title={t("invite.failed.title")}
-          body={t("invite.failed.body")}
+          body={preview.error instanceof TypeError ? t("auth.offline") : undefined}
           action={
             <Button variant="secondary" busy={preview.isFetching} onClick={() => void preview.refetch()} className="self-start">
               {t("common.retry")}
@@ -331,7 +332,7 @@ function Invitation({ invitation, language }: { invitation: InvitationPreview; l
 
 /** A link that doesn't work, or an invitation that couldn't be read: why,
  * and what to do about it. */
-function Dead({ title, body, action }: { title?: string; body: string; action?: ReactNode }) {
+function Dead({ title, body, action }: { title?: string; body?: string; action?: ReactNode }) {
   const { t } = useTranslation();
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
@@ -342,7 +343,7 @@ function Dead({ title, body, action }: { title?: string; body: string; action?: 
       <h1 ref={heading} id="invite-dead" tabIndex={-1} className="type-title text-balance outline-none">
         {title ?? t("invite.dead.title")}
       </h1>
-      <p className="type-body text-pretty text-ink-muted">{body}</p>
+      {body && <p className="type-body text-pretty text-ink-muted">{body}</p>}
       {action}
     </LitPanel>
   );

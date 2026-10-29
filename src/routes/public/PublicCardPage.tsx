@@ -85,6 +85,8 @@ export function PublicCardPage() {
             <EmptyState
               titleAs="h1"
               title={t("enroll.status.failedTitle")}
+              // The cause, when it is known: no connection.
+              body={error instanceof TypeError ? t("enroll.offline") : undefined}
               action={
                 <Button variant="secondary" busy={isFetching} onClick={() => void refetch()}>
                   {t("common.retry")}
