@@ -32,6 +32,9 @@ export interface SegmentedControlProps<T extends string> {
  * ink well, at the press's own pace while its label's colour keeps the
  * pill's, and none waits for a double tap or selects its words on a long
  * press.
+ *
+ * A value that matches no option chooses nothing, and no pill is drawn:
+ * the landing calculator's presets, once a slider has moved off them.
  */
 export function SegmentedControl<T extends string>({
   label,
@@ -43,10 +46,7 @@ export function SegmentedControl<T extends string>({
 }: SegmentedControlProps<T>) {
   const reduced = useReducedMotion();
   const name = useId();
-  const index = Math.max(
-    0,
-    options.findIndex((option) => option.value === value),
-  );
+  const index = options.findIndex((option) => option.value === value);
   const pill: CSSProperties = {
     width: `calc((100% - 0.5rem) / ${options.length})`,
     transform: `translateX(calc(var(--kit-dir) * ${index} * 100%))`,
@@ -55,7 +55,7 @@ export function SegmentedControl<T extends string>({
     <fieldset className={cn("min-w-0", className)}>
       <legend className={hideLabel ? "sr-only" : "type-label mb-2 text-ink"}>{label}</legend>
       <div className="relative inline-grid grid-flow-col auto-cols-fr rounded-full border border-border bg-background p-1">
-        {!reduced && (
+        {!reduced && index >= 0 && (
           <span
             aria-hidden
             className="absolute inset-y-1 start-1 rounded-full bg-ink transition-transform duration-move ease-in-out-strong"
