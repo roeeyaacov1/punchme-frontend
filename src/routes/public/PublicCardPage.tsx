@@ -8,6 +8,7 @@ import { useAuth } from "../../auth/useAuth";
 import { Button, EmptyState, LinkButton, Loading, Skeleton } from "../../components/kit";
 import { currentDeviceId } from "../../lib/deviceId";
 import { browserStorage, heldCardSerial } from "../../lib/heldCards";
+import { isolate } from "../dashboard/problem";
 import { PublicPage } from "./PublicPage";
 import { ReferralJoin, StaffDoor } from "./ReferralJoin";
 import { CardChip } from "./Shop";
@@ -110,7 +111,7 @@ function YourCard({ page, serial }: { page: PublicCardPageData; serial: string }
   return (
     <PublicPage
       variant="customer"
-      title={t("enroll.pageTitleCard", { business: page.business_name })}
+      title={t("enroll.pageTitleCard", { business: isolate(page.business_name) })}
       className="items-center justify-center"
     >
       <div className="flex w-full max-w-[30rem] flex-col items-center gap-5 text-center">
@@ -140,7 +141,7 @@ function CardFace({
 }) {
   const { t } = useTranslation();
   return (
-    <PublicPage variant="customer" title={page.business_name} className="items-center justify-center">
+    <PublicPage variant="customer" title={isolate(page.business_name)} className="items-center justify-center">
       <div className="flex w-full max-w-[30rem] flex-col items-center gap-5 text-center">
         <h1 dir="auto" className="type-title text-balance [overflow-wrap:anywhere]">
           {page.business_name}

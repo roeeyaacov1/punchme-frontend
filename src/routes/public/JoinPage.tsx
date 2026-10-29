@@ -5,6 +5,7 @@ import { cn } from "../../lib/cn";
 import { env } from "../../lib/env";
 import { browserStorage, rememberHeldCard } from "../../lib/heldCards";
 import { toNameCase } from "../../lib/name";
+import { isolate } from "../dashboard/problem";
 import { JoinSteps } from "./join/JoinSteps";
 import { useJoinFlow } from "./join/useJoinFlow";
 import { PublicPage } from "./PublicPage";
@@ -48,7 +49,7 @@ export function JoinPage() {
   const { step } = flow;
   const title =
     step.kind === "card"
-      ? t("enroll.pageTitleCard", { business: step.joined.card.business_name })
+      ? t("enroll.pageTitleCard", { business: isolate(step.joined.card.business_name) })
       : t("enroll.pageTitle");
   // The sign stands in the middle of the first screen; what follows it reads
   // from the top.

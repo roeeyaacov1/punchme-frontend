@@ -69,7 +69,7 @@ export function ReferralJoin({
   );
   const title =
     step.kind === "card"
-      ? t("enroll.pageTitleCard", { business: step.joined.card.business_name })
+      ? t("enroll.pageTitleCard", { business: isolate(step.joined.card.business_name) })
       : t("enroll.pageTitle");
   const onSign = step.kind === "sign" || step.kind === "held";
 
