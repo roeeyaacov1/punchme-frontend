@@ -8,7 +8,6 @@ import { Hero } from "../../components/marketing/Hero";
 import { ProofBand } from "../../components/marketing/ProofBand";
 import { PushBand } from "../../components/marketing/PushBand";
 import { HowItWorks } from "../../components/marketing/HowItWorks";
-import { AppShowcase } from "../../components/marketing/AppShowcase";
 import { RevenueCalculator } from "../../components/marketing/RevenueCalculator";
 import { AutomationRows } from "../../components/marketing/AutomationRows";
 import { PricingBand } from "../../components/marketing/PricingBand";
@@ -121,11 +120,10 @@ export function LandingPage() {
 
       <main id="main" tabIndex={-1} className="outline-none">
         <Hero trade={trade} onTrade={setTrade} />
-        <div className="theme-purple bg-background text-ink">
+        <HowItWorks trade={trade} />
+        <div className="theme-purple mt-20 bg-background text-ink lg:mt-36">
           <ProofBand />
           <PushBand />
-          <HowItWorks />
-          <AppShowcase />
           <RevenueCalculator onTouchedResult={handleCalculatorResult} />
           <AutomationRows />
           <PricingBand

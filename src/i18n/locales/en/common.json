@@ -1260,6 +1260,7 @@
     "meta": {
       "title": "PunchMe: your punch card in your customers' wallets"
     },
+    "newTab": "(opens in a new tab)",
     "hero": {
       "eyebrow": "The next generation of customer clubs",
       "headline": "Your punch card, in Wallet",
@@ -1303,8 +1304,8 @@
         {
           "id": "harris",
           "value": "58%",
-          "claim": "Fifty-eight percent of people are less likely to join a loyalty program that makes them download an app.",
-          "context": "79% said they're more likely to join one with no physical card to carry. A wallet pass is neither.",
+          "claim": "are less likely to join a loyalty program that makes them download an app.",
+          "context": "79% said they'd sooner join one with no physical card to carry, and a wallet pass is neither. The same survey found people wary of programs that collect personal data. Here, only the mobile number is required.",
           "source": "Harris Poll for Wilbur, 2019"
         }
       ]
@@ -1395,7 +1396,7 @@
       "reward": "One free haircut"
     },
     "howItWorks": {
-      "title": "Here is how it works. Simple.",
+      "title": "How it works",
       "lead": "From an empty page to a card in a customer's pocket, without anyone installing anything.",
       "steps": [
         {
@@ -1410,7 +1411,21 @@
           "title": "Scan and reward",
           "body": "Scan their phone on each visit and they get a stamp. They watch the progress live."
         }
-      ]
+      ],
+      "sign": {
+        "title": "The sign",
+        "body": "Design the card on your phone, free, and see it on your own phone before you pay. Then print a sign for the window, the counter or a table.",
+        "prints": "You print it once you activate, when its code goes live."
+      },
+      "card": {
+        "title": "The card",
+        "body": "Customers scan the sign, give a mobile number and the code from a text, and the card goes into Apple Wallet or Google Wallet. A name and a birthday only if they want, and offers only to those who tick a separate box."
+      },
+      "scan": {
+        "title": "The scan",
+        "body": "Point your phone's camera at their card at the till and the stamp lands at once, with nothing to press. When the card is full, you hand over the reward.",
+        "summary": "Two of the scan's answers: “{{stamped}}”, and “{{full}}” with “{{redeem}}”."
+      }
     },
     "pricing": {
       "title": "Simple, fair plans",
