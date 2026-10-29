@@ -132,12 +132,7 @@ export function LoginPage() {
             {signup ? t("auth.signUpCta") : t("auth.signInCta")}
           </Button>
         </form>
-        <AuthAlternatives
-          mode={auth.mode}
-          onToggleMode={auth.toggleMode}
-          onGoogle={auth.submitGoogle}
-          onGoogleError={() => auth.setError(t("auth.error"))}
-        />
+        <AuthAlternatives mode={auth.mode} onToggleMode={auth.toggleMode} onGoogle={auth.submitGoogle} />
       </LitPanel>
       <LinkButton
         to="/onboarding"

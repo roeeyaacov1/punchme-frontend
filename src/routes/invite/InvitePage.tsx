@@ -258,12 +258,7 @@ export function InvitePage() {
                 {auth.mode === "signup" ? t("invite.signUpCta") : t("invite.signInCta")}
               </Button>
             </form>
-            <AuthAlternatives
-              mode={auth.mode}
-              onToggleMode={auth.toggleMode}
-              onGoogle={auth.submitGoogle}
-              onGoogleError={() => auth.setError(t("auth.error"))}
-            />
+            <AuthAlternatives mode={auth.mode} onToggleMode={auth.toggleMode} onGoogle={auth.submitGoogle} />
           </>
         )}
       </LitPanel>

@@ -89,20 +89,33 @@ function useGoogleWidth() {
   return { box, width };
 }
 
-/** Under the submit button: the other mode, then Google. */
+/**
+ * Under the submit button: the other mode, then Google.
+ *
+ * Google's script can fail to load (no connection, a network or an
+ * extension that blocks it). Then the divider and the empty box give way
+ * to one quiet line in their place, and the form above stays as it was:
+ * that is no sign-in error, and nothing was sent. It stays that way until
+ * the page loads again: the failed script stays in the page, and a second
+ * button would wait on it for ever.
+ */
 export function AuthAlternatives({
   mode,
   onToggleMode,
   onGoogle,
-  onGoogleError,
 }: {
   mode: AuthMode;
   onToggleMode: () => void;
   onGoogle: (idToken: string) => void;
-  onGoogleError: () => void;
+  /** No longer called: a button that can't load says so in its own place,
+   * where the pages used to show a sign-in error over a form nobody had
+   * sent. Kept so the account step, which this phase leaves alone, still
+   * passes it. */
+  onGoogleError?: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const google = useGoogleWidth();
+  const [googleFailed, setGoogleFailed] = useState(false);
   return (
     <div className="theme-lightbox flex flex-col gap-3 text-ink">
       <button
@@ -112,26 +125,33 @@ export function AuthAlternatives({
       >
         {mode === "signup" ? t("auth.toggleToSignIn") : t("auth.toggleToSignUp")}
       </button>
-      <div className="type-body flex items-center gap-3 text-ink-muted">
-        <span aria-hidden className="h-px flex-1 bg-border" />
-        {t("auth.orDivider")}
-        <span aria-hidden className="h-px flex-1 bg-border" />
-      </div>
+      {!googleFailed && (
+        <div className="type-body flex items-center gap-3 text-ink-muted">
+          <span aria-hidden className="h-px flex-1 bg-border" />
+          {t("auth.orDivider")}
+          <span aria-hidden className="h-px flex-1 bg-border" />
+        </div>
+      )}
       {/* The box follows the page's direction. Forcing it left to right
-          reversed Google's Hebrew label. */}
+          reversed Google's Hebrew label. It stays when the button can't
+          load, so the column's measure holds still. */}
       <div ref={google.box} className="flex justify-center">
         {/* Google renders the button once per mount; a change of language,
             mode or width needs a fresh mount to redraw it. The label speaks
             the page's language, not the browser's. */}
-        {google.width !== null && (
-          <GoogleAuthButton
-            key={`${i18n.resolvedLanguage}-${mode}-${google.width}`}
-            text={mode === "signup" ? "signup_with" : "signin_with"}
-            width={google.width}
-            locale={i18n.resolvedLanguage}
-            onSuccess={onGoogle}
-            onError={onGoogleError}
-          />
+        {googleFailed ? (
+          <p className="type-body text-pretty text-center text-ink-muted">{t("auth.googleUnavailable")}</p>
+        ) : (
+          google.width !== null && (
+            <GoogleAuthButton
+              key={`${i18n.resolvedLanguage}-${mode}-${google.width}`}
+              text={mode === "signup" ? "signup_with" : "signin_with"}
+              width={google.width}
+              locale={i18n.resolvedLanguage}
+              onSuccess={onGoogle}
+              onError={() => setGoogleFailed(true)}
+            />
+          )
         )}
       </div>
     </div>
