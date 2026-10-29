@@ -633,8 +633,8 @@
     },
     "code": {
       "sentTo": "We sent a 6-digit code to <phone>{{phone}}</phone>",
-      "resendIn_one": "You can send another in {{count}} second",
-      "resendIn_other": "You can send another in {{count}} seconds"
+      "resendIn_one": "You can send another in <n>{{count}}</n> second",
+      "resendIn_other": "You can send another in <n>{{count}}</n> seconds"
     },
     "card": {
       "titleNew": "You're in at <shop>{{business}}</shop>",

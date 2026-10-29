@@ -642,7 +642,7 @@
       "costNoCode": "רק מספר נייד.",
       "join": "הצטרפות",
       "lineShop_one": "חותמת אחת, ואז <reward>{{reward}}</reward>.",
-      "lineShop_two": "<n>{{count}}</n> חותמות, ואז <reward>{{reward}}</reward>.",
+      "lineShop_two": "שתי חותמות, ואז <reward>{{reward}}</reward>.",
       "lineShop_many": "<n>{{count}}</n> חותמות, ואז <reward>{{reward}}</reward>.",
       "lineShop_other": "<n>{{count}}</n> חותמות, ואז <reward>{{reward}}</reward>.",
       "under": "חותמת בכל ביקור, ישר לכרטיסייה שבארנק."
@@ -658,19 +658,19 @@
     "code": {
       "sentTo": "שלחנו קוד בן 6 ספרות ל-\u2060<phone>{{phone}}</phone>",
       "resendIn_one": "אפשר לשלוח שוב בעוד שנייה",
-      "resendIn_two": "אפשר לשלוח שוב בעוד {{count}} שניות",
-      "resendIn_many": "אפשר לשלוח שוב בעוד {{count}} שניות",
-      "resendIn_other": "אפשר לשלוח שוב בעוד {{count}} שניות"
+      "resendIn_two": "אפשר לשלוח שוב בעוד שתי שניות",
+      "resendIn_many": "אפשר לשלוח שוב בעוד <n>{{count}}</n> שניות",
+      "resendIn_other": "אפשר לשלוח שוב בעוד <n>{{count}}</n> שניות"
     },
     "card": {
       "titleNew": "הצטרפתם ל-\u2060<shop>{{business}}</shop>",
       "titleReturning": "הכרטיסייה שלכם ב-\u2060<shop>{{business}}</shop>",
       "lineNew_one": "חותמת אחת, ואז <reward>{{reward}}</reward>. מציגים את הכרטיסייה בקופה בכל ביקור.",
-      "lineNew_two": "<n>{{count}}</n> חותמות, ואז <reward>{{reward}}</reward>. מציגים את הכרטיסייה בקופה בכל ביקור.",
+      "lineNew_two": "שתי חותמות, ואז <reward>{{reward}}</reward>. מציגים את הכרטיסייה בקופה בכל ביקור.",
       "lineNew_many": "<n>{{count}}</n> חותמות, ואז <reward>{{reward}}</reward>. מציגים את הכרטיסייה בקופה בכל ביקור.",
       "lineNew_other": "<n>{{count}}</n> חותמות, ואז <reward>{{reward}}</reward>. מציגים את הכרטיסייה בקופה בכל ביקור.",
       "lineHave_one": "יש לכם <n>{{have}}</n> מתוך חותמת אחת. עוד <n>{{left}}</n> עד להטבה: <reward>{{reward}}</reward>.",
-      "lineHave_two": "יש לכם <n>{{have}}</n> מתוך <n>{{count}}</n> חותמות. עוד <n>{{left}}</n> עד להטבה: <reward>{{reward}}</reward>.",
+      "lineHave_two": "יש לכם <n>{{have}}</n> מתוך שתי חותמות. עוד <n>{{left}}</n> עד להטבה: <reward>{{reward}}</reward>.",
       "lineHave_many": "יש לכם <n>{{have}}</n> מתוך <n>{{count}}</n> חותמות. עוד <n>{{left}}</n> עד להטבה: <reward>{{reward}}</reward>.",
       "lineHave_other": "יש לכם <n>{{have}}</n> מתוך <n>{{count}}</n> חותמות. עוד <n>{{left}}</n> עד להטבה: <reward>{{reward}}</reward>.",
       "lineFull": "הכרטיסייה מלאה: <reward>{{reward}}</reward> מחכה לכם בקופה.",
@@ -2125,7 +2125,7 @@
       "signIn": "כניסה להחתמה",
       "notYourShop": "אתם מחוברים, אבל הכרטיסייה הזו לא של העסק שלכם.",
       "collect_one": "אוספים חותמת אחת ומקבלים: <reward>{{reward}}</reward>",
-      "collect_two": "אוספים <n>{{count}}</n> חותמות ומקבלים: <reward>{{reward}}</reward>",
+      "collect_two": "אוספים שתי חותמות ומקבלים: <reward>{{reward}}</reward>",
       "collect_many": "אוספים <n>{{count}}</n> חותמות ומקבלים: <reward>{{reward}}</reward>",
       "collect_other": "אוספים <n>{{count}}</n> חותמות ומקבלים: <reward>{{reward}}</reward>"
     },
