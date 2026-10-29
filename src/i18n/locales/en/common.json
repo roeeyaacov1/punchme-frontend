@@ -1419,7 +1419,7 @@
       },
       "card": {
         "title": "The card",
-        "body": "Customers scan the sign, give a mobile number and the code from a text, and the card goes into Apple Wallet or Google Wallet. A name and a birthday only if they want, and offers only to those who tick a separate box."
+        "body": "Customers scan the sign, give a mobile number and the code from a text, and the card goes into Apple Wallet or Google Wallet. A name and a birthday only if they want, and agreeing to offers is a separate box."
       },
       "scan": {
         "title": "The scan",
