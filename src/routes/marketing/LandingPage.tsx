@@ -5,11 +5,9 @@ import { focusRing } from "../../components/kit";
 import { formatCurrency } from "../../components/marketing/calculator";
 import { SiteHeader } from "../../components/marketing/SiteHeader";
 import { Hero } from "../../components/marketing/Hero";
-import { ProofBand } from "../../components/marketing/ProofBand";
-import { PushBand } from "../../components/marketing/PushBand";
 import { HowItWorks } from "../../components/marketing/HowItWorks";
+import { AfterTheyLeave } from "../../components/marketing/AfterTheyLeave";
 import { RevenueCalculator } from "../../components/marketing/RevenueCalculator";
-import { AutomationRows } from "../../components/marketing/AutomationRows";
 import { PricingBand } from "../../components/marketing/PricingBand";
 import { Faq } from "../../components/marketing/Faq";
 import { FinalCta } from "../../components/marketing/FinalCta";
@@ -121,11 +119,9 @@ export function LandingPage() {
       <main id="main" tabIndex={-1} className="outline-none">
         <Hero trade={trade} onTrade={setTrade} />
         <HowItWorks trade={trade} />
+        <AfterTheyLeave trade={trade} />
         <div className="theme-purple mt-20 bg-background text-ink lg:mt-36">
-          <ProofBand />
-          <PushBand />
           <RevenueCalculator onTouchedResult={handleCalculatorResult} />
-          <AutomationRows />
           <PricingBand
             netAnnual={netAnnual === null ? null : formatCurrency(netAnnual, i18n.resolvedLanguage ?? "en")}
           />

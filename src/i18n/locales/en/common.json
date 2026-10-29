@@ -1291,14 +1291,14 @@
           "id": "square",
           "value": "6x",
           "claim": "Regulars generate about six times more annual revenue than one-time customers.",
-          "context": "Square defined a regular as someone who visits at least four times a year, then analysed seven years of transactions across small businesses like yours.",
+          "context": "Square counted a regular as someone who visits at least four times a year, across seven years of US small-business transactions.",
           "source": "Square Local Economy Report, March 2026 (US data)"
         },
         {
           "id": "hbr",
           "value": "5–25x",
           "claim": "Winning a new customer costs five to twenty-five times more than keeping one you already have.",
-          "context": "The gap between an ad that buys one visit and a card that earns the next ten.",
+          "context": "A broad estimate, not a controlled study, which is why it's a range.",
           "source": "Harvard Business Review, 2014"
         },
         {
@@ -1426,6 +1426,18 @@
         "body": "Point your phone's camera at their card at the till and the stamp lands at once, with nothing to press. When the card is full, you hand over the reward.",
         "summary": "Two of the scan's answers: “{{stamped}}”, and “{{full}}” with “{{redeem}}”."
       }
+    },
+    "after": {
+      "title": "After they walk out",
+      "lead": "The card stays on their phone, and your messages reach it. Three automatic rules: set them once and they send on their own, whether or not you open the dashboard.",
+      "sample": "Sample",
+      "message": {
+        "title": "We miss you",
+        "body": "It's been 30 days since your last visit, so we've added a free stamp to your card."
+      },
+      "stageSummary": "Sample: the message “{{title}}” from {{business}}, on the lock screen above its card.",
+      "broadcast": "Up to two a week, with a gift if you like: a stamp or a full card.",
+      "starter": "That's how the rules come set up, and you can change any of them."
     },
     "pricing": {
       "title": "Simple, fair plans",
