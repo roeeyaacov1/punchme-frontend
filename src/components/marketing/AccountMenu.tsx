@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { LogOut } from "lucide-react";
 import { useAuth } from "../../auth/useAuth";
 import { cn } from "../../lib/cn";
-import { focusRing } from "./primitives";
+import { focusRing, focusRingInset } from "../kit";
+import { noTapFlash } from "../kit/classes";
 
 /**
  * The signed-in owner's corner of the landing header: their initial, and
@@ -11,7 +12,8 @@ import { focusRing } from "./primitives";
  *
  * A disclosure, not a `role="menu"`. There is one item, so `aria-expanded`
  * on the button says everything a menu's arrow keys would, and Tab reaches
- * the item on its own because it follows the button in the DOM.
+ * the item on its own because it follows the button in the DOM. It is an
+ * overlay, so it is the one thing on the page that lifts.
  */
 export function AccountMenu({ className }: { className?: string }) {
   const { t } = useTranslation();
@@ -47,7 +49,7 @@ export function AccountMenu({ className }: { className?: string }) {
   return (
     // Stretched to the header row's full height on purpose: it makes
     // `top-full` the bottom of the header rather than the bottom of the
-    // avatar, so the panel clears the header's border instead of crossing it.
+    // avatar, so the panel clears the header's edge instead of crossing it.
     <div ref={wrapRef} className={cn("relative items-center self-stretch", className)}>
       <button
         ref={buttonRef}
@@ -56,16 +58,13 @@ export function AccountMenu({ className }: { className?: string }) {
         aria-expanded={open}
         aria-controls="landing-account-menu"
         aria-label={t("dashboard.groups.account")}
-        className={cn(
-          "inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full",
-          focusRing,
-        )}
+        className={cn("inline-flex size-11 items-center justify-center rounded-full", noTapFlash, focusRing)}
       >
         <span
-          aria-hidden="true"
+          aria-hidden
           className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-full border bg-surface font-heading text-sm font-bold text-ink transition-colors",
-            open ? "border-ink-subtle" : "border-border-strong",
+            "flex size-9 items-center justify-center rounded-full border bg-surface font-heading text-sm font-medium text-ink transition-colors duration-gentle ease-out",
+            open ? "border-field" : "border-border-strong",
           )}
         >
           {initial}
@@ -75,12 +74,12 @@ export function AccountMenu({ className }: { className?: string }) {
       {open && (
         <div
           id="landing-account-menu"
-          className="absolute end-0 top-full z-50 mt-2 w-64 rounded-xl border border-border-strong bg-surface p-1 shadow-lift"
+          className="absolute end-0 top-full z-50 mt-2 w-64 rounded-panel border border-border bg-surface p-1.5 shadow-panel-lift"
         >
-          <p className="truncate px-3 py-2 text-xs text-ink-muted">
+          <p className="truncate px-3 py-2 text-sm text-ink-muted">
             {t("onboarding.account.signedInAs", { email: user.email })}
           </p>
-          <div className="mx-2 mb-1 h-px bg-border" aria-hidden="true" />
+          <div aria-hidden className="mx-2 mb-1 h-px bg-border" />
           <button
             type="button"
             onClick={() => {
@@ -88,11 +87,12 @@ export function AccountMenu({ className }: { className?: string }) {
               logout();
             }}
             className={cn(
-              "flex min-h-[44px] w-full items-center gap-2 rounded-lg px-3 text-start text-sm font-semibold text-ink transition-colors hover:bg-background",
-              focusRing,
+              "flex min-h-11 w-full items-center gap-2 rounded-field px-3 text-start font-heading text-base font-medium text-ink transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5",
+              noTapFlash,
+              focusRingInset,
             )}
           >
-            <LogOut size={16} aria-hidden="true" className="rtl:-scale-x-100" />
+            <LogOut aria-hidden className="size-5 shrink-0 rtl:-scale-x-100" />
             {t("dashboard.nav.signOut")}
           </button>
         </div>

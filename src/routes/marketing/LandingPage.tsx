@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
-import { ctaClasses } from "../../components/marketing/primitives";
+import { focusRing } from "../../components/kit";
 import { formatCurrency } from "../../components/marketing/calculator";
 import { SiteHeader } from "../../components/marketing/SiteHeader";
 import { Hero } from "../../components/marketing/Hero";
@@ -17,27 +17,64 @@ import { Faq } from "../../components/marketing/Faq";
 import { FinalCta } from "../../components/marketing/FinalCta";
 import { SiteFooter } from "../../components/marketing/SiteFooter";
 
+/** The wall, as the phone's status bar: Lightbox's `--c-background` by day. */
+const WALL = "#f6f2eb";
+
 /**
- * The public landing page.
+ * While the landing page is up, `<html>` stands on Lightbox by day: the
+ * overscroll shows the wall, and a phone in dark mode colours its status bar
+ * with the wall rather than index.html's navy. Never night: the landing page
+ * stays light (the guide's D8). Both go again when the page does, so the
+ * next page finds `<html>` as index.html left it. Before paint, so the page
+ * never shows on the old ground once React is running.
+ */
+function useLandingGround() {
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.classList.add("theme-lightbox");
+    const meta = document.createElement("meta");
+    meta.name = "theme-color";
+    meta.content = WALL;
+    document.head.insertBefore(meta, document.head.querySelector('meta[name="theme-color"]'));
+    return () => {
+      root.classList.remove("theme-lightbox");
+      meta.remove();
+    };
+  }, []);
+}
+
+/** The tab's title in the page's language, for as long as the page is up. */
+function useDocumentTitle(title: string) {
+  useEffect(() => {
+    const previous = document.title;
+    document.title = title;
+    return () => {
+      document.title = previous;
+    };
+  }, [title]);
+}
+
+/**
+ * The public landing page, on Lightbox by day.
  *
- * `theme-purple` is the whole of the repaint's plumbing: the shared
- * marketing tokens resolve through CSS variables (see src/index.css), so
- * scoping the class here re-colours every section, the calculator and the
- * footer at once, and leaves the onboarding wizard on the original oat card
- * stock until its own phase lands.
+ * The order is the argument: the counter itself first (the sign, the card,
+ * the scan, and the price), then each of them in turn, what brings people
+ * back, the price as the sign switching on, the owner's own arithmetic,
+ * which is the one section allowed to talk them out of it, and the
+ * questions a sceptic asks.
  *
- * The order is the argument. The paper card is dead → here is the evidence
- * that regulars are worth chasing → this is what brings them back → this is
- * how you set it up → this is what you get → and here is your own
- * arithmetic, which is the one section allowed to talk you out of it.
+ * The sections still waiting for their turn in the redesign keep the old
+ * `theme-purple` scope inside it, until each moves over.
  */
 export function LandingPage() {
   const { t, i18n } = useTranslation();
+  useLandingGround();
+  useDocumentTitle(t("landing.meta.title"));
 
   // Held here so the pricing band can echo the calculator's result. Stays
   // null until the visitor moves something and the result is actually
-  // positive — we don't claim "based on your numbers" for numbers they
-  // never entered, or advertise a loss.
+  // positive: no "based on your numbers" for numbers they never entered, and
+  // no advertising a loss.
   const [netAnnual, setNetAnnual] = useState<number | null>(null);
 
   const handleCalculatorResult = useCallback((value: number) => {
@@ -63,14 +100,14 @@ export function LandingPage() {
   }, []);
 
   return (
-    // `relative` anchors the header's scroll sentinel; `overflow-x-clip`
-    // is the backstop against a stray pixel from a glow or gradient.
-    <div className="theme-purple relative overflow-x-clip bg-background text-ink">
+    // `relative` anchors the header's scroll sentinel; `overflow-x-clip` is
+    // the backstop against a stray pixel from a stage wider than a phone.
+    <div className="theme-lightbox relative overflow-x-clip bg-background text-ink">
       <a
         href="#main"
         className={cn(
-          "sr-only focus:not-sr-only focus:absolute focus:start-4 focus:top-4 focus:z-50",
-          ctaClasses("primary", "sm", "min-h-[44px]"),
+          "type-label sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-surface focus:px-4 focus:py-2.5 focus:shadow-panel-lift",
+          focusRing,
         )}
       >
         {t("landing.nav.skipToContent")}
@@ -78,27 +115,27 @@ export function LandingPage() {
 
       <SiteHeader />
 
-      <main id="main">
-        <Hero />
-        <PaperCards />
-        <ProofBand />
-        <PushBand />
-        <HowItWorks />
-        <AppShowcase />
-        <RevenueCalculator onTouchedResult={handleCalculatorResult} />
-        <AutomationRows />
-        <PricingBand
-          netAnnual={
-            netAnnual === null
-              ? null
-              : formatCurrency(netAnnual, i18n.resolvedLanguage ?? "en")
-          }
-        />
-        <Faq />
-        <FinalCta />
+      <main id="main" tabIndex={-1} className="outline-none">
+        <div className="theme-purple bg-background text-ink">
+          <Hero />
+          <PaperCards />
+          <ProofBand />
+          <PushBand />
+          <HowItWorks />
+          <AppShowcase />
+          <RevenueCalculator onTouchedResult={handleCalculatorResult} />
+          <AutomationRows />
+          <PricingBand
+            netAnnual={netAnnual === null ? null : formatCurrency(netAnnual, i18n.resolvedLanguage ?? "en")}
+          />
+          <Faq />
+          <FinalCta />
+        </div>
       </main>
 
-      <SiteFooter />
+      <div className="theme-purple">
+        <SiteFooter />
+      </div>
     </div>
   );
 }
