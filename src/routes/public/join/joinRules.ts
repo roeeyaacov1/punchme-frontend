@@ -9,13 +9,17 @@ import type { JoinStep } from "./useJoinFlow";
  * - `upgrade_required`, from the code request as much as from the join: a
  *   Free shop that isn't taking new customers, said on the sign too
  *   (the code request's was "something went wrong" before);
- * - `invalid_phone` under the phone, `otp_invalid` under the code;
- * - `otp_throttled`, an unreachable API and anything else over the button.
+ * - `invalid_phone` under the phone, `otp_invalid` under the code,
+ *   `invalid_birthday` under the birthday;
+ * - `otp_throttled`, the address's own throttle (a bare 429, which a
+ *   counter's shared Wi-Fi reaches sooner), the SMS service being down
+ *   (`sms_unavailable`), an unreachable API and anything else over the
+ *   button.
  */
 export type JoinAnswer =
   | { kind: "dead" }
   | { kind: "notTaking" }
-  | { kind: "field"; field: "phone" | "code"; key: string }
+  | { kind: "field"; field: "phone" | "code" | "birthday"; key: string }
   | { kind: "form"; key: string };
 
 export function joinAnswer(err: unknown): JoinAnswer {
@@ -26,6 +30,9 @@ export function joinAnswer(err: unknown): JoinAnswer {
   if (err.code === "otp_throttled") return { kind: "form", key: "enroll.otpThrottled" };
   if (err.code === "invalid_phone") return { kind: "field", field: "phone", key: "enroll.phoneInvalid" };
   if (err.code === "otp_invalid") return { kind: "field", field: "code", key: "enroll.otpInvalid" };
+  if (err.code === "invalid_birthday") return { kind: "field", field: "birthday", key: "enroll.birthdayInvalid" };
+  if (err.code === "sms_unavailable") return { kind: "form", key: "enroll.smsUnavailable" };
+  if (err.status === 429) return { kind: "form", key: "onboarding.account.throttled" };
   if (err.status === 404) return { kind: "dead" };
   return { kind: "form", key: "enroll.genericError" };
 }
@@ -35,6 +42,27 @@ export function joinAnswer(err: unknown): JoinAnswer {
 export function phoneProblem(phone: string): "enroll.phoneMissing" | "enroll.phoneInvalid" | null {
   if (!phone.trim()) return "enroll.phoneMissing";
   return isLikelyIlPhone(phone) ? null : "enroll.phoneInvalid";
+}
+
+/** The earliest birthday the API takes. */
+export const BIRTHDAY_MIN = "1900-01-01";
+
+/** A date as the date field writes it (YYYY-MM-DD), in this phone's own
+ * day, which is the shop's. */
+export function localDay(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+/** The birthday checked as the API checks it: optional, but never today or
+ * later, and never before 1900. Caught here, a slipped year is said under
+ * its field before anything is sent, rather than as "something went wrong"
+ * after a code has been spent on it. A year typed past four digits is
+ * refused too: the dates only compare as text while they are all YYYY. */
+export function birthdayProblem(birthday: string, today: string): "enroll.birthdayInvalid" | null {
+  if (!birthday) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(birthday)) return "enroll.birthdayInvalid";
+  return birthday >= today || birthday < BIRTHDAY_MIN ? "enroll.birthdayInvalid" : null;
 }
 
 /** A card that comes back with stamps on it, or that the friend's join says

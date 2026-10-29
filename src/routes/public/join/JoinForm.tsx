@@ -4,7 +4,18 @@ import { ChevronRight } from "lucide-react";
 import { Button, Checkbox, Input, LitPanel, Notice, Sheet, focusRing } from "../../../components/kit";
 import { cn } from "../../../lib/cn";
 import { toNameCase } from "../../../lib/name";
+import { BIRTHDAY_MIN, localDay } from "./joinRules";
 import type { JoinFlow } from "./useJoinFlow";
+
+/** The longest name the card keeps (the API's own limit). */
+const NAME_MAX = 120;
+
+/** The latest birthday the API takes: yesterday, in this phone's own day. */
+function latestBirthday(): string {
+  const day = new Date();
+  day.setDate(day.getDate() - 1);
+  return localDay(day);
+}
 
 /**
  * The details, phone first and the only one required. `noValidate`, so the
@@ -20,19 +31,23 @@ export function JoinForm({ flow }: { flow: JoinFlow }) {
   const { t } = useTranslation();
   const heading = useRef<HTMLHeadingElement>(null);
   const phone = useRef<HTMLInputElement>(null);
+  const birthday = useRef<HTMLInputElement>(null);
   const noticeRow = useRef<HTMLButtonElement>(null);
   const [notice, setNotice] = useState(false);
+  const [latest] = useState(latestBirthday);
 
   // The sign gave way to this: the heading says where the reader is now.
   useEffect(() => {
     heading.current?.focus({ preventScroll: true });
   }, []);
 
-  // A refused phone takes focus, every time it is refused.
-  const { phone: phoneError, seq } = flow.errors;
+  // A refused field takes focus, every time it is refused: the phone first
+  // when both are.
+  const { phone: phoneError, birthday: birthdayError, seq } = flow.errors;
   useEffect(() => {
     if (phoneError) phone.current?.focus();
-  }, [phoneError, seq]);
+    else if (birthdayError) birthday.current?.focus();
+  }, [phoneError, birthdayError, seq]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -64,6 +79,7 @@ export function JoinForm({ flow }: { flow: JoinFlow }) {
             hint={t("enroll.nameHint")}
             autoComplete="name"
             dir="auto"
+            maxLength={NAME_MAX}
             value={flow.name}
             onChange={(e) => flow.setName(e.target.value)}
             // Cased on the way out of the field, not silently at submit: the
@@ -72,12 +88,18 @@ export function JoinForm({ flow }: { flow: JoinFlow }) {
             onBlur={() => flow.setName((n) => toNameCase(n))}
           />
           <Input
+            ref={birthday}
             label={t("enroll.birthdayLabel")}
             hint={t("enroll.birthdayHint")}
             type="date"
             dir="ltr"
+            // The picker offers only the days the API takes; a date typed
+            // past them is said under the field (`birthdayProblem`).
+            min={BIRTHDAY_MIN}
+            max={latest}
             value={flow.birthday}
             onChange={(e) => flow.setBirthday(e.target.value)}
+            error={birthdayError ? t(birthdayError) : undefined}
           />
           <Checkbox checked={flow.optIn} onChange={flow.setOptIn} label={t("enroll.marketingOptIn")} />
           <button

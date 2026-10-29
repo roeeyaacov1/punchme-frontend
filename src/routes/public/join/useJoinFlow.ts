@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { CardPublic } from "../../../api/loyalty";
-import { joinAnswer, phoneProblem, type JoinAnswer } from "./joinRules";
+import { birthdayProblem, joinAnswer, localDay, phoneProblem, type JoinAnswer } from "./joinRules";
 
 const RESEND_SECONDS = 60;
 
@@ -44,6 +44,7 @@ export type JoinStep =
 
 export interface JoinErrors {
   phone?: string;
+  birthday?: string;
   code?: string;
   form?: string;
 }
@@ -82,9 +83,10 @@ export function useJoinFlow(calls: JoinCalls) {
     if (answer.kind === "dead" || answer.kind === "notTaking") {
       setErrors((e) => ({ seq: e.seq }));
       setStep({ kind: "held", answer: answer.kind });
-    } else if (answer.kind === "field" && answer.field === "phone") {
+    } else if (answer.kind === "field" && (answer.field === "phone" || answer.field === "birthday")) {
+      // Both are the form's: from the code step, the join goes back to it.
       setStep({ kind: "form" });
-      refuse({ phone: answer.key });
+      refuse({ [answer.field]: answer.key });
     } else if (answer.kind === "field") {
       // A code refused while the form is showing (codes off here, on at the
       // API) has no field to stand under: it is said over the button.
@@ -141,14 +143,18 @@ export function useJoinFlow(calls: JoinCalls) {
     otpRequired: calls.otpRequired,
     /** The sign's "Join": the form takes its place. */
     open: () => setStep({ kind: "form" }),
-    /** The form's submit: the phone checked here first, then a code, or
-     * straight to the join when there is no code step (asking for a code
-     * anyway would spend the number's allowance for nothing). */
+    /** The form's submit: the phone and the birthday checked here first,
+     * then a code, or straight to the join when there is no code step
+     * (asking for a code anyway would spend the number's allowance for
+     * nothing). */
     submitDetails: async () => {
       if (busy) return;
-      const problem = phoneProblem(phone);
-      if (problem) {
-        refuse({ phone: problem });
+      const problems = {
+        phone: phoneProblem(phone) ?? undefined,
+        birthday: birthdayProblem(birthday, localDay(new Date())) ?? undefined,
+      };
+      if (problems.phone || problems.birthday) {
+        refuse(problems);
         return;
       }
       if (!calls.otpRequired) {

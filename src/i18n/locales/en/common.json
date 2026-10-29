@@ -603,6 +603,8 @@
     "otpInvalid": "Wrong or expired code — try again or request a new one",
     "otpThrottled": "Too many codes sent — wait a moment and try again",
     "phoneInvalid": "That doesn't look like a valid Israeli mobile number",
+    "birthdayInvalid": "That date doesn't look right. Check it, or leave the field empty.",
+    "smsUnavailable": "We couldn't send the code just now. Try again in a few minutes.",
     "genericError": "Something went wrong. Please try again in a moment.",
     "submit": "Add to my wallet",
     "upgradeRequired": "This shop isn't taking new members yet.",
