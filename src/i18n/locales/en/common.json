@@ -1262,10 +1262,17 @@
     },
     "hero": {
       "eyebrow": "The next generation of customer clubs",
-      "headline": "You deserve a customer club too",
+      "headline": "Your punch card, in Wallet",
       "subheadline": "A punch card that lives in your customers' Apple Wallet or Google Wallet. They scan a QR code once. No app, no account, no password. It updates itself with every visit.",
+      "lead": "No app, no account, no password. Free to design, then <ltr>₪{{price}}</ltr> a month including VAT once customers can join.",
       "cta": "Start free",
-      "secondaryCta": "See what regulars are worth",
+      "secondaryCta": "How many regulars would it take?",
+      "counter": {
+        "sign": "The sign",
+        "card": "The card in their wallet",
+        "scan": "The scan",
+        "summary": "{{trade}}: the card in Apple Wallet with {{filled}} of {{total}} stamps, the sign by the till, and the owner's phone showing “{{answer}}”."
+      },
       "trustBullets": [
         "Free to design",
         "No credit card required",
@@ -1440,24 +1447,24 @@
       "languageHeading": "Language"
     },
     "templates": {
-      "ariaLabel": "Card templates",
+      "ariaLabel": "Card for",
       "nameLabel": "Customer",
       "pointsLabel": "Visits",
       "items": {
         "barber": {
-          "business": "Danny's Barbershop",
-          "trade": "Barber",
+          "business": "Barbershop",
+          "trade": "Barbershop",
           "reward": "10th haircut free",
           "caption": "The barber template — 10 stamps, a free cut"
         },
         "cafe": {
-          "business": "Rothschild Coffee",
+          "business": "Café",
           "trade": "Café",
           "reward": "Free coffee on your 8th visit",
           "caption": "The café template — 8 stamps, a coffee on the house"
         },
         "trainer": {
-          "business": "Studio Nine",
+          "business": "Studio",
           "trade": "Studio",
           "reward": "1 free training session",
           "caption": "The trainer template — 10 sessions, one on us"
