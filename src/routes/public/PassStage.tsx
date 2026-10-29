@@ -31,7 +31,9 @@ import { deviceWallet } from "./wallet";
  * as the wallets draw them and only their slot moves.
  * - `activate`, the card arriving on a join, once: the stage stands unlit
  *   (the wall, with a hairline edge) and its light comes up behind the pass
- *   over 600ms while the pass settles 8px into its slot.
+ *   over 600ms. The pass settles 8px into its slot in the first 240ms, so
+ *   the light warms behind a card that is already there rather than
+ *   fading on the same clock.
  * - `lights`, a return (`/c`): lights on, 240ms.
  * With reduced motion either one is the light at full strength in 150ms,
  * with no travel.
@@ -75,7 +77,7 @@ export function PassStage({
             className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[rgb(var(--unlit))] ring-1 ring-inset ring-border animate-stage-on"
           />
         )}
-        <div aria-hidden="true" className={cn("relative w-[300px] shrink-0", activate && "animate-pass-settle")}>
+        <div aria-hidden="true" className={cn("relative w-[300px] shrink-0", activate && "animate-lights-on")}>
           {platform === "apple" ? <AppleCardPreview {...value} /> : <GoogleCardPreview {...value} />}
         </div>
         <p className="sr-only">

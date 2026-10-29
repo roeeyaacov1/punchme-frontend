@@ -302,10 +302,10 @@ export default {
         "step-back": "step-from-start var(--duration-lights) var(--ease-out-strong) both",
         // The customer's card arriving, the activation, once: the stage's
         // unlit cover clears over the ceremony's 600ms, linear as a light
-        // warms, while the pass settles into its slot on the ease-out and
-        // the words around it come up in 240ms where they stand.
+        // warms, while the pass lights on in its slot (`lights-on`, 240ms)
+        // and the words around it come up in the same 240ms where they
+        // stand. Only the light takes the ceremony's time.
         "stage-on": "gentle-out var(--duration-ceremony) linear both",
-        "pass-settle": "lights-on var(--duration-ceremony) var(--ease-out-strong) both",
         "light-up": "gentle-in var(--duration-lights) var(--ease-out-strong) both",
         // The shop's sign, the day it switches on: unlit for a beat, then a
         // tube catching over the ceremony's 600ms, or the gentle fade.
