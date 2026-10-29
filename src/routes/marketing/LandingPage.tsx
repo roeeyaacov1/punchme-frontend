@@ -5,7 +5,6 @@ import { focusRing } from "../../components/kit";
 import { formatCurrency } from "../../components/marketing/calculator";
 import { SiteHeader } from "../../components/marketing/SiteHeader";
 import { Hero } from "../../components/marketing/Hero";
-import { PaperCards } from "../../components/marketing/PaperCards";
 import { ProofBand } from "../../components/marketing/ProofBand";
 import { PushBand } from "../../components/marketing/PushBand";
 import { HowItWorks } from "../../components/marketing/HowItWorks";
@@ -16,6 +15,7 @@ import { PricingBand } from "../../components/marketing/PricingBand";
 import { Faq } from "../../components/marketing/Faq";
 import { FinalCta } from "../../components/marketing/FinalCta";
 import { SiteFooter } from "../../components/marketing/SiteFooter";
+import type { TradeKey } from "../../components/marketing/samples";
 
 /** The wall, as the phone's status bar: Lightbox's `--c-background` by day. */
 const WALL = "#f6f2eb";
@@ -71,6 +71,10 @@ export function LandingPage() {
   useLandingGround();
   useDocumentTitle(t("landing.meta.title"));
 
+  // The trade the visitor picks on the counter, which the rest of the page
+  // follows: one sample card, all the way down.
+  const [trade, setTrade] = useState<TradeKey>("barber");
+
   // Held here so the pricing band can echo the calculator's result. Stays
   // null until the visitor moves something and the result is actually
   // positive: no "based on your numbers" for numbers they never entered, and
@@ -116,9 +120,8 @@ export function LandingPage() {
       <SiteHeader />
 
       <main id="main" tabIndex={-1} className="outline-none">
+        <Hero trade={trade} onTrade={setTrade} />
         <div className="theme-purple bg-background text-ink">
-          <Hero />
-          <PaperCards />
           <ProofBand />
           <PushBand />
           <HowItWorks />
