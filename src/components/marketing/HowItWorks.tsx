@@ -47,24 +47,30 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
               <p className="type-prose text-ink-muted">{t("landing.howItWorks.sign.prints")}</p>
             </div>
             {/* The same sign at two sizes: the A4 for a window and the tent
-                for a table, standing on one line as they would on a shelf. */}
+                for a table, standing on one line as they would on a shelf.
+                Each width is its wrapper's: `.standee-sheet` fills its parent
+                and would beat a plain width class set on the sheet itself. */}
             <div aria-hidden className="flex items-end justify-center gap-2.5 sm:gap-6 lg:shrink-0">
-              <StandeeSheet
-                design="counter"
-                format="a4"
-                language={language}
-                single
-                art={art}
-                className="w-[7.375rem] rounded-md shadow-panel-lift ring-1 ring-rim/10 sm:w-40 lg:w-[13rem]"
-              />
-              <StandeeSheet
-                design="counter"
-                format="tent"
-                language={language}
-                single
-                art={art}
-                className="w-[10.875rem] rounded-md shadow-panel-lift ring-1 ring-rim/10 sm:w-60 lg:w-[19rem]"
-              />
+              <div className="w-[7.375rem] shrink-0 sm:w-40 lg:w-[13rem]">
+                <StandeeSheet
+                  design="counter"
+                  format="a4"
+                  language={language}
+                  single
+                  art={art}
+                  className="rounded-md shadow-panel-lift ring-1 ring-rim/10"
+                />
+              </div>
+              <div className="w-[10.875rem] shrink-0 sm:w-60 lg:w-[19rem]">
+                <StandeeSheet
+                  design="counter"
+                  format="tent"
+                  language={language}
+                  single
+                  art={art}
+                  className="rounded-md shadow-panel-lift ring-1 ring-rim/10"
+                />
+              </div>
             </div>
           </LitPanel>
 
