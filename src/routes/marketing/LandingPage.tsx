@@ -58,10 +58,7 @@ function useDocumentTitle(title: string) {
  * the scan, and the price), then each of them in turn, what brings people
  * back, the price as the sign switching on, the owner's own arithmetic,
  * which is the one section allowed to talk them out of it, and the
- * questions a sceptic asks.
- *
- * The sections still waiting for their turn in the redesign keep the old
- * `theme-purple` scope inside it, until each moves over.
+ * questions a sceptic asks. One light theme to the footer: no bands.
  */
 export function LandingPage() {
   const { t, i18n } = useTranslation();
@@ -125,15 +122,11 @@ export function LandingPage() {
           netAnnual={netAnnual === null ? null : formatCurrency(netAnnual, i18n.resolvedLanguage ?? "en")}
         />
         <RevenueCalculator onTouchedResult={handleCalculatorResult} />
-        <div className="theme-purple mt-20 bg-background text-ink lg:mt-36">
-          <Faq />
-          <FinalCta />
-        </div>
+        <Faq />
+        <FinalCta />
       </main>
 
-      <div className="theme-purple">
-        <SiteFooter />
-      </div>
+      <SiteFooter />
     </div>
   );
 }
