@@ -211,7 +211,7 @@ Already in place and must survive any redesign: skip link, visible focus rings
 
 ## Verification
 
-There are **no component or render tests** — the 51 test files cover pure logic
+There are **no component or render tests** — the 52 test files cover pure logic
 only: the API client, the calculator, the onboarding draft, the language a
 first visit opens in, the dashboard's navigation by role, the tour and where
 its card stands, the Overview and Activity logic, the scan's failure causes,
@@ -226,8 +226,8 @@ keys, the kit's copy in both languages, the price the copy writes out, a
 refused sign-in in the page's language, the join's answers and which way its
 steps move, when the wallet wait stops, the name a public pass prints, which
 failures end a session and how the start-up check tries again, the tokens
-when storage can't be read, the theme's classes on `<html>`, and ten helpers
-in `src/lib`.
+when storage can't be read, the theme's classes on `<html>`, the language a
+switch saves, and ten helpers in `src/lib`.
 The browser is the safety net, so use it.
 
 Before calling any UI change done:
