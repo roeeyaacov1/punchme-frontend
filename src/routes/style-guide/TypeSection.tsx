@@ -9,8 +9,8 @@ import { GuideSection, TokenName } from "./GuideSection";
  */
 const STYLES: { name: string; className: string; copy: string; figure?: boolean }[] = [
   { name: "type-display", className: "type-display", copy: "landing.hero.headline" },
-  { name: "type-headline", className: "type-headline", copy: "landing.proof.title" },
-  { name: "type-lead", className: "type-lead", copy: "landing.hero.subheadline" },
+  { name: "type-headline", className: "type-headline", copy: "landing.pricing.title" },
+  { name: "type-lead", className: "type-lead", copy: "landing.calculator.lead" },
   { name: "type-title", className: "type-title", copy: "dashboard.customers.title" },
   { name: "type-card-title", className: "type-card-title", copy: "dashboard.nav.messages" },
   { name: "type-sign", className: "type-sign", copy: "dashboard.scan.title" },

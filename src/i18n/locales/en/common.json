@@ -1251,7 +1251,6 @@
       "worth": "What regulars are worth",
       "pricing": "Pricing",
       "faq": "FAQ",
-      "designCta": "Design your card",
       "openMenu": "Open menu",
       "menu": "Menu",
       "label": "On this page",
@@ -1262,9 +1261,7 @@
     },
     "newTab": "(opens in a new tab)",
     "hero": {
-      "eyebrow": "The next generation of customer clubs",
       "headline": "Your punch card, in Wallet",
-      "subheadline": "A punch card that lives in your customers' Apple Wallet or Google Wallet. They scan a QR code once. No app, no account, no password. It updates itself with every visit.",
       "lead": "No app, no account, no password. Free to design, then <ltr>₪{{price}}</ltr> a month including VAT once customers can join.",
       "cta": "Start free",
       "secondaryCta": "How many regulars would it take?",
@@ -1273,19 +1270,9 @@
         "card": "The card in their wallet",
         "scan": "The scan",
         "summary": "{{trade}}: the card in Apple Wallet with {{filled}} of {{total}} stamps, the sign by the till, and the owner's phone showing “{{answer}}”."
-      },
-      "trustBullets": [
-        "Free to design",
-        "No credit card required",
-        "Live in minutes"
-      ],
-      "worksWith": "Works with",
-      "appleWallet": "Apple Wallet",
-      "googleWallet": "Google Wallet"
+      }
     },
     "proof": {
-      "title": "Your regulars are worth more than you think",
-      "lead": "Three numbers worth knowing before you decide anything. Each one links to where it came from.",
       "stats": [
         {
           "id": "square",
@@ -1400,27 +1387,8 @@
         }
       ]
     },
-    "example": {
-      "businessName": "Danny's Barbershop",
-      "reward": "One free haircut"
-    },
     "howItWorks": {
       "title": "How it works",
-      "lead": "From an empty page to a card in a customer's pocket, without anyone installing anything.",
-      "steps": [
-        {
-          "title": "Create the loyalty card",
-          "body": "Pick a design, set the reward, and the card is ready in a minute."
-        },
-        {
-          "title": "Share a QR with customers",
-          "body": "They scan it at the counter and the card drops straight into their Wallet. No downloads."
-        },
-        {
-          "title": "Scan and reward",
-          "body": "Scan their phone on each visit and they get a stamp. They watch the progress live."
-        }
-      ],
       "sign": {
         "title": "The sign",
         "body": "Design the card on your phone, free, and see it on your own phone before you pay. Then print a sign for the window, the counter or a table.",
@@ -1454,42 +1422,24 @@
       "calcNote": "Based on your numbers, that's <ltr>₪{{amount}}</ltr> left over this year.",
       "free": {
         "price": "Free",
-        "name": "Getting started",
-        "body": "The sign is designed and its code isn't live yet, so customers can't join.",
-        "features": [
-          "Design the card and preview it",
-          "The full dashboard",
-          "No credit card"
-        ],
-        "cta": "Start free"
+        "body": "The sign is designed and its code isn't live yet, so customers can't join."
       },
       "pro": {
         "price": "₪99",
         "per": "a month, including VAT",
         "name": "Pro",
-        "features": [
-          "Unlimited customers",
-          "Push messages to all your customers, up to twice a week",
-          "Automatic win-back",
-          "Analytics and performance reports",
-          "Full custom branding"
-        ],
         "opens": [
           "Customers join by scanning the sign",
           "Messages go out: up to two broadcasts a week, plus the automatic rules",
           "The sign prints",
           "Refer a friend can be turned on"
-        ],
-        "cta": "Go Pro"
+        ]
       },
       "stop": "You can cancel any time, from Billing in the dashboard."
     },
     "footer": {
-      "tagline": "Digital loyalty for today's small businesses.",
-      "rights": "All rights reserved.",
       "copyright": "© {{year}} PunchMe",
-      "productHeading": "Product",
-      "languageHeading": "Language"
+      "productHeading": "Product"
     },
     "templates": {
       "ariaLabel": "Card for",
@@ -1499,120 +1449,22 @@
         "barber": {
           "business": "Barbershop",
           "trade": "Barbershop",
-          "reward": "10th haircut free",
-          "caption": "The barber template — 10 stamps, a free cut"
+          "reward": "10th haircut free"
         },
         "cafe": {
           "business": "Café",
           "trade": "Café",
-          "reward": "Free coffee on your 8th visit",
-          "caption": "The café template — 8 stamps, a coffee on the house"
+          "reward": "Free coffee on your 8th visit"
         },
         "trainer": {
           "business": "Studio",
           "trade": "Studio",
-          "reward": "1 free training session",
-          "caption": "The trainer template — 10 sessions, one on us"
+          "reward": "1 free training session"
         }
       }
     },
-    "paperCards": {
-      "title": "Paper punch cards? That is over.",
-      "body": "Remember the old cards your customers always lost at the bottom of a wallet? Whether you used them or not, it is time every customer who walks in becomes a regular — with a branded digital card that sits in front of their eyes and never goes missing.",
-      "cards": [
-        {
-          "business": "BARBER SHOP",
-          "reward": "Every 10th cut free"
-        },
-        {
-          "business": "NAILS BY DANA",
-          "reward": "A pedicure on us"
-        }
-      ]
-    },
-    "push": {
-      "badge": "Automatic push messages",
-      "title": "Send a message. They come back.",
-      "body": "Every customer who adds your card to their digital wallet stays connected to your business after they walk out the door. You do not have to chase them or remember to write. Set the automation once and the system sends the push itself, when it is time for them to return.",
-      "notifications": [
-        {
-          "app": "STUDIO PILATES",
-          "when": "now",
-          "message": "Hi Hila, here is 15% off your next block of sessions 💪"
-        },
-        {
-          "app": "Nail Bar",
-          "when": "now",
-          "message": "Dana, you are one stamp away! Come fill it and your manicure is on us 💅"
-        },
-        {
-          "app": "Barber Shop",
-          "when": "now",
-          "message": "Oren, we have not seen you in a month! Come back for 20% off your next cut ✂️"
-        }
-      ]
-    },
-    "app": {
-      "title": "Your whole club. From your phone.",
-      "lead": "Run the club, scan cards, add punches and see who is coming back — all in one simple app.",
-      "ui": {
-        "dashboard": "Dashboard",
-        "greeting": "Hi, Ori",
-        "overview": "Overview",
-        "activeCards": "142",
-        "activeCardsLabel": "active cards",
-        "weekly": "Weekly activity",
-        "weeklyRange": "last 7 days",
-        "customers": "Top customers",
-        "seeAll": "See all"
-      },
-      "days": [
-        "S",
-        "M",
-        "T",
-        "W",
-        "T",
-        "F",
-        "S"
-      ],
-      "customers": [
-        {
-          "name": "Noa Levi",
-          "phone": "054-***123",
-          "punches": "7/10 punches",
-          "badge": "Active card",
-          "progress": 70
-        },
-        {
-          "name": "Idan Cohen",
-          "phone": "052-***987",
-          "punches": "9/10 punches",
-          "badge": "Near reward",
-          "progress": 90
-        }
-      ]
-    },
-    "automation": {
-      "title": "Automations that work while you do",
-      "lead": "Set them once. They keep running whether or not you open the dashboard.",
-      "items": [
-        {
-          "title": "Special offers",
-          "body": "Send the club an exclusive offer during your quiet hours to fill the shop."
-        },
-        {
-          "title": "Smart reminders",
-          "body": "Customer has not been in for two weeks? The system sends a friendly nudge on its own."
-        },
-        {
-          "title": "Automatic win-back",
-          "body": "Bring back customers who drifted away with a coupon that appears in their pocket."
-        }
-      ]
-    },
     "finalCta": {
       "title": "Start with the card. Pay only once customers can join.",
-      "cta": "Create your customer club — free",
       "note": "<ltr>₪{{price}}</ltr> a month, including VAT, once you activate."
     }
   },
