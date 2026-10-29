@@ -3,15 +3,19 @@
 What the landing page (`/`) has today that a rework has to keep: the
 evidence, the calculator, the links and the behaviour. Written 8 Oct 2026
 from `src/routes/marketing/LandingPage.tsx` and the components it renders, as
-the input for the redesign, and updated 15 Oct 2026 when seven of the page's
-untrue lines came off or were corrected. Like `docs/dashboard-routes.md`, it
-says nothing about design on purpose. The list of blocks is here so nothing
-is lost by accident, not as a layout to copy.
+the input for the redesign; updated 15 Oct 2026 when seven of the page's
+untrue lines came off or were corrected, and 29 Oct 2026 when Phase 9's
+step B rebuilt the page on Lightbox (`docs/redesign/briefs/landing.md`). Like
+`docs/dashboard-routes.md`, it says nothing about design on purpose. The list
+of blocks is here so nothing is lost by accident, not as a layout to copy.
 
 - Page: `src/routes/marketing/LandingPage.tsx`. Sections, the calculator and
-  the sources: `src/components/marketing/`. Reveal-on-scroll:
-  `src/components/motion/useReveal.ts`.
-- Copy: `landing.*` in `src/i18n/locales/{en,he}/common.json`.
+  the sources: `src/components/marketing/`. The sample card every section
+  shows: `samples.ts`, built on `heroTemplates.ts`.
+- Copy: `landing.*` in `src/i18n/locales/{en,he}/common.json`, plus a few
+  lines the page reuses in the dashboard's own words (`messaging.phones`,
+  `messaging.kinds.*`, `messaging.sentence.*`, `dashboard.scan.result.*`,
+  `billing.pro.ifCancelTitle`, `billing.pro.ifCancel`, `studio.sampleName`).
 - The page makes no API calls of its own. The header reads the session to
   decide between "Sign in" and "Dashboard".
 
@@ -19,61 +23,79 @@ is lost by accident, not as a layout to copy.
 
 - **Every printed number has a visible, clickable source.** That is the
   house rule written at the top of `src/components/marketing/sources.ts`:
-  if a claim can't be linked to a source, it doesn't go on the page.
-- **Sourced figures never count up.** They're printed, not animated
-  (`ProofBand.tsx` explains why).
-- **The calculator can show a negative result** and say so.
+  if a claim can't be linked to a source, it doesn't go on the page. Each
+  source link says, to a screen reader, that it opens a new tab.
+- **Sourced figures never count up.** They're printed, not animated.
+- **The calculator can show a negative result** and say so: at those
+  numbers PunchMe doesn't pay for itself, so don't activate it.
 - **Nothing is tracked.** The calculator promises "nothing you type here
   leaves your browser". That is only true because the site has no
   analytics. Adding any would have to leave the calculator's query string
   out.
+- **A sample carries its trade, never a business name.** The card is named
+  "Barbershop", "Café" or "Studio" ("מספרה", "בית קפה", "סטודיו"), and its
+  holder is the studio's own sample name in the page's language. A sample
+  message is labelled as one.
 
 ## The evidence
 
 URLs live in `sources.ts`, keyed by `id`. The copy lives in
 `landing.proof.stats`. The caveats on each line stay on the page.
 
-| id | Figure | Claim | Source as printed |
-|---|---|---|---|
-| `square` | 6x | Regulars generate about six times more annual revenue than one-time customers | Square Local Economy Report, March 2026 (US data) |
-| `hbr` | 5–25x | Winning a new customer costs five to twenty-five times more than keeping one | Harvard Business Review, 2014 |
-| `harris` | 58% | 58% are less likely to join a loyalty program that makes them download an app (and 79% more likely to join one with no physical card) | Harris Poll for Wilbur, 2019 |
+| id | Figure | Claim | Source as printed | Where it stands |
+|---|---|---|---|---|
+| `square` | 6x | Regulars generate about six times more annual revenue than one-time customers | Square Local Economy Report, March 2026 (US data) | After they leave |
+| `hbr` | 5–25x | Winning a new customer costs five to twenty-five times more than keeping one | Harvard Business Review, 2014 | After they leave |
+| `harris` | 58% | 58% are less likely to join a loyalty program that makes them download an app (and 79% more likely to join one with no physical card) | Harris Poll for Wilbur, 2019 | How it works, beside the card |
+
+Harris's caveat also carries the survey's other half: people wary of
+programs that collect personal data, and only the mobile number required
+here. HBR's says why it is a range. In Hebrew, a range keeps its own
+left-to-right run (`פי <ltr>5–25</ltr>`).
 
 ## The revenue calculator
 
 Files: `RevenueCalculator.tsx` (UI), `calculator.ts` (the arithmetic, pure),
 `calculator.test.ts` (keep it passing).
 
-| Input | Range | Default | Café / Barbershop / Studio presets |
+| Input | Range | Default | Barbershop / Café / Studio presets |
 |---|---|---|---|
-| Average spend per visit (₪) | 20–500, step 5 | 60 | 28 / 70 / 180 |
-| Stamps to earn the reward | 5–12 | 10 | 10 / 8 / 6 |
-| Customers who become regulars this year | 1–100 | 10 | 25 / 12 / 6 |
-| Gross margin (%), under "Fine-tune" | 30–90, step 5 | 65 | 75 / 70 / 60 |
+| Average spend per visit (₪) | 20–500, step 5 | 60 | 70 / 28 / 180 |
+| Stamps to earn the reward | 5–12 | 10 | 8 / 10 / 6 |
+| New regulars this year | 1–100 | 10 | 12 / 25 / 6 |
+| Gross margin (%), under "Fine-tune" | 30–90, step 5 | 65 | 70 / 75 / 60 |
 
 The model in `calculator.ts`:
 
 - A reward is costed at cost of goods (ticket × (1 − margin)), not at shelf
   price.
-- The headline number is how many regulars cover a year of PunchMe. It
+- The headline number is how many new regulars cover a year of PunchMe. It
   doesn't depend on the "regulars" input.
 - The net for the year is not clamped at zero.
-- The price comes from `PUNCHME_MONTHLY_PRICE` (₪99).
+- The price comes from `PUNCHME_MONTHLY_PRICE` (₪99, including VAT).
 
 Behaviour to keep:
 
 - Every input is a slider plus a typed number. The typed number is clamped
   and normalised when the field loses focus.
-- A negative net turns the total red and shows the "you would need N regulars
-  before PunchMe pays for itself" callout.
+- The presets show which one the numbers stand on, and none once a slider
+  moves off it.
+- Every figure is in its own left-to-right run, so a loss reads "−₪790" in
+  Hebrew too.
+- Why a reward costs so little is a disclosure a tap or a key opens.
+- A negative net shows a plain notice: the new regulars it would take, the
+  number entered, and not to activate it; "Start free" turns secondary
+  under it.
 - `?ticket=&stamps=&regulars=&margin=` restores a result on load, so an
   owner can send one to themselves. The URL is only rewritten after a real
   interaction.
 - Screen readers hear one summary, 500 ms after the last change
-  (`aria-live`). Each slider has its own `aria-valuetext`.
-- On a phone, a bottom bar shows the result while a slider is held.
-- The pricing block's "based on your numbers" line appears only after the
-  visitor has moved something and only when the result is positive.
+  (`aria-live`), with a sentence more when the year is a loss. Each slider
+  has its own `aria-valuetext`.
+- On a phone, a bottom bar shows the result while a slider is held, never
+  for a typed number, with the same eased figures as the tally.
+- The price's "based on your numbers" line appears only after the visitor
+  has moved something and only when the result is positive.
 - Figures ease for 400 ms, and jump straight to the value under reduced
   motion.
 
@@ -81,64 +103,85 @@ Behaviour to keep:
 
 | Block | `id` | What it says |
 |---|---|---|
-| Header | – | Logo; anchor links; language toggle; "Sign in" and "Design your card" when signed out, "Dashboard" and an account menu when signed in |
-| Hero | – | "You deserve a customer club too", the wallet promise (no app, no account, no password), "Start free" and "See what regulars are worth"; a real pass (the card-studio Apple preview, fed by three real presets in `heroTemplates.ts`) taking a stamp |
-| Paper cards | `paper-cards` | Paper punch cards are over |
-| Proof | `proof` | The three sourced numbers above |
-| Push | `push` | Messages bring customers back: an "Automatic push messages" badge and three sample notifications |
-| How it works | `how-it-works` | Create the card, share a QR, scan and reward |
-| App showcase | `dashboard` | The owner's dashboard on a phone, drawn with sample data (`aria-hidden`) |
-| Calculator | `calculator` | Your own arithmetic |
-| Automations | `automation` | Special offers, smart reminders, automatic win-back |
-| Pricing | `pricing` | Free to design, preview and use the dashboard; Pro ₪99/month only when you activate. Each plan's pill names it; the Pro list gives the broadcast cap, "up to twice a week" |
-| FAQ | `faq` | Six questions in native `<details>`. One answer still says "message us" without saying how (see below) |
-| Final CTA | – | "Ready to turn one-off customers into regulars?" |
-| Footer | – | Product links, language, ©. No Terms/Privacy/Contact links, because those pages don't exist |
+| Header | – | Logo; the four anchors from 1024px; language toggle; "Sign in" and "Start free" when signed out, "Dashboard" and an account menu when signed in; below 1024px a menu with the same |
+| The counter | – | "Your punch card, in Wallet": no app, no account, no password, free to design, ₪99 a month including VAT once customers can join; "Start free" and "How many regulars would it take?"; the sign, the real pass (`AppleCardPreview` from `heroTemplates.ts`) and the scan's answer, each labelled; a trade switch |
+| How it works | `how-it-works` | The sign (designed free, printed once the code goes live), the card (scan, mobile number and SMS code, Apple Wallet or Google Wallet, the real `GoogleCardPreview`, the 58%), the scan (punched and full answers) |
+| After they leave | – | A sample lock-screen message; what each phone does; the three automatic rules with their starter settings (30 days, the birthday, 7 days, 10:00, a gift stamp); broadcasts, two a week; 6x and 5–25x |
+| The price | `pricing` | Free is the sign with its code not live yet; Pro is ₪99 a month including VAT and what it opens; how to cancel and what cancelling does, in Billing's words |
+| Calculator | `calculator` | Your own arithmetic, allowed to say no |
+| FAQ | `faq` | Eight questions in native `<details>`: no app; what customers give; iPhone and Android; changing phones; adding a stamp; changing the design; the cost; how to stop |
+| The close | – | "Start with the card. Pay only once customers can join.", "Start free" and the price |
+| Footer | – | Logo, the anchors, sign in, language, "© 2026 PunchMe". No Terms/Privacy/Contact links, because those pages don't exist |
 
-Eight things on the page weren't true. Seven were fixed on 15 Oct 2026, in
-one small change right after Phase 0, outside the phases. The eighth waits
-for the WhatsApp number.
+Fifteen things on the page weren't true. Seven were fixed on 15 Oct 2026,
+in one small change right after Phase 0, outside the phases; the rest in
+Phase 9's step B.
 
 - **Removed** (CLAUDE.md, "The brand is candour"; decision D2), with their
   components and keys in both languages:
   1. the invented testimonials (`Testimonials.tsx`, `landing.testimonials`);
   2. the unsourced stats band (`StatsBand.tsx`, `landing.stats`);
-  3. the "Most popular" badge. The pill now names the plan, the way the
-     free card's names its own: "Pro" / "מסלול Pro"
-     (`landing.pricing.pro.name`, which replaced `.badge`);
+  3. the "Most popular" badge;
   4. the line "Join the business owners already earning more"
-     (`landing.finalCta.body`).
+     (`landing.finalCta.body`);
+  5. (Phase 9) the invented dashboard band, with its names and figures
+     (`AppShowcase.tsx`, `landing.app`), and the sample notifications that
+     greeted customers by name and offered discounts the product can't
+     give (`PushBand.tsx`, `landing.push`).
 - **Corrected** (CLAUDE.md):
-  5. "Unlimited push messages". The push badge says "Automatic push
-     messages", and the Pro list "Push messages to all your customers, up to
-     twice a week". Sends are capped at two broadcasts in any seven days and
-     25 rules. The Pro line writes the cap out by hand, while the dashboard
-     reads it from the API, so if the backend's
+  6. "Unlimited push messages". Sends are capped at two broadcasts in any
+     seven days and 25 rules. The Pro list writes the cap out by hand,
+     while the dashboard reads it from the API, so if the backend's
      `MESSAGING_BROADCAST_MAX_PER_7D` changes, change the line with it.
-  6. "No signup" in the hero. Joining takes a mobile number and an SMS code,
+  7. "No signup" in the hero. Joining takes a mobile number and an SMS code,
      so it says no app, no account, no password.
+  8. (Phase 9) The automations listed a broadcast as an automation, the
+     win-back twice and missed the birthday and the reward waiting. The
+     page now names the three real rules and the broadcast apart.
+  9. (Phase 9) The Pro list claimed unlimited customers, analytics reports
+     and branding (free anyway). It now says what activating opens.
+  10. (Phase 9) "Send a message. They come back." The page says what the
+      messages do, never that people return.
+  11. (Phase 9) Offers reach only customers who agreed. The join asks for
+      that consent in its own box, but a message can be narrowed to them
+      only when the owner asks, and not once two customers hold the card,
+      so the page says only that the box exists.
+  12. (Phase 9) Setup times ("in a minute", "live in minutes") with no
+      source are gone.
 - **Wrong FAQ answers** (PRODUCT.md):
-  7. **Fixed.** The answer on changing the design after launch said to message
-     PunchMe. It now says owners change it themselves, in the dashboard's
-     Card Studio, and that saving sends the new design to the cards already
-     in customers' wallets.
-  8. **Still open.** "Message us", in the answer on changing phones, doesn't
-     say how. The channel is WhatsApp, but no page carries the number yet.
+  13. **Fixed.** The answer on changing the design after launch said to
+      message PunchMe. Owners change it themselves, in Card Studio, and
+      saving sends the new design to the cards already in customers'
+      wallets.
+  14. **Fixed (Phase 9).** "Message us", in the answer on changing phones,
+      didn't say how. The card is kept with PunchMe, and joining again with
+      the same mobile number brings it back with its stamps
+      (`enroll_customer`).
+  15. **Fixed (Phase 9).** iPhone and Android "update the same way". They
+      are scanned the same way; messages arrive differently
+      (`messaging.phones`).
 
 ## Links and anchors
 
-- Calls to action go to `/onboarding` (seven of them), `/login`, and
-  `/dashboard` when signed in.
-- The header, phone menu and footer link to `#how-it-works`, `#calculator`,
-  `#pricing` and `#faq`. The skip link targets `#main`. Sections offset for
-  the sticky header (`scroll-mt-24`).
+- Calls to action go to `/onboarding` (the header, the menu, the counter,
+  the price, the calculator and the close, all "Start free"), `/login`,
+  and `/dashboard` when signed in.
+- The header, phone menu and footer link to `#how-it-works`, `#pricing`,
+  `#calculator` and `#faq`, in the page's order. The skip link targets
+  `#main`. Sections offset for the sticky header (`scroll-mt-24`), and a
+  link from another page, such as Billing's `/#calculator`, lands there once
+  the page and its fonts are in.
 - Only `/onboarding`'s top bar and the dashboard's logo link back to `/`.
 
 ## Header behaviour
 
 - It shows neither the signed-in nor the signed-out buttons until the
   session is known, so the buttons never flicker.
-- The phone menu is a dialog. It locks scrolling and closes on Escape.
+- Its "Start free" is the secondary pill: every section carries its own
+  coral button, one per screen.
+- The phone menu is the kit's `Sheet`: named, holding focus while open, and
+  giving it back to the menu button when it closes. A section chosen in it
+  scrolls the page and lands focus there.
 - The language toggle stores `i18nextLng` and sets `<html dir lang>`. A
   first visit opens in the browser's language, and in Hebrew when the
   browser asks for neither (`src/i18n/languages.ts`). After that, the stored
@@ -146,52 +189,63 @@ for the WhatsApp number.
 
 ## Code other pages depend on
 
-- `src/components/marketing/primitives.tsx` is imported by 45 files across
-  onboarding, the dashboard, sign-in, the public pages and admin.
-  - Used everywhere: `ctaClasses`, `focusRing`, `Eyebrow` and `ctaArrow`.
-  - Landing-only: `Section`, `SectionHeader` and `cardHover`. Since the
-    testimonials went, the How it works steps are the only cards using
-    `cardHover`.
-- `PunchMark` and `PunchRow` (`PunchMark.tsx`) are used by six dashboard and
-  onboarding files.
-- The `.theme-purple` token scope in `src/index.css` is also used by the
-  onboarding wizard and the sign-in page.
+- `src/components/marketing/primitives.tsx` is imported by 17 files across
+  onboarding, sign-in and the public pages (`ctaClasses`, `focusRing`,
+  `Eyebrow`, `ctaArrow`). The landing page no longer uses it; `Section`,
+  `SectionHeader` and `cardHover` are used nowhere, for Phase 10 to delete.
+- `PunchMark` (`PunchMark.tsx`) is used by onboarding's billing step.
+- `calculator.ts`'s `PUNCHME_MONTHLY_PRICE` is read by ten files outside the page: the
+  dashboard's price lines, the tour and `prices.test.ts`.
+- `heroTemplates.ts`'s `HERO_TEMPLATES` and `heroDesignDoc` feed
+  `/style-guide`'s stage and snap sections as well as the page.
+- The page renders the standee's own `StandeeSheet` and the studio's
+  `AppleCardPreview` and `GoogleCardPreview`, unchanged.
 - Other pages use these `landing.*` keys:
-  - `landing.nav.skipToContent`: `DashboardLayout`, `OnboardingLayout`
+  - `landing.nav.skipToContent`: `DashboardLayout`, `OnboardingLayout`,
+    `/style-guide`
   - `landing.nav.signIn`: the onboarding `TopBar`
-  - `landing.pricing.pro.price` and `.per`: `BillingSettingsPage`
-- `landing.pricing.price` is used by the onboarding billing step, but the
-  key no longer exists in either language.
+  - `landing.pricing.pro.price`: the onboarding billing step and
+    `/style-guide`. Billing itself reads `PUNCHME_MONTHLY_PRICE`, not
+    `landing.pricing.pro.*`.
+  - `/style-guide` also samples `landing.hero.headline`, `landing.hero.cta`,
+    `landing.pricing.title`, `landing.pricing.body`,
+    `landing.pricing.pro.name`, `landing.calculator.lead`,
+    `landing.proof.stats.0.*` and `landing.templates.*`.
 
 ## Accessibility in place
 
 - A skip link, one `h1`, and `h2`s in order with no skipped levels.
 - `focusRing` on every control, and 44px targets, including the sliders.
 - The calculator's debounced live region.
-- Reduced motion is handled in JavaScript as well as CSS: `useReveal` starts
-  visible, the carousel starts stamped, and numbers jump.
+- The counter, the scan's answers and the lock screen are each one
+  sentence to a screen reader, the objects inside them hidden.
+- The trade switch and the presets are native radios: one tab stop, the
+  arrow keys moving the choice the way the language reads.
 - Figures, phone numbers and weekday labels carry `dir="ltr"` and bidi
   isolation.
 - Decoration is `aria-hidden`.
 
-Known gaps, for the rework to fix:
-
-- The phone menu dialog has no accessible name and no focus trap, and it
-  doesn't return focus to the menu button.
-- The carousel tabs have no `aria-controls` and no arrow keys.
-- Citation links open a new tab without saying so.
-- The "Fine-tune" chevron ignores reduced motion.
+The four known gaps from the first version of this file are closed: the
+phone menu has a name, a focus trap and a way back; the carousel's tabs
+became a segmented control with arrow keys; citation links say they open a
+new tab; the "Fine-tune" chevron flips without turning under reduced
+motion.
 
 ## Meta
 
-- `<title>` is English only, and there's no meta description or Open Graph.
+- The tab's title follows the page's language (`landing.meta.title`).
+  There's still no meta description or Open Graph.
+- While the page is mounted, `<html>` wears `theme-lightbox` and a
+  wall-coloured `theme-color` goes in ahead of `index.html`'s.
 - The page renders client-side.
 - `index.html` loads Rubik, Assistant, IBM Plex Mono and Roboto (Roboto
-  draws the Google Wallet preview).
+  draws the Google Wallet preview, which the page now shows).
 
 ## Translations
 
 - `landing.*` has the same keys in `en` and `he`.
 - Hebrew adds the `_two` and `_many` plural forms the calculator needs.
-- Nineteen Hebrew strings start with a right-to-left mark (U+200F) that
-  keeps figures in place. Keep those marks.
+- Hebrew strings that open with a figure or a Latin word start with a
+  right-to-left mark (U+200F) that keeps them in place. Keep those marks.
+- Figures inside a sentence are wrapped `<ltr>…</ltr>` and rendered as their
+  own left-to-right run.
