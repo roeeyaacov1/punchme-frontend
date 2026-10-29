@@ -1,65 +1,41 @@
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
-import { cn } from "../../lib/cn";
-import { Container, ctaArrow, ctaClasses } from "./primitives";
-import { useReveal } from "../motion/useReveal";
+import { Trans, useTranslation } from "react-i18next";
+import { LinkButton, LitPanel } from "../kit";
+import { PUNCHME_MONTHLY_PRICE } from "./calculator";
+import { column, section } from "./landingLayout";
 
 /**
- * The closing ask, on the dark ground the footer continues.
- *
- * A single bloom of violet light sits behind the button — the same light
- * that's behind the phone in the hero, so the page opens and closes on it.
+ * The close: one panel in the landing's field light, the hero's light at
+ * the foot of the page, with one line, the same "Start free" and the price
+ * in small print beside it. On the wall like everything else, not a dark
+ * band.
  */
 export function FinalCta() {
   const { t } = useTranslation();
-  const rise = useReveal<HTMLDivElement>();
-
   return (
-    <section className="relative overflow-hidden bg-brand-night py-20 sm:py-28">
-      {/* Two elements so the centring translate and the drift don't fight
-          over `transform` — the same split the hero's bloom uses, and the
-          same slow breath, so the page opens and closes on one light. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 start-1/2 size-[34rem] -translate-x-1/2 translate-y-1/3 rtl:translate-x-1/2"
-      >
-        <div className="hero-bloom animate-bloom-drift size-full" />
-      </div>
-
-      <Container className="relative">
-        <div
-          ref={rise.ref}
-          style={rise.style}
-          className={cn("mx-auto max-w-2xl text-center", rise.className)}
+    <section aria-labelledby="close-title" className={section}>
+      <div className={column}>
+        <LitPanel
+          light="field"
+          radius="card"
+          className="flex flex-col gap-6 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:p-12"
         >
-          <h2 className="t-h2 text-balance text-white">
+          <h2 id="close-title" className="type-headline max-w-[22ch] text-balance text-ink">
             {t("landing.finalCta.title")}
           </h2>
-
-          <div className="mt-10 flex justify-center">
-            <Link
-              to="/onboarding"
-              className={ctaClasses(
-                "gradient",
-                "lg",
-                cn("w-full sm:w-auto", ctaArrow),
-              )}
-            >
-              {t("landing.finalCta.cta")}
-              <ArrowRight
-                size={18}
-                aria-hidden="true"
-                className="rtl:-scale-x-100"
+          <div className="flex flex-col items-stretch gap-3 sm:items-start lg:shrink-0 lg:items-end">
+            <LinkButton to="/onboarding" size="lg" className="w-full sm:w-auto">
+              {t("landing.hero.cta")}
+            </LinkButton>
+            <p className="type-body text-center text-ink-muted sm:text-start lg:text-end">
+              <Trans
+                i18nKey="landing.finalCta.note"
+                values={{ price: PUNCHME_MONTHLY_PRICE }}
+                components={{ ltr: <bdi dir="ltr" className="type-figure" /> }}
               />
-            </Link>
+            </p>
           </div>
-
-          <p className="mt-6 text-sm text-white/60">
-            {t("landing.finalCta.note")}
-          </p>
-        </div>
-      </Container>
+        </LitPanel>
+      </div>
     </section>
   );
 }

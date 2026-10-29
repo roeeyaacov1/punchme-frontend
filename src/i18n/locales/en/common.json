@@ -1367,28 +1367,36 @@
       "title": "Before you start",
       "items": [
         {
-          "q": "Does my customer need to download an app?",
-          "a": "No. The card is a wallet pass, so it opens straight into the Apple Wallet or Google Wallet already on their phone. They scan your QR code once and it's saved — nothing to install, no account to create, no password to forget."
+          "q": "Do my customers need to download an app?",
+          "a": "No. The card goes into the wallet already on their phone, Apple Wallet or Google Wallet. They scan your sign once, give a mobile number and the code from a text, and it's saved: nothing to install, no account to create, no password to forget."
         },
         {
-          "q": "How do I add a stamp?",
-          "a": "You scan the QR code on the customer's pass. It takes about as long as handing back a receipt, and the stamp appears on their card straight away."
-        },
-        {
-          "q": "What happens if they change phones?",
-          "a": "Their stamps are stored against their card on our side, not on the phone itself, so the count is never lost. Moving the pass onto a new handset isn't automatic yet — message us and we'll sort it out."
-        },
-        {
-          "q": "What does it cost, and when am I charged?",
-          "a": "Designing your card, previewing it on your own phone and using the dashboard are free for as long as you like. You're charged ₪99 a month only when you activate the card for real customers."
-        },
-        {
-          "q": "Can I change the design after I launch?",
-          "a": "Yes, and you do it yourself, whenever you like. Open Card Studio in your dashboard and change the colors, the stamp count or the reward. When you save, the new design goes out to every card already in your customers' wallets."
+          "q": "What do my customers have to give?",
+          "a": "A mobile number and the code from a text. A name and a birthday only if they want, and agreeing to offers is a separate box, left unticked."
         },
         {
           "q": "Does it work on both iPhone and Android?",
-          "a": "Yes. iPhone customers get an Apple Wallet pass and Android customers get a Google Wallet pass. Both update the same way, and you scan them the same way."
+          "a": "Yes. iPhone customers get the card in Apple Wallet and Android customers in Google Wallet, and you scan both the same way. Messages arrive differently. {{phones}}"
+        },
+        {
+          "q": "What happens if they change phones?",
+          "a": "The card is kept with us, not on the phone. On the new phone, they scan the sign at the counter again and join with the same mobile number: the card comes back with all its stamps."
+        },
+        {
+          "q": "How do I add a stamp?",
+          "a": "Point your phone's camera at the code on the customer's card. It takes about as long as handing back a receipt, and the stamp appears on their card straight away."
+        },
+        {
+          "q": "Can I change the design after I start?",
+          "a": "Yes, and you do it yourself, whenever you like. Open Card Studio in your dashboard and change the colours, the stamps or the reward. When you save, the new design goes out to every card already in your customers' wallets."
+        },
+        {
+          "q": "What does it cost, and when do I pay?",
+          "a": "Designing the card, trying it on your own phone and the dashboard are free for as long as you like. It's <ltr>₪{{price}}</ltr> a month, including VAT, only once you activate the card for customers."
+        },
+        {
+          "q": "How do I stop?",
+          "a": "From Billing in the dashboard, whenever you like. {{ifCancel}}"
         }
       ]
     },
@@ -1420,7 +1428,7 @@
       },
       "card": {
         "title": "The card",
-        "body": "Customers scan the sign, give a mobile number and the code from a text, and the card goes into Apple Wallet or Google Wallet. A name and a birthday only if they want, and agreeing to offers is a separate box."
+        "body": "Customers scan the sign, give a mobile number and the code from a text, and the card goes into Apple Wallet or Google Wallet. A name and a birthday only if they want, and agreeing to offers is a separate box."
       },
       "scan": {
         "title": "The scan",
@@ -1479,6 +1487,7 @@
     "footer": {
       "tagline": "Digital loyalty for today's small businesses.",
       "rights": "All rights reserved.",
+      "copyright": "© {{year}} PunchMe",
       "productHeading": "Product",
       "languageHeading": "Language"
     },
@@ -1602,9 +1611,9 @@
       ]
     },
     "finalCta": {
-      "title": "Ready to turn one-off customers into regulars?",
+      "title": "Start with the card. Pay only once customers can join.",
       "cta": "Create your customer club — free",
-      "note": "No credit card. No commitment."
+      "note": "<ltr>₪{{price}}</ltr> a month, including VAT, once you activate."
     }
   },
   "messaging": {

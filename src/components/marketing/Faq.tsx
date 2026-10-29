@@ -1,69 +1,72 @@
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { cn } from "../../lib/cn";
-import { Section, SectionHeader, focusRing } from "./primitives";
-import { useReveal } from "../motion/useReveal";
+import { focusRing, useReducedMotion } from "../kit";
+import { noTapFlash } from "../kit/classes";
+import { PUNCHME_MONTHLY_PRICE } from "./calculator";
+import { column, section } from "./landingLayout";
 
 interface FaqItem {
   q: string;
   a: string;
 }
 
-/** Native <details>/<summary>: keyboard-accessible, findable by in-page
- * search, and works with JavaScript disabled. No accordion state to manage.
- *
- * The comp draws every answer already open, which is what a static frame has
- * to do; kept as an accordion here because that is the behaviour the page
- * already shipped with, and eight open answers is a wall. */
+/**
+ * The questions a sceptic asks before starting, answered true: the
+ * customer's side first, then the owner's, the money last. Native
+ * <details> as ruled rows on the wall, so the keyboard, in-page search and
+ * a page without JavaScript all work, and eight open answers aren't a wall.
+ * From 1024px the heading keeps a column of its own, so the list doesn't
+ * leave half the width empty.
+ */
 export function Faq() {
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
   const items = t("landing.faq.items", { returnObjects: true }) as FaqItem[];
+  // Two answers say what the dashboard says, in its own words, and the
+  // price is said in one place.
+  const shared = {
+    phones: t("messaging.phones"),
+    ifCancel: t("billing.pro.ifCancel"),
+    price: PUNCHME_MONTHLY_PRICE,
+  };
 
   return (
-    <Section id="faq" tone="surface">
-      <SectionHeader title={t("landing.faq.title")} />
-
-      <div className="flex max-w-3xl flex-col gap-3">
-        {items.map((item, i) => (
-          <FaqRow key={item.q} item={item} delay={i * 60} />
-        ))}
+    <section id="faq" tabIndex={-1} aria-labelledby="faq-title" className={section}>
+      <div className={cn(column, "grid gap-8 lg:grid-cols-12 lg:gap-16")}>
+        <h2 id="faq-title" className="type-headline text-balance text-ink lg:col-span-4">
+          {t("landing.faq.title")}
+        </h2>
+        <div className="border-t border-border-strong lg:col-span-8">
+          {items.map((item, index) => (
+            <details key={item.q} className="group border-b border-border-strong">
+              <summary
+                className={cn(
+                  "flex min-h-14 cursor-pointer list-none items-center justify-between gap-6 rounded-sm py-4 text-start [&::-webkit-details-marker]:hidden",
+                  noTapFlash,
+                  focusRing,
+                )}
+              >
+                <span className="type-card-title text-ink">{item.q}</span>
+                <Plus
+                  aria-hidden
+                  className={cn(
+                    "size-5 shrink-0 text-ink group-open:rotate-45",
+                    !reduced && "transition-transform duration-move ease-in-out-strong",
+                  )}
+                />
+              </summary>
+              <p className="type-prose pb-6 text-pretty text-ink-muted">
+                <Trans
+                  i18nKey={`landing.faq.items.${index}.a`}
+                  values={shared}
+                  components={{ ltr: <bdi dir="ltr" className="type-figure" /> }}
+                />
+              </p>
+            </details>
+          ))}
+        </div>
       </div>
-    </Section>
-  );
-}
-
-function FaqRow({ item, delay }: { item: FaqItem; delay: number }) {
-  const rise = useReveal<HTMLDetailsElement>(delay);
-
-  return (
-    <details
-      ref={rise.ref}
-      style={rise.style}
-      className={cn(
-        "faq-item group rounded-2xl border border-border bg-background px-5 shadow-card",
-        // Not the shared `cardHover`: a row in a list of eight should firm up
-        // under the pointer, not lift out of the stack. Only the hairline
-        // and the chevron answer.
-        "transition-colors duration-200 hover:border-border-strong",
-        rise.className,
-      )}
-    >
-      <summary
-        className={cn(
-          "flex cursor-pointer items-center justify-between gap-6 py-5 text-start",
-          focusRing,
-        )}
-      >
-        <span className="font-heading text-base font-bold text-ink sm:text-lg">
-          {item.q}
-        </span>
-        <Plus
-          size={20}
-          aria-hidden="true"
-          className="shrink-0 text-primary-text transition-transform duration-200 group-open:rotate-45 motion-reduce:transition-none"
-        />
-      </summary>
-      <p className="max-w-2xl pb-5 text-pretty text-ink-muted">{item.a}</p>
-    </details>
+    </section>
   );
 }

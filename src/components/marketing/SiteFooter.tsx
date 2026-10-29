@@ -1,89 +1,67 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { cn } from "../../lib/cn";
-import { Container, focusRing } from "./primitives";
+import { Button, focusRing } from "../kit";
+import { noTapFlash } from "../kit/classes";
+import { column } from "./landingLayout";
 import { NAV_ANCHORS } from "./SiteHeader";
 import logo from "../../assets/logo.png";
 
+const LINK = cn(
+  "inline-flex min-h-11 items-center rounded-full px-1 font-heading text-[0.9375rem] font-medium text-ink-muted transition-colors duration-gentle ease-out hover-fine:text-ink",
+  noTapFlash,
+  focusRing,
+);
+
 /**
- * Three columns, not the four in the spec: there are no Terms, Privacy or
- * Contact pages in the router yet, and linking to 404s costs more trust than
- * an absent column does. Add a "Company" column here once those routes exist.
+ * The foot of the page, on the wall like the rest: the wordmark, the page's
+ * sections, sign in, the other language and the year. No Terms, Privacy or
+ * Contact yet: those pages don't exist, and a link to a 404 costs more trust
+ * than an absent one. A contact line comes the day there is a number to put
+ * in it.
  */
 export function SiteFooter() {
   const { t, i18n } = useTranslation();
-
-  const toggleLanguage = () =>
-    i18n.changeLanguage(i18n.resolvedLanguage === "he" ? "en" : "he");
-
-  const linkClass = cn(
-    "inline-flex min-h-[44px] min-w-[44px] items-center rounded text-sm text-white/70 transition-colors hover:text-white",
-    focusRing,
-    "focus-visible:ring-offset-navy-deep",
-  );
+  const other = i18n.resolvedLanguage === "he" ? "en" : "he";
 
   return (
-    <footer className="bg-navy-deep pb-8 pt-16">
-      <Container>
-        <div className="grid gap-10 md:grid-cols-4">
-          <div className="md:col-span-2">
-            {/* The asset is black line art on transparency, so this pair
-                of filters is the whole recolour: brightness-0 flattens the
-                ink to black, invert takes it to white, and alpha is left
-                alone. It only started working once the logo stopped being
-                an opaque white box — before, it inverted the box too and
-                painted a solid white slab here. */}
-            <img
-              src={logo}
-              alt={t("app.name")}
-              className="h-7 w-auto brightness-0 invert"
-            />
-            <p className="mt-4 max-w-xs text-pretty text-sm text-white/60">
-              {t("landing.footer.tagline")}
-            </p>
-          </div>
-
+    <footer className="mt-20 border-t border-border pb-10 pt-10 sm:mt-24 lg:mt-36">
+      <div className={cn(column, "flex flex-col gap-8")}>
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <Link to="/" className={cn("inline-flex min-h-11 items-center self-start rounded-full", focusRing)}>
+            <img src={logo} alt={t("app.name")} className="h-7 w-auto" />
+          </Link>
           <nav aria-label={t("landing.footer.productHeading")}>
-            <h2 className="t-eyebrow text-white/60">
-              {t("landing.footer.productHeading")}
-            </h2>
-            <ul className="mt-4 flex flex-col gap-3">
+            <ul className="flex flex-wrap gap-x-5 gap-y-1">
               {NAV_ANCHORS.map((item) => (
                 <li key={item.href}>
-                  <a href={item.href} className={linkClass}>
+                  <a href={item.href} className={LINK}>
                     {t(item.key)}
                   </a>
                 </li>
               ))}
               <li>
-                <Link to="/login" className={linkClass}>
+                <Link to="/login" className={LINK}>
                   {t("landing.nav.signIn")}
                 </Link>
               </li>
             </ul>
           </nav>
-
-          <div>
-            <h2 className="t-eyebrow text-white/60">
-              {t("landing.footer.languageHeading")}
-            </h2>
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              className={cn(linkClass, "mt-4 inline-flex min-h-[44px] items-center")}
-            >
-              {t("language.switch")}
-            </button>
-          </div>
         </div>
-
-        <div className="mt-12 border-t border-white/10 pt-8">
-          <p className="text-sm text-white/50">
-            © {new Date().getFullYear()} {t("app.name")} —{" "}
-            {t("landing.footer.rights")}
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <p className="type-body text-ink-muted">
+            <bdi dir="ltr">{t("landing.footer.copyright", { year: new Date().getFullYear() })}</bdi>
           </p>
+          <Button
+            variant="quiet"
+            lang={other}
+            onClick={() => void i18n.changeLanguage(other)}
+            className="-me-3 px-3"
+          >
+            {t("language.switch")}
+          </Button>
         </div>
-      </Container>
+      </div>
     </footer>
   );
 }
