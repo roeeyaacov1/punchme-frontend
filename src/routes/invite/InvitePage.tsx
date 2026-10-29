@@ -19,6 +19,7 @@ import {
   linkText,
 } from "../../components/kit";
 import { cn } from "../../lib/cn";
+import { isolate } from "../dashboard/problem";
 import { PublicPage } from "../public/PublicPage";
 
 /** An address set left to right inside a Hebrew sentence, its "ל-" kept
@@ -141,7 +142,7 @@ export function InvitePage() {
 
   const loading = (preview.isLoading && !invitation) || sessionLoading;
   const title = invitation
-    ? t("invite.pageTitle", { business: invitation.business_name })
+    ? t("invite.pageTitle", { business: isolate(invitation.business_name) })
     : t("invite.pageTitleLoading");
 
   if (loading) {

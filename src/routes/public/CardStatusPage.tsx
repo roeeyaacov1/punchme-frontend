@@ -6,6 +6,7 @@ import { ApiError } from "../../api/errors";
 import { getPublicCard } from "../../api/loyalty";
 import { Button, EmptyState, Loading, Skeleton } from "../../components/kit";
 import { browserStorage, rememberHeldCard } from "../../lib/heldCards";
+import { isolate } from "../dashboard/problem";
 import { JoinedCard } from "./join/JoinedCard";
 import { PublicPage } from "./PublicPage";
 
@@ -45,7 +46,7 @@ export function CardStatusPage() {
 
   const notFound = error instanceof ApiError && error.status === 404;
   const title = card
-    ? t("enroll.pageTitleCard", { business: card.business_name })
+    ? t("enroll.pageTitleCard", { business: isolate(card.business_name) })
     : t("enroll.status.pageTitle");
 
   return (
