@@ -16,7 +16,7 @@ export function WalletButton({ href }: { href: string }) {
   const label =
     wallet === "apple" ? t("wallet.addApple") : wallet === "google" ? t("wallet.addGoogle") : t("wallet.addToWallet");
   return (
-    <LinkButton href={href} size="lg" icon={<Wallet aria-hidden />} className="w-full !whitespace-normal text-center">
+    <LinkButton href={href} size="lg" icon={<Wallet aria-hidden />} className="w-full !whitespace-normal py-2.5 text-center">
       {label}
     </LinkButton>
   );

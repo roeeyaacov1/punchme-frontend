@@ -124,7 +124,7 @@ export function JoinForm({ flow }: { flow: JoinFlow }) {
               {t(flow.errors.form)}
             </Notice>
           )}
-          <Button type="submit" size="lg" busy={flow.busy} className="w-full !whitespace-normal">
+          <Button type="submit" size="lg" busy={flow.busy} className="w-full !whitespace-normal py-2.5 text-center">
             {t(flow.otpRequired ? "enroll.sendCodeCta" : "enroll.submit")}
           </Button>
           {flow.otpRequired && (

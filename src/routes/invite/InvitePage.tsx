@@ -235,7 +235,7 @@ export function InvitePage() {
                 {refusal}
               </Notice>
             )}
-            <Button size="lg" busy={accepting} onClick={() => void accept()} className="w-full !whitespace-normal text-center">
+            <Button size="lg" busy={accepting} onClick={() => void accept()} className="w-full !whitespace-normal py-2.5 text-center">
               {t("invite.joinCta")}
             </Button>
             <button
@@ -274,7 +274,7 @@ export function InvitePage() {
                 size="lg"
                 busy={auth.submitting || accepting}
                 disabled={!auth.canSubmit}
-                className="w-full !whitespace-normal text-center"
+                className="w-full !whitespace-normal py-2.5 text-center"
               >
                 {auth.mode === "signup" ? t("invite.signUpCta") : t("invite.signInCta")}
               </Button>
