@@ -21,7 +21,9 @@
  * to the app rather than to the browser's dinosaur.
  */
 
-const CACHE = "punchme-shell-v1";
+// v2: v1 could hold the app's index.html under a chunk's name (see
+// cacheFirst), and a new name is how an activation clears it.
+const CACHE = "punchme-shell-v2";
 const SHELL = "/index.html";
 
 self.addEventListener("install", () => {
@@ -44,13 +46,25 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-/** Content-hashed and therefore immutable: serve from cache, fetch once. */
+/**
+ * Content-hashed and therefore immutable: serve from cache, fetch once.
+ *
+ * Only a real file is kept. A host serving the app as a single page
+ * (`serve -s`, `vite preview`) answers a file it doesn't have with
+ * index.html and a 200, as it does for a chunk the new build no longer
+ * has, or one asked for a moment before a deploy finishes uploading it.
+ * Kept, that page would stand in for the chunk for good, cache-first,
+ * and its route would fail in that browser until its data was cleared.
+ * Not kept, the import fails once, `main.tsx` reloads the tab, and the
+ * next request finds the file.
+ */
 async function cacheFirst(request) {
   const cache = await caches.open(CACHE);
   const hit = await cache.match(request);
   if (hit) return hit;
   const response = await fetch(request);
-  if (response.ok) cache.put(request, response.clone());
+  const html = (response.headers.get("Content-Type") || "").includes("text/html");
+  if (response.ok && !html) cache.put(request, response.clone());
   return response;
 }
 
