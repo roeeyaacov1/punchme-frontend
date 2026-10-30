@@ -66,22 +66,23 @@ type drifts, while the barcode plates hold at any width.
 | | `/dashboard/design` | `/admin/catalog/:id` | `/dashboard` | `/onboarding/*` | Public pages (`/join`, `/c/:serial`, `/p/:token`) | `/` |
 |---|---|---|---|---|---|---|
 | `CardStudio` and its editors | yes | yes | – | – | – | – |
-| `AppleCardPreview` / `GoogleCardPreview` | yes | yes | yes | yes, in `PhoneFrame` | yes, in `PassStage` | Apple only, in the hero |
+| `AppleCardPreview` / `GoogleCardPreview` | yes | yes | yes | yes, in `CardStage` on the kit's `WallpaperStage` | yes, in `PassStage` | Apple only, in the hero |
 
-**Onboarding does not use `CardStudio`.** Its steps have their own
-controls, which are second copies of what the studio offers:
+**Onboarding does not use `CardStudio`**, but its card screen is built on
+the same controls and the same `StudioTray` (Phase 4):
 
 | Concern | Onboarding | Studio |
 |---|---|---|
-| Card colour | 10 swatches, the trade's looks, `ui/ColorField` | `CardColourPicker`: the 6 palettes as ready looks, the same 10 backgrounds, one's own |
-| Stamp colour | Related swatches, each at least 3:1 | `StampColourPicker`: the same swatches, and one's own with a warning under 3:1 |
-| Glyph and texture | `ChoiceGrid` | `StampPicker` (the trade's glyph first) and `TexturePicker` |
-| Stamp picture | Cropped in the browser, uploaded at save | Cropped in the browser, held until Save |
-| Stamp count | Its own slider | `StampCountControl`: the kit's slider and the strip |
+| Card colour | `CardColourPicker`: the trade's looks (colours only), the same 10 backgrounds, one's own | `CardColourPicker`: the 6 palettes as ready looks, the 10 backgrounds, one's own |
+| Stamp colour | `StampColourPicker` | `StampColourPicker`: the swatches that clear 3:1, and one's own with a warning under it |
+| Glyph and texture | `StampPicker` and `TexturePicker` | `StampPicker` (the trade's glyph first) and `TexturePicker` |
+| Stamp picture | Cropped in the browser, kept on the device, uploaded at save | Cropped in the browser, held until Save |
+| Stamp count | `StampCountControl` | `StampCountControl`: the kit's slider and the strip |
+| Reward | `RewardField`, two lines; Enter saves the card | `RewardField`, two lines; Enter does nothing |
 | Saving | Draft in `localStorage`, then `commit.ts` | Explicit Save: the held pictures, then one PATCH. The draft is kept in the tab |
 
 Roee chose one shared set (Phase 3): the studio is built on
-`card-studio/controls`, and onboarding moves onto it in Phase 4.
+`card-studio/controls`, and onboarding moved onto it in Phase 4.
 
 ## Rules the editor has to keep
 
