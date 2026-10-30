@@ -48,8 +48,8 @@ for itself, and who can see that without tending a dashboard.
 
 ## Positioning
 
-The loyalty card a customer doesn't have to install, from a company that will
-tell an owner when it isn't worth the money.
+The loyalty card a customer doesn't have to install, from a company that says
+plainly what it costs and what it does.
 
 - **A wallet pass, not an app and not a paper card.** Nothing to download,
   nothing to lose at the bottom of a bag, no account, no password. Joining
