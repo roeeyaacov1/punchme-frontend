@@ -11,6 +11,8 @@ import { useWide } from "../../../components/onboarding/useWide";
 import { cn } from "../../../lib/cn";
 import { CardStage, type StageHandle } from "../CardStage";
 import { sampleStamps } from "../draft";
+import { useStorageFull } from "../storageCheck";
+import { StorageNotice } from "../StorageNotice";
 import { useOnboardingDraft } from "../useOnboardingDraft";
 import { ColoursPanel } from "./card/ColoursPanel";
 import { RewardPanel } from "./card/RewardPanel";
@@ -67,7 +69,8 @@ export function CardStep() {
   const location = useLocation();
   const wide = useWide();
   const reduced = useReducedMotion();
-  const { resolved, update, artUrl } = useOnboardingDraft();
+  const { draft, resolved, update, artUrl, artPersisted } = useOnboardingDraft();
+  const storageFull = useStorageFull(draft, artPersisted);
   const stage = useRef<StageHandle>(null);
   const openers = useRef(new Map<Tray, HTMLButtonElement>());
   const rewardField = useRef<HTMLTextAreaElement>(null);
@@ -183,7 +186,7 @@ export function CardStep() {
   const panel = (id: Tray | null): ReactNode => {
     if (id === "reward") return <RewardPanel ref={rewardField} asked={asked} onSave={save} />;
     if (id === "colours") return <ColoursPanel ref={stampColour} />;
-    if (id === "stamp") return <StampPanel />;
+    if (id === "stamp") return <StampPanel storageFull={storageFull} />;
     return null;
   };
 
@@ -244,6 +247,7 @@ export function CardStep() {
             onBack={() => navigate("/onboarding/business")}
           />
         }
+        notice={<StorageNotice full={storageFull} />}
         card={<CardStage ref={stage} />}
         under={under}
         action={wide || !tray ? saveButton : undefined}
