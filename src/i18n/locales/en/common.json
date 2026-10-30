@@ -1193,8 +1193,7 @@
     "free": {
       "how": "You pay on Stripe's page, then come back here. You can cancel any time, from this page.",
       "staysTitle": "What stays free",
-      "stays": "Designing the card, trying it on your own phone, this dashboard and your team: free, before activating and after.",
-      "calculator": "Not sure it pays? Work it out with your own numbers."
+      "stays": "Designing the card, trying it on your own phone, this dashboard and your team: free, before activating and after."
     },
     "ended": {
       "title": "Your subscription has ended",
