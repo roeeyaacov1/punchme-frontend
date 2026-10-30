@@ -33,6 +33,10 @@ const MENU_ROW = cn(
  * Its end depends on the session: "Sign in" and "Start free" for a visitor,
  * "Dashboard" and the account menu for an owner who has one. Neither shows
  * until the session is known, so an owner never sees "Sign in" flicker.
+ * A stored session the server can't confirm right now (offline, the API
+ * down) still counts as signed in, as `ProtectedRoute` counts it: the
+ * owner gets "Dashboard", which says what's wrong and keeps trying, not
+ * "Sign in", which would ask for a password the session doesn't need.
  * "Start free" is the secondary pill here, not coral: every section below
  * carries its own coral button, and a coral one in the bar would put two on
  * every screen, where Lightbox allows one.
@@ -44,11 +48,12 @@ const MENU_ROW = cn(
  */
 export function SiteHeader() {
   const { t, i18n } = useTranslation();
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { user, status, isLoading, logout } = useAuth();
   // The same rule /login follows: wait for the session only when there is a
   // refresh token that could produce one. A first-time visitor shouldn't
   // wait on a request that can't succeed, with the page's buttons behind it.
   const resolvingSession = isLoading && getRefreshToken() !== null;
+  const signedIn = status === "signedIn" || status === "unreachable";
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const sentinel = useRef<HTMLDivElement>(null);
@@ -89,7 +94,7 @@ export function SiteHeader() {
 
   const primary =
     !resolvingSession &&
-    (isAuthenticated ? (
+    (signedIn ? (
       <LinkButton to="/dashboard" variant="primary" size="lg" className="w-full">
         {t("landing.nav.dashboard")}
       </LinkButton>
@@ -144,7 +149,7 @@ export function SiteHeader() {
             </Button>
 
             {!resolvingSession &&
-              (isAuthenticated ? (
+              (signedIn ? (
                 <>
                   <LinkButton to="/dashboard" variant="secondary" className="hidden sm:inline-flex">
                     {t("landing.nav.dashboard")}
@@ -197,7 +202,7 @@ export function SiteHeader() {
 
         <List className="-mx-6 mt-6 border-y border-border">
           {!resolvingSession &&
-            (isAuthenticated ? (
+            (signedIn ? (
               <ListRow
                 onClick={() => {
                   setMenuOpen(false);
