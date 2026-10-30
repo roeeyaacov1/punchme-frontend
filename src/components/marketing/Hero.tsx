@@ -69,7 +69,9 @@ function Tag({ children, foot = false, className }: { children: ReactNode; foot?
  * nothing, its place kept. The scan brings the answer in with the stamp it
  * adds, and the pass takes that stamp in the same frame, at once, as Wallet
  * does: the frozen pass can't animate, so the landing is staged in the
- * answer.
+ * answer. With reduced motion the counter is scanned from the first paint,
+ * the answer standing and the stamp on the pass, and the scan, when it
+ * comes, is only its glow clearing over them.
  *
  * Memoised: a layer only draws again when its own trade or scan changes,
  * not each time another is laid over it.
@@ -87,10 +89,12 @@ const Counter = memo(function Counter({
   className?: string;
 }) {
   const { t, i18n } = useTranslation();
+  const reduced = useReducedMotion();
   const template = tradeTemplate(trade);
   const landed = landedStamps(template);
   const language = i18n.resolvedLanguage === "he" ? "he" : "en";
   const snap = scan === "now";
+  const waiting = scan === "waiting" && !reduced;
 
   return (
     <div
@@ -113,19 +117,20 @@ const Counter = memo(function Counter({
 
       <div className="relative w-[300px] shrink-0 font-normal not-italic leading-normal tracking-normal lg:order-2 lg:mb-10">
         <Tag>{t("landing.hero.counter.card")}</Tag>
-        <AppleCardPreview {...samplePass(template, t, scan === "waiting" ? template.currentStamps : landed)} />
+        <AppleCardPreview {...samplePass(template, t, waiting ? template.currentStamps : landed)} />
       </div>
 
       <div
         ref={answerRef}
         className={cn(
           "absolute end-1.5 top-5 z-10 w-[8.75rem] lg:relative lg:end-auto lg:top-auto lg:order-3 lg:w-[16.5rem]",
-          scan === "waiting" && "invisible",
+          waiting && "invisible",
         )}
       >
         {/* The answer itself comes in under the flash; its label, outside
-            the flash, lights up in the gentle fade. */}
-        <Tag className={snap ? "animate-gentle-in" : undefined}>{t("landing.hero.counter.scan")}</Tag>
+            the flash, lights up in the gentle fade, unless it was there
+            already. */}
+        <Tag className={snap && !reduced ? "animate-gentle-in" : undefined}>{t("landing.hero.counter.scan")}</Tag>
         <SampleAnswer template={template} kind="stamped" count={landed} compact snap={snap} className="lg:hidden" />
         <SampleAnswer template={template} kind="stamped" count={landed} snap={snap} className="hidden lg:flex" />
       </div>
