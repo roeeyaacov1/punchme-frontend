@@ -7,8 +7,16 @@ import { column } from "./landingLayout";
 import { NAV_ANCHORS } from "./SiteHeader";
 import logo from "../../assets/logo.png";
 
+/** A text link: ink under a finger as it presses, as under a pointer. */
 const LINK = cn(
-  "inline-flex min-h-11 items-center rounded-full px-1 font-heading text-[0.9375rem] font-medium text-ink-muted transition-colors duration-gentle ease-out hover-fine:text-ink",
+  "inline-flex min-h-11 touch-manipulation items-center rounded-full px-1 font-heading text-[0.9375rem] font-medium text-ink-muted transition-colors duration-gentle ease-out active:text-ink hover-fine:text-ink",
+  noTapFlash,
+  focusRing,
+);
+
+/** The wordmark home: it dims under a finger, with no tap flash over it. */
+const LOGO = cn(
+  "inline-flex min-h-11 items-center self-start rounded-full transition-opacity duration-press ease-out-strong active:opacity-70",
   noTapFlash,
   focusRing,
 );
@@ -28,7 +36,7 @@ export function SiteFooter() {
     <footer className="mt-20 border-t border-border pb-10 pt-10 sm:mt-24 lg:mt-36">
       <div className={cn(column, "flex flex-col gap-8")}>
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <Link to="/" className={cn("inline-flex min-h-11 items-center self-start rounded-full", focusRing)}>
+          <Link to="/" className={LOGO}>
             <img src={logo} alt={t("app.name")} className="h-7 w-auto" />
           </Link>
           <nav aria-label={t("landing.footer.productHeading")}>

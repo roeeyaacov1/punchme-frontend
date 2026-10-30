@@ -110,7 +110,15 @@ export function SiteHeader() {
         )}
       >
         <div className={cn(column, "flex h-16 items-center gap-2 lg:h-[4.5rem]")}>
-          <Link to="/" className={cn("inline-flex min-h-11 shrink-0 items-center rounded-full", focusRing)}>
+          <Link
+            to="/"
+            // It dims under a finger, with no tap flash over it.
+            className={cn(
+              "inline-flex min-h-11 shrink-0 items-center rounded-full transition-opacity duration-press ease-out-strong active:opacity-70",
+              noTapFlash,
+              focusRing,
+            )}
+          >
             <img src={logo} alt={t("app.name")} className="h-7 w-auto" />
           </Link>
 
@@ -120,7 +128,7 @@ export function SiteHeader() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-3 font-heading text-[0.9375rem] font-medium text-ink-muted transition-colors duration-gentle ease-out hover-fine:text-ink",
+                  "inline-flex min-h-11 touch-manipulation items-center whitespace-nowrap rounded-full px-3 font-heading text-[0.9375rem] font-medium text-ink-muted transition-colors duration-gentle ease-out active:text-ink hover-fine:text-ink",
                   noTapFlash,
                   focusRing,
                 )}

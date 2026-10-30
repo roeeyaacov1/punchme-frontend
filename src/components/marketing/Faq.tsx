@@ -22,6 +22,10 @@ interface FaqItem {
  * An answer comes in by the gentle 150ms fade each time it opens, with
  * reduced motion too: a control, so quick, and the plus turning says the
  * rest. The rows under it step down at once, as a disclosure's do.
+ *
+ * Each question is a row, pressed as the kit's rows are: the 6% ink well
+ * under a finger, the 5% one under a pointer, no double-tap wait, and no
+ * selecting its words on a long press. The answer stays selectable.
  */
 export function Faq() {
   const { t } = useTranslation();
@@ -46,7 +50,7 @@ export function Faq() {
             <details key={item.q} className="group border-b border-border-strong">
               <summary
                 className={cn(
-                  "flex min-h-14 cursor-pointer list-none items-center justify-between gap-6 rounded-sm py-4 text-start [&::-webkit-details-marker]:hidden",
+                  "flex min-h-14 cursor-pointer touch-manipulation select-none list-none items-center justify-between gap-6 rounded-sm py-4 text-start transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5 [&::-webkit-details-marker]:hidden",
                   noTapFlash,
                   focusRing,
                 )}
