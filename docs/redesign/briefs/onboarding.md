@@ -8,6 +8,12 @@ is also where an owner decides whether PunchMe is worth it). No code
 changed. Step B builds it on Lightbox (DESIGN.md) and `src/components/kit`,
 in Plan mode, once Phase 8 has merged (§9).
 
+**30 Oct 2026: the calculator came off.** Roee took it off the landing page
+(`docs/landing-page.md`, "The calculator, taken off"), and Billing's link to
+it went with it. So going live ends on what stays free, and three lines here
+no longer apply: "the calculator for anyone unsure" in §1, the last
+question in §3.11, and the link under the panel in §7.10.
+
 The inputs:
 - CLAUDE.md, PRODUCT.md, DESIGN.md, `docs/onboarding-flow.md` (the
   contract, and the gaps and findings it lists, which this brief treats as
@@ -933,7 +939,8 @@ four are reachable.
   - "התשלום בעמוד של Stripe. אפשר לבטל בכל רגע, מלוח הבקרה."
 - **Under the panel:** "מה נשאר בחינם" (`billing.free.staysTitle`, `stays`)
   and "לא בטוחים שזה משתלם? חשבו עם המספרים שלכם." (`billing.free.
-  calculator`) to `/#calculator`, as Billing links it.
+  calculator`) to `/#calculator`, as Billing links it. The calculator's
+  line came off on 30 Oct 2026, the note at the top.
 - **Activate** clears the draft and goes to Stripe, as today. **A failure**
   stays under the button by cause, focus kept on it.
 - The calls are today's: the templates and the design for the card, and the
