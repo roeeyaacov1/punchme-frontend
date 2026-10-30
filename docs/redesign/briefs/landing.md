@@ -65,6 +65,7 @@ Read "In short" first. Sections 9 to 11 are what step B builds.
 11. What step B keeps, touches and checks
 12. The questions put to Roee
 13. Left for other phases, and outside the redesign
+14. After step D, and what only a phone can confirm
 
 ---
 
@@ -1163,3 +1164,119 @@ other work is in §13.
   being renamed in its own session.
 - **The bundle split** is Phase 8's; this phase checks the landing's chunk
   after it.
+
+## 14. After step D, and what only a phone can confirm
+
+**Step D** (30 Oct, for the review): harden, adapt, clarify, polish, the
+detector and Lighthouse, in scoped commits from `e9e933f`. Every check ran
+in headless Chrome over CDP on the dev server (5201), with its own debug
+port and profile, Hebrew first, at 320, 375 and 1280 and sideways at
+667×375, 812×375 and 932×430. Signed-out loads were answered by a wrapped
+`fetch`, so they spent none of the shared API's budget; the signed-in
+header was read in the preview pane's existing session, which nothing
+here signed in or out.
+
+- **Harden.**
+  - With 200% text the header's end ran off the screen: on a phone the
+    menu and the language went, at 1280 Start free. The bar wraps
+    (`e4e30f0`).
+  - With the API down, a stored session showed "Sign in". It shows
+    "Dashboard", as `ProtectedRoute` treats it (`e9e933f`).
+  - The signed-in address is isolated inside the Hebrew sentence
+    (`4eed58d`); the avatar takes a whole first character (`59340ba`);
+    the footer's "FAQ" and "מחיר" were 37 and 39px wide and are 44
+    (`3121bcb`); the Hebrew tab title opens with a right-to-left mark like
+    the page's other Hebrew strings that open in Latin (`f98c613`).
+  - Held, with nothing to change: copy 40% longer in both languages at
+    every width (no overflow, no clipped text, nothing under 13px); the
+    plural keys the page borrows resolve in every form i18next asks for;
+    every printed figure (₪99, 6x, 5–25x, 58%, 79%) keeps its source
+    link, and in Hebrew the price, the range and the percentages stand in
+    their own left-to-right runs. The rules' "10:00" and "30 יום" read in
+    order without one, as the dashboard prints them.
+  - Left: at 200% text the counter's objects and the sample answers,
+    fixed-size pictures, clip at their panels' edges; words, figures and
+    controls reflow. Hebrew `dashboard.scan.result.toGo_two` prints "עוד 2
+    חותמות להטבה" where `messaging.sentence.giftStamps_two` says "שתי":
+    the Scan page's key, left to it.
+- **Adapt** found nothing to change: the page was built 375-first, and
+  sideways the menu's sheet scrolls to its last row above its pinned
+  button.
+- **Clarify** (`cb97e9a` to `dff56db`): a message to everyone can carry
+  one to three stamps or a full card, as the composer offers, where the
+  page said "a stamp"; the price's lead no longer reads as if activating
+  were free; English calls a broadcast what the rules above call it; the
+  FAQ's iPhone and Android answer says what "it" is; and one Hebrew
+  wording for "the code from an SMS".
+- **Polish**, with step A's critique snapshot: its target has changed, so
+  `critique-storage latest` reports it closed. Its four P1s and its P2
+  were closed by steps B and C, the calculator's by taking it off.
+- **The detector** (`npx impeccable detect`, 4.8.0). The file scan's three
+  advisories, 15px type off DESIGN.md's ramp, are fixed (`9e96ea8`,
+  `9d6ecd5`); the live scan's stragglers, one word on a paragraph's last
+  line, are fixed (`68d4307`). Kept on purpose: `cream-palette` (the
+  wall), `radial-halo` (the lock screen's wallpaper, made from the card's
+  colours), `repeating-stripes-gradient` (the pass's own pattern) and,
+  in Hebrew only, `nested-cards` (the pass and the sign standing on the
+  counter's panel).
+- **Lighthouse** 13.6.0 on a phone profile, against the production build
+  on a port of its own, three runs a language. Medians: performance 90 in
+  Hebrew and 99 in English, accessibility 100, best practices 100, SEO 83.
+  The wordmark now carries its size (`edc797a`). Not changed, and why:
+  the meta description and `robots.txt` (§13, site-wide; WhatsApp's
+  crawler runs no script); the render-blocking Google Fonts stylesheet and
+  the entry chunk's unused code (`index.html` and the shared entry, every
+  page's); the 905×218 logo file (every page's, 18 KiB); the standee's
+  forced reflow (`StandeeSheet` fitting its own text).
+- **The font shift**, the one Lighthouse finding that matters and isn't
+  this phase's to fix. In Hebrew at 412px, the width of Lighthouse's
+  phone and many Androids, the two families land at different moments:
+  with Rubik in and Assistant not, the lead's "₪99", in Rubik's tabular
+  figures, sits beside Hebrew still in the fallback face, and the lead
+  loses a line until Assistant lands. The button and the whole counter
+  jump about 30px up, then back: CLS 0.546, against 0.007 in English and
+  0.002–0.007 at 375 and 390. Holding the font files back 2.5s
+  reproduces it every time; one Lighthouse run in three caught it. The
+  fix is how `index.html` loads the fonts (fallback faces with matched
+  metrics, or `display=optional` with the two Hebrew files preloaded),
+  for every page.
+- **Reduced motion** starts with everything visible now (`6098204`): the
+  counter's answer was hidden, and the pass a stamp short, for about two
+  seconds, and the lock screen's message until it was scrolled to.
+- **Checked** (CLAUDE.md's six and the prompt's): build, lint (0 errors),
+  52 files and 630 tests, `calculator.ts` and `calculator.test.ts` as they
+  were; `#how-it-works`, `#pricing` and `#faq` landing 96px down, clear
+  of the header, from a full load and from `/login`, in both languages at
+  375 and 1280 and in both motion settings; the keyboard path (the skip
+  link onto `main`, a ring on every stop, the trade switch's arrows the
+  way each language reads, an answer opened by Enter and Space, the
+  menu's trap, Escape back to its button, a section chosen in it taking
+  focus); the hero's pass the studio's `AppleCardPreview`, unchanged, at
+  300px at every width; a clean console on the dev server and the
+  production build; nothing wider than the screen, no clipped text and no
+  target under 44px at 320, 375, 768, 1024 and 1280. §13's two 401s are
+  gone: a visitor with no stored session makes no call at all (`src/auth`,
+  since Phase 8).
+
+**Only a real phone can confirm**, Hebrew first, with `npm run dev:phone`:
+- **The tap feel** (step C): each FAQ question's 6% ink well under a
+  finger with no grey flash, the footer's and the menu's links turning ink
+  as they're pressed, the wordmark dimming to 70%, buttons sinking to 0.97,
+  and no double-tap wait anywhere. Desktop Chrome reports no tap highlight
+  and fires no `:active` from emulated touch.
+- **The pause before the scan** (step C): the counter holds a stamp short
+  for 800ms once the fonts are in and most of the answer is in view, then
+  the stamp lands. Whether that reads as a beat or as a lag depends on the
+  phone's own font load and scroll, which an emulator doesn't have.
+- **The crossfade** (step C): a trade switch fades a new pass, sign and
+  answer in over 300ms. It was measured on a desktop CPU slowed 4x; a
+  mid-range Android shows whether it holds its frames.
+- **The font shift** above, on a 412px Android on a cold cellular load:
+  whether the lead jumps a line as the fonts land.
+- **Large text**, from the phone's own setting (Android's font size with
+  Chrome's text scaling): the header wrapping instead of losing its menu.
+- **Sideways**: the menu's sheet under the notch, and the sticky header
+  with the address bar sliding away.
+- **The tab title** in Safari's and Chrome's tab switchers and share
+  sheets: "PunchMe" at the right end of the Hebrew title, now that it
+  opens with a right-to-left mark.
