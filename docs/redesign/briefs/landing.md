@@ -7,6 +7,15 @@ Phase 9, step A of `docs/redesign/guide.md`: `/`. Diagnosed and written on
 `/impeccable shape` (mode: Persuade). No code changed. Step B builds it on
 Lightbox (DESIGN.md) and `src/components/kit`, in Plan mode, after Phase 4.
 
+**30 Oct 2026: the calculator came off.** Step B built it on the kit, then
+Roee took it off the page with nothing in its place: the FAQ follows the
+price (`docs/landing-page.md`, "The calculator, taken off"). So §9.8 no
+longer applies, nor M9, M10, the verdict and the phone's drag bar in §4,
+nor any other line here about the calculator or `#calculator`, the links
+to it included: the hero's, the header's "What regulars are worth", the
+price's "based on your numbers" and Billing's. `calculator.ts` and
+`calculator.test.ts` stay unchanged; `PUNCHME_MONTHLY_PRICE` lives there.
+
 The inputs:
 - CLAUDE.md, PRODUCT.md, DESIGN.md, `docs/landing-page.md` (what the page
   must keep), `docs/redesign/briefs/visual-world.md` and Roee's answer to D2
@@ -876,7 +885,10 @@ catches once (`sign-catch`, 600ms after 400ms unlit; `sign-on` under
 reduced motion). The "based on your numbers" line sits in Pro's panel, as
 today. One action: the same "התחילו בחינם".
 
-### 9.8 Your own arithmetic (`#calculator`)
+### 9.8 Your own arithmetic (`#calculator`): taken off
+
+Step B built it, and Roee took it off on 30 Oct 2026 (the note at the
+top). What follows is the plan as step A wrote it.
 
 The model stays; the section is rebuilt on the kit:
 - **presets** as a `SegmentedControl` that shows which one is on, cleared
