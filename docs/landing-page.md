@@ -69,7 +69,7 @@ CLAUDE.md still describe it; Roee updates those.
 | Header | – | Logo; the three anchors from 1024px; language toggle; "Sign in" and "Start free" when signed out, "Dashboard" and an account menu when signed in; below 1024px a menu with the same |
 | The counter | – | "Your punch card, in Wallet": no app, no account, no password, free to design, ₪99 a month including VAT once customers can join; "Start free"; the sign, the real pass (`AppleCardPreview` from `heroTemplates.ts`) and the scan's answer, each labelled; a trade switch |
 | How it works | `how-it-works` | The sign (designed free, printed once the code goes live), the card (scan, mobile number and SMS code, Apple Wallet or Google Wallet, the real `GoogleCardPreview`, the 58%), the scan (punched and full answers) |
-| After they leave | – | A sample lock-screen message; what each phone does; the three automatic rules with their starter settings (30 days, the birthday, 7 days, 10:00, a gift stamp); broadcasts, two a week; 6x and 5–25x |
+| After they leave | – | A sample lock-screen message; what each phone does; the three automatic rules with their starter settings (30 days, the birthday, 7 days, 10:00, a gift stamp); broadcasts, two a week, with a gift of one to three stamps or a full card, as the composer offers; 6x and 5–25x |
 | The price | `pricing` | Free is the sign with its code not live yet; Pro is ₪99 a month including VAT and what it opens; how to cancel and what cancelling does, in Billing's words |
 | FAQ | `faq` | Eight questions in native `<details>`: no app; what customers give; iPhone and Android; changing phones; adding a stamp; changing the design; the cost; how to stop |
 | The close | – | "Start with the card. Pay only once customers can join.", "Start free" and the price |
@@ -139,6 +139,12 @@ Phase 9's step B.
 
 - It shows neither the signed-in nor the signed-out buttons until the
   session is known, so the buttons never flicker.
+- A session stored in the browser that the server can't confirm right now
+  (offline, the API down) counts as signed in, as `ProtectedRoute` counts
+  it: "Dashboard", whose page says what's wrong and keeps trying, and Sign
+  out in the menu. There is no avatar until the server names the owner.
+- With large text the bar wraps onto a second row, so the menu and the
+  language never leave the screen.
 - Its "Start free" is the secondary pill: every section carries its own
   coral button, one per screen.
 - The phone menu is the kit's `Sheet`: named, holding focus while open, and
@@ -183,8 +189,13 @@ Phase 9's step B.
 - The trade switch is native radios: one tab stop, the arrow keys moving
   the choice the way the language reads.
 - Figures, phone numbers and weekday labels carry `dir="ltr"` and bidi
-  isolation.
+  isolation, and so does the signed-in address in the account menus.
 - Decoration is `aria-hidden`.
+- Reduced motion starts with everything in its final state: the panels
+  lit, the counter scanned (its answer standing, the stamp on the pass,
+  only the answer's glow when it is first seen), the sample message on
+  the lock screen. Pro's light alone keeps its 150ms sign-on; every word
+  on that panel is there from the start.
 
 The four known gaps from the first version of this file are closed: the
 phone menu has a name, a focus trap and a way back; the carousel's tabs
