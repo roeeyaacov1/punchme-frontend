@@ -452,7 +452,7 @@
       "stampsValue_one": "{{count}} stamp",
       "stampsValue_other": "{{count}} stamps",
       "rewardLabel": "The reward",
-      "rewardPlaceholder": "e.g. 10th haircut free"
+      "rewardPlaceholder": "e.g. A free haircut"
     },
     "account": {
       "title": "Save your card",
@@ -524,11 +524,11 @@
         "info": "Info"
       },
       "reward": {
-        "barber": "10th haircut free",
-        "cafe": "Free coffee on your 8th visit",
-        "trainer": "1 free training session",
-        "therapist": "Free treatment on your 6th visit",
-        "other": "Free reward after 10 visits"
+        "barber": "A free haircut",
+        "cafe": "A free coffee",
+        "trainer": "A free session",
+        "therapist": "A free treatment",
+        "other": "A treat on us"
       }
     },
     "design": {

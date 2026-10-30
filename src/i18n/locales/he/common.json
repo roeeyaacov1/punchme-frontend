@@ -474,7 +474,7 @@
       "stampsValue_many": "{{count}} חותמות",
       "stampsValue_other": "{{count}} חותמות",
       "rewardLabel": "ההטבה",
-      "rewardPlaceholder": "למשל: התספורת העשירית חינם"
+      "rewardPlaceholder": "למשל: תספורת חינם"
     },
     "account": {
       "title": "שמרו את הכרטיסייה",
@@ -546,11 +546,11 @@
         "info": "מידע"
       },
       "reward": {
-        "barber": "התספורת העשירית חינם",
-        "cafe": "קפה שמיני חינם",
-        "trainer": "אימון חינם אחרי 10 אימונים",
-        "therapist": "טיפול שישי חינם",
-        "other": "הטבה חינם אחרי 10 ביקורים"
+        "barber": "תספורת חינם",
+        "cafe": "קפה חינם",
+        "trainer": "אימון חינם",
+        "therapist": "טיפול חינם",
+        "other": "פינוק מאיתנו"
       }
     },
     "design": {
