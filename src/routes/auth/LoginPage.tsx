@@ -127,7 +127,7 @@ export function LoginPage() {
             size="lg"
             busy={auth.submitting}
             disabled={!auth.canSubmit}
-            className="w-full !whitespace-normal py-2.5 text-center"
+            className="w-full !whitespace-normal text-center"
           >
             {signup ? t("auth.signUpCta") : t("auth.signInCta")}
           </Button>
@@ -138,7 +138,7 @@ export function LoginPage() {
         to="/onboarding"
         variant="secondary"
         iconEnd={<ArrowRight aria-hidden className="rtl:-scale-x-100" />}
-        className="mt-5 max-w-full self-center !whitespace-normal py-2.5 text-balance text-center"
+        className="mt-5 max-w-full self-center !whitespace-normal text-balance text-center"
       >
         {t("auth.newHere")}
       </LinkButton>
