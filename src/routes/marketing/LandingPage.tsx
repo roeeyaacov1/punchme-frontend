@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 import { focusRing } from "../../components/kit";
-import { formatCurrency } from "../../components/marketing/calculator";
 import { SiteHeader } from "../../components/marketing/SiteHeader";
 import { Hero } from "../../components/marketing/Hero";
 import { HowItWorks } from "../../components/marketing/HowItWorks";
 import { AfterTheyLeave } from "../../components/marketing/AfterTheyLeave";
-import { RevenueCalculator } from "../../components/marketing/RevenueCalculator";
 import { Pricing } from "../../components/marketing/Pricing";
 import { Faq } from "../../components/marketing/Faq";
 import { FinalCta } from "../../components/marketing/FinalCta";
@@ -56,12 +54,11 @@ function useDocumentTitle(title: string) {
  *
  * The order is the argument: the counter itself first (the sign, the card,
  * the scan, and the price), then each of them in turn, what brings people
- * back, the price as the sign switching on, the owner's own arithmetic,
- * which is the one section allowed to talk them out of it, and the
- * questions a sceptic asks. One light theme to the footer: no bands.
+ * back, the price as the sign switching on, and the questions a sceptic
+ * asks. One light theme to the footer: no bands.
  */
 export function LandingPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   useLandingGround();
   useDocumentTitle(t("landing.meta.title"));
 
@@ -69,17 +66,7 @@ export function LandingPage() {
   // follows: one sample card, all the way down.
   const [trade, setTrade] = useState<TradeKey>("barber");
 
-  // Held here so the pricing band can echo the calculator's result. Stays
-  // null until the visitor moves something and the result is actually
-  // positive: no "based on your numbers" for numbers they never entered, and
-  // no advertising a loss.
-  const [netAnnual, setNetAnnual] = useState<number | null>(null);
-
-  const handleCalculatorResult = useCallback((value: number) => {
-    setNetAnnual(value > 0 ? value : null);
-  }, []);
-
-  // A link from another page, such as Billing's to `/#calculator`, arrives
+  // A link from another page to a section, such as `/#pricing`, arrives
   // before React has drawn the section, so the browser finds nothing to
   // scroll to and the page opens at the top. Once the page and its fonts
   // are in, it goes there itself, at once, since this is an arrival rather
@@ -117,11 +104,7 @@ export function LandingPage() {
         <Hero trade={trade} onTrade={setTrade} />
         <HowItWorks trade={trade} />
         <AfterTheyLeave trade={trade} />
-        <Pricing
-          trade={trade}
-          netAnnual={netAnnual === null ? null : formatCurrency(netAnnual, i18n.resolvedLanguage ?? "en")}
-        />
-        <RevenueCalculator onTouchedResult={handleCalculatorResult} />
+        <Pricing trade={trade} />
         <Faq />
         <FinalCta />
       </main>

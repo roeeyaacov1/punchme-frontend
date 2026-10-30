@@ -33,8 +33,8 @@ export interface SegmentedControlProps<T extends string> {
  * pill's, and none waits for a double tap or selects its words on a long
  * press.
  *
- * A value that matches no option chooses nothing, and no pill is drawn:
- * the landing calculator's presets, once a slider has moved off them.
+ * A value that matches no option chooses nothing, and no pill is drawn
+ * over a segment whose radio isn't checked.
  */
 export function SegmentedControl<T extends string>({
   label,

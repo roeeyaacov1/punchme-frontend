@@ -1,4 +1,4 @@
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { Check } from "lucide-react";
 import { StandeeSheet } from "../dashboard/Standee";
 import { Badge, LinkButton, LitPanel } from "../kit";
@@ -19,12 +19,8 @@ const PAPER = "rounded-md shadow-panel-lift ring-1 ring-rim/10";
  * standee's own state before activation; Pro is the same sign lit, at ₪99 a
  * month including VAT, with what activating opens. Under them, how to stop
  * and what stopping does, in Billing's own words, and the one action.
- *
- * `netAnnual` arrives only once the visitor has moved something in the
- * calculator and the year comes out ahead: no "based on your numbers" for
- * numbers they never gave, and no advertising a loss.
  */
-export function Pricing({ trade, netAnnual }: { trade: TradeKey; netAnnual: string | null }) {
+export function Pricing({ trade }: { trade: TradeKey }) {
   const { t, i18n } = useTranslation();
   const template = tradeTemplate(trade);
   const language = i18n.resolvedLanguage === "he" ? "he" : "en";
@@ -87,15 +83,6 @@ export function Pricing({ trade, netAnnual }: { trade: TradeKey; netAnnual: stri
                   </li>
                 ))}
               </ul>
-              {netAnnual && (
-                <p className="type-body font-semibold text-ink">
-                  <Trans
-                    i18nKey="landing.pricing.calcNote"
-                    values={{ amount: netAnnual }}
-                    components={{ ltr: <bdi dir="ltr" className="type-figure" /> }}
-                  />
-                </p>
-              )}
             </div>
             <div aria-hidden className={SIGN}>
               <StandeeSheet
