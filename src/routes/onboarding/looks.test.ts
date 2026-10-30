@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import type { TFunction } from "i18next";
 import type { Preset } from "../../api/presets";
-import { accentFits } from "../../lib/accentPalette";
+import { accentFits, derivedLabelColor } from "../../lib/accentPalette";
+import { readableInk } from "../../lib/color";
 import { emptyDraft, type OnboardingDraft } from "./draft";
-import { BUILTIN_LOOKS, lookPatch, withTradeLook } from "./looks";
+import { BUILTIN_LOOKS, lookPatch, looksFor, readyLooks, withTradeLook } from "./looks";
 
 const DEFAULTS = ["A free haircut", "A free coffee", "תספורת חינם", "קפה חינם"];
 
@@ -59,5 +61,32 @@ describe("withTradeLook", () => {
     expect(withTradeLook(worn, undefined, DEFAULTS).reward).toBeNull();
     const own = draftOf({ niche: "cafe", ...lookPatch(barberFirst), reward: "Free beard trim" });
     expect(withTradeLook(own, undefined, DEFAULTS)).not.toHaveProperty("reward");
+  });
+});
+
+describe("readyLooks", () => {
+  const t = ((key: string, options?: { n?: number }) =>
+    options?.n !== undefined ? `${key}:${options.n}` : key) as unknown as TFunction;
+
+  it("names a catalog look by its place, and a built-in by its own name in the page's language", () => {
+    const presets = [
+      { id: "cat-1", niche: "barber", name: "Haircut Punch Card", background_color: "#123456", stamps_required: 10, design: {} },
+    ] as unknown as Preset[];
+    const looks = looksFor("barber", presets);
+    const ready = readyLooks(looks, t);
+    expect(ready[0]).toMatchObject({ key: "cat-1", name: "onboarding.looks.numbered:1" });
+    expect(ready[1].name).toBe(`onboarding.looks.names.${looks[1].key}`);
+  });
+
+  it("paints a look's words in the automatic colour and its labels as the card derives them", () => {
+    const light = BUILTIN_LOOKS.cafe[1];
+    expect(readyLooks([light], t)[0]).toEqual({
+      key: light.key,
+      name: `onboarding.looks.names.${light.key}`,
+      background: light.background,
+      stamp: light.accent,
+      text: readableInk(light.background),
+      label: derivedLabelColor(light.background),
+    });
   });
 });

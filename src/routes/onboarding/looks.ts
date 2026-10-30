@@ -1,6 +1,8 @@
+import type { TFunction } from "i18next";
 import type { DesignDoc } from "../../api/designs";
 import type { Preset } from "../../api/presets";
-import { relatedAccents } from "../../lib/accentPalette";
+import type { ReadyLook } from "../../components/card-studio/controls/controlRules";
+import { derivedLabelColor, relatedAccents } from "../../lib/accentPalette";
 import { CARD_PATTERNS, type CardPattern } from "../../lib/cardPatterns";
 import { normalizeHex, readableInk } from "../../lib/color";
 import { STAMP_GLYPH_NAMES } from "../../lib/stampGlyphs";
@@ -163,6 +165,26 @@ export function lookPatch(look: CardLook): Partial<OnboardingDraft> {
     pattern: look.pattern,
     stampsRequired: look.stamps,
   };
+}
+
+/**
+ * The trade's looks as the card controls offer them (`CardColourPicker`'s
+ * ready looks): the stamp colour as `stamp`, the words in the automatic
+ * colour and the labels as the card derives them, so the look the card
+ * started from is found again. A built-in look is named in the page's
+ * language; a catalog look by its place ("Look 1"), since the catalog has
+ * one name, in one language, until the backend gives it one per language.
+ * The names are for a screen reader: the tiles show the look itself.
+ */
+export function readyLooks(looks: readonly CardLook[], t: TFunction): ReadyLook[] {
+  return looks.map((look, index) => ({
+    key: look.key,
+    name: look.name ? t("onboarding.looks.numbered", { n: index + 1 }) : t(`onboarding.looks.names.${look.key}`),
+    background: look.background,
+    stamp: look.accent,
+    text: readableInk(look.background),
+    label: derivedLabelColor(look.background),
+  }));
 }
 
 /** The draft still wears this look whole: nothing a look writes was changed. */
