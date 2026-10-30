@@ -7,11 +7,9 @@ import { createCheckoutSession } from "../../../api/billing";
 import { listTemplates } from "../../../api/businesses";
 import { getTemplateDesign } from "../../../api/designs";
 import { useBusiness } from "../../../business/useBusiness";
-import { Badge, Button, Figure, linkText, LitPanel, Skeleton } from "../../../components/kit";
-import { noTapFlash } from "../../../components/kit/classes";
+import { Badge, Button, Figure, LitPanel, Skeleton } from "../../../components/kit";
 import { PUNCHME_MONTHLY_PRICE } from "../../../components/marketing/calculator";
 import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
-import { cn } from "../../../lib/cn";
 import { CardStage } from "../CardStage";
 import { checkoutProblemKey } from "../problems";
 import { useOnboardingDraft } from "../useOnboardingDraft";
@@ -30,9 +28,9 @@ function PriceFigure({ children }: { children?: ReactNode }) {
  * the case on the band's light, in the dashboard Billing's own words: the
  * price with VAT in it, the four things activating turns on, Activate, and
  * "Not now" right under it, both in the first screen, then where paying
- * happens and how to stop. Under the panel, what stays free and the
- * calculator for anyone unsure. The landing page promised "free to design",
- * and this is where that promise is kept or broken.
+ * happens and how to stop. Under the panel, what stays free: the landing
+ * page promised "free to design", and this is where that promise is kept
+ * or broken.
  *
  * Activate clears the draft and leaves for Stripe's page; a press that
  * doesn't get there is said under the button by its cause, focus kept on it.
@@ -149,12 +147,6 @@ export function BillingStep() {
           {t("billing.free.staysTitle")}
         </h2>
         <p className="type-body text-pretty text-ink-muted">{t("billing.free.stays")}</p>
-        {/* The calculator runs on the owner's own numbers, and can say no. */}
-        <p className="type-body">
-          <a href="/#calculator" className={cn(linkText, noTapFlash, "inline-flex min-h-11 items-center")}>
-            {t("billing.free.calculator")}
-          </a>
-        </p>
       </section>
     </StepShell>
   );
