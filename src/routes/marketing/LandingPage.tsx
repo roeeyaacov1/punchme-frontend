@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { startTransition, useEffect, useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 import { focusRing } from "../../components/kit";
@@ -63,8 +63,12 @@ export function LandingPage() {
   useDocumentTitle(t("landing.meta.title"));
 
   // The trade the visitor picks on the counter, which the rest of the page
-  // follows: one sample card, all the way down.
+  // follows: one sample card, all the way down. The counter and its switch
+  // answer the pick at once; the sections below, off screen as it is made,
+  // follow in a transition, so a phone's tap never waits for the passes and
+  // signs further down to draw again before its first frame.
   const [trade, setTrade] = useState<TradeKey>("barber");
+  const followTrade = (next: TradeKey) => startTransition(() => setTrade(next));
 
   // A link from another page to a section, such as `/#pricing`, arrives
   // before React has drawn the section, so the browser finds nothing to
@@ -101,7 +105,7 @@ export function LandingPage() {
       <SiteHeader />
 
       <main id="main" tabIndex={-1} className="outline-none">
-        <Hero trade={trade} onTrade={setTrade} />
+        <Hero trade={trade} onTrade={followTrade} />
         <HowItWorks trade={trade} />
         <AfterTheyLeave trade={trade} />
         <Pricing trade={trade} />
