@@ -12,6 +12,10 @@ import { column } from "./landingLayout";
 import { signedInAs } from "./signedInAs";
 import logo from "../../assets/logo.png";
 
+/** The wordmark file's own size, so its box is kept before it loads. */
+export const LOGO_WIDTH = 905;
+export const LOGO_HEIGHT = 218;
+
 /** The page's sections, in the order the page reads them. */
 export const NAV_ANCHORS = [
   { href: "#how-it-works", key: "landing.nav.howItWorks" },
@@ -128,7 +132,7 @@ export function SiteHeader() {
               focusRing,
             )}
           >
-            <img src={logo} alt={t("app.name")} className="h-7 w-auto" />
+            <img src={logo} alt={t("app.name")} width={LOGO_WIDTH} height={LOGO_HEIGHT} className="h-7 w-auto" />
           </Link>
 
           <nav aria-label={t("landing.nav.label")} className="ms-4 hidden flex-1 items-center gap-1 lg:flex">
