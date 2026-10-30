@@ -476,16 +476,14 @@
       }
     },
     "wallet": {
-      "title": "Add it to your own wallet",
-      "subtitle": "Try it exactly as your customers will.",
-      "preparing": "Preparing your card…",
-      "preparingHint": "We're building the pass for Apple Wallet and Google Wallet. This takes about a minute.",
-      "issuing": "Almost there — issuing your pass…",
-      "ready": "Your card is ready.",
-      "scanHint": "On a computer? Scan this with your phone to add the card there.",
-      "slow": "This is taking longer than usual. Your card is still being prepared — you can continue and add it from the dashboard later.",
+      "title": "Your card in your own wallet",
+      "subtitle": "This is how customers will see it. Add it to your phone and try it.",
+      "preparing": "Making the wallet card. It usually takes about a minute.",
+      "issuing": "Almost ready: issuing your card.",
+      "scanHint": "Scan this with your phone to add it there.",
+      "slow": "This is taking longer than usual. Your card is saved, and it will wait for you on the dashboard too.",
       "checkAgain": "Check again",
-      "failed": "Something went wrong preparing your card.",
+      "failed": "Your card is saved, but making it for the wallet didn't work.",
       "retry": "Try again",
       "continue": "Continue",
       "skip": "Skip for now"
