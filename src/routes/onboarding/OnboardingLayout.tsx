@@ -11,7 +11,6 @@ import { useDebounce } from "../../hooks/useDebounce";
 import { cn } from "../../lib/cn";
 import { usePublicGround } from "../../theme/usePublicGround";
 import { deviceWallet } from "../public/wallet";
-import { CardStage } from "./CardStage";
 import { OnboardingDraftProvider } from "./DraftContext";
 import { ALL_STEPS, DRAFT_STEPS, firstIncompleteStep, stepIndex, type WizardStep } from "./draft";
 import { roadOf } from "./road";
@@ -35,10 +34,6 @@ export function OnboardingLayout() {
     </OnboardingDraftProvider>
   );
 }
-
-/** Screens still on the old step shell: the frame draws their card for them
- * until each moves onto `StepShell` (Phase 4, step B). */
-const LEGACY = new Set<WizardStep>(["billing"]);
 
 function stepFromPath(pathname: string): WizardStep | null {
   const last = pathname.replace(/\/+$/, "").split("/").pop() ?? "";
@@ -123,8 +118,7 @@ function Shell() {
           />
         )}
 
-        <div id="onboarding-step" tabIndex={-1} className="flex flex-col gap-5 outline-none">
-          {step && LEGACY.has(step) && <CardStage crop="top" />}
+        <div id="onboarding-step" tabIndex={-1} className="outline-none">
           <Outlet />
         </div>
       </main>

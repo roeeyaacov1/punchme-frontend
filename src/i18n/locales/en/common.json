@@ -490,16 +490,8 @@
     },
     "billing": {
       "title": "Go live when you're ready",
-      "subtitle": "Your card and dashboard are free. Pay only when real customers can join.",
-      "priceNote": "a month, cancel any time",
-      "bullets": [
-        "Your QR code and a printable stand for the counter",
-        "Real customers can add the card and collect stamps",
-        "Cancel any time from the dashboard"
-      ],
-      "freeNote": "Not ready? Everything you've made stays free — activate whenever you like.",
-      "activateCta": "Activate for ₪99/month",
-      "notNow": "Not now — take me to my dashboard"
+      "notNow": "Not now, to the dashboard",
+      "how": "You pay on Stripe's page. You can cancel any time, from the dashboard."
     },
     "card": {
       "templateName": {
