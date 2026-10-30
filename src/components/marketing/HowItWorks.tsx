@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { cn } from "../../lib/cn";
 import { GoogleCardPreview } from "../card-studio/CardPreviews";
 import { StandeeSheet } from "../dashboard/Standee";
 import { Figure, LitPanel } from "../kit";
@@ -7,6 +8,7 @@ import { SampleAnswer } from "./SampleAnswer";
 import { landedStamps, samplePass, sampleSign, tradeTemplate, type TradeKey } from "./samples";
 import { SourceLabel, type ProofStat } from "./SourceLabel";
 import { PROOF_SOURCE_URLS } from "./sources";
+import { useLightsOn } from "./useFirstSight";
 
 /**
  * How it works, in the order a customer meets the three objects on the
@@ -15,6 +17,10 @@ import { PROOF_SOURCE_URLS } from "./sources";
  * papers, the card above the pass and its evidence, the scan above its two
  * answers. Each shows the product's own piece, never the wizard's screens,
  * and all of them the card the visitor picked on the counter.
+ *
+ * Each panel lights on as it comes up the screen; the words above them
+ * hold still. From 1024px the card and the scan stand side by side, and the
+ * scan's light comes up 40ms after the card's.
  */
 export function HowItWorks({ trade }: { trade: TradeKey }) {
   const { t, i18n } = useTranslation();
@@ -24,6 +30,9 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
   const stats = t("landing.proof.stats", { returnObjects: true }) as ProofStat[];
   const harris = stats.find((stat) => stat.id === "harris");
   const art = sampleSign(template, t, true);
+  const signPanel = useLightsOn<HTMLDivElement>();
+  const cardPanel = useLightsOn<HTMLDivElement>();
+  const scanPanel = useLightsOn<HTMLDivElement>();
 
   return (
     <section id="how-it-works" tabIndex={-1} aria-labelledby="how-title" className={section}>
@@ -36,10 +45,14 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
           <LitPanel
             as="article"
             radius="card"
+            arrive={signPanel.arrive}
             aria-labelledby="how-sign"
-            className="flex min-w-0 flex-col gap-8 p-5 sm:p-6 lg:col-span-12 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:p-10"
+            className={cn(
+              "flex min-w-0 flex-col gap-8 p-5 sm:p-6 lg:col-span-12 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:p-10",
+              signPanel.dark,
+            )}
           >
-            <div className="flex max-w-[30rem] flex-col gap-3">
+            <div ref={signPanel.ref} className="flex max-w-[30rem] flex-col gap-3">
               <h3 id="how-sign" className="type-title text-ink">
                 {t("landing.howItWorks.sign.title")}
               </h3>
@@ -78,12 +91,16 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
           <LitPanel
             as="article"
             radius="card"
+            arrive={cardPanel.arrive}
             aria-labelledby="how-card"
             // On a screen narrower than the pass's 300px plus the panel's
             // inset, the panel clips the pass's edges rather than squeeze it.
-            className="flex min-w-0 flex-col gap-6 overflow-hidden p-5 sm:p-6 lg:col-span-7 lg:p-10"
+            className={cn(
+              "flex min-w-0 flex-col gap-6 overflow-hidden p-5 sm:p-6 lg:col-span-7 lg:p-10",
+              cardPanel.dark,
+            )}
           >
-            <div className="flex flex-col gap-3">
+            <div ref={cardPanel.ref} className="flex flex-col gap-3">
               <h3 id="how-card" className="type-title text-ink">
                 {t("landing.howItWorks.card.title")}
               </h3>
@@ -113,10 +130,14 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
           <LitPanel
             as="article"
             radius="card"
+            arrive={scanPanel.arrive}
             aria-labelledby="how-scan"
-            className="flex min-w-0 flex-col gap-6 p-5 sm:p-6 lg:col-span-5 lg:p-10"
+            className={cn(
+              "flex min-w-0 flex-col gap-6 p-5 [animation-delay:40ms] sm:p-6 lg:col-span-5 lg:p-10",
+              scanPanel.dark,
+            )}
           >
-            <div className="flex flex-col gap-3">
+            <div ref={scanPanel.ref} className="flex flex-col gap-3">
               <h3 id="how-scan" className="type-title text-ink">
                 {t("landing.howItWorks.scan.title")}
               </h3>
