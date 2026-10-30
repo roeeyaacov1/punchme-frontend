@@ -2124,7 +2124,6 @@
   "publicCard": {
     "notFound": "ייתכן שהוסרה, או שהקישור שגוי.",
     "card": {
-      "reward": "אוספים {{stamps}} חותמות ומקבלים: {{reward}}",
       "join": "קבלו כרטיסייה משלכם",
       "staffHint": "עובדים ב-\u2060<shop>{{business}}</shop>?",
       "signIn": "כניסה להחתמה",

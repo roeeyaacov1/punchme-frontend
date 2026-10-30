@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleAlert, CircleCheck, Plus } from "lucide-react";
 import {
@@ -41,6 +41,9 @@ import {
 } from "../../../lib/referralRules";
 import { insertAtCaret } from "../../../lib/messageTemplate";
 import { cn } from "../../../lib/cn";
+import { env } from "../../../lib/env";
+import { ShopLine } from "../../public/Shop";
+import { isolate } from "../problem";
 import { referralProblemKey } from "./referralFacts";
 
 const CAP_PERIODS = ["month", "quarter", "year", "lifetime"] as const;
@@ -506,6 +509,7 @@ function Previews({
   const [chosen, setChosen] = useState<string | null>(null);
   const shown = live.find((rule) => slotKey(rule) === chosen) ?? live[0];
   const reward = template?.reward_description ?? "";
+  const stamps = template?.stamps_required ?? 0;
   const context = { name: names.name, friend: names.friend, business: businessName, reward };
   const invitedBy =
     program.referrer_display_mode === "first_name"
@@ -518,30 +522,44 @@ function Previews({
     <div className="flex flex-col gap-5">
       <figure className="flex flex-col gap-2">
         <figcaption className="type-label text-ink">{t("referrals.preview.friendTitle")}</figcaption>
-        {/* A picture of the join page: hidden from the accessibility tree,
-            which reads the caption and the sentence under it instead. */}
-        <LitPanel light="lit" className="flex flex-col items-center gap-3 p-4 text-center" aria-hidden>
+        {/* A picture of the join page, the sign it opens on, drawn small
+            from the sign's own parts and words: who invited them, the
+            shop, the card's promise and what it costs, and the one coral
+            "Join". Hidden from the accessibility tree, which reads the
+            caption and the sentence under it instead. */}
+        <LitPanel light="field" radius="card" className="flex flex-col items-center p-5 text-center" aria-hidden>
           <div lang={lng} dir={language === "EN" ? "ltr" : "rtl"} className="flex w-full flex-col items-center gap-3">
-            <div
-              className="w-full rounded-2xl px-4 py-4 shadow-panel"
-              style={{ backgroundColor: template?.background_color, color: template?.foreground_color }}
-            >
-              <p className="font-heading text-lg font-medium" dir="auto">
-                {businessName}
-              </p>
-              <p className="text-sm opacity-80" dir="auto">
-                {template?.name}
-              </p>
+            <p className="type-label text-ink-muted">
+              {invitedBy ? card("publicCard.join.invitedBy", { name: isolate(invitedBy) }) : card("publicCard.join.invited")}
+            </p>
+            <ShopLine
+              shop={{
+                business_name: businessName,
+                template_name: template?.name ?? "",
+                background_color: template?.background_color ?? "#2B2521",
+                foreground_color: template?.foreground_color ?? "#ffffff",
+                label_color: template?.label_color ?? "#ffffff",
+                logo_url: template?.logo_url ?? null,
+              }}
+            />
+            <p className="font-heading text-xl font-medium leading-tight text-balance text-ink">{card("enroll.sign.heading")}</p>
+            <p className="font-body text-base font-semibold leading-snug text-pretty text-ink">
+              <Trans
+                t={card}
+                i18nKey="enroll.sign.lineShop"
+                count={stamps}
+                values={{ count: stamps, reward }}
+                components={{ n: <bdi dir="ltr" className="type-figure" />, reward: <bdi /> }}
+              />
+            </p>
+            <div className="flex flex-col text-sm leading-snug">
+              <p className="text-ink">{card("standee.noApp")}</p>
+              {/* The build's own switch: the settings can't see the page's. */}
+              <p className="text-ink-muted">{card(env.otpRequired ? "enroll.sign.cost" : "enroll.sign.costNoCode")}</p>
             </div>
-            <p className="font-heading text-base font-medium text-ink">
-              {invitedBy ? card("publicCard.join.invitedBy", { name: invitedBy }) : card("publicCard.join.invited")}
-            </p>
-            <p className="text-sm text-ink-muted">
-              {card("publicCard.card.reward", { stamps: template?.stamps_required ?? 0, reward })}
-            </p>
-            {/* The join page's own button, drawn as that page draws it. */}
-            <span className="grad-cta flex min-h-11 w-full items-center justify-center rounded-full px-5 font-heading text-base font-medium text-white">
-              {card("enroll.sendCodeCta")}
+            {/* The sign's own button, drawn as the kit draws it. */}
+            <span className="mt-1 flex min-h-11 w-full items-center justify-center rounded-full bg-primary px-5 font-heading text-base font-medium text-primary-on">
+              {card("enroll.sign.join")}
             </span>
           </div>
         </LitPanel>

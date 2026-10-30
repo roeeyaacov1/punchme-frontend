@@ -1986,7 +1986,6 @@
   "publicCard": {
     "notFound": "It may have been removed, or the link is wrong.",
     "card": {
-      "reward": "Collect {{stamps}} stamps and get: {{reward}}",
       "join": "Get your own card",
       "staffHint": "Working at <shop>{{business}}</shop>?",
       "signIn": "Sign in to stamp",
