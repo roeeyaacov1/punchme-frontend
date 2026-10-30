@@ -38,7 +38,7 @@ export function Pricing({ trade, netAnnual }: { trade: TradeKey; netAnnual: stri
         </h2>
         <p className="type-lead mt-4 max-w-[40rem] text-pretty text-ink-muted">{t("landing.pricing.body")}</p>
 
-        <div className="mt-8 grid gap-5 sm:mt-10 lg:mt-12 lg:grid-cols-12 lg:gap-6">
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:mt-10 lg:mt-12 lg:grid-cols-12 lg:gap-6">
           {/* Unlit: the wall itself behind a hairline, no light and no drop. */}
           <article
             aria-labelledby="price-free"

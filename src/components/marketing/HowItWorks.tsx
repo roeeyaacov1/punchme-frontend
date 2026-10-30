@@ -32,12 +32,12 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
           {t("landing.howItWorks.title")}
         </h2>
 
-        <div className="mt-8 grid gap-5 sm:mt-10 lg:mt-14 lg:grid-cols-12 lg:gap-6">
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:mt-10 lg:mt-14 lg:grid-cols-12 lg:gap-6">
           <LitPanel
             as="article"
             radius="card"
             aria-labelledby="how-sign"
-            className="flex flex-col gap-8 p-5 sm:p-6 lg:col-span-12 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:p-10"
+            className="flex min-w-0 flex-col gap-8 p-5 sm:p-6 lg:col-span-12 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:p-10"
           >
             <div className="flex max-w-[30rem] flex-col gap-3">
               <h3 id="how-sign" className="type-title text-ink">
@@ -50,8 +50,9 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
                 for a table, standing on one line as they would on a shelf.
                 Each width is its wrapper's: `.standee-sheet` fills its parent
                 and would beat a plain width class set on the sheet itself. */}
+            {/* Under 375px the two give a little, rather than run off the panel. */}
             <div aria-hidden className="flex items-end justify-center gap-2.5 sm:gap-6 lg:shrink-0">
-              <div className="w-[7.375rem] shrink-0 sm:w-40 lg:w-[13rem]">
+              <div className="w-[7.375rem] min-w-0 sm:w-40 lg:w-[13rem]">
                 <StandeeSheet
                   design="counter"
                   format="a4"
@@ -61,7 +62,7 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
                   className="rounded-md shadow-panel-lift ring-1 ring-rim/10"
                 />
               </div>
-              <div className="w-[10.875rem] shrink-0 sm:w-60 lg:w-[19rem]">
+              <div className="w-[10.875rem] min-w-0 sm:w-60 lg:w-[19rem]">
                 <StandeeSheet
                   design="counter"
                   format="tent"
@@ -78,7 +79,9 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
             as="article"
             radius="card"
             aria-labelledby="how-card"
-            className="flex flex-col gap-6 p-5 sm:p-6 lg:col-span-7 lg:p-10"
+            // On a screen narrower than the pass's 300px plus the panel's
+            // inset, the panel clips the pass's edges rather than squeeze it.
+            className="flex min-w-0 flex-col gap-6 overflow-hidden p-5 sm:p-6 lg:col-span-7 lg:p-10"
           >
             <div className="flex flex-col gap-3">
               <h3 id="how-card" className="type-title text-ink">
@@ -111,7 +114,7 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
             as="article"
             radius="card"
             aria-labelledby="how-scan"
-            className="flex flex-col gap-6 p-5 sm:p-6 lg:col-span-5 lg:p-10"
+            className="flex min-w-0 flex-col gap-6 p-5 sm:p-6 lg:col-span-5 lg:p-10"
           >
             <div className="flex flex-col gap-3">
               <h3 id="how-scan" className="type-title text-ink">

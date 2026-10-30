@@ -33,7 +33,7 @@ export function Faq() {
 
   return (
     <section id="faq" tabIndex={-1} aria-labelledby="faq-title" className={section}>
-      <div className={cn(column, "grid gap-8 lg:grid-cols-12 lg:gap-16")}>
+      <div className={cn(column, "grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-16")}>
         <h2 id="faq-title" className="type-headline text-balance text-ink lg:col-span-4">
           {t("landing.faq.title")}
         </h2>
