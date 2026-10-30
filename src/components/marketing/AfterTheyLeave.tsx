@@ -33,8 +33,8 @@ interface Rule {
  * the three automatic rules under the dashboard's names, each with its own
  * sentence of who gets it and when; and the broadcast, with its cap. Then
  * the evidence that regulars are worth keeping, each figure a citation.
- * The arithmetic, two sections down, is where the owner judges whether
- * enough would come back.
+ * Whether enough of them come back is never said: nothing here could
+ * back it.
  *
  * The sample message arrives once, when the lock screen is in view, its
  * place kept until then, so the visitor sees the card on its own first;
