@@ -2,7 +2,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { Cake, Gift, Send, UserRoundX, type LucideIcon } from "lucide-react";
 import { AppleCardPreview } from "../card-studio/CardPreviews";
 import { formatHour, uiDays } from "../messaging/describe";
-import { Badge, Figure, LitPanel, WallpaperStage } from "../kit";
+import { Badge, Figure, LitPanel, WallpaperStage, useReducedMotion } from "../kit";
 import { column, section } from "./landingLayout";
 import { landedStamps, samplePass, tradeTemplate, type TradeKey } from "./samples";
 import { SourceLabel, type ProofStat } from "./SourceLabel";
@@ -38,7 +38,8 @@ interface Rule {
  *
  * The sample message arrives once, when the lock screen is in view, its
  * place kept until then, so the visitor sees the card on its own first;
- * the rules' panel lights on as it comes up the screen.
+ * with reduced motion it is there from the first paint. The rules' panel
+ * lights on as it comes up the screen.
  */
 export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
   const { t, i18n } = useTranslation();
@@ -52,6 +53,7 @@ export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
   const evidence = stats
     .map((stat, index) => ({ stat, index }))
     .filter(({ stat }) => stat.id === "square" || stat.id === "hbr");
+  const reduced = useReducedMotion();
   const [stageRef, stageSeen] = useFirstSight<HTMLDivElement>({ share: 0.9 });
   const rulesPanel = useLightsOn<HTMLUListElement>();
 
@@ -91,7 +93,8 @@ export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
               stampColor={template.stampColor}
               foregroundColor={template.foregroundColor}
               notification={{ sender: business, title, body: t("landing.after.message.body") }}
-              arrive={stageSeen ? "now" : "waiting"}
+              // With reduced motion the message is there from the first paint.
+              arrive={reduced ? undefined : stageSeen ? "now" : "waiting"}
               summary={t("landing.after.stageSummary", { title, business })}
             >
               <AppleCardPreview {...samplePass(template, t, landedStamps(template))} />
