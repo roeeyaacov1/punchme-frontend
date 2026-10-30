@@ -1,3 +1,7 @@
+/* Stand-ins sized to the web fonts, so nothing moves when they land. An
+   @import has to come before everything else. */
+@import "./font-fallbacks.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

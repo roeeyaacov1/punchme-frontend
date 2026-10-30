@@ -1,0 +1,1243 @@
+/* ── Stand-ins while the web fonts load ─────────────────────────────────
+   index.html loads Rubik, Assistant and IBM Plex Mono from Google Fonts
+   with display=swap, so a page paints first in a face the device already
+   has and changes face as each file lands. The files land one at a time:
+   Google splits every family into a Hebrew file and Latin ones, and in a
+   Hebrew line the Latin file draws the spaces, the punctuation and the
+   figures. A line set at another width breaks in other places, and
+   everything under it jumps: on the landing page in Hebrew at 412px, CLS
+   0.55.
+
+   So each family falls back first to a face the device has, scaled to the
+   web font's widths and given its ascent and descent:
+   - "… Fallback" stands on Arial: Windows, macOS and iOS. Windows' Arial
+     sets Hebrew; where Apple's doesn't, Hebrew falls through to the
+     system's face, as it did before.
+   - "… Fallback Android" stands on Roboto and Noto Sans Hebrew.
+   A device without the named font skips the family. Roboto, the Google
+   Wallet preview's face, has none: it is the wallet's, in a fixed slot.
+
+   One ratio can't serve a whole family, because each set of characters
+   runs at its own and comes in its own file. So every weight band has a
+   face for Latin, then spaces, the punctuation, ", . : ;" (most of a
+   Hebrew line's), "0" (the ch unit is measured from it), 1–9 (Rubik's
+   tabular figures, as .type-figure sets them), Hebrew, and ₪. Rubik has
+   bands at 500 and 700, the weights its type is set in; 400 and 600 borrow
+   them and run 1–3% wide. Assistant has all four.
+
+   size-adjust is the web font's width over the stand-in's, measured in
+   Chrome on the strings of both locale files, then corrected until the
+   strings of 40 characters or more, taken together, come out within
+   0.02%. One line can still differ by about 0.7%, so a line that only
+   just fits can break the other way. Android's numbers come from Google's
+   copies of Roboto and Noto Sans Hebrew; only a phone can confirm them. The overrides are Rubik's 0.935/0.25 em, Assistant's
+   1.021/0.287 em and Plex Mono's 1.025/0.275 em, divided by the
+   size-adjust, which scales them too. None has a line gap. Safari reads
+   size-adjust but, at the time of writing, not the overrides.
+
+   Plex Mono's characters are all 0.6 em, so its stand-ins are the
+   system's monospace faces scaled to 0.6 em: Consolas, Menlo
+   (1233/2048 em) and Droid Sans Mono (1229/2048 em).
+
+   Measured 30 Oct 2026 against Rubik v31, Assistant v24 and IBM Plex Mono
+   v20. A new family, weight or version needs measuring again; with the
+   wrong numbers this file moves the text instead of holding it still. */
+
+/* Rubik 500, for weights 1–599, over Arial. */
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 110.61%;
+  ascent-override: 84.53%;
+  descent-override: 22.60%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 82.45%;
+  ascent-override: 113.40%;
+  descent-override: 30.32%;
+  line-gap-override: 0%;
+  unicode-range: U+0020, U+00A0; /* spaces */
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 130.18%;
+  ascent-override: 71.82%;
+  descent-override: 19.20%;
+  line-gap-override: 0%;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1-00BF, U+00D7, U+00F7, U+2011-2027, U+2030-205E; /* other punctuation */
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 98.26%;
+  ascent-override: 95.16%;
+  descent-override: 25.44%;
+  line-gap-override: 0%;
+  unicode-range: U+002C, U+002E, U+003A-003B; /* , . : ; */
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 118.12%;
+  ascent-override: 79.16%;
+  descent-override: 21.16%;
+  line-gap-override: 0%;
+  unicode-range: U+0030; /* 0 */
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 115.25%;
+  ascent-override: 81.13%;
+  descent-override: 21.69%;
+  line-gap-override: 0%;
+  unicode-range: U+0031-0039; /* 1-9 */
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 108.22%;
+  ascent-override: 86.40%;
+  descent-override: 23.10%;
+  line-gap-override: 0%;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; /* Hebrew */
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 110.62%;
+  ascent-override: 84.52%;
+  descent-override: 22.60%;
+  line-gap-override: 0%;
+  unicode-range: U+20AA; /* ₪ */
+}
+
+/* Rubik 700, for weights 600–1000, over Arial Bold. */
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 105.96%;
+  ascent-override: 88.24%;
+  descent-override: 23.59%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 76.72%;
+  ascent-override: 121.87%;
+  descent-override: 32.59%;
+  line-gap-override: 0%;
+  unicode-range: U+0020, U+00A0; /* spaces */
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 132.67%;
+  ascent-override: 70.48%;
+  descent-override: 18.84%;
+  line-gap-override: 0%;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1-00BF, U+00D7, U+00F7, U+2011-2027, U+2030-205E; /* other punctuation */
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 94.46%;
+  ascent-override: 98.98%;
+  descent-override: 26.47%;
+  line-gap-override: 0%;
+  unicode-range: U+002C, U+002E, U+003A-003B; /* , . : ; */
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 122.25%;
+  ascent-override: 76.48%;
+  descent-override: 20.45%;
+  line-gap-override: 0%;
+  unicode-range: U+0030; /* 0 */
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 119.21%;
+  ascent-override: 78.43%;
+  descent-override: 20.97%;
+  line-gap-override: 0%;
+  unicode-range: U+0031-0039; /* 1-9 */
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 106.17%;
+  ascent-override: 88.07%;
+  descent-override: 23.55%;
+  line-gap-override: 0%;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; /* Hebrew */
+}
+
+@font-face {
+  font-family: "Rubik Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 118.72%;
+  ascent-override: 78.76%;
+  descent-override: 21.06%;
+  line-gap-override: 0%;
+  unicode-range: U+20AA; /* ₪ */
+}
+
+/* Rubik 500, for weights 1–599, over Roboto and Noto Sans Hebrew. */
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 109.40%;
+  ascent-override: 85.46%;
+  descent-override: 22.85%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 92.38%;
+  ascent-override: 101.21%;
+  descent-override: 27.06%;
+  line-gap-override: 0%;
+  unicode-range: U+0020, U+00A0; /* spaces */
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 123.93%;
+  ascent-override: 75.45%;
+  descent-override: 20.17%;
+  line-gap-override: 0%;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1-00BF, U+00D7, U+00F7, U+2011-2027, U+2030-205E; /* other punctuation */
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 119.47%;
+  ascent-override: 78.26%;
+  descent-override: 20.93%;
+  line-gap-override: 0%;
+  unicode-range: U+002C, U+002E, U+003A-003B; /* , . : ; */
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 116.90%;
+  ascent-override: 79.98%;
+  descent-override: 21.39%;
+  line-gap-override: 0%;
+  unicode-range: U+0030; /* 0 */
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 114.07%;
+  ascent-override: 81.97%;
+  descent-override: 21.92%;
+  line-gap-override: 0%;
+  unicode-range: U+0031-0039; /* 1-9 */
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Noto Sans Hebrew"), local("Noto Sans Hebrew Regular"), local("NotoSansHebrew-Regular");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 99.05%;
+  ascent-override: 94.40%;
+  descent-override: 25.24%;
+  line-gap-override: 0%;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; /* Hebrew */
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Noto Sans Hebrew"), local("Noto Sans Hebrew Regular"), local("NotoSansHebrew-Regular");
+  font-weight: 1 599;
+  font-display: swap;
+  size-adjust: 113.89%;
+  ascent-override: 82.10%;
+  descent-override: 21.95%;
+  line-gap-override: 0%;
+  unicode-range: U+20AA; /* ₪ */
+}
+
+/* Rubik 700, for weights 600–1000, over Roboto Bold and Noto Sans Hebrew Bold. */
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 112.43%;
+  ascent-override: 83.16%;
+  descent-override: 22.24%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 85.73%;
+  ascent-override: 109.06%;
+  descent-override: 29.16%;
+  line-gap-override: 0%;
+  unicode-range: U+0020, U+00A0; /* spaces */
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 125.61%;
+  ascent-override: 74.44%;
+  descent-override: 19.90%;
+  line-gap-override: 0%;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1-00BF, U+00D7, U+00F7, U+2011-2027, U+2030-205E; /* other punctuation */
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 106.75%;
+  ascent-override: 87.59%;
+  descent-override: 23.42%;
+  line-gap-override: 0%;
+  unicode-range: U+002C, U+002E, U+003A-003B; /* , . : ; */
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 118.52%;
+  ascent-override: 78.89%;
+  descent-override: 21.09%;
+  line-gap-override: 0%;
+  unicode-range: U+0030; /* 0 */
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 115.58%;
+  ascent-override: 80.90%;
+  descent-override: 21.63%;
+  line-gap-override: 0%;
+  unicode-range: U+0031-0039; /* 1-9 */
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Noto Sans Hebrew Bold"), local("NotoSansHebrew-Bold");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 96.12%;
+  ascent-override: 97.27%;
+  descent-override: 26.01%;
+  line-gap-override: 0%;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; /* Hebrew */
+}
+
+@font-face {
+  font-family: "Rubik Fallback Android";
+  src: local("Noto Sans Hebrew Bold"), local("NotoSansHebrew-Bold");
+  font-weight: 600 1000;
+  font-display: swap;
+  size-adjust: 112.39%;
+  ascent-override: 83.19%;
+  descent-override: 22.24%;
+  line-gap-override: 0%;
+  unicode-range: U+20AA; /* ₪ */
+}
+
+/* Assistant 400, for weights 1–449, over Arial. */
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 94.94%;
+  ascent-override: 107.54%;
+  descent-override: 30.23%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 71.99%;
+  ascent-override: 141.83%;
+  descent-override: 39.87%;
+  line-gap-override: 0%;
+  unicode-range: U+0020, U+00A0; /* spaces */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 99.58%;
+  ascent-override: 102.53%;
+  descent-override: 28.82%;
+  line-gap-override: 0%;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1-00BF, U+00D7, U+00F7, U+2011-2027, U+2030-205E; /* other punctuation */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 87.11%;
+  ascent-override: 117.21%;
+  descent-override: 32.95%;
+  line-gap-override: 0%;
+  unicode-range: U+002C, U+002E, U+003A-003B; /* , . : ; */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 88.46%;
+  ascent-override: 115.42%;
+  descent-override: 32.44%;
+  line-gap-override: 0%;
+  unicode-range: U+0030; /* 0 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 86.73%;
+  ascent-override: 117.72%;
+  descent-override: 33.09%;
+  line-gap-override: 0%;
+  unicode-range: U+0031-0039; /* 1-9 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 96.12%;
+  ascent-override: 106.22%;
+  descent-override: 29.86%;
+  line-gap-override: 0%;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; /* Hebrew */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 90.02%;
+  ascent-override: 113.42%;
+  descent-override: 31.88%;
+  line-gap-override: 0%;
+  unicode-range: U+20AA; /* ₪ */
+}
+
+/* Assistant 500, for weights 450–549, over Arial. */
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 96.22%;
+  ascent-override: 106.12%;
+  descent-override: 29.83%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 71.99%;
+  ascent-override: 141.83%;
+  descent-override: 39.87%;
+  line-gap-override: 0%;
+  unicode-range: U+0020, U+00A0; /* spaces */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 99.89%;
+  ascent-override: 102.21%;
+  descent-override: 28.73%;
+  line-gap-override: 0%;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1-00BF, U+00D7, U+00F7, U+2011-2027, U+2030-205E; /* other punctuation */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 91.06%;
+  ascent-override: 112.12%;
+  descent-override: 31.52%;
+  line-gap-override: 0%;
+  unicode-range: U+002C, U+002E, U+003A-003B; /* , . : ; */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 89.72%;
+  ascent-override: 113.80%;
+  descent-override: 31.99%;
+  line-gap-override: 0%;
+  unicode-range: U+0030; /* 0 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 87.95%;
+  ascent-override: 116.09%;
+  descent-override: 32.63%;
+  line-gap-override: 0%;
+  unicode-range: U+0031-0039; /* 1-9 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 97.52%;
+  ascent-override: 104.70%;
+  descent-override: 29.43%;
+  line-gap-override: 0%;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; /* Hebrew */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 92.83%;
+  ascent-override: 109.99%;
+  descent-override: 30.92%;
+  line-gap-override: 0%;
+  unicode-range: U+20AA; /* ₪ */
+}
+
+/* Assistant 600, for weights 550–649, over Arial Bold. */
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 89.75%;
+  ascent-override: 113.77%;
+  descent-override: 31.98%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 71.99%;
+  ascent-override: 141.83%;
+  descent-override: 39.87%;
+  line-gap-override: 0%;
+  unicode-range: U+0020, U+00A0; /* spaces */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 99.35%;
+  ascent-override: 102.77%;
+  descent-override: 28.89%;
+  line-gap-override: 0%;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1-00BF, U+00D7, U+00F7, U+2011-2027, U+2030-205E; /* other punctuation */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 86.44%;
+  ascent-override: 118.12%;
+  descent-override: 33.20%;
+  line-gap-override: 0%;
+  unicode-range: U+002C, U+002E, U+003A-003B; /* , . : ; */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 90.98%;
+  ascent-override: 112.22%;
+  descent-override: 31.55%;
+  line-gap-override: 0%;
+  unicode-range: U+0030; /* 0 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 89.18%;
+  ascent-override: 114.49%;
+  descent-override: 32.18%;
+  line-gap-override: 0%;
+  unicode-range: U+0031-0039; /* 1-9 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 94.11%;
+  ascent-override: 108.50%;
+  descent-override: 30.50%;
+  line-gap-override: 0%;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; /* Hebrew */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 95.36%;
+  ascent-override: 107.07%;
+  descent-override: 30.10%;
+  line-gap-override: 0%;
+  unicode-range: U+20AA; /* ₪ */
+}
+
+/* Assistant 700, for weights 650–1000, over Arial Bold. */
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 92.75%;
+  ascent-override: 110.08%;
+  descent-override: 30.94%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 71.99%;
+  ascent-override: 141.83%;
+  descent-override: 39.87%;
+  line-gap-override: 0%;
+  unicode-range: U+0020, U+00A0; /* spaces */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 100.00%;
+  ascent-override: 102.10%;
+  descent-override: 28.70%;
+  line-gap-override: 0%;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1-00BF, U+00D7, U+00F7, U+2011-2027, U+2030-205E; /* other punctuation */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 95.61%;
+  ascent-override: 106.79%;
+  descent-override: 30.02%;
+  line-gap-override: 0%;
+  unicode-range: U+002C, U+002E, U+003A-003B; /* , . : ; */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 94.04%;
+  ascent-override: 108.57%;
+  descent-override: 30.52%;
+  line-gap-override: 0%;
+  unicode-range: U+0030; /* 0 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 92.15%;
+  ascent-override: 110.80%;
+  descent-override: 31.14%;
+  line-gap-override: 0%;
+  unicode-range: U+0031-0039; /* 1-9 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 97.52%;
+  ascent-override: 104.70%;
+  descent-override: 29.43%;
+  line-gap-override: 0%;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; /* Hebrew */
+}
+
+@font-face {
+  font-family: "Assistant Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 102.46%;
+  ascent-override: 99.65%;
+  descent-override: 28.01%;
+  line-gap-override: 0%;
+  unicode-range: U+20AA; /* ₪ */
+}
+
+/* Assistant 400, for weights 1–449, over Roboto and Noto Sans Hebrew. */
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 93.90%;
+  ascent-override: 108.74%;
+  descent-override: 30.57%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 80.66%;
+  ascent-override: 126.58%;
+  descent-override: 35.58%;
+  line-gap-override: 0%;
+  unicode-range: U+0020, U+00A0; /* spaces */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 94.80%;
+  ascent-override: 107.70%;
+  descent-override: 30.27%;
+  line-gap-override: 0%;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1-00BF, U+00D7, U+00F7, U+2011-2027, U+2030-205E; /* other punctuation */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 105.91%;
+  ascent-override: 96.40%;
+  descent-override: 27.10%;
+  line-gap-override: 0%;
+  unicode-range: U+002C, U+002E, U+003A-003B; /* , . : ; */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 87.55%;
+  ascent-override: 116.62%;
+  descent-override: 32.78%;
+  line-gap-override: 0%;
+  unicode-range: U+0030; /* 0 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 85.84%;
+  ascent-override: 118.94%;
+  descent-override: 33.43%;
+  line-gap-override: 0%;
+  unicode-range: U+0031-0039; /* 1-9 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Noto Sans Hebrew"), local("Noto Sans Hebrew Regular"), local("NotoSansHebrew-Regular");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 87.97%;
+  ascent-override: 116.07%;
+  descent-override: 32.63%;
+  line-gap-override: 0%;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; /* Hebrew */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Noto Sans Hebrew"), local("Noto Sans Hebrew Regular"), local("NotoSansHebrew-Regular");
+  font-weight: 1 449;
+  font-display: swap;
+  size-adjust: 92.68%;
+  ascent-override: 110.16%;
+  descent-override: 30.97%;
+  line-gap-override: 0%;
+  unicode-range: U+20AA; /* ₪ */
+}
+
+/* Assistant 500, for weights 450–549, over Roboto and Noto Sans Hebrew. */
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 95.14%;
+  ascent-override: 107.31%;
+  descent-override: 30.17%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 80.66%;
+  ascent-override: 126.58%;
+  descent-override: 35.58%;
+  line-gap-override: 0%;
+  unicode-range: U+0020, U+00A0; /* spaces */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 95.09%;
+  ascent-override: 107.37%;
+  descent-override: 30.18%;
+  line-gap-override: 0%;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1-00BF, U+00D7, U+00F7, U+2011-2027, U+2030-205E; /* other punctuation */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 110.72%;
+  ascent-override: 92.21%;
+  descent-override: 25.92%;
+  line-gap-override: 0%;
+  unicode-range: U+002C, U+002E, U+003A-003B; /* , . : ; */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 88.80%;
+  ascent-override: 114.98%;
+  descent-override: 32.32%;
+  line-gap-override: 0%;
+  unicode-range: U+0030; /* 0 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 87.05%;
+  ascent-override: 117.29%;
+  descent-override: 32.97%;
+  line-gap-override: 0%;
+  unicode-range: U+0031-0039; /* 1-9 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Noto Sans Hebrew"), local("Noto Sans Hebrew Regular"), local("NotoSansHebrew-Regular");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 89.25%;
+  ascent-override: 114.39%;
+  descent-override: 32.16%;
+  line-gap-override: 0%;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; /* Hebrew */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Noto Sans Hebrew"), local("Noto Sans Hebrew Regular"), local("NotoSansHebrew-Regular");
+  font-weight: 450 549;
+  font-display: swap;
+  size-adjust: 95.58%;
+  ascent-override: 106.82%;
+  descent-override: 30.03%;
+  line-gap-override: 0%;
+  unicode-range: U+20AA; /* ₪ */
+}
+
+/* Assistant 600, for weights 550–649, over Roboto Bold and Noto Sans Hebrew Bold. */
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 95.19%;
+  ascent-override: 107.26%;
+  descent-override: 30.15%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 80.45%;
+  ascent-override: 126.91%;
+  descent-override: 35.67%;
+  line-gap-override: 0%;
+  unicode-range: U+0020, U+00A0; /* spaces */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 94.06%;
+  ascent-override: 108.55%;
+  descent-override: 30.51%;
+  line-gap-override: 0%;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1-00BF, U+00D7, U+00F7, U+2011-2027, U+2030-205E; /* other punctuation */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 97.69%;
+  ascent-override: 104.51%;
+  descent-override: 29.38%;
+  line-gap-override: 0%;
+  unicode-range: U+002C, U+002E, U+003A-003B; /* , . : ; */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 88.21%;
+  ascent-override: 115.75%;
+  descent-override: 32.54%;
+  line-gap-override: 0%;
+  unicode-range: U+0030; /* 0 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 86.46%;
+  ascent-override: 118.09%;
+  descent-override: 33.19%;
+  line-gap-override: 0%;
+  unicode-range: U+0031-0039; /* 1-9 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Noto Sans Hebrew Bold"), local("NotoSansHebrew-Bold");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 85.21%;
+  ascent-override: 119.82%;
+  descent-override: 33.68%;
+  line-gap-override: 0%;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; /* Hebrew */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Noto Sans Hebrew Bold"), local("NotoSansHebrew-Bold");
+  font-weight: 550 649;
+  font-display: swap;
+  size-adjust: 90.27%;
+  ascent-override: 113.11%;
+  descent-override: 31.79%;
+  line-gap-override: 0%;
+  unicode-range: U+20AA; /* ₪ */
+}
+
+/* Assistant 700, for weights 650–1000, over Roboto Bold and Noto Sans Hebrew Bold. */
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 98.36%;
+  ascent-override: 103.80%;
+  descent-override: 29.18%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 80.45%;
+  ascent-override: 126.91%;
+  descent-override: 35.67%;
+  line-gap-override: 0%;
+  unicode-range: U+0020, U+00A0; /* spaces */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 94.68%;
+  ascent-override: 107.84%;
+  descent-override: 30.31%;
+  line-gap-override: 0%;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1-00BF, U+00D7, U+00F7, U+2011-2027, U+2030-205E; /* other punctuation */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 108.05%;
+  ascent-override: 94.49%;
+  descent-override: 26.56%;
+  line-gap-override: 0%;
+  unicode-range: U+002C, U+002E, U+003A-003B; /* , . : ; */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 91.18%;
+  ascent-override: 111.98%;
+  descent-override: 31.48%;
+  line-gap-override: 0%;
+  unicode-range: U+0030; /* 0 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Roboto Bold"), local("Roboto-Bold");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 89.34%;
+  ascent-override: 114.28%;
+  descent-override: 32.12%;
+  line-gap-override: 0%;
+  unicode-range: U+0031-0039; /* 1-9 */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Noto Sans Hebrew Bold"), local("NotoSansHebrew-Bold");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 88.26%;
+  ascent-override: 115.68%;
+  descent-override: 32.52%;
+  line-gap-override: 0%;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; /* Hebrew */
+}
+
+@font-face {
+  font-family: "Assistant Fallback Android";
+  src: local("Noto Sans Hebrew Bold"), local("NotoSansHebrew-Bold");
+  font-weight: 650 1000;
+  font-display: swap;
+  size-adjust: 97.00%;
+  ascent-override: 105.26%;
+  descent-override: 29.59%;
+  line-gap-override: 0%;
+  unicode-range: U+20AA; /* ₪ */
+}
+
+/* IBM Plex Mono, over Consolas, Menlo or Droid Sans Mono. */
+
+@font-face {
+  font-family: "IBM Plex Mono Fallback";
+  src: local("Consolas");
+  font-weight: 1 1000;
+  font-display: swap;
+  size-adjust: 109.13%;
+  ascent-override: 93.92%;
+  descent-override: 25.20%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono Fallback Apple";
+  src: local("Menlo Regular"), local("Menlo-Regular");
+  font-weight: 1 1000;
+  font-display: swap;
+  size-adjust: 99.66%;
+  ascent-override: 102.85%;
+  descent-override: 27.59%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono Fallback Android";
+  src: local("Droid Sans Mono"), local("DroidSansMono");
+  font-weight: 1 1000;
+  font-display: swap;
+  size-adjust: 99.98%;
+  ascent-override: 102.52%;
+  descent-override: 27.50%;
+  line-gap-override: 0%;
+}
