@@ -486,6 +486,19 @@ html.theme-lightbox {
   }
 }
 
+/* A message arriving on a lock screen: it lights on as it drops the last
+   8px into place, from above, as the phone's own notifications come in. */
+@keyframes message-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes gentle-in {
   from {
     opacity: 0;

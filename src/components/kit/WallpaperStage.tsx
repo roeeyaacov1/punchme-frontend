@@ -2,6 +2,7 @@ import { useMemo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { readableInk } from "../../lib/color";
 import { cn } from "../../lib/cn";
+import { useReducedMotion } from "./motion";
 import { wallpaperFor } from "./wallpaper";
 
 /** The message a pass brings, as the lock screen would show it. */
@@ -19,6 +20,13 @@ export interface WallpaperStageProps {
   /** The colour the card sets its own text in, for the app icon's letter. */
   foregroundColor?: string;
   notification?: LockNotification;
+  /**
+   * The message arriving, once: `"waiting"` keeps its place with nothing in
+   * it, and `"now"` brings it down the last 8px as it lights on, over 240ms,
+   * as a lock screen's notifications come in (the gentle 150ms fade with
+   * reduced motion). Left out, the message is simply there.
+   */
+  arrive?: "waiting" | "now";
   /** What a screen reader hears instead of the picture. */
   summary: string;
   /** The pass itself: `AppleCardPreview` or `GoogleCardPreview`, untouched. */
@@ -47,18 +55,28 @@ export function WallpaperStage({
   stampColor,
   foregroundColor,
   notification,
+  arrive,
   summary,
   children,
   className,
 }: WallpaperStageProps) {
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
   const paper = useMemo(() => wallpaperFor(cardColor, stampColor), [cardColor, stampColor]);
   const initial = notification ? (Array.from(notification.sender.trim())[0] ?? "") : "";
+  let arrival: string | undefined;
+  if (arrive === "waiting") arrival = "invisible";
+  else if (arrive === "now") arrival = reduced ? "animate-gentle-in" : "animate-message-in";
   return (
     <figure className={cn("theme-lightbox relative w-[340px] max-w-full overflow-hidden rounded-glass", className)}>
       <div aria-hidden className="flex flex-col items-center gap-3 px-5 pb-5 pt-6" style={paper}>
         {notification && (
-          <div className="theme-lit w-[300px] max-w-full rounded-[1.25rem] bg-surface/95 p-3 shadow-[0_10px_30px_-12px_rgb(0_0_0/0.45)]">
+          <div
+            className={cn(
+              "theme-lit w-[300px] max-w-full rounded-[1.25rem] bg-surface/95 p-3 shadow-[0_10px_30px_-12px_rgb(0_0_0/0.45)]",
+              arrival,
+            )}
+          >
             <div className="flex items-center gap-2.5">
               <span
                 className="flex size-7 shrink-0 items-center justify-center rounded-[0.4375rem] font-heading text-[0.8125rem] font-medium ring-1 ring-inset ring-rim/10"
