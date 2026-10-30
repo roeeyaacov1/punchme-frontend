@@ -24,9 +24,11 @@ decision for the owner, and the redesign guide asks for it first.
 | `wallet-card/PassBarcode.tsx` | The barcode, drawn for real in all four formats |
 | `src/lib/passBarcode.ts`, `cardPatterns.ts`, `stampGlyphs.ts`; `designImageUrls` in `src/api/designs.ts` | The logic those files rely on (already protected as `src/lib` and `src/api`) |
 
-Two corrections have been made to this table's files, both on 27 Oct 2026
-with Roee's yes (Phase 3, `docs/redesign/briefs/card-studio.md` §7 and §13,
-and step D). In each, nothing else in the file changed.
+Three corrections have been made to this table's files, each with Roee's
+yes: the first two on 27 Oct 2026 (Phase 3, `docs/redesign/briefs/card-studio.md`
+§7 and §13, and step D), the third on 30 Oct 2026 (Phase 4,
+`docs/redesign/briefs/onboarding.md` §10). In each, nothing else in the file
+changed.
 
 - `StampGrid` drew a filled stamp's glyph in white whatever the stamp's
   colour, so a white stamp was a blank disc. The server knocks the glyph out
@@ -37,6 +39,11 @@ and step D). In each, nothing else in the file changed.
   label as it is given (`apps/wallet/design.py`, `_build_data_field`), so a
   cleared label shows nothing on the real card. The previews now fall back
   to the default only when the card has no such field.
+- The business name took the page's direction, so on a Hebrew page an
+  English name printed backwards (".Danny’s Barbershop & Beard Co" on
+  Apple's pass, its start cut off on Google's). The wallets set each string
+  by its own first letter. Apple's name row, Google's issuer line and its
+  program line ("{business} - {card}") now carry `dir="auto"`.
 
 Staging around the card is ours to change: the frame, the well, the shadow
 and the motion. One constraint applies. The previews are built for a 300px
