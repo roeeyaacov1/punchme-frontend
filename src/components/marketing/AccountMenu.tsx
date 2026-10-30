@@ -5,6 +5,7 @@ import { useAuth } from "../../auth/useAuth";
 import { cn } from "../../lib/cn";
 import { focusRing, focusRingInset } from "../kit";
 import { noTapFlash } from "../kit/classes";
+import { signedInAs } from "./signedInAs";
 
 /**
  * The signed-in owner's corner of the landing header: their initial, and
@@ -76,9 +77,7 @@ export function AccountMenu({ className }: { className?: string }) {
           id="landing-account-menu"
           className="absolute end-0 top-full z-50 mt-2 w-64 rounded-panel border border-border bg-surface p-1.5 shadow-panel-lift"
         >
-          <p className="truncate px-3 py-2 text-sm text-ink-muted">
-            {t("onboarding.account.signedInAs", { email: user.email })}
-          </p>
+          <p className="truncate px-3 py-2 text-sm text-ink-muted">{signedInAs(t, user.email)}</p>
           <div aria-hidden className="mx-2 mb-1 h-px bg-border" />
           <button
             type="button"
