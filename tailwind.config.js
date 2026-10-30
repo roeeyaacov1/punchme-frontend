@@ -281,6 +281,9 @@ export default {
         // tokens there. The name comes first in each: Tailwind takes the
         // first word it can't read as a time or a curve to be the name.
         "lights-on": "lights-on var(--duration-lights) var(--ease-out-strong) both",
+        // Lights on for a message on a lock screen, which comes down into
+        // place rather than up.
+        "message-in": "message-in var(--duration-lights) var(--ease-out-strong) both",
         "gentle-in": "gentle-in var(--duration-gentle) ease-out both",
         "gentle-out": "gentle-out var(--duration-gentle) ease-out both",
         "exit-fade": "gentle-out var(--duration-exit) ease-out both",

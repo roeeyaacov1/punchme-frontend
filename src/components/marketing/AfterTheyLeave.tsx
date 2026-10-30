@@ -7,6 +7,7 @@ import { column, section } from "./landingLayout";
 import { landedStamps, samplePass, tradeTemplate, type TradeKey } from "./samples";
 import { SourceLabel, type ProofStat } from "./SourceLabel";
 import { PROOF_SOURCE_URLS } from "./sources";
+import { useFirstSight } from "./useFirstSight";
 
 /**
  * The starter rules as an owner finds them in Messages, read off the
@@ -34,6 +35,9 @@ interface Rule {
  * the evidence that regulars are worth keeping, each figure a citation.
  * The arithmetic, two sections down, is where the owner judges whether
  * enough would come back.
+ *
+ * The sample message arrives once, when the lock screen is in view, its
+ * place kept until then, so the visitor sees the card on its own first.
  */
 export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
   const { t, i18n } = useTranslation();
@@ -47,6 +51,7 @@ export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
   const evidence = stats
     .map((stat, index) => ({ stat, index }))
     .filter(({ stat }) => stat.id === "square" || stat.id === "hbr");
+  const [stageRef, stageSeen] = useFirstSight<HTMLDivElement>({ share: 0.9 });
 
   const rules: Rule[] = [
     {
@@ -74,13 +79,17 @@ export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
             <p className="type-lead max-w-[38rem] text-pretty text-ink-muted">{t("landing.after.lead")}</p>
           </div>
 
-          <div className="flex min-w-0 flex-col items-center gap-3 lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-28 lg:self-start">
+          <div
+            ref={stageRef}
+            className="flex min-w-0 flex-col items-center gap-3 lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-28 lg:self-start"
+          >
             <Badge>{t("landing.after.sample")}</Badge>
             <WallpaperStage
               cardColor={template.backgroundColor}
               stampColor={template.stampColor}
               foregroundColor={template.foregroundColor}
               notification={{ sender: business, title, body: t("landing.after.message.body") }}
+              arrive={stageSeen ? "now" : "waiting"}
               summary={t("landing.after.stageSummary", { title, business })}
             >
               <AppleCardPreview {...samplePass(template, t, landedStamps(template))} />
