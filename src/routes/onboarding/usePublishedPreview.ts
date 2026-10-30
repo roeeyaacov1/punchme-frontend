@@ -15,11 +15,13 @@ function probe(url: string): Promise<boolean> {
 }
 
 /**
- * The phone's value once the real card exists: the published PNGs, exactly
+ * The card's value once the real card exists: the published PNGs, exactly
  * what the wallet shows. But only if they load — a CDN that is unreachable
  * (or, locally, the fake provider's `fake-wallet.local`) would otherwise
  * leave the card blank, and the CSS approximation with the right colours is
- * the more honest picture than an empty strip.
+ * the more honest picture than an empty strip. Before its first sync there
+ * are no PNGs at all, and the card is drawn from what was saved, the same
+ * way: going live after a Skip has no draft left to draw it from.
  */
 export function usePublishedPreview(
   design: DesignOut | undefined,
@@ -32,7 +34,7 @@ export function usePublishedPreview(
   const [value, setValue] = useState<CardPreviewValue | null>(null);
 
   useEffect(() => {
-    if (!design || !business || !design.sync.synced_at) {
+    if (!design || !business) {
       setValue(null);
       return;
     }
@@ -55,6 +57,7 @@ export function usePublishedPreview(
     // Show the design immediately; upgrade to the published art once it is
     // known to load.
     setValue(base);
+    if (!design.sync.synced_at) return;
     const strip = images.strip_states?.[String(stamps)];
     if (!strip) return;
     probe(strip).then((ok) => {
