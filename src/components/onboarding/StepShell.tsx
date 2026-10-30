@@ -118,7 +118,9 @@ export function StepHeading({
             className="-ms-3 -mt-1 shrink-0"
           />
         )}
-        <h1 ref={heading} tabIndex={-1} className="type-title min-w-0 text-balance outline-none">
+        {/* A word wider than the room beside Back (הכרטיסייה, with large
+            text in a panel) breaks rather than widen the page. */}
+        <h1 ref={heading} tabIndex={-1} className="type-title min-w-0 text-balance break-words outline-none">
           {title}
         </h1>
       </div>
