@@ -137,7 +137,7 @@ export function SiteHeader() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "inline-flex min-h-11 touch-manipulation items-center whitespace-nowrap rounded-full px-3 font-heading text-[0.9375rem] font-medium text-ink-muted transition-colors duration-gentle ease-out active:text-ink hover-fine:text-ink",
+                  "inline-flex min-h-11 touch-manipulation items-center whitespace-nowrap rounded-full px-3 font-heading text-base font-medium text-ink-muted transition-colors duration-gentle ease-out active:text-ink hover-fine:text-ink",
                   noTapFlash,
                   focusRing,
                 )}

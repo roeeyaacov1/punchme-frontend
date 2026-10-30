@@ -10,7 +10,7 @@ import logo from "../../assets/logo.png";
 /** A text link: ink under a finger as it presses, as under a pointer. At
  * least 44px each way, so a short one ("FAQ", "מחיר") is still a thumb's. */
 const LINK = cn(
-  "inline-flex min-h-11 min-w-11 touch-manipulation items-center justify-center rounded-full px-1 font-heading text-[0.9375rem] font-medium text-ink-muted transition-colors duration-gentle ease-out active:text-ink hover-fine:text-ink",
+  "inline-flex min-h-11 min-w-11 touch-manipulation items-center justify-center rounded-full px-1 font-heading text-base font-medium text-ink-muted transition-colors duration-gentle ease-out active:text-ink hover-fine:text-ink",
   noTapFlash,
   focusRing,
 );
