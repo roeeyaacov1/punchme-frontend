@@ -44,9 +44,7 @@ dashboard are free. The owner pays ₪99 a month, VAT included, only when they
 activate the card for real customers.
 
 Success is an owner whose regulars come back often enough that ₪99 a month pays
-for itself, and who can see that without tending a dashboard. The revenue
-calculator puts it in one number, worked out from the owner's own figures: how
-many regulars cover a year of PunchMe. When the answer is bad, it says so.
+for itself, and who can see that without tending a dashboard.
 
 ## Positioning
 
@@ -59,9 +57,7 @@ tell an owner when it isn't worth the money.
 - **Free until there are real customers.** The owner designs the card before
   making an account, and pays only on activation.
 - **Candour is part of the product.** Every number on the landing page links to
-  its source. The calculator runs on the owner's numbers, costs the reward at
-  cost of goods, never clamps the result at zero, and tells an owner whose
-  economics don't work not to buy.
+  its source, and the page says plainly what is free and what costs.
 - **Made for an Israeli counter.** Hebrew first and right to left, consent and
   privacy wording written for Israeli law, links passed around on WhatsApp,
   prices in shekels.
@@ -128,8 +124,7 @@ tell an owner when it isn't worth the money.
   processes it on the business's behalf. `/join` carries a privacy notice under
   the Israeli Privacy Protection Law and a separate, unticked marketing consent
   under the Spam Law. The mobile number must be Israeli.
-- **No tracking.** The site has no analytics. The calculator's promise that
-  nothing typed leaves the browser depends on it.
+- **No tracking.** The site has no analytics.
 - **Routes and API calls are fixed** through the redesign. Each page group's
   contract is in `docs/`.
 - **Open.** The brand colour and the fonts: Phase 1 chooses them, and every
@@ -153,16 +148,15 @@ Terms the copy uses today:
 
 ## Brand Commitments
 
-- **Candour.** The landing page cites real sources, and the calculator will
-  show a negative number and tell an owner not to buy. No fake logo walls,
+- **Candour.** The landing page cites real sources for every figure it
+  prints. No fake logo walls,
   invented testimonials, unsourced metrics, or claims of popularity or results
   that nothing backs. A quote goes on the page only when a real customer said
   it and agreed to its use, and a figure only with a source in `sources.ts`.
 - **Claims match the product.** Sends are capped, so nothing is "unlimited".
   Joining takes a mobile number and an SMS code, so the promise is no app, no
   account, no password, not "no signup". Owners change the design themselves,
-  in the dashboard. One FAQ answer still says "message us" without saying how:
-  the channel is WhatsApp, and no page carries the number yet.
+  in the dashboard.
 - **Hebrew first.** Right to left, with English. Every string goes through
   `t()`, in both languages at once. A first visit opens in the browser's
   language, with Hebrew as the fallback.
@@ -187,26 +181,23 @@ source stays visible and clickable.
 
 Sourced figures are printed, never counted up.
 
-**The calculator** (`src/components/marketing/calculator.ts`, tested in
-`calculator.test.ts`) is the owner's own arithmetic, not evidence about anyone
-else. Its headline is how many regulars cover a year of PunchMe at ₪99 a month.
-It costs a reward at cost of goods, never clamps the year's net at zero, and
-shows a negative result with the number of regulars it would take. Its café,
-barbershop and studio presets are starting points, not data.
+**The calculator came off the landing page** on 30 Oct 2026 (Roee's call).
+`src/components/marketing/calculator.ts` keeps `PUNCHME_MONTHLY_PRICE` and the
+tested model (a reward at cost of goods, a net never clamped at zero), should
+a calculator come back.
 
 **Not on hand, so never fabricated:** customer quotes, customer names or logos,
 usage, return-rate or setup-time figures, case studies, press, photos, and the
-official Apple Wallet and Google Wallet badges (the hero's marks are
-placeholders; see `WalletMarks.tsx`). No Terms, Privacy or Contact page exists.
-The landing page's illustrations (the sample notifications, the paper-card
-examples, the dashboard drawn with sample data) are not evidence either.
+official Apple Wallet and Google Wallet badges (the wallet buttons stay plain
+until Roee adds them before launch). No Terms, Privacy or Contact page exists.
+The landing page's illustrations (the sample scan answer, the message on a
+lock screen, the sign at the counter) are not evidence either.
 
 ## Product Principles
 
 1. **Backed or it doesn't ship.** Every number has a source the reader can
-   click, every claim matches what the product does on both wallets, and the
-   calculator is allowed to say no. Honesty is worth more than any conversion
-   a fake would buy.
+   click, and every claim matches what the product does on both wallets.
+   Honesty is worth more than any conversion a fake would buy.
 2. **The pass is the hero.** Customers never see the dashboard; they see the
    pass. Everything else is staged around it, and the previews are never
    redrawn.
@@ -218,8 +209,7 @@ examples, the dashboard drawn with sample data) are not evidence either.
    nothing asks for more than the job needs.
 5. **Say no out loud.** A refusal, a limit or a loss is stated plainly, with
    what to do next: the role panel instead of a silent redirect, the named scan
-   refusals, the weekly message cap with its next allowed time, the
-   calculator's negative result.
+   refusals, the weekly message cap with its next allowed time.
 
 ## Accessibility & Inclusion
 
