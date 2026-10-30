@@ -2,6 +2,7 @@ import type { TFunction } from "i18next";
 import type { DesignDoc } from "../../api/designs";
 import type { Preset } from "../../api/presets";
 import type { ReadyLook } from "../../components/card-studio/controls/controlRules";
+import { SUPPORTED_LANGS } from "../../i18n/languages";
 import { derivedLabelColor, relatedAccents } from "../../lib/accentPalette";
 import { CARD_PATTERNS, type CardPattern } from "../../lib/cardPatterns";
 import { normalizeHex, readableInk } from "../../lib/color";
@@ -185,6 +186,12 @@ export function readyLooks(looks: readonly CardLook[], t: TFunction): ReadyLook[
     text: readableInk(look.background),
     label: derivedLabelColor(look.background),
   }));
+}
+
+/** Every trade's default reward, in every language the app speaks: a reward
+ * still saying one of them is the trade's, not the owner's (`withTradeLook`). */
+export function defaultRewards(t: TFunction): string[] {
+  return NICHES.flatMap((niche) => SUPPORTED_LANGS.map((lng) => t(`onboarding.card.reward.${niche}`, { lng })));
 }
 
 /** The draft still wears this look whole: nothing a look writes was changed. */
