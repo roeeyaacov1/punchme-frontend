@@ -4,7 +4,7 @@ import { cn } from "../../lib/cn";
 import { Button, focusRing } from "../kit";
 import { noTapFlash } from "../kit/classes";
 import { column } from "./landingLayout";
-import { NAV_ANCHORS } from "./SiteHeader";
+import { LOGO_HEIGHT, LOGO_WIDTH, NAV_ANCHORS } from "./SiteHeader";
 import logo from "../../assets/logo.png";
 
 /** A text link: ink under a finger as it presses, as under a pointer. At
@@ -38,7 +38,7 @@ export function SiteFooter() {
       <div className={cn(column, "flex flex-col gap-8")}>
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <Link to="/" className={LOGO}>
-            <img src={logo} alt={t("app.name")} className="h-7 w-auto" />
+            <img src={logo} alt={t("app.name")} width={LOGO_WIDTH} height={LOGO_HEIGHT} className="h-7 w-auto" />
           </Link>
           <nav aria-label={t("landing.footer.productHeading")}>
             <ul className="flex flex-wrap gap-x-5 gap-y-1">
