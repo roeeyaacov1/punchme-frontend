@@ -45,7 +45,9 @@ export function AccountMenu({ className }: { className?: string }) {
 
   if (!user) return null;
 
-  const initial = (user.first_name.trim() || user.email).charAt(0).toUpperCase();
+  // The first character, not the first UTF-16 unit, so a name that opens
+  // with an emoji or another astral letter shows it whole.
+  const initial = (Array.from(user.first_name.trim() || user.email)[0] ?? "").toUpperCase();
 
   return (
     // Stretched to the header row's full height on purpose: it makes
