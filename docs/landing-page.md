@@ -1,17 +1,18 @@
 # Landing page: what carries over
 
 What the landing page (`/`) has today that a rework has to keep: the
-evidence, the calculator, the links and the behaviour. Written 8 Oct 2026
-from `src/routes/marketing/LandingPage.tsx` and the components it renders, as
-the input for the redesign; updated 15 Oct 2026 when seven of the page's
-untrue lines came off or were corrected, and 29 Oct 2026 when Phase 9's
-step B rebuilt the page on Lightbox (`docs/redesign/briefs/landing.md`). Like
-`docs/dashboard-routes.md`, it says nothing about design on purpose. The list
-of blocks is here so nothing is lost by accident, not as a layout to copy.
+evidence, the links and the behaviour. Written 8 Oct 2026 from
+`src/routes/marketing/LandingPage.tsx` and the components it renders, as the
+input for the redesign; updated 15 Oct 2026 when seven of the page's untrue
+lines came off or were corrected, 29 Oct 2026 when Phase 9's step B rebuilt
+the page on Lightbox (`docs/redesign/briefs/landing.md`), and 30 Oct 2026
+when the calculator came off. Like `docs/dashboard-routes.md`, it says
+nothing about design on purpose. The list of blocks is here so nothing is
+lost by accident, not as a layout to copy.
 
-- Page: `src/routes/marketing/LandingPage.tsx`. Sections, the calculator and
-  the sources: `src/components/marketing/`. The sample card every section
-  shows: `samples.ts`, built on `heroTemplates.ts`.
+- Page: `src/routes/marketing/LandingPage.tsx`. Sections and the sources:
+  `src/components/marketing/`. The sample card every section shows:
+  `samples.ts`, built on `heroTemplates.ts`.
 - Copy: `landing.*` in `src/i18n/locales/{en,he}/common.json`, plus a few
   lines the page reuses in the dashboard's own words (`messaging.phones`,
   `messaging.kinds.*`, `messaging.sentence.*`, `dashboard.scan.result.*`,
@@ -26,12 +27,7 @@ of blocks is here so nothing is lost by accident, not as a layout to copy.
   if a claim can't be linked to a source, it doesn't go on the page. Each
   source link says, to a screen reader, that it opens a new tab.
 - **Sourced figures never count up.** They're printed, not animated.
-- **The calculator can show a negative result** and say so: at those
-  numbers PunchMe doesn't pay for itself, so don't activate it.
-- **Nothing is tracked.** The calculator promises "nothing you type here
-  leaves your browser". That is only true because the site has no
-  analytics. Adding any would have to leave the calculator's query string
-  out.
+- **Nothing is tracked.** The site has no analytics.
 - **A sample carries its trade, never a business name.** The card is named
   "Barbershop", "Café" or "Studio" ("מספרה", "בית קפה", "סטודיו"), and its
   holder is the studio's own sample name in the page's language. A sample
@@ -53,62 +49,28 @@ programs that collect personal data, and only the mobile number required
 here. HBR's says why it is a range. In Hebrew, a range keeps its own
 left-to-right run (`פי <ltr>5–25</ltr>`).
 
-## The revenue calculator
+## The calculator, taken off
 
-Files: `RevenueCalculator.tsx` (UI), `calculator.ts` (the arithmetic, pure),
-`calculator.test.ts` (keep it passing).
+On 30 Oct 2026 Roee took the revenue calculator off the page and put
+nothing in its place: the FAQ follows the price. Its section, its copy, the
+hero's second link, the header's "What regulars are worth" anchor, the
+price's "based on your numbers" line and Billing's "Work it out with your
+own numbers" link went with it.
 
-| Input | Range | Default | Barbershop / Café / Studio presets |
-|---|---|---|---|
-| Average spend per visit (₪) | 20–500, step 5 | 60 | 70 / 28 / 180 |
-| Stamps to earn the reward | 5–12 | 10 | 8 / 10 / 6 |
-| New regulars this year | 1–100 | 10 | 12 / 25 / 6 |
-| Gross margin (%), under "Fine-tune" | 30–90, step 5 | 65 | 70 / 75 / 60 |
-
-The model in `calculator.ts`:
-
-- A reward is costed at cost of goods (ticket × (1 − margin)), not at shelf
-  price.
-- The headline number is how many new regulars cover a year of PunchMe. It
-  doesn't depend on the "regulars" input.
-- The net for the year is not clamped at zero.
-- The price comes from `PUNCHME_MONTHLY_PRICE` (₪99, including VAT).
-
-Behaviour to keep:
-
-- Every input is a slider plus a typed number. The typed number is clamped
-  and normalised when the field loses focus.
-- The presets show which one the numbers stand on, and none once a slider
-  moves off it.
-- Every figure is in its own left-to-right run, so a loss reads "−₪790" in
-  Hebrew too.
-- Why a reward costs so little is a disclosure a tap or a key opens.
-- A negative net shows a plain notice: the new regulars it would take, the
-  number entered, and not to activate it; "Start free" turns secondary
-  under it.
-- `?ticket=&stamps=&regulars=&margin=` restores a result on load, so an
-  owner can send one to themselves. The URL is only rewritten after a real
-  interaction.
-- Screen readers hear one summary, 500 ms after the last change
-  (`aria-live`), with a sentence more when the year is a loss. Each slider
-  has its own `aria-valuetext`.
-- On a phone, a bottom bar shows the result while a slider is held, never
-  for a typed number, with the same eased figures as the tally.
-- The price's "based on your numbers" line appears only after the visitor
-  has moved something and only when the result is positive.
-- Figures ease for 400 ms, and jump straight to the value under reduced
-  motion.
+`calculator.ts` and `calculator.test.ts` stay: `PUNCHME_MONTHLY_PRICE` lives
+there, and the model (a reward at cost of goods, a net never clamped at
+zero) is still tested, should a calculator come back. PRODUCT.md and
+CLAUDE.md still describe it; Roee updates those.
 
 ## What the page says today
 
 | Block | `id` | What it says |
 |---|---|---|
-| Header | – | Logo; the four anchors from 1024px; language toggle; "Sign in" and "Start free" when signed out, "Dashboard" and an account menu when signed in; below 1024px a menu with the same |
-| The counter | – | "Your punch card, in Wallet": no app, no account, no password, free to design, ₪99 a month including VAT once customers can join; "Start free" and "How many regulars would it take?"; the sign, the real pass (`AppleCardPreview` from `heroTemplates.ts`) and the scan's answer, each labelled; a trade switch |
+| Header | – | Logo; the three anchors from 1024px; language toggle; "Sign in" and "Start free" when signed out, "Dashboard" and an account menu when signed in; below 1024px a menu with the same |
+| The counter | – | "Your punch card, in Wallet": no app, no account, no password, free to design, ₪99 a month including VAT once customers can join; "Start free"; the sign, the real pass (`AppleCardPreview` from `heroTemplates.ts`) and the scan's answer, each labelled; a trade switch |
 | How it works | `how-it-works` | The sign (designed free, printed once the code goes live), the card (scan, mobile number and SMS code, Apple Wallet or Google Wallet, the real `GoogleCardPreview`, the 58%), the scan (punched and full answers) |
 | After they leave | – | A sample lock-screen message; what each phone does; the three automatic rules with their starter settings (30 days, the birthday, 7 days, 10:00, a gift stamp); broadcasts, two a week; 6x and 5–25x |
 | The price | `pricing` | Free is the sign with its code not live yet; Pro is ₪99 a month including VAT and what it opens; how to cancel and what cancelling does, in Billing's words |
-| Calculator | `calculator` | Your own arithmetic, allowed to say no |
 | FAQ | `faq` | Eight questions in native `<details>`: no app; what customers give; iPhone and Android; changing phones; adding a stamp; changing the design; the cost; how to stop |
 | The close | – | "Start with the card. Pay only once customers can join.", "Start free" and the price |
 | Footer | – | Logo, the anchors, sign in, language, "© 2026 PunchMe". No Terms/Privacy/Contact links, because those pages don't exist |
@@ -164,13 +126,13 @@ Phase 9's step B.
 ## Links and anchors
 
 - Calls to action go to `/onboarding` (the header, the menu, the counter,
-  the price, the calculator and the close, all "Start free"), `/login`,
-  and `/dashboard` when signed in.
-- The header, phone menu and footer link to `#how-it-works`, `#pricing`,
-  `#calculator` and `#faq`, in the page's order. The skip link targets
-  `#main`. Sections offset for the sticky header (`scroll-mt-24`), and a
-  link from another page, such as Billing's `/#calculator`, lands there once
-  the page and its fonts are in.
+  the price and the close, all "Start free"), `/login`, and `/dashboard`
+  when signed in.
+- The header, phone menu and footer link to `#how-it-works`, `#pricing` and
+  `#faq`, in the page's order. The skip link targets `#main`. Sections
+  offset for the sticky header (`scroll-mt-24`), and a link from another
+  page to a section (`/#pricing`, say) lands there once the page and its
+  fonts are in.
 - Only `/onboarding`'s top bar and the dashboard's logo link back to `/`.
 
 ## Header behaviour
@@ -194,8 +156,8 @@ Phase 9's step B.
   `Eyebrow`, `ctaArrow`). The landing page no longer uses it; `Section`,
   `SectionHeader` and `cardHover` are used nowhere, for Phase 10 to delete.
 - `PunchMark` (`PunchMark.tsx`) is used by onboarding's billing step.
-- `calculator.ts`'s `PUNCHME_MONTHLY_PRICE` is read by ten files outside the page: the
-  dashboard's price lines, the tour and `prices.test.ts`.
+- `calculator.ts`'s `PUNCHME_MONTHLY_PRICE` is read by ten files outside the
+  page: the dashboard's price lines, the tour and `prices.test.ts`.
 - `heroTemplates.ts`'s `HERO_TEMPLATES` and `heroDesignDoc` feed
   `/style-guide`'s stage and snap sections as well as the page.
 - The page renders the standee's own `StandeeSheet` and the studio's
@@ -209,18 +171,17 @@ Phase 9's step B.
     `landing.pricing.pro.*`.
   - `/style-guide` also samples `landing.hero.headline`, `landing.hero.cta`,
     `landing.pricing.title`, `landing.pricing.body`,
-    `landing.pricing.pro.name`, `landing.calculator.lead`,
+    `landing.pricing.pro.name`, `landing.after.lead`,
     `landing.proof.stats.0.*` and `landing.templates.*`.
 
 ## Accessibility in place
 
 - A skip link, one `h1`, and `h2`s in order with no skipped levels.
-- `focusRing` on every control, and 44px targets, including the sliders.
-- The calculator's debounced live region.
+- `focusRing` on every control, and 44px targets.
 - The counter, the scan's answers and the lock screen are each one
   sentence to a screen reader, the objects inside them hidden.
-- The trade switch and the presets are native radios: one tab stop, the
-  arrow keys moving the choice the way the language reads.
+- The trade switch is native radios: one tab stop, the arrow keys moving
+  the choice the way the language reads.
 - Figures, phone numbers and weekday labels carry `dir="ltr"` and bidi
   isolation.
 - Decoration is `aria-hidden`.
@@ -228,8 +189,7 @@ Phase 9's step B.
 The four known gaps from the first version of this file are closed: the
 phone menu has a name, a focus trap and a way back; the carousel's tabs
 became a segmented control with arrow keys; citation links say they open a
-new tab; the "Fine-tune" chevron flips without turning under reduced
-motion.
+new tab; the "Fine-tune" chevron went with the calculator.
 
 ## Meta
 
@@ -243,8 +203,9 @@ motion.
 
 ## Translations
 
-- `landing.*` has the same keys in `en` and `he`.
-- Hebrew adds the `_two` and `_many` plural forms the calculator needs.
+- `landing.*` has the same keys in `en` and `he`, and no plural forms: the
+  page's counts come from the dashboard's own copy
+  (`dashboard.scan.result.toGo`, `messaging.sentence.giftStamps`).
 - Hebrew strings that open with a figure or a Latin word start with a
   right-to-left mark (U+200F) that keeps them in place. Keep those marks.
 - Figures inside a sentence are wrapped `<ltr>…</ltr>` and rendered as their
