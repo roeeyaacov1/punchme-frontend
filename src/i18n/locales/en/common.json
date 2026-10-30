@@ -354,7 +354,8 @@
     "missing": {
       "name": "Write your business's name.",
       "trade": "Choose what kind of business it is.",
-      "reward": "Write what customers get."
+      "reward": "Write what customers get.",
+      "account": "Write your email and a password."
     },
     "progressSpoken": "Step {{n}} of {{total}}: {{step}}",
     "preview": {
@@ -452,18 +453,27 @@
     },
     "account": {
       "title": "Save your card",
-      "subtitle": "An account keeps it yours. Free — no card details.",
+      "subtitle": "Your account keeps what you designed. Free, no credit card.",
       "signedInAs": "Signed in as {{email}}",
-      "saveCta": "Save my card",
-      "createCta": "Create my account",
+      "signedInLine": "Signed in as <ltr>{{email}}</ltr>.",
+      "saveCta": "Save the card",
+      "createCta": "Create account and save",
+      "signInCta": "Sign in and save",
       "saving": "Saving your card…",
       "alreadyRegistered": "That email already has an account — sign in instead.",
       "throttled": "Too many attempts — try again in a minute.",
-      "existingTitle": "You already have a card",
-      "existingBody": "This account already has a loyalty card. Replace its design with the one you just made, or keep the current one?",
+      "existingTitle": "This account already has a card",
+      "existingBody": "Replace its design with the one you just made, or keep the one it has?",
+      "existingCard": "The card this account has",
+      "newDesign": "The card you just designed",
       "replace": "Replace with my new design",
-      "keep": "Keep my current card",
-      "switchAccount": "Use a different account"
+      "keep": "Keep the one I have",
+      "keepCost": "The new design won't be saved.",
+      "switchAccount": "Use a different account",
+      "problem": {
+        "name": "The business's name couldn't be saved as it is. Check it, then save again.",
+        "toName": "Check the name"
+      }
     },
     "wallet": {
       "title": "Add it to your own wallet",
