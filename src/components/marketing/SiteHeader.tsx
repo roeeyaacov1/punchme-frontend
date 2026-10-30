@@ -15,7 +15,6 @@ import logo from "../../assets/logo.png";
 export const NAV_ANCHORS = [
   { href: "#how-it-works", key: "landing.nav.howItWorks" },
   { href: "#pricing", key: "landing.nav.pricing" },
-  { href: "#calculator", key: "landing.nav.worth" },
   { href: "#faq", key: "landing.nav.faq" },
 ] as const;
 
@@ -38,7 +37,7 @@ const MENU_ROW = cn(
  * carries its own coral button, and a coral one in the bar would put two on
  * every screen, where Lightbox allows one.
  *
- * The four anchors fit the bar from 1024px; below that they move into the
+ * The three anchors fit the bar from 1024px; below that they move into the
  * menu, which is the kit's sheet: it rises from the bottom on a phone and
  * comes in from the end edge from 768px, holds focus while it is open, and
  * gives it back to the menu button when it closes.

@@ -3,7 +3,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 import { AppleCardPreview } from "../card-studio/CardPreviews";
 import { StandeeSheet } from "../dashboard/Standee";
-import { LinkButton, LitPanel, SegmentedControl, linkText } from "../kit";
+import { LinkButton, LitPanel, SegmentedControl } from "../kit";
 import { PUNCHME_MONTHLY_PRICE } from "./calculator";
 import { column } from "./landingLayout";
 import { SampleAnswer } from "./SampleAnswer";
@@ -65,17 +65,9 @@ export function Hero({ trade, onTrade }: { trade: TradeKey; onTrade: (next: Trad
             components={{ ltr: <bdi dir="ltr" className="type-figure" /> }}
           />
         </p>
-        <div className="mt-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-6">
-          <LinkButton to="/onboarding" size="lg" className="w-full sm:w-auto">
-            {t("landing.hero.cta")}
-          </LinkButton>
-          <a
-            href="#calculator"
-            className={cn(linkText, "inline-flex min-h-11 items-center self-center font-heading font-medium sm:self-auto")}
-          >
-            {t("landing.hero.secondaryCta")}
-          </a>
-        </div>
+        <LinkButton to="/onboarding" size="lg" className="mt-6 w-full sm:w-auto">
+          {t("landing.hero.cta")}
+        </LinkButton>
       </div>
 
       <div className={cn(column, "mt-8 sm:mt-10 lg:mt-12")}>
