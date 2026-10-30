@@ -9,6 +9,7 @@ import { Button, LinkButton, List, ListRow, Sheet, focusRing, focusRingInset } f
 import { noTapFlash } from "../kit/classes";
 import { AccountMenu } from "./AccountMenu";
 import { column } from "./landingLayout";
+import { signedInAs } from "./signedInAs";
 import logo from "../../assets/logo.png";
 
 /** The page's sections, in the order the page reads them. */
@@ -213,7 +214,7 @@ export function SiteHeader() {
                 }}
                 leading={<LogOut aria-hidden className="size-5 text-ink-muted rtl:-scale-x-100" />}
                 title={t("dashboard.nav.signOut")}
-                meta={user ? t("onboarding.account.signedInAs", { email: user.email }) : undefined}
+                meta={user ? signedInAs(t, user.email) : undefined}
               />
             ) : (
               <ListRow
