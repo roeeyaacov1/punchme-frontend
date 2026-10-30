@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Check, Gift } from "lucide-react";
 import { cn } from "../../lib/cn";
-import { Figure, LitPanel, StampRow } from "../kit";
+import { Figure, LitPanel, SnapFlash, StampRow } from "../kit";
 import type { HeroTemplate } from "./heroTemplates";
 
 const STROKE = 2.5;
@@ -21,12 +21,18 @@ const QUIET_PILL = "inline-flex min-h-11 items-center rounded-full px-5 font-hea
  *
  * `compact` is the answer at the size the counter's overlap allows on a
  * phone: the word, the count and the row.
+ *
+ * `snap` is the scan arriving, as the Scan page answers: the flash of the
+ * panels' light clearing over it, the panel settling and the newest stamp
+ * landing, all over at 300ms; with reduced motion a glow, a fade and the
+ * stamp at its final size. It plays as the prop turns on.
  */
 export function SampleAnswer({
   template,
   kind,
   count,
   compact = false,
+  snap = false,
   className,
 }: {
   template: HeroTemplate;
@@ -34,6 +40,7 @@ export function SampleAnswer({
   /** Stamps on the card after this scan; a full card is always full. */
   count: number;
   compact?: boolean;
+  snap?: boolean;
   className?: string;
 }) {
   const { t } = useTranslation();
@@ -42,8 +49,9 @@ export function SampleAnswer({
   return (
     <LitPanel
       light={kind === "full" ? "full" : "punched"}
+      snap={snap}
       className={cn(
-        "flex flex-col items-center text-center",
+        "relative flex flex-col items-center text-center",
         compact ? "gap-1.5 px-3 pb-3.5 pt-4" : "gap-2.5 px-4 py-5 sm:px-5",
         className,
       )}
@@ -60,7 +68,12 @@ export function SampleAnswer({
         </p>
       </div>
       <Figure size={compact ? "stat" : "count"} value={`${filled}/${total}`} />
-      <StampRow total={total} filled={filled} className={compact ? "max-w-[7.5rem]" : "max-w-[18rem]"} />
+      <StampRow
+        total={total}
+        filled={filled}
+        land={snap ? "snap" : undefined}
+        className={compact ? "max-w-[7.5rem]" : "max-w-[18rem]"}
+      />
       {kind === "stamped" && !compact && (
         <p className="type-body font-semibold text-answer-punched-ink">
           {t("dashboard.scan.result.toGo", { count: Math.max(0, total - filled) })}
@@ -77,6 +90,7 @@ export function SampleAnswer({
           </div>
         </>
       )}
+      {snap && <SnapFlash snap="scan" />}
     </LitPanel>
   );
 }
