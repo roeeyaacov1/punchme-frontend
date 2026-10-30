@@ -339,18 +339,21 @@
   "onboarding": {
     "steps": {
       "business": "Your business",
-      "color": "Card look",
+      "color": "Colours",
       "accent": "Stamp colour",
-      "stamp": "Stamp",
-      "reward": "Reward",
-      "account": "Account",
-      "wallet": "Your wallet",
-      "billing": "Go live"
+      "stamp": "The stamp",
+      "reward": "Your card",
+      "account": "Saving",
+      "wallet": "In your wallet",
+      "billing": "Going live"
     },
     "progress": "Step {{n}} of {{total}}",
+    "next": "Next: {{step}}",
+    "lastStop": "You can do this later too",
+    "progressSpoken": "Step {{n}} of {{total}}: {{step}}",
     "preview": {
-      "ariaLabel": "Preview of your card",
       "summary": "{{name}} — {{count}} stamps to a reward. Reward: {{reward}}.",
+      "yourBusiness": "Your business",
       "wallets": "Preview wallet"
     },
     "business": {

@@ -1,126 +1,158 @@
-import { useEffect, useRef, type FormEvent, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { cn } from "../../lib/cn";
-import { ctaClasses, focusRing } from "../marketing/primitives";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "../kit";
+import { useWide } from "./useWide";
 
 /**
- * One wizard screen: a way back, the question, the choice, and one big Next.
- * The title takes focus when the step mounts — the layout around it does not
- * change between steps, so without this a keyboard or screen-reader user is
- * left wherever the last click was.
+ * One screen of the wizard: its heading, the card, what it asks, and its one
+ * coral action.
  *
- * Back sits in the same block as the title rather than in a row of its own:
- * the phone above already spends most of a small screen, and every row
- * between the question and Next is a row the owner has to scroll past.
- * `subtitle` is for what the screen cannot show by itself — most steps don't
- * pass one, because the control underneath already answers the question.
+ * On a phone, and up to 1023px, it is one column. The card stands under the
+ * heading, or above it on a screen that leads with the card (`cardFirst`),
+ * and the action is docked at the foot of the screen, above the safe area,
+ * on a wall-coloured bar with a hairline over it, where a thumb finds it.
+ * From 1024px the card stands in a sticky column of its own at the end, with
+ * what goes under it, and the action at the foot of the step's column.
+ *
+ * Each screen brings its own pieces, so a screen that holds its form in a
+ * panel of its own (saving the card, going live) passes no heading or action
+ * and keeps its buttons where its words are.
  */
 export function StepShell({
-  title,
-  subtitle,
-  onBack,
-  onNext,
-  nextLabel,
-  nextDisabled = false,
-  nextBusy = false,
-  hideNext = false,
-  error,
+  heading,
+  card,
+  cardFirst = false,
+  under,
+  notice,
+  action,
   children,
-  footer,
 }: {
-  title: string;
-  subtitle?: string;
-  onBack?: () => void;
-  /** Submitting the form (Enter in a field, or the button). */
-  onNext?: () => void;
-  nextLabel?: string;
-  nextDisabled?: boolean;
-  nextBusy?: boolean;
-  hideNext?: boolean;
-  error?: string | null;
+  /** The screen's `StepHeading`. */
+  heading?: ReactNode;
+  /** The card on its stage. */
+  card?: ReactNode;
+  /** On a phone, the card before the heading. */
+  cardFirst?: boolean;
+  /** Under the card, in both layouts: the sample, the reward. */
+  under?: ReactNode;
+  /** Above the card: what the screen has to say first. */
+  notice?: ReactNode;
+  /** The screen's one coral action. */
+  action?: ReactNode;
   children?: ReactNode;
-  /** Below the CTA — secondary links. */
-  footer?: ReactNode;
 }) {
-  const { t } = useTranslation();
-  const heading = useRef<HTMLHeadingElement>(null);
+  const wide = useWide();
 
-  useEffect(() => {
-    heading.current?.focus({ preventScroll: true });
-  }, []);
-
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (nextDisabled || nextBusy) return;
-    onNext?.();
+  if (wide) {
+    return (
+      <div className="grid grid-cols-[minmax(0,1fr)_22rem] items-start gap-12 xl:gap-16">
+        <div className="flex min-w-0 flex-col gap-6">
+          {heading}
+          {children}
+          {action}
+        </div>
+        <aside className="sticky top-6 flex flex-col gap-4">
+          {notice}
+          {card}
+          {under}
+        </aside>
+      </div>
+    );
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3 sm:gap-5">
-      {/* Back sits *beside* the question, not above it. It had a row of its
-          own — 44px to hold one word — and on a 375px screen that row was the
-          difference between reaching the button and scrolling for it. Beside
-          the title it costs nothing: the title is already at least that tall,
-          and a back arrow at the start of a heading is the one place a reader
-          looks for one.
-
-          The word goes with the row. That is a real trade — an icon alone is
-          less plain than an icon and a label, and this audience is not a
-          technical one — so the button keeps its accessible name, keeps the
-          44px box, and keeps a `title` for anyone who hovers to check. The
-          progress row above is the other way back and it is still there. */}
-      <div className={cn(!onBack && "pt-1")}>
-        <div className="flex items-start gap-1">
-          {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              aria-label={t("common.back")}
-              title={t("common.back")}
-              className={cn(
-                // Pulled up and out so the arrow's box does not indent the
-                // title or push the block down: the glyph optically lines up
-                // with the first line of the heading, the box overhangs.
-                "-ms-3 -mt-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ink-muted hover:text-ink",
-                focusRing,
-              )}
-            >
-              <ArrowLeft size={20} aria-hidden="true" className="rtl:-scale-x-100" />
-            </button>
-          )}
-          <h1
-            ref={heading}
-            tabIndex={-1}
-            className="t-h3 min-w-0 text-balance text-ink outline-none"
-          >
-            {title}
-          </h1>
-        </div>
-        {subtitle && <p className="mt-2 text-pretty text-ink-muted">{subtitle}</p>}
-      </div>
-
+    <div className="flex flex-col gap-5">
+      {cardFirst ? (
+        <>
+          {notice}
+          {card}
+          {under}
+          {heading}
+        </>
+      ) : (
+        <>
+          {heading}
+          {notice}
+          {card}
+          {under}
+        </>
+      )}
       {children}
+      {action && <DockedAction>{action}</DockedAction>}
+    </div>
+  );
+}
 
-      {error && (
-        <p role="alert" className="text-sm font-medium text-red-700">
-          {error}
-        </p>
-      )}
+/**
+ * The question, taking focus as the screen appears, so a keyboard or a
+ * screen reader starts there rather than wherever the last press was. A way
+ * back, where there is one, is a 44px button at its start; a line under it
+ * says only what the screen can't say by itself.
+ */
+export function StepHeading({
+  title,
+  lead,
+  onBack,
+}: {
+  title: ReactNode;
+  lead?: ReactNode;
+  onBack?: () => void;
+}) {
+  const { t } = useTranslation();
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    heading.current?.focus({ preventScroll: true });
+  }, []);
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-start gap-1">
+        {onBack && (
+          <Button
+            variant="quiet"
+            size="icon"
+            aria-label={t("common.back")}
+            title={t("common.back")}
+            icon={<ArrowLeft aria-hidden className="rtl:-scale-x-100" />}
+            onClick={onBack}
+            className="-ms-3 -mt-1 shrink-0"
+          />
+        )}
+        <h1 ref={heading} tabIndex={-1} className="type-title min-w-0 text-balance outline-none">
+          {title}
+        </h1>
+      </div>
+      {lead && <p className="type-body text-pretty text-ink-muted">{lead}</p>}
+    </div>
+  );
+}
 
-      {!hideNext && (
-        <button
-          type="submit"
-          disabled={nextDisabled || nextBusy}
-          aria-busy={nextBusy || undefined}
-          className={ctaClasses("primary", "lg", "w-full")}
-        >
-          {nextLabel ?? t("common.next")}
-          {!nextBusy && <ArrowRight size={18} aria-hidden="true" className="rtl:-scale-x-100" />}
-        </button>
-      )}
-
-      {footer}
-    </form>
+/**
+ * The action at the foot of a phone, and as much room under the page as the
+ * bar is tall, so the page's own foot scrolls clear of it at any text size.
+ */
+function DockedAction({ children }: { children: ReactNode }) {
+  const bar = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(0);
+  useLayoutEffect(() => {
+    const element = bar.current;
+    if (!element) return;
+    const report = () => setHeight(element.offsetHeight);
+    report();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(report);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <>
+      <div aria-hidden style={{ height }} />
+      <div
+        ref={bar}
+        className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3"
+      >
+        <div className="mx-auto max-w-lg">{children}</div>
+      </div>
+    </>
   );
 }

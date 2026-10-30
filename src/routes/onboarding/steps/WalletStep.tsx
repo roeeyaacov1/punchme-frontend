@@ -7,7 +7,7 @@ import { listTemplates, patchTemplate, type CardTemplate } from "../../../api/bu
 import { getTemplateDesign, type DesignOut } from "../../../api/designs";
 import { previewCard } from "../../../api/loyalty";
 import { useBusiness } from "../../../business/useBusiness";
-import { StepShell } from "../../../components/onboarding/StepShell";
+import { LegacyStepShell as StepShell } from "../../../components/onboarding/LegacyStepShell";
 import { ctaClasses, focusRing } from "../../../components/marketing/primitives";
 import { cn } from "../../../lib/cn";
 import { useOnboardingDraft } from "../useOnboardingDraft";

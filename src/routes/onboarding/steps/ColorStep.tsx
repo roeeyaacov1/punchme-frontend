@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { ChoiceGrid } from "../../../components/onboarding/ChoiceGrid";
 import { LookGallery } from "../../../components/onboarding/LookGallery";
-import { StepShell } from "../../../components/onboarding/StepShell";
+import { LegacyStepShell as StepShell } from "../../../components/onboarding/LegacyStepShell";
 import { ColorField } from "../../../components/ui";
 import { focusRing } from "../../../components/marketing/primitives";
 import { accentFits, CARD_BACKGROUNDS } from "../../../lib/accentPalette";

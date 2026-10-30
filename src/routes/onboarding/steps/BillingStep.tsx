@@ -7,7 +7,7 @@ import { listTemplates } from "../../../api/businesses";
 import { getTemplateDesign } from "../../../api/designs";
 import { useBusiness } from "../../../business/useBusiness";
 import { PunchMark } from "../../../components/marketing/PunchMark";
-import { StepShell } from "../../../components/onboarding/StepShell";
+import { LegacyStepShell as StepShell } from "../../../components/onboarding/LegacyStepShell";
 import { focusRing } from "../../../components/marketing/primitives";
 import { cn } from "../../../lib/cn";
 import { useOnboardingDraft } from "../useOnboardingDraft";

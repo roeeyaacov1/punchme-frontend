@@ -1,41 +1,39 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { focusRing, LinkButton } from "../kit";
 import { cn } from "../../lib/cn";
-import { focusRing } from "../marketing/primitives";
+import { LanguageSwitch } from "../../routes/public/LanguageSwitch";
 import logo from "../../assets/logo.png";
+import { column } from "./column";
 
-/** The thin bar over the wizard and the sign-in page: the mark home, the
- * language switch every layout has, and — when signed out — a way to sign
- * in. Nothing else competes with the panel below it. */
+/**
+ * The thin bar over the wizard: the mark home at the start; at the end, a
+ * quiet way to sign in while signed out, and the other language, named in
+ * itself (Phase 8's `LanguageSwitch`). Nothing else competes with the
+ * question below it, and none of it is a stop on the road.
+ */
 export function TopBar({ showSignIn = false }: { showSignIn?: boolean }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   return (
-    <header className="mx-auto flex h-14 w-full max-w-md items-center justify-between px-4 sm:h-16 sm:max-w-lg sm:px-0">
-      <Link to="/" className={cn("inline-flex min-h-[44px] items-center rounded-lg", focusRing)}>
-        <img src={logo} alt={t("app.name")} className="h-7 w-auto" />
-      </Link>
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
-          onClick={() => i18n.changeLanguage(i18n.resolvedLanguage === "he" ? "en" : "he")}
-          className={cn(
-            "inline-flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium text-ink-muted transition-colors hover:text-ink",
-            focusRing,
-          )}
-        >
-          {t("language.switch")}
-        </button>
-        {showSignIn && (
-          <Link
-            to="/login"
-            className={cn(
-              "inline-flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium text-ink-muted transition-colors hover:text-ink",
-              focusRing,
-            )}
-          >
-            {t("landing.nav.signIn")}
-          </Link>
+    <header className={cn(column, "flex h-16 items-center justify-between gap-2")}>
+      {/* The mark dims under a finger, on the kit's press timing: the tap's
+          own flash is off in the wizard. */}
+      <Link
+        to="/"
+        className={cn(
+          "inline-flex min-h-11 items-center rounded-lg transition-opacity duration-press ease-out-strong active:opacity-70",
+          focusRing,
         )}
+      >
+        <img src={logo} alt={t("app.name")} className="logo-mark h-7 w-auto" />
+      </Link>
+      <div className="-me-3 flex items-center">
+        {showSignIn && (
+          <LinkButton to="/login" variant="quiet">
+            {t("auth.signInCta")}
+          </LinkButton>
+        )}
+        <LanguageSwitch />
       </div>
     </header>
   );
