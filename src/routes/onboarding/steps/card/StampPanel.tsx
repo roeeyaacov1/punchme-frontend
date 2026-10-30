@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { TriangleAlert } from "lucide-react";
 import { StampPicker, TexturePicker } from "../../../../components/card-studio/controls";
@@ -9,11 +9,18 @@ import { useOnboardingDraft } from "../../useOnboardingDraft";
  * The stamp: one of the sixteen symbols, the trade's first, or a picture of
  * one's own, cropped square in the browser and kept on this device until the
  * card is saved; and the texture behind the stamps. A picture the card says
- * it has but this device doesn't is said here, where it is chosen again, by
- * its cause: full storage is said over the card already, so here it is the
- * picture not being on this phone at all.
+ * it has but this device doesn't is said here, first, where it is chosen
+ * again; when the cause is full storage, the notice over the card says so
+ * too. Save and closing the tray come back to this line while it stands.
  */
-export function StampPanel({ storageFull }: { storageFull: boolean }) {
+export function StampPanel({
+  storageFull,
+  lostRef,
+}: {
+  storageFull: boolean;
+  /** The lost picture's line, for the screen to take focus to. */
+  lostRef?: RefObject<HTMLParagraphElement>;
+}) {
   const { t } = useTranslation();
   const { resolved, update, setArt, artUrl } = useOnboardingDraft();
   const [notKept, setNotKept] = useState(false);
@@ -22,9 +29,13 @@ export function StampPanel({ storageFull }: { storageFull: boolean }) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* First, so it is what the owner sent back here reads. */}
-      {lost && !storageFull && (
-        <p role="alert" className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-ink">
+      {lost && (
+        <p
+          ref={lostRef}
+          role="alert"
+          tabIndex={-1}
+          className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-ink outline-none"
+        >
           <TriangleAlert aria-hidden className="mt-px size-4 shrink-0 text-warn" />
           <span>{t("onboarding.stamp.notOnDevice")}</span>
         </p>

@@ -5,11 +5,10 @@ import { ArrowRight, CircleAlert } from "lucide-react";
 import { ChoiceTiles, type Tile } from "../../../components/card-studio/controls/ChoiceTiles";
 import { Button } from "../../../components/kit";
 import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
-import { SUPPORTED_LANGS } from "../../../i18n/languages";
 import type { PlaceResult } from "../../../lib/googlePlaces";
 import { CardStage } from "../CardStage";
 import { buildTemplateInput, draftPreviewValue, NICHES, resolveDraft, type Niche } from "../draft";
-import { withTradeLook } from "../looks";
+import { defaultRewards, withTradeLook } from "../looks";
 import { useStorageFull } from "../storageCheck";
 import { StorageNotice } from "../StorageNotice";
 import { useOnboardingDraft } from "../useOnboardingDraft";
@@ -43,12 +42,8 @@ export function BusinessStep() {
   const available = presets ? NICHES.filter((niche) => presets.some((preset) => preset.niche === niche)) : NICHES;
   const niches = NICHE_ORDER.filter((niche) => available.includes(niche));
 
-  // Every trade's default reward in every language: a reward still saying
-  // one of them follows a change of trade (`withTradeLook`).
-  const defaults = useMemo(
-    () => NICHES.flatMap((niche) => SUPPORTED_LANGS.map((lng) => t(`onboarding.card.reward.${niche}`, { lng }))),
-    [t],
-  );
+  // A reward still saying a trade's default follows a change of trade.
+  const defaults = useMemo(() => defaultRewards(t), [t]);
 
   // The card as Next will leave it: the trade's look in every field still empty.
   const preview = useMemo(() => {

@@ -4,7 +4,7 @@ import type { Preset } from "../../api/presets";
 import { accentFits, derivedLabelColor } from "../../lib/accentPalette";
 import { readableInk } from "../../lib/color";
 import { emptyDraft, type OnboardingDraft } from "./draft";
-import { BUILTIN_LOOKS, lookPatch, looksFor, readyLooks, withTradeLook } from "./looks";
+import { BUILTIN_LOOKS, defaultRewards, lookPatch, looksFor, readyLooks, withTradeLook } from "./looks";
 
 const DEFAULTS = ["A free haircut", "A free coffee", "תספורת חינם", "קפה חינם"];
 
@@ -61,6 +61,16 @@ describe("withTradeLook", () => {
     expect(withTradeLook(worn, undefined, DEFAULTS).reward).toBeNull();
     const own = draftOf({ niche: "cafe", ...lookPatch(barberFirst), reward: "Free beard trim" });
     expect(withTradeLook(own, undefined, DEFAULTS)).not.toHaveProperty("reward");
+  });
+});
+
+describe("defaultRewards", () => {
+  it("names every trade's default reward in every language", () => {
+    const t = ((key: string, options?: { lng?: string }) => `${key}@${options?.lng}`) as unknown as TFunction;
+    const all = defaultRewards(t);
+    expect(all).toHaveLength(10);
+    expect(all).toContain("onboarding.card.reward.barber@he");
+    expect(all).toContain("onboarding.card.reward.other@en");
   });
 });
 
