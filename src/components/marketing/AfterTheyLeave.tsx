@@ -99,7 +99,7 @@ export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
           </div>
 
           <div className="flex min-w-0 flex-col gap-6 lg:col-span-7 lg:row-start-2">
-            <p className="type-prose text-ink-muted">{t("messaging.phones")}</p>
+            <p className="type-prose text-pretty text-ink-muted">{t("messaging.phones")}</p>
             <LitPanel radius="card" arrive={rulesPanel.arrive} className={rulesPanel.dark}>
               <ul ref={rulesPanel.ref} className="divide-y divide-border">
                 {rules.map((rule) => (
@@ -107,7 +107,7 @@ export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
                 ))}
                 <RuleItem rule={{ kind: "broadcast", icon: Send, sentence: t("landing.after.broadcast") }} />
               </ul>
-              <p className="border-t border-border px-5 py-4 text-sm text-ink-muted sm:px-6">
+              <p className="border-t border-border px-5 py-4 text-sm text-pretty text-ink-muted sm:px-6">
                 {t("landing.after.starter")}
               </p>
             </LitPanel>
@@ -143,8 +143,8 @@ function RuleItem({ rule }: { rule: Rule }) {
       </span>
       <div className="flex min-w-0 flex-col gap-1">
         <h3 className="type-card-title text-ink">{t(`messaging.kinds.${rule.kind}`)}</h3>
-        <p className="type-body text-ink-muted">{rule.sentence}</p>
-        {rule.gift && <p className="type-body font-semibold text-ink">{rule.gift}</p>}
+        <p className="type-body text-pretty text-ink-muted">{rule.sentence}</p>
+        {rule.gift && <p className="type-body text-pretty font-semibold text-ink">{rule.gift}</p>}
       </div>
     </li>
   );

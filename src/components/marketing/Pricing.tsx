@@ -56,7 +56,7 @@ export function Pricing({ trade }: { trade: TradeKey }) {
               <h3 id="price-free" className="font-heading text-[2.75rem] font-medium leading-none text-ink">
                 {t("landing.pricing.free.price")}
               </h3>
-              <p className="type-prose text-ink-muted">{t("landing.pricing.free.body")}</p>
+              <p className="type-prose text-pretty text-ink-muted">{t("landing.pricing.free.body")}</p>
             </div>
             <div aria-hidden className={SIGN}>
               <StandeeSheet
@@ -91,7 +91,7 @@ export function Pricing({ trade }: { trade: TradeKey }) {
                 {opens.map((line) => (
                   <li key={line} className="flex items-start gap-2.5">
                     <Check aria-hidden strokeWidth={2.5} className="mt-1 size-4 shrink-0 text-ink" />
-                    <span className="type-body text-ink">{line}</span>
+                    <span className="type-body text-pretty text-ink">{line}</span>
                   </li>
                 ))}
               </ul>
@@ -112,7 +112,7 @@ export function Pricing({ trade }: { trade: TradeKey }) {
         <div className="mt-8 flex flex-col gap-6 sm:mt-10 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
           <div className="flex max-w-[42rem] flex-col gap-2">
             <h3 className="type-card-title text-ink">{t("billing.pro.ifCancelTitle")}</h3>
-            <p className="type-prose text-ink-muted">
+            <p className="type-prose text-pretty text-ink-muted">
               {t("landing.pricing.stop")} {t("billing.pro.ifCancel")}
             </p>
           </div>
