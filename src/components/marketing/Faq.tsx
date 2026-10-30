@@ -19,9 +19,11 @@ interface FaqItem {
  * From 1024px the heading keeps a column of its own, so the list doesn't
  * leave half the width empty.
  *
- * An answer comes in by the gentle 150ms fade each time it opens, with
- * reduced motion too: a control, so quick, and the plus turning says the
- * rest. The rows under it step down at once, as a disclosure's do.
+ * An answer lights on each time it opens, as the product's own disclosures
+ * open what they hold: its light fades up over 240ms while it rises 8px, or
+ * the gentle 150ms fade with reduced motion. A control, so quick, and the
+ * plus turning says the rest. The rows under it step down at once, as a
+ * disclosure's do.
  *
  * Each question is a row, pressed as the kit's rows are: the 6% ink well
  * under a finger, the 5% one under a pointer, no double-tap wait, and no
@@ -64,7 +66,12 @@ export function Faq() {
                   )}
                 />
               </summary>
-              <p className="type-prose pb-6 text-pretty text-ink-muted group-open:animate-gentle-in">
+              <p
+                className={cn(
+                  "type-prose pb-6 text-pretty text-ink-muted",
+                  reduced ? "group-open:animate-gentle-in" : "group-open:animate-lights-on",
+                )}
+              >
                 <Trans
                   i18nKey={`landing.faq.items.${index}.a`}
                   values={shared}
