@@ -353,7 +353,8 @@
     "continue": "Continue",
     "missing": {
       "name": "Write your business's name.",
-      "trade": "Choose what kind of business it is."
+      "trade": "Choose what kind of business it is.",
+      "reward": "Write what customers get."
     },
     "progressSpoken": "Step {{n}} of {{total}}: {{step}}",
     "preview": {
@@ -378,9 +379,6 @@
       }
     },
     "color": {
-      "title": "Pick your card look",
-      "custom": "Custom colour",
-      "customLabel": "Card colour",
       "names": {
         "midnight": "Midnight",
         "slate": "Slate",
@@ -396,8 +394,6 @@
       }
     },
     "looks": {
-      "legend": "Ready-made looks",
-      "orColor": "Or pick your own colour",
       "names": {
         "classic": "Classic",
         "warm": "Warm",
@@ -406,7 +402,8 @@
         "night": "Night",
         "fresh": "Fresh",
         "calm": "Calm"
-      }
+      },
+      "numbered": "Look {{n}}"
     },
     "accent": {
       "title": "Now the stamp colour",
@@ -421,20 +418,13 @@
       "customAccent": "Custom stamp colour"
     },
     "stamp": {
-      "title": "Choose your stamp",
-      "tabs": {
-        "icons": "Icons",
-        "image": "Your picture"
-      },
-      "gridLabel": "Stamp icon",
-      "textureLabel": "Texture behind the stamps",
       "uploadCta": "Choose a picture",
       "uploadReplace": "Choose a different picture",
       "uploadHint": "Square works best — it's cropped into a circle on the card.",
       "uploadTooLarge": "That picture is too big — keep it under 8 MB.",
       "uploadUnreadable": "Couldn't read that picture — try a JPG or PNG.",
-      "artMissing": "Your picture didn't survive the reload — please add it again.",
       "artMemoryOnly": "Storage is full, so this picture only lasts until you close the tab.",
+      "notOnDevice": "Your picture isn't saved on this phone, so it needs choosing again.",
       "glyphs": {
         "check": "Check",
         "heart": "Heart",
@@ -455,11 +445,9 @@
       }
     },
     "reward": {
-      "title": "How many stamps, and what's the reward?",
       "stampsLabel": "Stamps to a reward",
       "stampsValue_one": "{{count}} stamp",
       "stampsValue_other": "{{count}} stamps",
-      "rewardLabel": "The reward",
       "rewardPlaceholder": "e.g. A free haircut"
     },
     "account": {
@@ -537,7 +525,10 @@
         "trainer": "A free session",
         "therapist": "A free treatment",
         "other": "A treat on us"
-      }
+      },
+      "title": "Your card is ready",
+      "lead": "We started from a look made for your trade. Change anything, now or later in Card Studio.",
+      "save": "Save the card"
     },
     "design": {
       "title": "Design your card",
