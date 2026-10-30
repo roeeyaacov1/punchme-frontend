@@ -56,8 +56,8 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
               <h3 id="how-sign" className="type-title text-ink">
                 {t("landing.howItWorks.sign.title")}
               </h3>
-              <p className="type-prose text-ink-muted">{t("landing.howItWorks.sign.body")}</p>
-              <p className="type-prose text-ink-muted">{t("landing.howItWorks.sign.prints")}</p>
+              <p className="type-prose text-pretty text-ink-muted">{t("landing.howItWorks.sign.body")}</p>
+              <p className="type-prose text-pretty text-ink-muted">{t("landing.howItWorks.sign.prints")}</p>
             </div>
             {/* The same sign at two sizes: the A4 for a window and the tent
                 for a table, standing on one line as they would on a shelf.
@@ -104,7 +104,7 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
               <h3 id="how-card" className="type-title text-ink">
                 {t("landing.howItWorks.card.title")}
               </h3>
-              <p className="type-prose text-ink-muted">{t("landing.howItWorks.card.body")}</p>
+              <p className="type-prose text-pretty text-ink-muted">{t("landing.howItWorks.card.body")}</p>
             </div>
             <div className="flex flex-1 flex-col items-center justify-center gap-8 sm:flex-row sm:gap-8">
               {/* The Android side, since the counter shows the iPhone one:
@@ -141,7 +141,7 @@ export function HowItWorks({ trade }: { trade: TradeKey }) {
               <h3 id="how-scan" className="type-title text-ink">
                 {t("landing.howItWorks.scan.title")}
               </h3>
-              <p className="type-prose text-ink-muted">{t("landing.howItWorks.scan.body")}</p>
+              <p className="type-prose text-pretty text-ink-muted">{t("landing.howItWorks.scan.body")}</p>
             </div>
             <figure className="flex flex-col items-center">
               {/* The two lights a stamp and a reward answer in, a step apart

@@ -33,7 +33,7 @@ export function FinalCta() {
             <LinkButton to="/onboarding" size="lg" className="w-full sm:w-auto">
               {t("landing.hero.cta")}
             </LinkButton>
-            <p className="type-body text-center text-ink-muted sm:text-start lg:text-end">
+            <p className="type-body text-pretty text-center text-ink-muted sm:text-start lg:text-end">
               <Trans
                 i18nKey="landing.finalCta.note"
                 values={{ price: PUNCHME_MONTHLY_PRICE }}
