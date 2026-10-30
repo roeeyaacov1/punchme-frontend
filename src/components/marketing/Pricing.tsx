@@ -1,9 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { Check } from "lucide-react";
+import { cn } from "../../lib/cn";
 import { StandeeSheet } from "../dashboard/Standee";
-import { Badge, LinkButton, LitPanel } from "../kit";
+import { Badge, LinkButton, useReducedMotion } from "../kit";
 import { column, section } from "./landingLayout";
 import { sampleSign, tradeTemplate, type TradeKey } from "./samples";
+import { useFirstSight } from "./useFirstSight";
 
 /**
  * The sign at the size each panel holds it: the counter design on A5. The
@@ -19,12 +21,22 @@ const PAPER = "rounded-md shadow-panel-lift ring-1 ring-rim/10";
  * standee's own state before activation; Pro is the same sign lit, at ₪99 a
  * month including VAT, with what activating opens. Under them, how to stop
  * and what stopping does, in Billing's own words, and the one action.
+ *
+ * Pro's light switches on once, as its panel first comes into view: it
+ * waits at the unlit sign's half strength, stays dark for a beat, then
+ * catches like a tube and holds (`sign-catch`, DESIGN.md's one ceremony),
+ * or comes up in the gentle fade with reduced motion. Only the light
+ * moves, under everything on the panel, so no word or price flickers.
  */
 export function Pricing({ trade }: { trade: TradeKey }) {
   const { t, i18n } = useTranslation();
+  const reduced = useReducedMotion();
   const template = tradeTemplate(trade);
   const language = i18n.resolvedLanguage === "he" ? "he" : "en";
   const opens = t("landing.pricing.pro.opens", { returnObjects: true }) as string[];
+  const [proRef, proSeen] = useFirstSight<HTMLElement>({ share: 0.6 });
+  let light = "opacity-50";
+  if (proSeen) light = reduced ? "animate-sign-on" : "animate-sign-catch";
 
   return (
     <section id="pricing" tabIndex={-1} aria-labelledby="pricing-title" className={section}>
@@ -58,13 +70,13 @@ export function Pricing({ trade }: { trade: TradeKey }) {
             </div>
           </article>
 
-          <LitPanel
-            as="article"
-            light="field"
-            radius="card"
+          {/* Lit: the landing's field light, as a layer of its own. */}
+          <article
+            ref={proRef}
             aria-labelledby="price-pro"
-            className="flex flex-col gap-6 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6 lg:col-span-7 lg:p-8"
+            className="theme-lit relative isolate flex flex-col gap-6 rounded-card p-5 text-ink sm:flex-row sm:items-center sm:justify-between sm:p-6 lg:col-span-7 lg:p-8"
           >
+            <span aria-hidden className={cn("lit-field absolute inset-0 -z-10 rounded-[inherit]", light)} />
             <div className="flex flex-col gap-4">
               <div className="flex flex-col items-start gap-3">
                 <Badge>{t("landing.pricing.pro.name")}</Badge>
@@ -94,7 +106,7 @@ export function Pricing({ trade }: { trade: TradeKey }) {
                 className={PAPER}
               />
             </div>
-          </LitPanel>
+          </article>
         </div>
 
         <div className="mt-8 flex flex-col gap-6 sm:mt-10 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
