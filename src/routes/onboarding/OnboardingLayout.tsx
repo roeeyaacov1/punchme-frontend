@@ -68,13 +68,19 @@ function Shell() {
     if (stop) window.scrollTo({ top: 0, behavior: "instant" });
   }, [stop]);
 
-  // Announced quietly, and only once the owner has stopped changing things.
+  // Announced quietly, and only once the owner has stopped changing things;
+  // only on the screens that change the draft. After the save, the card is
+  // the saved one (and after a Skip there is no draft to speak of), which
+  // the stage's own caption says.
+  const editing = !!step && (DRAFT_STEPS as readonly string[]).includes(step);
   const spoken = useDebounce(
-    t("onboarding.preview.summary", {
-      name: resolved.name || t("onboarding.business.nameLabel"),
-      count: preview.stampsRequired,
-      reward: preview.rewardDescription,
-    }),
+    editing
+      ? t("onboarding.preview.summary", {
+          name: resolved.name || t("onboarding.business.nameLabel"),
+          count: preview.stampsRequired,
+          reward: preview.rewardDescription,
+        })
+      : "",
     1200,
   );
 

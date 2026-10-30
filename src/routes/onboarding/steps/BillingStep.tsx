@@ -88,6 +88,9 @@ export function BillingStep() {
   }
 
   function notNow() {
+    // Held while Activate is on its way to Stripe, which would take the
+    // owner there anyway, from the dashboard.
+    if (busy) return;
     clear();
     navigate("/dashboard");
   }
