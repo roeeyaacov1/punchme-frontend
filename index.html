@@ -21,7 +21,13 @@
          design — without it an owner judges their card in Assistant and the
          phone shows them something else. Latin only by design: Roboto ships
          no Hebrew, and a Hebrew pass is set in the phone's own Hebrew face,
-         which is exactly what falling through gives us. -->
+         which is exactly what falling through gives us.
+
+         display=swap paints the page at once in faces the device has, and
+         the files then land one by one. Rubik, Assistant and Plex Mono each
+         fall back first to stand-ins sized to match them
+         (src/font-fallbacks.css), so the lines break in the same places
+         before and after and nothing below them moves. -->
     <link
       href="https://fonts.googleapis.com/css2?family=Assistant:wght@400..700&family=IBM+Plex+Mono:wght@400;500&family=Roboto:wght@400;500&family=Rubik:wght@400..700&display=swap"
       rel="stylesheet"

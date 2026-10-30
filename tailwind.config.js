@@ -179,10 +179,33 @@ export default {
       // than falling back to an OS face. Rubik's geometric, round-bowled
       // Latin is also the closest webfont match to the logo wordmark.
       // `mono` is digits and pass field labels only — it has no Hebrew.
+      //
+      // Each family falls back first to its stand-ins in
+      // src/font-fallbacks.css: faces the device has, sized to the web
+      // font's, so a page doesn't move as the files land. A device that has
+      // neither set falls through to its own face, as before.
       fontFamily: {
-        heading: ['"Rubik"', "system-ui", "sans-serif"],
-        body: ['"Assistant"', "system-ui", "sans-serif"],
-        mono: ['"IBM Plex Mono"', "monospace"],
+        heading: [
+          '"Rubik"',
+          '"Rubik Fallback"',
+          '"Rubik Fallback Android"',
+          "system-ui",
+          "sans-serif",
+        ],
+        body: [
+          '"Assistant"',
+          '"Assistant Fallback"',
+          '"Assistant Fallback Android"',
+          "system-ui",
+          "sans-serif",
+        ],
+        mono: [
+          '"IBM Plex Mono"',
+          '"IBM Plex Mono Fallback"',
+          '"IBM Plex Mono Fallback Apple"',
+          '"IBM Plex Mono Fallback Android"',
+          "monospace",
+        ],
       },
       keyframes: {
         "fade-up": {
