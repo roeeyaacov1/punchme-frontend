@@ -18,6 +18,10 @@ interface FaqItem {
  * a page without JavaScript all work, and eight open answers aren't a wall.
  * From 1024px the heading keeps a column of its own, so the list doesn't
  * leave half the width empty.
+ *
+ * An answer comes in by the gentle 150ms fade each time it opens, with
+ * reduced motion too: a control, so quick, and the plus turning says the
+ * rest. The rows under it step down at once, as a disclosure's do.
  */
 export function Faq() {
   const { t } = useTranslation();
@@ -56,7 +60,7 @@ export function Faq() {
                   )}
                 />
               </summary>
-              <p className="type-prose pb-6 text-pretty text-ink-muted">
+              <p className="type-prose pb-6 text-pretty text-ink-muted group-open:animate-gentle-in">
                 <Trans
                   i18nKey={`landing.faq.items.${index}.a`}
                   values={shared}
