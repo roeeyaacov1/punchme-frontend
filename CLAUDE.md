@@ -183,6 +183,12 @@ Hebrew — it sets digits and the pass field labels only, never running text.
 Roboto has no Hebrew either: it is loaded only for the Google Wallet preview,
 and never sets running text.
 
+Until the files land, Rubik, Assistant and Plex Mono are drawn by stand-ins
+in `src/font-fallbacks.css`: Arial, Roboto and Noto Sans Hebrew, scaled to
+their widths so nothing moves when the real faces arrive. The numbers are
+measured, not chosen. A new family, weight or version means measuring them
+again, as the file's header says.
+
 ## Color and contrast
 
 `tailwind.config.js` and the theme scopes in `src/index.css` carry measured
