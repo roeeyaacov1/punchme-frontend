@@ -17,8 +17,8 @@ well designed" — it's "will this bring people back, or am I paying for a
 dashboard I'll never open?"
 
 **The brand is candour.** The landing page cites real sources (Square, HBR,
-Harris Poll) and the revenue calculator will show a negative number and tell an
-owner not to buy if their economics don't work. Never add fake logo walls,
+Harris Poll) for every figure it prints, and says plainly what is free and
+what costs. Never add fake logo walls,
 invented testimonials, unsourced metrics, or claims of popularity or results
 that nothing backs up. The real numbers are stronger, and undermining that
 honesty costs more than any conversion it buys.
@@ -27,10 +27,9 @@ The same goes for what the product does. Sends are capped, so nothing is
 "unlimited". Joining takes a mobile number and an SMS code, so the promise is
 no app, no account, no password, never "no signup". A quote goes on the page
 only when a real customer said it and agreed to its use, and a figure only
-with a source in
-`src/components/marketing/sources.ts`. One line on the landing page is still
-wrong: the FAQ's "message us" doesn't say how, because no page carries the
-WhatsApp number yet (`docs/landing-page.md`).
+with a source in `src/components/marketing/sources.ts`. The revenue
+calculator came off the page on 30 Oct 2026 (Roee's call); `calculator.ts`
+stays for the price and its tested model (`docs/landing-page.md`).
 
 ## Stack
 
