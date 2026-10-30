@@ -122,8 +122,9 @@ export const CardStage = forwardRef<
           {/* The stand-in grows by a row of stamps from 7 up, so the stage
               keeps room for the two-row card: an unseen copy with all twelve
               shares the cell. Dragging the count never moves the card, or
-              the control under the finger. */}
-          <div className="grid [&>*]:col-start-1 [&>*]:row-start-1">
+              the control under the finger. One column that can't grow past
+              the slot: an `auto` one took a long name's whole width. */}
+          <div className="grid grid-cols-1 [&>*]:col-start-1 [&>*]:row-start-1">
             <div ref={slot}>
               <Pass {...shown} />
             </div>
