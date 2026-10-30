@@ -1228,3 +1228,100 @@ no address bar, so none of them shows there.
 Left for step D, unchanged: the Referrals settings' picture of the
 friend's join, the sample name on a nameless pass, and the service worker
 on a production build. The suite is 39 files and 454 tests.
+
+**After step D** (29–30 Oct, for the review). Twenty commits, `e7f0dd0`
+to `730b591`, each checked in headless Chrome over CDP in Hebrew and
+English at 375 and 1280, and at 320 where the pass stands.
+
+- **The motion review** step C skipped (`review-animations`, read and
+  applied as written to step C's motion) blocked on four findings and
+  approved once they were fixed: the pass faded on the ceremony's 600ms
+  clock and was still see-through at 150ms, so it now lights on in
+  240ms and only the stage's light keeps the 600ms (`e7f0dd0`); after a
+  scrolled form the card arrived with its heading above the screen, so
+  every step now opens at the top (`26f9a54`); `/c`'s stage lit on 46px
+  under its skeleton, so the skeleton takes the card screen's rhythm
+  (`8e43a75`); the top bar's mark pressed with no transition
+  (`4118d07`). Considered and kept: the light's linear 600ms (the
+  ceremony, once), the words' fade (it keeps the switch from being a
+  cut), and no stagger (the light is the peak; a cascade would compete).
+- **Harden**, worst-case data through a wrapped fetch (names at the
+  API's limits, a 200-character reward, 12 stamps, long addresses,
+  offline, 404, 5xx, 429): no overflow, clipping or text under 13px at
+  320, 375 or 1280. What it found, fixed: a birthday the API refuses,
+  a bare 429 and a down SMS service all read "something went wrong",
+  and a name past 120 characters was a 422 (`be1f20b`); Hebrew `_two`
+  printed "2 חותמות" and the countdown jittered (`8acb6cc`); a full
+  card's reward was clamped to two lines and "לסורק" was 37px wide
+  (`53cd55c`); shop names in tab titles weren't isolated (`9e123d0`);
+  a Google button that can't load put "Something went wrong signing
+  in" over an untouched form, on `/login`, `/invite` and the account
+  step (`ff475c4`); a sign-up address with no domain made an account
+  no one could recover (`ac98bb0`); any failed read of an invitation
+  called the link dead (`751d1b1`).
+- **Adapt** at 375: the countdown lost its spaces inside the resend
+  link's flex box (`69b8e0c`); the customer pages' language switch sat
+  in a wide window's corner, away from their column (`03abc56`); the
+  birthday takes the phone's autofill (`a82cfdb`).
+- **Clarify**: an invalid phone says what one is; the code throttle's
+  "wait a moment" could be an hour, and says so (`4998ac9`). The Hebrew
+  invitation said it was "sent" to an address, and nothing is ever
+  sent; a failed read names its cause only when it is known
+  (`f56bad0`).
+- **Polish**, with the critique snapshots: every P1 and P2 they list
+  was closed by steps B to D; the last open P1 was the sample name.
+  The detector's one real finding, a wrapped label with 2.5px above and
+  below it, is fixed on this phase's buttons (`c05f27b`).
+- **The detector** (`npx impeccable detect`, 4.8.0): the file scan of
+  the four folders finds nothing; the live scan over CDP finds
+  `cream-palette` (the wall, Lightbox's own), `bounce-easing` (the
+  stamp's overshoot, the product's one gesture) and `organic-clip-path`
+  (Google's own "G"), all kept on purpose, and `cramped-padding`, fixed.
+- **§12's three items:** the Referrals settings draw the sign now,
+  small, in the card's language (`ad3843a`); a nameless pass prints
+  nothing, from `publicCard.ts`, with the previews untouched
+  (`fb30b0a`; "Member" against nothing is still §10.2's); and on a
+  production build the worker kept the SPA's `index.html` under a
+  missing chunk's name, for good, so a route stayed broken in that
+  browser after the file came back. It no longer keeps an HTML answer
+  under `/assets/`, and its cache is renamed so the next activation
+  clears any such entry (`730b591`). The rest held: `/join` draws from
+  the entry chunk alone, the chunks `/login` starts are cached, a tab
+  left across a release reloads once, and `/join` opens offline.
+
+Checked as well: the stamp screen as staff, manager and owner, signed
+in for real (a member's read records no referral click); another
+shop's owner on a Coffee pass; an invitation signed out and signed in,
+its wrong-account refusal and the switch; the wizard's account step,
+which shares the sign-in parts; the keyboard path through the join and
+the stamp screen; reduced motion. The console carries only the session
+check's 401s on `/api/auth/me` at a signed-out boot (`src/auth`, as
+step A measured). No real writes: every join, code, stamp, redeem and
+accept was answered by a wrapped fetch.
+
+Found and left:
+- The kit's button sizes have no vertical padding, so any label allowed
+  to wrap fills its pill; fixed here per call site, but the cause is the
+  kit's, for every redesigned page.
+- The code request's cap of 10 an hour per address can turn customers
+  away on a busy shop's shared Wi-Fi (the backend's).
+- `enroll.submit`, "Add to my wallet", shows only with codes off and
+  joins rather than adds; production has codes on.
+
+Left for a phone (`npm run dev:phone`; the SMS needs codes on):
+1. No grey flash under a finger on the sign's button, the privacy row
+   or a link, each showing its own press; a long press selects no
+   button's words, while the page's text still selects.
+2. On `/join`, the sign holds still while the address bar slides away
+   and back.
+3. The code field's return key says "Done" on Android; iOS's number pad
+   has none.
+4. A real SMS code is offered above the keyboard, and taking it joins
+   by itself at six digits.
+5. The birthday offers the phone's own; the picker offers no day from
+   today on.
+6. With the keyboard up, scroll the form to its button and send: the
+   card opens at its top, heading first.
+7. The wallet button names the phone's wallet, Apple or Google.
+
+The suite is 47 files and 586 tests.
