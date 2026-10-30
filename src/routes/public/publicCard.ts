@@ -3,6 +3,17 @@ import type { CardPublic } from "../../api/loyalty";
 import type { CardPreviewValue } from "../../components/card-studio/CardPreviews";
 
 /**
+ * What the pass prints for a holder this page can't name: nothing. The
+ * previews print their sample name, a stranger's ("דנה לוי"), for any empty
+ * value, so the empty field is handed over as one no-break space: it reads
+ * as nothing, and keeps the field's line, so the pass stands as tall as it
+ * does with a name. The real pass prints "Member" there (the backend's, in
+ * English on a Hebrew card too), which is still an open question; nothing
+ * is the honest stand-in until it is answered.
+ */
+export const NO_HOLDER_NAME = " ";
+
+/**
  * `/api/cards/{serial}` -> the value the studio's real Apple/Google
  * renderers take, so the public pages show the customer their actual pass
  * instead of a generic mock of one.
@@ -43,10 +54,9 @@ export function publicCardPreview(
     labelColor: card.label_color,
     design: card.design ?? {},
     serial,
-    // Known and left to Phase 3 (the public brief's §7.10): with no name —
-    // `/c` never has one, and a join may skip it — the previews print their
-    // sample name, where the real pass prints "Member".
-    holderName: holderName?.trim() || undefined,
+    // `/c` never has a name (the public card carries none), and a join may
+    // skip it: then no one's, never the previews' sample.
+    holderName: holderName?.trim() || NO_HOLDER_NAME,
   };
 }
 
