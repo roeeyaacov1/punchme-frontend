@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
+import { useReducedMotion } from "../kit";
 
 /** Every 5%, so a reading lands close to wherever the element crosses. */
 const STEPS = Array.from({ length: 21 }, (_, index) => index / 20);
+
+/**
+ * Everything above the line 10% up from the foot of the screen, including
+ * all that has scrolled past: a panel jumped over by an anchor, or one whose
+ * top is off screen while focus is inside it, is never left dark.
+ */
+const RISEN = "1000000px 0px -10% 0px";
 
 export interface FirstSightOptions {
   /**
@@ -47,4 +55,23 @@ export function useFirstSight<T extends Element>({ share = 0, inset = "0px" }: F
   }, [element, seen, share, inset]);
 
   return [setElement, seen] as const;
+}
+
+/**
+ * A panel lighting on the first time its top comes 10% up the screen: dark
+ * until then, then LitPanel's `arrive`, the light fading up over 240ms while
+ * the panel rises 8px. On paper it is always lit. With reduced motion it is
+ * lit from the first paint and never waits.
+ *
+ * LitPanel takes no ref, so `ref` goes on the first thing inside the panel,
+ * which comes up the screen with the panel's top.
+ */
+export function useLightsOn<T extends Element>() {
+  const reduced = useReducedMotion();
+  const [ref, seen] = useFirstSight<T>({ inset: RISEN });
+  return {
+    ref,
+    arrive: seen && !reduced,
+    dark: seen || reduced ? undefined : "opacity-0 print:opacity-100",
+  };
 }

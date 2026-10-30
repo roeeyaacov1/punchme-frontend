@@ -7,7 +7,7 @@ import { column, section } from "./landingLayout";
 import { landedStamps, samplePass, tradeTemplate, type TradeKey } from "./samples";
 import { SourceLabel, type ProofStat } from "./SourceLabel";
 import { PROOF_SOURCE_URLS } from "./sources";
-import { useFirstSight } from "./useFirstSight";
+import { useFirstSight, useLightsOn } from "./useFirstSight";
 
 /**
  * The starter rules as an owner finds them in Messages, read off the
@@ -37,7 +37,8 @@ interface Rule {
  * enough would come back.
  *
  * The sample message arrives once, when the lock screen is in view, its
- * place kept until then, so the visitor sees the card on its own first.
+ * place kept until then, so the visitor sees the card on its own first;
+ * the rules' panel lights on as it comes up the screen.
  */
 export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
   const { t, i18n } = useTranslation();
@@ -52,6 +53,7 @@ export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
     .map((stat, index) => ({ stat, index }))
     .filter(({ stat }) => stat.id === "square" || stat.id === "hbr");
   const [stageRef, stageSeen] = useFirstSight<HTMLDivElement>({ share: 0.9 });
+  const rulesPanel = useLightsOn<HTMLUListElement>();
 
   const rules: Rule[] = [
     {
@@ -98,8 +100,8 @@ export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
 
           <div className="flex min-w-0 flex-col gap-6 lg:col-span-7 lg:row-start-2">
             <p className="type-prose text-ink-muted">{t("messaging.phones")}</p>
-            <LitPanel radius="card">
-              <ul className="divide-y divide-border">
+            <LitPanel radius="card" arrive={rulesPanel.arrive} className={rulesPanel.dark}>
+              <ul ref={rulesPanel.ref} className="divide-y divide-border">
                 {rules.map((rule) => (
                   <RuleItem key={rule.kind} rule={rule} />
                 ))}
