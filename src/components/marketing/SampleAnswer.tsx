@@ -66,7 +66,7 @@ export function SampleAnswer({
         )}
       >
         {kind === "full" ? <Gift aria-hidden strokeWidth={STROKE} /> : <Check aria-hidden strokeWidth={STROKE} />}
-        <p className={compact ? "font-heading text-[0.9375rem] font-medium leading-tight" : "type-answer"}>
+        <p className={compact ? "font-heading text-sm font-medium leading-tight" : "type-answer"}>
           {t(kind === "full" ? "dashboard.scan.result.rewardReady" : "dashboard.scan.result.stamped")}
         </p>
       </div>
