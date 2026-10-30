@@ -178,6 +178,7 @@ function BarLight({
   phase,
   reduced,
   lift = false,
+  onHeight,
   className,
   children,
 }: {
@@ -185,11 +186,23 @@ function BarLight({
   reduced: boolean;
   /** Docked at the foot of the screen: the page's toasts stand above it. */
   lift?: boolean;
+  /** Told the bar's height as it changes, for the room the page keeps under itself. */
+  onHeight?: (height: number) => void;
   className?: string;
   children: ReactNode;
 }) {
   const ref = useInert<HTMLDivElement>(phase === "leaving");
   useToastLift(ref, lift && phase !== "leaving");
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!onHeight || !element) return;
+    const report = () => onHeight(element.offsetHeight);
+    report();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(report);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref, onHeight]);
   return (
     <div ref={ref} className={cn(className, barLight(phase, reduced))}>
       {children}
@@ -296,6 +309,7 @@ export function CardStudio({
   // Stamps a hand has added to the sample with +: each one lands on the card.
   const [landed, setLanded] = useState(0);
   const [trayHeight, setTrayHeight] = useState(0);
+  const [barHeight, setBarHeight] = useState(0);
   const [shownTray, setShownTray] = useState(tray);
   // The tray the card was last fitted above, and how tall it was then.
   const fitted = useRef<{ tray: string; height: number } | null>(null);
@@ -654,11 +668,15 @@ export function CardStudio({
             phase={barPhase}
             reduced={reduced}
             lift
+            onHeight={setBarHeight}
             className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t border-border bg-surface px-4 pb-7 pt-3 md:bottom-0 md:pb-[max(0.75rem,env(safe-area-inset-bottom))]"
           >
             <div className="mx-auto max-w-2xl">{studioBar}</div>
           </BarLight>
-          <div aria-hidden className="h-36" />
+          {/* Room under the page, so its foot scrolls clear of the bar: 9rem,
+              or the bar's own height once its words wrap past that, as they
+              do at a large text size on a phone. */}
+          <div aria-hidden className="min-h-36" style={{ height: barHeight }} />
         </>
       )}
       {/* Room under the page, so any part of the card can scroll above the tray. */}
