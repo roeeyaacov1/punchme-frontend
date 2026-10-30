@@ -42,7 +42,7 @@ export const pressWell = "[&:not(:disabled)]:active:shadow-[inset_0_0_0_100vmax_
  * underline thickens under a pointer, and under a finger as it presses,
  * since the tap's own flash is off.
  */
-export const linkText = `rounded-sm text-ink underline decoration-1 underline-offset-[3px] active:decoration-2 hover-fine:decoration-2 ${focusRing}`;
+export const linkText = `rounded-sm text-ink underline decoration-1 underline-offset-[3px] active:decoration-2 hover-fine:decoration-2 ${noTapFlash} ${focusRing}`;
 
 /**
  * A text field's box: the 3:1 field edge, 16px corners, and 16px text so
