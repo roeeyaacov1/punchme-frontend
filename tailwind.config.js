@@ -307,6 +307,10 @@ export default {
         // stand. Only the light takes the ceremony's time.
         "stage-on": "gentle-out var(--duration-ceremony) linear both",
         "light-up": "gentle-in var(--duration-lights) var(--ease-out-strong) both",
+        // One picture crossing over to another in place, such as the
+        // landing's counter changing trade: the new one fades in over the
+        // old, on the in-out, since what it replaces is on screen already.
+        "crossfade-in": "gentle-in var(--duration-crossfade) var(--ease-in-out-strong) both",
         // The shop's sign, the day it switches on: unlit for a beat, then a
         // tube catching over the ceremony's 600ms, or the gentle fade.
         "sign-catch": "sign-catch var(--duration-ceremony) linear var(--delay-switch-on) both",

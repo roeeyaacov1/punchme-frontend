@@ -3,7 +3,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 import { AppleCardPreview } from "../card-studio/CardPreviews";
 import { StandeeSheet } from "../dashboard/Standee";
-import { LinkButton, LitPanel, SegmentedControl } from "../kit";
+import { LinkButton, LitPanel, SegmentedControl, useReducedMotion } from "../kit";
 import { PUNCHME_MONTHLY_PRICE } from "./calculator";
 import { column } from "./landingLayout";
 import { SampleAnswer } from "./SampleAnswer";
@@ -19,8 +19,19 @@ const SCAN_BEAT_MS = 800;
 /** The snap's 300ms, and a frame or two: by then the stamp has landed. */
 const SCAN_MS = 400;
 
+/** --duration-crossfade, and a frame or two: by then the new trade is up. */
+const CROSSFADE_MS = 350;
+
 /** The counter before the scan, as it happens, and after. */
 type Scan = "waiting" | "now" | "done";
+
+/** The counter in one trade: the first, or one the switch brought. */
+interface Layer {
+  id: number;
+  trade: TradeKey;
+  /** Chosen once the scan had begun, so it shows the scan done rather than playing it again. */
+  afterScan: boolean;
+}
 
 /**
  * Each object on the counter wears its name, as a label stuck on its edge:
@@ -127,11 +138,12 @@ function Counter({
  * page's one orchestrated moment. The panel is a picture: a screen reader
  * hears one sentence for it, of the card as the scan leaves it.
  *
- * The trade switch under it repaints all three, and the rest of the page
- * follows it.
+ * The trade switch under it repaints all three, crossing over in place, and
+ * the rest of the page follows it.
  */
 export function Hero({ trade, onTrade }: { trade: TradeKey; onTrade: (next: TradeKey) => void }) {
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
   const template = tradeTemplate(trade);
   const stamps = landedStamps(template);
 
@@ -159,7 +171,24 @@ export function Hero({ trade, onTrade }: { trade: TradeKey; onTrade: (next: Trad
     const timer = window.setTimeout(() => setScanOver(true), SCAN_MS);
     return () => window.clearTimeout(timer);
   }, [scanned]);
-  const scan: Scan = !scanned ? "waiting" : scanOver ? "done" : "now";
+  const scanOf = (layer: Layer): Scan => (!scanned ? "waiting" : scanOver || layer.afterScan ? "done" : "now");
+
+  // Each trade chosen is a new layer over the last, fading in over it, so
+  // the objects cross over where they stand with no dip to the bare light
+  // between them; the layers beneath go once it is up. A quick second
+  // choice simply fades in over the first, mid-fade or not.
+  const [layers, setLayers] = useState<Layer[]>(() => [{ id: 0, trade, afterScan: false }]);
+  const top = layers[layers.length - 1];
+  const stacked = layers.length > 1;
+  useEffect(() => {
+    if (!stacked) return;
+    const timer = window.setTimeout(() => setLayers((current) => current.slice(-1)), CROSSFADE_MS);
+    return () => window.clearTimeout(timer);
+  }, [stacked, top.id]);
+  const choose = (next: TradeKey) => {
+    setLayers((current) => [...current, { id: current[current.length - 1].id + 1, trade: next, afterScan: scanned }]);
+    onTrade(next);
+  };
 
   return (
     <section aria-labelledby="hero-title" className="pt-6 sm:pt-10 lg:pt-14">
@@ -181,8 +210,21 @@ export function Hero({ trade, onTrade }: { trade: TradeKey; onTrade: (next: Trad
 
       <div className={cn(column, "mt-8 sm:mt-10 lg:mt-12")}>
         <figure>
-          <LitPanel aria-hidden light="field" radius="hero" className="overflow-hidden">
-            <Counter trade={trade} scan={scan} answerRef={answerRef} />
+          <LitPanel aria-hidden light="field" radius="hero" className="grid overflow-hidden">
+            {layers.map((layer) => (
+              <Counter
+                key={layer.id}
+                trade={layer.trade}
+                scan={scanOf(layer)}
+                answerRef={layer.id === top.id ? answerRef : undefined}
+                // Stacked in one cell, each its own stacking context, so a
+                // layer's raised sign and answer stay under the one above.
+                className={cn(
+                  "isolate [grid-area:1/1]",
+                  layer.id > 0 && (reduced ? "animate-gentle-in" : "animate-crossfade-in"),
+                )}
+              />
+            ))}
           </LitPanel>
           <figcaption className="sr-only">
             {t("landing.hero.counter.summary", {
@@ -200,7 +242,7 @@ export function Hero({ trade, onTrade }: { trade: TradeKey; onTrade: (next: Trad
             hideLabel
             options={TRADES.map((key) => ({ value: key, label: t(`landing.templates.items.${key}.trade`) }))}
             value={trade}
-            onChange={onTrade}
+            onChange={choose}
           />
         </div>
       </div>
