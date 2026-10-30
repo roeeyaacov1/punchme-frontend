@@ -1307,7 +1307,7 @@
         },
         {
           "q": "Does it work on both iPhone and Android?",
-          "a": "Yes. iPhone customers get the card in Apple Wallet and Android customers in Google Wallet, and you scan both the same way. Messages arrive differently. {{phones}}"
+          "a": "Yes. iPhone customers get the card in Apple Wallet and Android customers in Google Wallet, and you scan both the same way. A message arrives differently on each. {{phones}}"
         },
         {
           "q": "What happens if they change phones?",
