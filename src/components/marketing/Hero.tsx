@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode, type Ref } from "react";
+import { memo, useEffect, useState, type ReactNode, type Ref } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 import { AppleCardPreview } from "../card-studio/CardPreviews";
@@ -21,6 +21,13 @@ const SCAN_MS = 400;
 
 /** --duration-crossfade, and a frame or two: by then the new trade is up. */
 const CROSSFADE_MS = 350;
+
+/**
+ * The counter's layers at most: the one standing and two fading in over it.
+ * A held arrow key changes the trade 30 times a second, and each layer is a
+ * pass, a sign and an answer.
+ */
+const MAX_LAYERS = 3;
 
 /** The counter before the scan, as it happens, and after. */
 type Scan = "waiting" | "now" | "done";
@@ -63,8 +70,11 @@ function Tag({ children, foot = false, className }: { children: ReactNode; foot?
  * adds, and the pass takes that stamp in the same frame, at once, as Wallet
  * does: the frozen pass can't animate, so the landing is staged in the
  * answer.
+ *
+ * Memoised: a layer only draws again when its own trade or scan changes,
+ * not each time another is laid over it.
  */
-function Counter({
+const Counter = memo(function Counter({
   trade,
   scan,
   answerRef,
@@ -121,7 +131,7 @@ function Counter({
       </div>
     </div>
   );
-}
+});
 
 /**
  * The counter: the first screen is the mechanism itself, at the owner's own
@@ -139,13 +149,13 @@ function Counter({
  * hears one sentence for it, of the card as the scan leaves it.
  *
  * The trade switch under it repaints all three, crossing over in place, and
- * the rest of the page follows it.
+ * the rest of the page follows it. The switch and the counter answer the
+ * choice themselves, at once; `onTrade` tells the page, which follows in its
+ * own time, off screen.
  */
 export function Hero({ trade, onTrade }: { trade: TradeKey; onTrade: (next: TradeKey) => void }) {
   const { t } = useTranslation();
   const reduced = useReducedMotion();
-  const template = tradeTemplate(trade);
-  const stamps = landedStamps(template);
 
   // The scan waits for most of the owner's phone to be in view, and for the
   // card to have been seen as it was before, a beat after the fonts are in.
@@ -176,9 +186,12 @@ export function Hero({ trade, onTrade }: { trade: TradeKey; onTrade: (next: Trad
   // Each trade chosen is a new layer over the last, fading in over it, so
   // the objects cross over where they stand with no dip to the bare light
   // between them; the layers beneath go once it is up. A quick second
-  // choice simply fades in over the first, mid-fade or not.
+  // choice simply fades in over the first, mid-fade or not; past
+  // MAX_LAYERS, the newest choice takes over the layer still fading in.
   const [layers, setLayers] = useState<Layer[]>(() => [{ id: 0, trade, afterScan: false }]);
   const top = layers[layers.length - 1];
+  const template = tradeTemplate(top.trade);
+  const stamps = landedStamps(template);
   const stacked = layers.length > 1;
   useEffect(() => {
     if (!stacked) return;
@@ -186,7 +199,11 @@ export function Hero({ trade, onTrade }: { trade: TradeKey; onTrade: (next: Trad
     return () => window.clearTimeout(timer);
   }, [stacked, top.id]);
   const choose = (next: TradeKey) => {
-    setLayers((current) => [...current, { id: current[current.length - 1].id + 1, trade: next, afterScan: scanned }]);
+    setLayers((current) => {
+      const last = current[current.length - 1];
+      if (current.length < MAX_LAYERS) return [...current, { id: last.id + 1, trade: next, afterScan: scanned }];
+      return [...current.slice(0, -1), { ...last, trade: next, afterScan: last.afterScan || scanned }];
+    });
     onTrade(next);
   };
 
@@ -228,7 +245,7 @@ export function Hero({ trade, onTrade }: { trade: TradeKey; onTrade: (next: Trad
           </LitPanel>
           <figcaption className="sr-only">
             {t("landing.hero.counter.summary", {
-              trade: t(`landing.templates.items.${trade}.trade`),
+              trade: t(`landing.templates.items.${top.trade}.trade`),
               filled: stamps,
               total: template.stampsRequired,
               answer: t("dashboard.scan.result.stamped"),
@@ -241,7 +258,7 @@ export function Hero({ trade, onTrade }: { trade: TradeKey; onTrade: (next: Trad
             label={t("landing.templates.ariaLabel")}
             hideLabel
             options={TRADES.map((key) => ({ value: key, label: t(`landing.templates.items.${key}.trade`) }))}
-            value={trade}
+            value={top.trade}
             onChange={choose}
           />
         </div>
