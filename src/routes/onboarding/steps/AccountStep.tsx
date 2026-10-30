@@ -62,6 +62,16 @@ export function AccountStep() {
     form.current?.querySelector<HTMLInputElement>("input[type=email]")?.focus();
   }, [switching, isAuthenticated]);
 
+  // A save that ends after the step has gone (the browser's own Back) moves
+  // nobody: what it saved is in the draft's record either way.
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   const artForUpload = resolved.stamp.kind !== "glyph" && art?.hash === resolved.stamp.hash ? art : null;
 
   async function commit(replaceExisting = false) {
@@ -79,16 +89,17 @@ export function AccountStep() {
         saveCommitted: (committed) => update({ committed }),
         replaceExisting,
       });
+      if (!mounted.current) return;
       if (outcome.kind === "existing-card") {
         setExisting({ business: outcome.business, template: outcome.template });
         return;
       }
       navigate("/onboarding/wallet");
     } catch (err) {
-      setProblem(saveProblemKey(err));
+      if (mounted.current) setProblem(saveProblemKey(err));
     } finally {
       inFlight.current = false;
-      setCommitting(false);
+      if (mounted.current) setCommitting(false);
     }
   }
 
@@ -130,18 +141,27 @@ export function AccountStep() {
     </Notice>
   );
 
+  // While a save runs, nothing else on the step is acted on: leaving, keeping
+  // the card the account has, or signing out would be undone, or overtaken,
+  // by the save as it lands.
+  const saving = () => inFlight.current || auth.submitting;
+
   const heading = (
     <StepHeading
       title={t("onboarding.account.title")}
       lead={t("onboarding.account.subtitle")}
-      onBack={() => navigate("/onboarding/reward")}
+      onBack={() => {
+        if (!saving()) navigate("/onboarding/reward");
+      }}
     />
   );
 
+  // Each state is its own panel (`key`), so its heading takes focus as the
+  // state appears, the way each screen's does.
   let panel: ReactNode;
   if (existing) {
     panel = (
-      <LitPanel as="section" className={PANEL}>
+      <LitPanel key="existing" as="section" className={PANEL}>
         <StepHeading title={t("onboarding.account.existingTitle")} lead={t("onboarding.account.existingBody")} />
         <ul className="flex flex-col gap-4">
           <CardLine
@@ -175,6 +195,7 @@ export function AccountStep() {
             size="lg"
             aria-describedby={keepCostId}
             onClick={() => {
+              if (saving()) return;
               clear();
               navigate("/dashboard", { replace: true });
             }}
@@ -190,7 +211,7 @@ export function AccountStep() {
     );
   } else if (authLoading) {
     panel = (
-      <LitPanel className="p-5 sm:p-6">
+      <LitPanel key="loading" className="p-5 sm:p-6">
         <Loading className="flex flex-col gap-4">
           <Skeleton className="h-8 w-2/3" />
           <Skeleton className="h-12 w-full !rounded-field" />
@@ -203,7 +224,7 @@ export function AccountStep() {
     // signing in flips the session halfway through, and the busy button
     // stays where the owner pressed it.
     panel = (
-      <LitPanel as="section" className={PANEL}>
+      <LitPanel key="form" as="section" className={PANEL}>
         {heading}
         <form ref={form} noValidate onSubmit={submit} className="flex flex-col gap-4">
           <AuthFields
@@ -233,7 +254,7 @@ export function AccountStep() {
     );
   } else {
     panel = (
-      <LitPanel as="section" className={PANEL}>
+      <LitPanel key="signedIn" as="section" className={PANEL}>
         {heading}
         <p className="type-body text-ink">
           <Trans
@@ -256,6 +277,9 @@ export function AccountStep() {
           <Button
             variant="quiet"
             onClick={() => {
+              if (saving()) return;
+              // What went wrong was this account's, not the next one's.
+              setProblem(null);
               setSwitching(true);
               void logout();
             }}
