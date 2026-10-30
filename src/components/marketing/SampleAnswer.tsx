@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Check, Gift } from "lucide-react";
 import { cn } from "../../lib/cn";
-import { Figure, LitPanel, SnapFlash, StampRow } from "../kit";
+import { Figure, LitPanel, SnapFlash, StampRow, useReducedMotion } from "../kit";
 import type { HeroTemplate } from "./heroTemplates";
 
 const STROKE = 2.5;
@@ -24,8 +24,10 @@ const QUIET_PILL = "inline-flex min-h-11 items-center rounded-full px-5 font-hea
  *
  * `snap` is the scan arriving, as the Scan page answers: the flash of the
  * panels' light clearing over it, the panel settling and the newest stamp
- * landing, all over at 300ms; with reduced motion a glow, a fade and the
- * stamp at its final size. It plays as the prop turns on.
+ * landing, all over at 300ms. With reduced motion the answer is there
+ * already lit, the stamp at its final size, and the 0.3 glow clearing over
+ * it is the change: the flash sits inside the panel, so a panel fading in
+ * as well would take the glow down with it. It plays as the prop turns on.
  */
 export function SampleAnswer({
   template,
@@ -44,12 +46,13 @@ export function SampleAnswer({
   className?: string;
 }) {
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
   const total = template.stampsRequired;
   const filled = kind === "full" ? total : count;
   return (
     <LitPanel
       light={kind === "full" ? "full" : "punched"}
-      snap={snap}
+      snap={snap && !reduced}
       className={cn(
         "relative flex flex-col items-center text-center",
         compact ? "gap-1.5 px-3 pb-3.5 pt-4" : "gap-2.5 px-4 py-5 sm:px-5",
