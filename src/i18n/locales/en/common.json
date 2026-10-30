@@ -1357,7 +1357,7 @@
         "body": "It's been 30 days since your last visit, so we've added a free stamp to your card."
       },
       "stageSummary": "Sample: the message “{{title}}” from {{business}}, on the lock screen above its card.",
-      "broadcast": "Up to two a week, with a gift if you like: a stamp or a full card.",
+      "broadcast": "Up to two a week, with a gift if you like: one to three stamps, or a full card.",
       "starter": "That's how the rules come set up, and you can change any of them."
     },
     "pricing": {
