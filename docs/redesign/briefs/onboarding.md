@@ -14,6 +14,14 @@ it went with it. So going live ends on what stays free, and three lines here
 no longer apply: "the calculator for anyone unsure" in §1, the last
 question in §3.11, and the link under the panel in §7.10.
 
+**31 Oct 2026: the card became a map.** After step B, Roee asked for
+onboarding to work like the card studio, with the card as the map and every
+part gone through before saving. `onboarding-map.md` is that spec. It
+replaces the road's five stops (§7.3), the business screen (§7.6) and the
+card screen (§7.7); everything else here stands. The options were drawn on
+the canvas [Onboarding as a map](https://claude.ai/artifact/6BEvjekb6q7n4BYWCx9MT1),
+and Roee chose drawing א.
+
 The inputs:
 - CLAUDE.md, PRODUCT.md, DESIGN.md, `docs/onboarding-flow.md` (the
   contract, and the gaps and findings it lists, which this brief treats as
