@@ -7,6 +7,7 @@ import {
   glyphsForTrade,
   isFaint,
   matchingLook,
+  oneParagraph,
   swatchIndex,
   textModeOf,
   type ReadyLook,
@@ -102,5 +103,19 @@ describe("charactersLeft", () => {
   it("counts down from there, to zero at the limit", () => {
     expect(charactersLeft("x".repeat(160), 200, 160)).toBe(40);
     expect(charactersLeft("x".repeat(200), 200, 160)).toBe(0);
+  });
+});
+
+describe("oneParagraph", () => {
+  it("turns a pasted line break into a space", () => {
+    expect(oneParagraph("Free haircut\non your tenth visit")).toBe("Free haircut on your tenth visit");
+  });
+
+  it("makes one space of a run of breaks and the spaces around them", () => {
+    expect(oneParagraph("Free haircut \r\n\r\n  on your tenth visit")).toBe("Free haircut on your tenth visit");
+  });
+
+  it("leaves a line with no break as it is, spaces and all", () => {
+    expect(oneParagraph("  Free  haircut ")).toBe("  Free  haircut ");
   });
 });
