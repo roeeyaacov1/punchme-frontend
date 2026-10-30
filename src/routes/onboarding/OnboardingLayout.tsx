@@ -38,7 +38,7 @@ export function OnboardingLayout() {
 
 /** Screens still on the old step shell: the frame draws their card for them
  * until each moves onto `StepShell` (Phase 4, step B). */
-const LEGACY = new Set<WizardStep>(["business", "color", "accent", "stamp", "reward", "account", "wallet", "billing"]);
+const LEGACY = new Set<WizardStep>(["color", "accent", "stamp", "reward", "account", "wallet", "billing"]);
 
 function stepFromPath(pathname: string): WizardStep | null {
   const last = pathname.replace(/\/+$/, "").split("/").pop() ?? "";

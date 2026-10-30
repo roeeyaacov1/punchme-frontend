@@ -4,7 +4,7 @@ import { relatedAccents } from "../../lib/accentPalette";
 import { CARD_PATTERNS, type CardPattern } from "../../lib/cardPatterns";
 import { normalizeHex, readableInk } from "../../lib/color";
 import { STAMP_GLYPH_NAMES } from "../../lib/stampGlyphs";
-import { NICHE_GLYPH, type Niche, type OnboardingDraft } from "./draft";
+import { NICHE_GLYPH, NICHES, type Niche, type OnboardingDraft } from "./draft";
 
 /**
  * Ready-made looks — a finished card an owner can take whole.
@@ -163,4 +163,58 @@ export function lookPatch(look: CardLook): Partial<OnboardingDraft> {
     pattern: look.pattern,
     stampsRequired: look.stamps,
   };
+}
+
+/** The draft still wears this look whole: nothing a look writes was changed. */
+function wears(draft: OnboardingDraft, look: CardLook): boolean {
+  return (
+    draft.background?.toLowerCase() === look.background.toLowerCase() &&
+    draft.accent?.toLowerCase() === look.accent.toLowerCase() &&
+    draft.stamp?.kind === "glyph" &&
+    draft.stamp.glyph === look.glyph &&
+    draft.pattern === look.pattern &&
+    draft.stampsRequired === look.stamps
+  );
+}
+
+/**
+ * What the business's Next writes, so the card screen opens on a finished
+ * card: the trade's first look, in every field the owner hasn't chosen.
+ *
+ * A field the owner chose is never overwritten. One thing does follow a
+ * change of trade: a card still wearing some trade's first look, untouched,
+ * takes the new trade's, so going back and turning a barber into a café
+ * doesn't leave scissors on the café's card. So does a reward that is still
+ * one of the trades' own defaults (`defaultRewards`, in every language),
+ * which goes back to empty and reads the new trade's.
+ */
+export function withTradeLook(
+  draft: OnboardingDraft,
+  presets: Preset[] | undefined,
+  defaultRewards: readonly string[],
+): Partial<OnboardingDraft> {
+  const look = looksFor(draft.niche ?? "other", presets)[0];
+  if (!look) return {};
+  const patch: Partial<OnboardingDraft> = {};
+  const untouched = NICHES.some((trade) => {
+    const first = looksFor(trade, presets)[0];
+    return first !== undefined && wears(draft, first);
+  });
+  if (untouched) {
+    if (!wears(draft, look)) Object.assign(patch, lookPatch(look));
+  } else {
+    if (draft.background === null) patch.background = look.background;
+    if (draft.accent === null) {
+      // A card colour of the owner's own gets a stamp colour that reads on it.
+      patch.accent =
+        draft.background === null
+          ? look.accent
+          : (relatedAccents(draft.background)[0] ?? readableInk(draft.background));
+    }
+    if (draft.stamp === null) patch.stamp = { kind: "glyph", glyph: look.glyph };
+    if (draft.pattern === null) patch.pattern = look.pattern;
+    if (draft.stampsRequired === null) patch.stampsRequired = look.stamps;
+  }
+  if (draft.reward !== null && defaultRewards.includes(draft.reward.trim())) patch.reward = null;
+  return patch;
 }

@@ -1,86 +1,129 @@
+import { useId, useMemo, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { PlacesAutocomplete } from "../../../components/ui";
-import { LegacyStepShell as StepShell } from "../../../components/onboarding/LegacyStepShell";
-import { cn } from "../../../lib/cn";
+import { ArrowRight, CircleAlert } from "lucide-react";
+import { ChoiceTiles, type Tile } from "../../../components/card-studio/controls/ChoiceTiles";
+import { Button } from "../../../components/kit";
+import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
+import { SUPPORTED_LANGS } from "../../../i18n/languages";
 import type { PlaceResult } from "../../../lib/googlePlaces";
+import { CardStage } from "../CardStage";
+import { buildTemplateInput, draftPreviewValue, NICHES, resolveDraft, type Niche } from "../draft";
+import { withTradeLook } from "../looks";
 import { useOnboardingDraft } from "../useOnboardingDraft";
-import { NICHES, type Niche } from "../draft";
+import { BusinessNameField } from "./BusinessNameField";
 
-/** The order the trades are offered in — the ones the product is built for
+/** The order the trades are offered in: the ones the product is built for
  * first, "other" last. */
 const NICHE_ORDER: Niche[] = ["barber", "cafe", "trainer", "therapist", "other"];
 
+/**
+ * The first stop: the business's name and its trade. The card above it is
+ * the trade's first look the moment a trade is chosen, its name printed as
+ * it is typed, and Next writes that look into whatever the owner hasn't
+ * chosen, so the card screen opens on a finished card. Nothing here is
+ * disabled to say "not yet": pressing on with the name or the trade missing
+ * says which, where it is missing, and takes focus there.
+ */
 export function BusinessStep() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { draft, update, presets } = useOnboardingDraft();
+  const { draft, update, presets, artUrl } = useOnboardingDraft();
+  const lang = i18n.resolvedLanguage ?? "en";
+  const nameField = useRef<HTMLInputElement>(null);
+  const tradeBox = useRef<HTMLDivElement>(null);
+  const tradeErrorId = useId();
+  const [pressed, setPressed] = useState(false);
 
-  // Only trades the server actually has a preset for, once we know; until
-  // then, all five (they are the API's closed set either way).
-  const available = presets ? NICHES.filter((n) => presets.some((p) => p.niche === n)) : NICHES;
-  const niches = NICHE_ORDER.filter((n) => available.includes(n));
+  // Only trades the server has a preset for, once it has said; until then,
+  // all five (the API's closed set either way).
+  const available = presets ? NICHES.filter((niche) => presets.some((preset) => preset.niche === niche)) : NICHES;
+  const niches = NICHE_ORDER.filter((niche) => available.includes(niche));
 
-  function handlePlaceSelect(place: PlaceResult) {
-    update({
-      name: place.displayName,
-      phone: place.internationalPhoneNumber ?? draft.phone,
-    });
+  // Every trade's default reward in every language: a reward still saying
+  // one of them follows a change of trade (`withTradeLook`).
+  const defaults = useMemo(
+    () => NICHES.flatMap((niche) => SUPPORTED_LANGS.map((lng) => t(`onboarding.card.reward.${niche}`, { lng }))),
+    [t],
+  );
+
+  // The card as Next will leave it: the trade's look in every field still empty.
+  const preview = useMemo(() => {
+    const look = draft.niche ? withTradeLook(draft, presets, defaults) : {};
+    const resolved = resolveDraft({ ...draft, ...look }, presets, t);
+    return draftPreviewValue(resolved, lang, t, artUrl, buildTemplateInput(resolved, presets, lang, t).name);
+  }, [draft, presets, defaults, lang, t, artUrl]);
+
+  const nameMissing = pressed && !draft.name.trim();
+  const tradeMissing = pressed && !draft.niche;
+
+  function onPlace(place: PlaceResult) {
+    update({ name: place.displayName, phone: place.internationalPhoneNumber ?? draft.phone });
   }
 
-  const canContinue = draft.name.trim().length > 0 && draft.niche !== null;
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    setPressed(true);
+    if (!draft.name.trim()) {
+      nameField.current?.focus();
+      return;
+    }
+    if (!draft.niche) {
+      tradeBox.current?.querySelector<HTMLInputElement>("input")?.focus();
+      return;
+    }
+    update({ name: draft.name.trim(), ...withTradeLook(draft, presets, defaults) });
+    navigate("/onboarding/reward");
+  }
+
+  const tiles: Tile<Niche>[] = niches.map((niche) => ({
+    value: niche,
+    label: t(`onboarding.business.niches.${niche}`),
+    render: () => <span className="px-4 type-label text-ink">{t(`onboarding.business.niches.${niche}`)}</span>,
+  }));
 
   return (
-    <StepShell
-      title={t("onboarding.business.title")}
-      onNext={() => navigate("/onboarding/color")}
-      nextDisabled={!canContinue}
-    >
-      {/* The heading is the label — "What's your business called?" over a
-          field marked "Business name" was the same question asked twice. It
-          stays in the accessibility tree, where the heading isn't a label. */}
-      <PlacesAutocomplete
-        label={t("onboarding.business.nameLabel")}
-        labelHidden
-        value={draft.name}
-        onQueryChange={(value) => update({ name: value })}
-        onSelect={handlePlaceSelect}
-        placeholder={t("onboarding.business.namePlaceholder")}
-        required
-      />
-
-      <fieldset>
-        <legend className="mb-2 text-sm font-medium text-ink">
-          {t("onboarding.business.nicheLabel")}
-        </legend>
-        <div className="flex flex-wrap gap-2">
-          {niches.map((niche) => {
-            const selected = draft.niche === niche;
-            return (
-              <label
-                key={niche}
-                className={cn(
-                  "inline-flex min-h-[44px] cursor-pointer items-center rounded-lg border px-4 text-sm font-medium transition-colors",
-                  selected
-                    ? "border-ink bg-navy-deep text-white"
-                    : "border-border-strong bg-surface text-ink hover:bg-background",
-                  "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary-text has-[:focus-visible]:ring-offset-2",
-                )}
-              >
-                <input
-                  type="radio"
-                  name="niche"
-                  value={niche}
-                  checked={selected}
-                  onChange={() => update({ niche })}
-                  className="sr-only"
-                />
-                {t(`onboarding.business.niches.${niche}`)}
-              </label>
-            );
-          })}
+    <form noValidate onSubmit={submit}>
+      <StepShell
+        cardFirst
+        card={<CardStage crop="top" preview={preview} />}
+        heading={<StepHeading title={t("onboarding.business.title")} />}
+        action={
+          <Button
+            type="submit"
+            size="lg"
+            iconEnd={<ArrowRight aria-hidden className="rtl:-scale-x-100" />}
+            className="w-full"
+          >
+            {t("onboarding.continue")}
+          </Button>
+        }
+      >
+        <BusinessNameField
+          ref={nameField}
+          value={draft.name}
+          onChange={(name) => update({ name })}
+          onPlace={onPlace}
+          error={nameMissing ? t("onboarding.missing.name") : undefined}
+        />
+        <div ref={tradeBox} className="flex flex-col gap-2">
+          <ChoiceTiles
+            legend={t("onboarding.business.nicheLabel")}
+            tiles={tiles}
+            value={draft.niche}
+            onChange={(niche) => update({ niche })}
+            shape="pill"
+            listClassName="gap-2"
+            describedBy={tradeMissing ? tradeErrorId : undefined}
+          />
+          {tradeMissing && (
+            <p id={tradeErrorId} className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-danger">
+              <CircleAlert aria-hidden className="mt-px size-4 shrink-0" />
+              <span>{t("onboarding.missing.trade")}</span>
+            </p>
+          )}
         </div>
-      </fieldset>
-    </StepShell>
+      </StepShell>
+    </form>
   );
 }

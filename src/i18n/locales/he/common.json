@@ -370,6 +370,11 @@
     "progress": "שלב {{n}} מתוך {{total}}",
     "next": "אחר כך: {{step}}",
     "lastStop": "אפשר גם אחר כך",
+    "continue": "המשך",
+    "missing": {
+      "name": "כתבו את שם העסק.",
+      "trade": "בחרו איזה סוג עסק זה."
+    },
     "progressSpoken": "שלב {{n}} מתוך {{total}}: {{step}}",
     "preview": {
       "summary": "{{name}} — {{count}} חותמות עד להטבה. ההטבה: {{reward}}.",
