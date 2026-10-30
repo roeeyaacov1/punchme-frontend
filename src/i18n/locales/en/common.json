@@ -350,6 +350,11 @@
     "progress": "Step {{n}} of {{total}}",
     "next": "Next: {{step}}",
     "lastStop": "You can do this later too",
+    "continue": "Continue",
+    "missing": {
+      "name": "Write your business's name.",
+      "trade": "Choose what kind of business it is."
+    },
     "progressSpoken": "Step {{n}} of {{total}}: {{step}}",
     "preview": {
       "summary": "{{name}} — {{count}} stamps to a reward. Reward: {{reward}}.",
