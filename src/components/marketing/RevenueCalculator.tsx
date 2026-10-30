@@ -291,7 +291,7 @@ export function RevenueCalculator({
         </h2>
         <p className="type-lead mt-4 max-w-[40rem] text-pretty text-ink-muted">{t("landing.calculator.lead")}</p>
 
-        <div className="mt-8 grid gap-10 sm:mt-10 lg:mt-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,27rem)] lg:gap-16">
+        <div className="mt-8 grid grid-cols-1 gap-10 sm:mt-10 lg:mt-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,27rem)] lg:gap-16">
           {/* ── The workbench ── */}
           <div
             className="flex flex-col gap-8"

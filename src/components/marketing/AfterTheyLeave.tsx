@@ -66,15 +66,15 @@ export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
   return (
     <section aria-labelledby="after-title" className={section}>
       <div className={column}>
-        <div className="grid gap-8 lg:grid-cols-12 lg:gap-x-16 lg:gap-y-10">
-          <div className="flex flex-col gap-4 lg:col-span-7 lg:row-start-1">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-x-16 lg:gap-y-10">
+          <div className="flex min-w-0 flex-col gap-4 lg:col-span-7 lg:row-start-1">
             <h2 id="after-title" className="type-headline max-w-[18ch] text-balance text-ink">
               {t("landing.after.title")}
             </h2>
             <p className="type-lead max-w-[38rem] text-pretty text-ink-muted">{t("landing.after.lead")}</p>
           </div>
 
-          <div className="flex flex-col items-center gap-3 lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-28 lg:self-start">
+          <div className="flex min-w-0 flex-col items-center gap-3 lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-28 lg:self-start">
             <Badge>{t("landing.after.sample")}</Badge>
             <WallpaperStage
               cardColor={template.backgroundColor}
@@ -87,7 +87,7 @@ export function AfterTheyLeave({ trade }: { trade: TradeKey }) {
             </WallpaperStage>
           </div>
 
-          <div className="flex flex-col gap-6 lg:col-span-7 lg:row-start-2">
+          <div className="flex min-w-0 flex-col gap-6 lg:col-span-7 lg:row-start-2">
             <p className="type-prose text-ink-muted">{t("messaging.phones")}</p>
             <LitPanel radius="card">
               <ul className="divide-y divide-border">
