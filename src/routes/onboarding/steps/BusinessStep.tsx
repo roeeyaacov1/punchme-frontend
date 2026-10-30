@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { PlacesAutocomplete } from "../../../components/ui";
-import { StepShell } from "../../../components/onboarding/StepShell";
+import { LegacyStepShell as StepShell } from "../../../components/onboarding/LegacyStepShell";
 import { cn } from "../../../lib/cn";
 import type { PlaceResult } from "../../../lib/googlePlaces";
 import { useOnboardingDraft } from "../useOnboardingDraft";

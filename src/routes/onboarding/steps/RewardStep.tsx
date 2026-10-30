@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { StepShell } from "../../../components/onboarding/StepShell";
+import { LegacyStepShell as StepShell } from "../../../components/onboarding/LegacyStepShell";
 import { focusRing } from "../../../components/marketing/primitives";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { cn } from "../../../lib/cn";

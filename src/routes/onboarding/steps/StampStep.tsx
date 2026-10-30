@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ImagePlus } from "lucide-react";
 import { ChoiceGrid } from "../../../components/onboarding/ChoiceGrid";
-import { StepShell } from "../../../components/onboarding/StepShell";
+import { LegacyStepShell as StepShell } from "../../../components/onboarding/LegacyStepShell";
 import { focusRing } from "../../../components/marketing/primitives";
 import { CARD_PATTERNS, patternStyle, type CardPattern } from "../../../lib/cardPatterns";
 import { cn } from "../../../lib/cn";

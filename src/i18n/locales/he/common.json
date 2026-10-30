@@ -358,19 +358,22 @@
   },
   "onboarding": {
     "steps": {
-      "business": "העסק שלכם",
-      "color": "מראה הכרטיס",
+      "business": "העסק",
+      "color": "צבעים",
       "accent": "צבע החותמת",
       "stamp": "החותמת",
-      "reward": "ההטבה",
-      "account": "חשבון",
-      "wallet": "הארנק שלכם",
-      "billing": "יוצאים לדרך"
+      "reward": "הכרטיסייה",
+      "account": "שמירה",
+      "wallet": "בארנק שלכם",
+      "billing": "הפעלה"
     },
     "progress": "שלב {{n}} מתוך {{total}}",
+    "next": "אחר כך: {{step}}",
+    "lastStop": "אפשר גם אחר כך",
+    "progressSpoken": "שלב {{n}} מתוך {{total}}: {{step}}",
     "preview": {
-      "ariaLabel": "תצוגה מקדימה של הכרטיסייה שלכם",
       "summary": "{{name}} — {{count}} חותמות עד להטבה. ההטבה: {{reward}}.",
+      "yourBusiness": "העסק שלכם",
       "wallets": "ארנק לתצוגה מקדימה"
     },
     "business": {

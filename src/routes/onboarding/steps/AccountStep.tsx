@@ -8,7 +8,7 @@ import { ApiError } from "../../../api/errors";
 import { useAuth } from "../../../auth/useAuth";
 import { AuthAlternatives, AuthFields } from "../../../components/auth/AuthFormParts";
 import { useEmailPasswordAuth } from "../../../components/auth/useEmailPasswordAuth";
-import { StepShell } from "../../../components/onboarding/StepShell";
+import { LegacyStepShell as StepShell } from "../../../components/onboarding/LegacyStepShell";
 import { ctaClasses, focusRing } from "../../../components/marketing/primitives";
 import { cn } from "../../../lib/cn";
 import { commitDraft } from "../commit";
