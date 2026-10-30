@@ -54,8 +54,11 @@ const VARIANTS: Record<ButtonVariant, string> = {
 };
 
 const SIZES: Record<ButtonSize, string> = {
-  md: "min-h-11 px-5 text-base",
-  lg: "min-h-[3.25rem] px-7 text-[1.0625rem]",
+  // One line stands on the minimum height, which is the taller. The padding
+  // is for a label a page lets wrap (`!whitespace-normal`): it keeps air
+  // above and below the words rather than filling the pill edge to edge.
+  md: "min-h-11 px-5 py-2 text-base",
+  lg: "min-h-[3.25rem] px-7 py-2.5 text-[1.0625rem]",
   // Square and 44px: an icon button must carry an aria-label.
   icon: "h-11 w-11 shrink-0 p-0 text-base",
 };

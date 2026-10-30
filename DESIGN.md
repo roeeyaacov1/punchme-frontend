@@ -162,7 +162,7 @@ components:
     textColor: "{colors.soft-ink}"
     typography: "{typography.control}"
     rounded: "{rounded.pill}"
-    padding: "0 20px"
+    padding: "8px 20px"
     height: "{spacing.target}"
   button-primary-hover:
     backgroundColor: "{colors.sign-coral-hover}"
@@ -170,34 +170,34 @@ components:
     backgroundColor: "{colors.sign-coral}"
     textColor: "{colors.soft-ink}"
     rounded: "{rounded.pill}"
-    padding: "0 28px"
+    padding: "10px 28px"
     height: "{spacing.button-large}"
   button-secondary:
     backgroundColor: "{colors.lit-acrylic}"
     textColor: "{colors.soft-ink}"
     typography: "{typography.control}"
     rounded: "{rounded.pill}"
-    padding: "0 20px"
+    padding: "8px 20px"
     height: "{spacing.target}"
   button-ink:
     backgroundColor: "{colors.soft-ink}"
     textColor: "{colors.lit-acrylic}"
     typography: "{typography.control}"
     rounded: "{rounded.pill}"
-    padding: "0 20px"
+    padding: "8px 20px"
     height: "{spacing.target}"
   button-quiet:
     textColor: "{colors.soft-ink}"
     typography: "{typography.control}"
     rounded: "{rounded.pill}"
-    padding: "0 20px"
+    padding: "8px 20px"
     height: "{spacing.target}"
   button-danger:
     backgroundColor: "{colors.lit-acrylic}"
     textColor: "{colors.danger}"
     typography: "{typography.control}"
     rounded: "{rounded.pill}"
-    padding: "0 20px"
+    padding: "8px 20px"
     height: "{spacing.target}"
   input:
     backgroundColor: "{colors.lit-acrylic}"
@@ -385,7 +385,7 @@ Generous and soft. Buttons, chips, segments and tags are full pills; stamps are 
 ## Components
 
 ### Buttons
-- **Shape:** full pills (9999px), 44px tall (52px large), 20px of inline padding; an icon button is a 44px square that always carries a label for screen readers.
+- **Shape:** full pills (9999px), at least 44px tall (52px large), with 20px of inline padding and 8px above and below (28px and 10px large), so a label allowed to wrap keeps air round its words; an icon button is a 44px square that always carries a label for screen readers.
 - **Primary:** Sign Coral with a Soft Ink label, one per screen. Hover darkens to #f2683a, only where a pointer hovers and never on a disabled button.
 - **Ink:** Soft Ink with a Lit Acrylic label (14.88:1): the action on a gold surface, and "Reward given" on a full card.
 - **Secondary, quiet and danger:** a lit panel with a soft edge; a text button; red words with a red edge and no fill.
