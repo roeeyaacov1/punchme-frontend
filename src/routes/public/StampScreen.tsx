@@ -159,7 +159,7 @@ export function StampScreen({
                 <p dir="auto" className="font-body text-lg font-semibold text-pretty [overflow-wrap:anywhere]">
                   {page.reward_description}
                 </p>
-                <Button variant="ink" size="lg" busy={redeeming} onClick={() => void redeem(token)} className="w-full !whitespace-normal py-2.5 text-center">
+                <Button variant="ink" size="lg" busy={redeeming} onClick={() => void redeem(token)} className="w-full !whitespace-normal text-center">
                   {t("dashboard.scan.result.redeem")}
                 </Button>
               </div>
@@ -167,7 +167,7 @@ export function StampScreen({
               <div className="flex flex-col items-center gap-4 p-5 text-center">
                 <Figure size="count" value={count} />
                 <StampRow total={stamp.stamps_required} filled={stamp.stamp_count} className="w-full max-w-[18rem]" />
-                <Button size="lg" busy={busy} onClick={() => void addStamp()} className="w-full !whitespace-normal py-2.5 text-center">
+                <Button size="lg" busy={busy} onClick={() => void addStamp()} className="w-full !whitespace-normal text-center">
                   {t("publicCard.stamp.add")}
                 </Button>
               </div>

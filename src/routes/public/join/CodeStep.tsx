@@ -83,7 +83,7 @@ export function CodeStep({ flow }: { flow: JoinFlow }) {
               {t(flow.errors.form)}
             </Notice>
           )}
-          <Button type="submit" size="lg" busy={busy} disabled={code.length !== 6} className="w-full !whitespace-normal py-2.5 text-center">
+          <Button type="submit" size="lg" busy={busy} disabled={code.length !== 6} className="w-full !whitespace-normal text-center">
             {t("enroll.verifyCta")}
           </Button>
           <div className="flex flex-wrap items-center justify-between gap-x-4">
