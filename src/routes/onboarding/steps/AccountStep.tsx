@@ -13,6 +13,8 @@ import { StepHeading, StepShell } from "../../../components/onboarding/StepShell
 import { CardStage } from "../CardStage";
 import { commitDraft } from "../commit";
 import { saveProblemKey } from "../problems";
+import { useStorageFull } from "../storageCheck";
+import { StorageNotice } from "../StorageNotice";
 import { useOnboardingDraft } from "../useOnboardingDraft";
 
 const PANEL = "flex flex-col gap-5 p-5 sm:p-6";
@@ -35,7 +37,8 @@ export function AccountStep() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, isAuthenticated, isLoading: authLoading, login, logout } = useAuth();
-  const { draft, resolved, templateInput, art, update, clear } = useOnboardingDraft();
+  const { draft, resolved, templateInput, art, artPersisted, update, clear } = useOnboardingDraft();
+  const storageFull = useStorageFull(draft, artPersisted);
   const keepCostId = useId();
   const [committing, setCommitting] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
@@ -265,7 +268,7 @@ export function AccountStep() {
   }
 
   return (
-    <StepShell cardFirst card={<CardStage crop="top" />}>
+    <StepShell cardFirst notice={<StorageNotice full={storageFull} />} card={<CardStage crop="top" />}>
       {panel}
       <p className="sr-only" role="status">
         {committing || (auth.submitting && isAuthenticated) ? t("onboarding.account.saving") : ""}

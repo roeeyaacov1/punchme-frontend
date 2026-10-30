@@ -10,6 +10,8 @@ import type { PlaceResult } from "../../../lib/googlePlaces";
 import { CardStage } from "../CardStage";
 import { buildTemplateInput, draftPreviewValue, NICHES, resolveDraft, type Niche } from "../draft";
 import { withTradeLook } from "../looks";
+import { useStorageFull } from "../storageCheck";
+import { StorageNotice } from "../StorageNotice";
 import { useOnboardingDraft } from "../useOnboardingDraft";
 import { BusinessNameField } from "./BusinessNameField";
 
@@ -28,7 +30,8 @@ const NICHE_ORDER: Niche[] = ["barber", "cafe", "trainer", "therapist", "other"]
 export function BusinessStep() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { draft, update, presets, artUrl } = useOnboardingDraft();
+  const { draft, update, presets, artUrl, artPersisted } = useOnboardingDraft();
+  const storageFull = useStorageFull(draft, artPersisted);
   const lang = i18n.resolvedLanguage ?? "en";
   const nameField = useRef<HTMLInputElement>(null);
   const tradeBox = useRef<HTMLDivElement>(null);
@@ -86,6 +89,7 @@ export function BusinessStep() {
     <form noValidate onSubmit={submit}>
       <StepShell
         cardFirst
+        notice={<StorageNotice full={storageFull} />}
         card={<CardStage crop="top" preview={preview} />}
         heading={<StepHeading title={t("onboarding.business.title")} />}
         action={

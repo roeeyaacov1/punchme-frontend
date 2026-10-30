@@ -357,6 +357,9 @@
       "reward": "Write what customers get.",
       "account": "Write your email and a password."
     },
+    "storage": {
+      "full": "Your phone isn't saving your choices right now: its storage is full. What you change from here lasts only until you close the page; save the card now to keep it."
+    },
     "progressSpoken": "Step {{n}} of {{total}}: {{step}}",
     "preview": {
       "summary": "{{name}} — {{count}} stamps to a reward. Reward: {{reward}}.",

@@ -9,9 +9,11 @@ import { useOnboardingDraft } from "../../useOnboardingDraft";
  * The stamp: one of the sixteen symbols, the trade's first, or a picture of
  * one's own, cropped square in the browser and kept on this device until the
  * card is saved; and the texture behind the stamps. A picture the card says
- * it has but this device doesn't is said here, where it is chosen again.
+ * it has but this device doesn't is said here, where it is chosen again, by
+ * its cause: full storage is said over the card already, so here it is the
+ * picture not being on this phone at all.
  */
-export function StampPanel() {
+export function StampPanel({ storageFull }: { storageFull: boolean }) {
   const { t } = useTranslation();
   const { resolved, update, setArt, artUrl } = useOnboardingDraft();
   const [notKept, setNotKept] = useState(false);
@@ -21,7 +23,7 @@ export function StampPanel() {
   return (
     <div className="flex flex-col gap-6">
       {/* First, so it is what the owner sent back here reads. */}
-      {lost && (
+      {lost && !storageFull && (
         <p role="alert" className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-ink">
           <TriangleAlert aria-hidden className="mt-px size-4 shrink-0 text-warn" />
           <span>{t("onboarding.stamp.notOnDevice")}</span>
@@ -43,7 +45,7 @@ export function StampPanel() {
           }}
           note={picture ? undefined : t("studio.picture.stays")}
         />
-        {notKept && !lost && (
+        {notKept && !lost && !storageFull && (
           <p role="status" className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-ink">
             <TriangleAlert aria-hidden className="mt-px size-4 shrink-0 text-warn" />
             <span>{t("onboarding.stamp.artMemoryOnly")}</span>
