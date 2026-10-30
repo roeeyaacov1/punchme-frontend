@@ -45,6 +45,9 @@ const MENU_ROW = cn(
  * menu, which is the kit's sheet: it rises from the bottom on a phone and
  * comes in from the end edge from 768px, holds focus while it is open, and
  * gives it back to the menu button when it closes.
+ *
+ * With large text the bar wraps onto a second row rather than push the
+ * menu and the language off the screen.
  */
 export function SiteHeader() {
   const { t, i18n } = useTranslation();
@@ -114,7 +117,7 @@ export function SiteHeader() {
           scrolled ? "border-border" : "border-transparent",
         )}
       >
-        <div className={cn(column, "flex h-16 items-center gap-2 lg:h-[4.5rem]")}>
+        <div className={cn(column, "flex min-h-16 flex-wrap items-center gap-2 lg:min-h-[4.5rem]")}>
           <Link
             to="/"
             // It dims under a finger, with no tap flash over it.
@@ -143,7 +146,7 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          <div className="ms-auto flex items-center gap-1 self-stretch sm:gap-2">
+          <div className="ms-auto flex flex-wrap items-center justify-end gap-1 self-stretch sm:gap-2">
             <Button variant="quiet" lang={other} onClick={toggleLanguage} className="px-3">
               {t("language.switch")}
             </Button>
