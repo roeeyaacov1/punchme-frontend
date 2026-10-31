@@ -364,7 +364,8 @@
     },
     "progressSpoken": "Step {{n}} of {{total}}: {{step}}",
     "preview": {
-      "summary": "{{name}} — {{count}} stamps to a reward. Reward: {{reward}}.",
+      "summary_one": "{{name}} — 1 stamp to a reward. Reward: {{reward}}.",
+      "summary_other": "{{name}} — {{count}} stamps to a reward. Reward: {{reward}}.",
       "yourBusiness": "Your business",
       "wallets": "Preview wallet"
     },
