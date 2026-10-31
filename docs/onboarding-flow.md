@@ -4,8 +4,9 @@ What the onboarding wizard has: every step, who can open it, what it
 stores, and the API calls it makes. Written 8 Oct 2026 from `src/main.tsx`,
 `src/routes/onboarding/` and `src/components/onboarding/`, as the input for
 the redesign, and brought up to date by Phase 4's build (30 Oct 2026,
-`docs/redesign/briefs/onboarding.md`). Like `docs/dashboard-routes.md`, it
-says nothing about design on purpose.
+`docs/redesign/briefs/onboarding.md`) and by the map (31 Oct 2026,
+`docs/redesign/briefs/onboarding-map.md`). Like `docs/dashboard-routes.md`,
+it says nothing about design on purpose.
 
 - `{biz}` stands for `/api/businesses/{business_id}`.
 - The last column is the wrapper in `src/api/` (or the hook that calls it).
@@ -21,15 +22,21 @@ says nothing about design on purpose.
   asks for an account only; the two steps read the business themselves and
   send an owner without one back to `account`.
 - `/onboarding` itself shows nothing and redirects:
-  - signed out, or signed in with no business → the first incomplete step;
+  - signed out, or signed in with no business → where the walk stands;
   - signed in to a business they are not the owner of → `/dashboard` (a
     hire never resumes a draft left on the device);
   - the owner, with a saved card → `wallet`;
-  - the owner, with a draft in progress → the first incomplete step;
+  - the owner, with a draft in progress → where the walk stands;
   - the owner, with no draft → `/dashboard`.
+
+  Where the walk stands (`whereToStart` in `walk.ts`): the field the card
+  still needs, or a lost picture's stamp; otherwise the first part of the
+  map not yet opened; and once every part has been, saving.
 - A step URL past the first incomplete step redirects back to it, so a link
   can't skip ahead. A picture stamp whose pixels are gone sends the owner
   back to `stamp`.
+- `account` also waits for the walk: until every part of the map has been
+  opened, it sends the owner to where the walk stands.
 - Other ways in:
   - any signed-in user whose `GET /api/businesses/me` answers 404
     (`RequireBusiness`);
@@ -38,48 +45,64 @@ says nothing about design on purpose.
 
 ## The road and the steps
 
-Eight routes, five stops. The road is the same five stops from the first
-screen to the last, signed in or out (`road.ts`, `roadOf`): a look decides
-nothing about it, and signing up adds no stops. A line under the top bar
-says where the owner is and what comes next ("Step 2 of 5 · Next:
-Saving") over a five-part rule. It is not a control: Back is each screen's
-own.
+Eight routes, four stops. The road is the same four stops from the first
+screen to the last, signed in or out (`road.ts`, `roadOf`): the map is the
+first, and walking its parts decides nothing about the road; signing up
+adds no stops. A line under the top bar says where the owner is and what
+comes next ("Step 1 of 4 · Next: Saving") over a four-part rule. It is not
+a control: Back is each screen's own.
 
 | # | Route | Stop | Public | What it collects | Limits | Pressed on with it missing |
 |---|---|---|---|---|---|---|
-| 1 | `/onboarding/business` | 1, Your business | yes | Business name (Google Places suggestions when `VITE_GOOGLE_MAPS_API_KEY` is set, which also fills the phone) and trade: barber, café, personal trainer, therapist, other | Name at most 120 (the field holds it). Trades without a preset are hidden once presets load | Says which is missing, there, and takes focus to it |
-| 2 | `/onboarding/color` | 2, a tray of the card | yes | Card colour: the trade's looks (colours only), 10 swatches, or one's own; the stamp colour; folded, the text colour | A card colour that leaves the stamp colour under 3:1 takes the first stamp colour that fits | – |
-| 3 | `/onboarding/accent` | 2, the same tray, opened at the stamp colour | yes | As `color` | As `color` | – |
-| 4 | `/onboarding/stamp` | 2, a tray of the card | yes | The stamp, either one of the 16 glyphs the wallet renderer knows (the trade's first) or a picture; plus a texture behind the stamps (none, waves, dots, stripes) | Picture: png, jpeg, webp, gif or bmp, up to 8 MB, cropped square in the browser to at most 512px | A lost picture is said here, by its cause |
-| 5 | `/onboarding/reward` | 2, Your card | yes | Stamps to a reward and the reward text | 2–12 stamps; reward up to 200 characters, two lines that grow to three, never a line break | An empty reward opens the reward and says so under the field |
-| 6 | `/onboarding/account` | 3, Saving | yes | Sign up or sign in, then save the card | See below | An empty email or password is said over the button |
-| 7 | `/onboarding/wallet` | 4, In your wallet | gated | The owner adds their own pass to their wallet | – | – |
-| 8 | `/onboarding/billing` | 5, Going live | gated | Activate (checkout) or "Not now" | – | – |
+| 1 | `/onboarding/business` | 1, the map, its business tray | yes | Business name (Google Places suggestions when `VITE_GOOGLE_MAPS_API_KEY` is set, which also fills the phone) and trade: barber, café, personal trainer, therapist, other | Name at most 120 (the field holds it). Trades without a preset are hidden once presets load | Every way out of it holds: says which is missing, there, and takes focus to it |
+| 2 | `/onboarding/color` | 1, the map, its colours tray | yes | Card colour: the trade's looks (colours only), 10 swatches, or one's own; the stamp colour; folded, the text colour | A card colour that leaves the stamp colour under 3:1 takes the first stamp colour that fits | – |
+| 3 | `/onboarding/accent` | 1, the same tray, opened at the stamp colour | yes | As `color` | As `color` | – |
+| 4 | `/onboarding/stamp` | 1, the map, its stamp tray | yes | The stamp, either one of the 16 glyphs the wallet renderer knows (the trade's first) or a picture; plus a texture behind the stamps (none, waves, dots, stripes) | Picture: png, jpeg, webp, gif or bmp, up to 8 MB, cropped square in the browser to at most 512px | A lost picture is said here, by its cause |
+| 5 | `/onboarding/reward` | 1, the map at rest; the reward tray is its history state | yes | Stamps to a reward and the reward text | 2–12 stamps; reward up to 200 characters, two lines that grow to three, never a line break | An empty reward opens the reward and says so under the field |
+| 6 | `/onboarding/account` | 2, Saving, once every part of the map has been opened | yes | Sign up or sign in, then save the card | See below | An empty email or password is said over the button |
+| 7 | `/onboarding/wallet` | 3, In your wallet | gated | The owner adds their own pass to their wallet | – | – |
+| 8 | `/onboarding/billing` | 4, Going live | gated | Activate (checkout) or "Not now" | – | – |
 
-- **The card screen** is `/onboarding/reward`: the finished card, the
-  reward said as a sentence under it, and "Save the card". Colours, the
-  stamp and the reward open as trays over the card on a phone (Card
-  Studio's `StudioTray`), and as tabs beside it from 1024px.
+- **The map** is `/onboarding/reward`: the card at full size, the reward
+  said as a sentence under it, chips for the other parts, and one coral
+  button. Its four parts, in the walk's order, are the business, the
+  colours, the stamp and the reward. They open as trays over the card on a
+  phone (Card Studio's `StudioTray`), each saying which part it is ("Part 2
+  of 4"), and as tabs beside it from 1024px. The card's own rows open what
+  they show (the name the business, the stamps the stamp, the count the
+  reward), and the open part is outlined on the card (`CardStage`).
+- **The walk** (`walk.ts`), guided and free to jump:
+  - a first visit opens the business;
+  - each part's "Next: …" opens the next part in order not yet opened,
+    wrapping round, and any part opens at any time;
+  - a part counts as opened as soon as it is on screen, however it got
+    there, and is ticked on its chip, its tab or the reward sentence;
+  - Save takes Next's place once all four have been opened, and a polite
+    line says so, once.
 - **The trays' addresses:**
-  - Opening a tray from the card screen pushes its address, and closing goes
-    back, so the phone's back gesture closes a tray and closing never stacks
-    history. Switching from one tray to another takes the open one's place.
-  - The reward tray has no route of its own: it is the card screen's history
-    entry with `state.tray = "reward"`.
-  - Arriving at `color`, `accent` or `stamp` directly (a reload, the forward
-    guard) opens the card screen with that tray open.
+  - Opening a tray from the map pushes its address, and closing goes back,
+    so the phone's back gesture closes a tray and closing never stacks
+    history. Switching from one tray to another (a chip, a place on the
+    card, Next) takes the open one's place.
+  - The reward tray has no route of its own: it is the map's history entry
+    with `state.tray = "reward"`.
+  - Arriving at `business`, `color`, `accent` or `stamp` directly (a first
+    visit, a reload, the forward guard) opens the map with that tray open.
   - From 1024px a tab replaces its address and never adds one.
-  - All four addresses render the same `CardStep`, so the screen stays
+  - All five addresses render the same `CardStep`, so the screen stays
     mounted across them.
-- **Answered in advance.** The business's Next writes the trade's first
-  look into every field the owner hasn't chosen (`withTradeLook` in
-  `looks.ts`), so the card screen opens on a finished card. A choice is
-  never overwritten. A card still wearing some trade's untouched first look
-  follows a change of trade, and so does a reward that is still a trade's
-  own default.
-- **The card screen's Save** writes down the card as shown (the colours,
-  the stamp, the texture, the count, the reward trimmed). Nothing is
-  disabled to mean "not yet".
+- **The business** can't be left unfinished, by any way out (its Next, a
+  chip, a place, a tab, closing, Escape, a drag, Save): it says which is
+  missing, there, and takes focus to it. Back after emptying the name comes
+  back to it saying so. While it is on screen the card wears the trade's
+  first look the moment one is picked, and leaving it writes the name and
+  that look into every field the owner hasn't chosen (`withTradeLook` in
+  `looks.ts`), once, however it is left. A choice is never overwritten. A
+  card still wearing some trade's untouched first look follows a change of
+  trade, and so does a reward that is still a trade's own default.
+- **Save** writes down the card as shown (the colours, the stamp, the
+  texture, the count, the reward trimmed). Nothing is disabled to mean "not
+  yet".
 - **The card** shows the draft until it is saved, then the published pass
   (wallet, billing) once it has synced and its pictures load.
 
@@ -94,8 +117,8 @@ own.
   - after every change, it reads the draft back against what was just
     written (`storageCheck.ts`).
 
-  While storage refuses, the business, card and saving screens say what a
-  reload would lose. Another tab's changes are picked up. The draft belongs
+  While storage refuses, the map and the saving screen say what a reload
+  would lose. Another tab's changes are picked up. The draft belongs
   to the device, not the account, and `/login` reads it too.
 - The shape is `v: 1` in `src/routes/onboarding/draft.ts`:
   - `name`, `niche`, `phone`;
@@ -103,7 +126,12 @@ own.
   - `stamp`, which is a glyph or an image hash;
   - `pattern`, `stampsRequired`, `reward`;
   - `committed`, the save record;
-  - `updatedAt`.
+  - `updatedAt`;
+  - `seen`, the parts of the map opened so far, each once. Optional: a
+    draft from before the map has none and reads as none opened, so its
+    owner walks the four parts with their choices in place. Only the walk
+    reads it; `commit.ts` never does, so it never reaches the server and
+    the save's fingerprint doesn't change.
 - Anything that isn't `v: 1` is discarded. A bad field is dropped on its own,
   without throwing away the rest of the draft.
 - It is cleared at exactly four points:
@@ -111,7 +139,8 @@ own.
   2. Wallet "Skip for now", which then goes on to `billing`
   3. Billing "Activate", before the redirect
   4. Billing "Not now"
-- `src/routes/onboarding/draft.test.ts` covers the model. Keep it passing.
+- `src/routes/onboarding/draft.test.ts` covers the model, and `walk.test.ts`
+  the walk. Keep them passing.
 
 ## Account step
 
@@ -226,19 +255,26 @@ which clears the draft and goes to `billing`, and "Continue" once it is.
 ## Accessibility in place
 
 - The skip link goes to `#onboarding-step`. Each screen's `h1` takes focus
-  when the screen appears, and the page title changes per step, a tray by
-  its own name.
-- A tray's heading takes focus as it opens, and however it closes, focus
-  goes back to what opened it.
+  when the screen appears, unless the map opens with a tray open, whose
+  heading takes it instead; the page title changes per step, a tray by its
+  own name.
+- A tray's heading takes focus as it opens, however it was opened, and
+  however it closes, focus goes back to what opened it.
+- The places on the card are pointer shortcuts, out of the Tab order and
+  hidden from screen readers: the chips, the tabs, the reward sentence and
+  each tray's Next are the controls. A tick is said as "opened" after its
+  part's name.
 - The account step moves focus with its states: the heading of "already
   has a card", the button that tries again after a failed save, the email
   after "Use a different account".
 - Screen readers hear these announcements:
   - a card summary, debounced 1.2 s;
-  - "Step n of 5: {stop}", as the stop changes;
+  - "Step n of 4: {stop}", as the stop changes;
+  - "Every part is open. You can save the card.", once, as the walk ends;
   - the stamp count, through the kit's slider;
   - the wallet status (`role=status`) and errors (`role=alert`).
-- Enter submits a step, and in the reward field it saves the card. Every set
+- Enter submits a step. In the business's name and in the reward field it
+  goes on, as the tray's button does: to the next part, or saving. Every set
   of choices is a native radio group (one Tab stop, arrow keys). Places
   suggestions support the arrow keys, Enter and Escape.
 - Every target is at least 44px, the wallet switch, "Use a different
@@ -272,3 +308,7 @@ Fixed, except where it says otherwise.
 - **A hire could land in the wizard** (found in Phase 2's check, 20 Oct).
   `/onboarding` now resumes a draft for the owner only; anyone else goes to
   `/dashboard`.
+- **Places' suggestions in a tray** (found building the map, 31 Oct). Laid
+  over the trades, they were cut off by the tray's own scroll box; they sit
+  in the flow now, and the tray grows to hold them, up to half the screen.
+  Checked with a stand-in list: no Maps key runs locally.

@@ -68,8 +68,12 @@ type drifts, while the barcode plates hold at any width.
 | `CardStudio` and its editors | yes | yes | – | – | – | – |
 | `AppleCardPreview` / `GoogleCardPreview` | yes | yes | yes | yes, in `CardStage` on the kit's `WallpaperStage` | yes, in `PassStage` | Apple only, in the hero |
 
-**Onboarding does not use `CardStudio`**, but its card screen is built on
-the same controls and the same `StudioTray` (Phase 4):
+**Onboarding does not use `CardStudio`**, but its map (`/onboarding/reward`
+and its trays) is built on the same controls and the same `StudioTray`
+(Phase 4). Like the studio's stage, its card is the map: `CardStage` lays
+places of its own over the pass's rows (the name opens the business, the
+stamps the stamp, the count the reward) and outlines the open part, measured
+from the frozen previews and never drawn on them.
 
 | Concern | Onboarding | Studio |
 |---|---|---|
@@ -78,7 +82,7 @@ the same controls and the same `StudioTray` (Phase 4):
 | Glyph and texture | `StampPicker` and `TexturePicker` | `StampPicker` (the trade's glyph first) and `TexturePicker` |
 | Stamp picture | Cropped in the browser, kept on the device, uploaded at save | Cropped in the browser, held until Save |
 | Stamp count | `StampCountControl` | `StampCountControl`: the kit's slider and the strip |
-| Reward | `RewardField`, two lines; Enter saves the card | `RewardField`, two lines; Enter does nothing |
+| Reward | `RewardField`, two lines; Enter goes on, as the tray's button does: the next part, or saving | `RewardField`, two lines; Enter does nothing |
 | Saving | Draft in `localStorage`, then `commit.ts` | Explicit Save: the held pictures, then one PATCH. The draft is kept in the tab |
 
 Roee chose one shared set (Phase 3): the studio is built on
