@@ -18,15 +18,36 @@ import logo from "../../assets/logo.png";
  * opens at its top, or at the section a link names (`/privacy#rights`),
  * and leaves the top to the page after it, which the landing page then
  * moves from itself when its link names a section. At once both ways: an
- * arrival, not a glide.
+ * arrival, not a glide. A section is found again once the fonts are in,
+ * as the landing page does, since the text above it may have moved; a
+ * hash that isn't a section, or isn't even well formed (`#100%`), opens
+ * the top.
  */
+function sectionFromHash(): HTMLElement | null {
+  try {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    return id ? document.getElementById(id) : null;
+  } catch {
+    return null;
+  }
+}
+
 function useArrival() {
   useLayoutEffect(() => {
-    const id = decodeURIComponent(window.location.hash.slice(1));
-    const target = id ? document.getElementById(id) : null;
-    if (target) target.scrollIntoView({ behavior: "instant", block: "start" });
-    else window.scrollTo({ top: 0, behavior: "instant" });
-    return () => window.scrollTo({ top: 0, behavior: "instant" });
+    let cancelled = false;
+    const target = sectionFromHash();
+    if (target) {
+      target.scrollIntoView({ behavior: "instant", block: "start" });
+      void document.fonts.ready.then(() => {
+        if (!cancelled) target.scrollIntoView({ behavior: "instant", block: "start" });
+      });
+    } else {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+    return () => {
+      cancelled = true;
+      window.scrollTo({ top: 0, behavior: "instant" });
+    };
   }, []);
 }
 

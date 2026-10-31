@@ -83,8 +83,9 @@
          Stripe's checkout returns to stand outside the shell, on Lightbox,
          at night when the dashboard is. The public pages stand on Lightbox
          by day only, with the wall as the status bar's colour, which
-         src/routes/public/PublicPage.tsx keeps once it mounts (it reuses
-         the meta marked data-public). Every other route is light and gets
+         src/routes/public/usePublicGround.ts keeps once the page mounts (it
+         reuses the meta marked data-public); so do the reading pages,
+         /contact, /privacy and /terms. Every other route is light and gets
          nothing.
 
          The dashboard also runs edge to edge on a phone (viewport-fit=cover),
@@ -95,7 +96,7 @@
       (function () {
         var shell = /^\/(dashboard(\/|$)|billing\/?$)/.test(location.pathname);
         var returned = /^\/billing\/(success|cancel)\/?$/.test(location.pathname);
-        if (/^\/(login|(invite|join|c|p)\/[^/]+)\/?$/.test(location.pathname)) {
+        if (/^\/(login|contact|privacy|terms|(invite|join|c|p)\/[^/]+)\/?$/.test(location.pathname)) {
           document.documentElement.classList.add("theme-lightbox");
           var wall = document.createElement("meta");
           wall.name = "theme-color";
