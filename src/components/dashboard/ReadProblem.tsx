@@ -41,7 +41,8 @@ export function ReadProblem({
       tone="danger"
       title={title}
       action={
-        <Button variant="secondary" onClick={onRetry}>
+        // Its words wrap with large text rather than widen the page.
+        <Button variant="secondary" onClick={onRetry} className="max-w-full !whitespace-normal text-center">
           {t("common.retry")}
         </Button>
       }

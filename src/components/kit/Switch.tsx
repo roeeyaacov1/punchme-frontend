@@ -22,6 +22,10 @@ export interface SwitchProps {
  * wall) and the field edge when off (3.35:1). The knob slides on the in-out,
  * mirrored in Hebrew; with reduced motion it doesn't travel, the colours just
  * cross over.
+ *
+ * The words stand beside the track while their longest word fits there. With
+ * large text on a phone, where it doesn't, they go under it at the label's
+ * full width rather than run out of a column a few letters wide.
  */
 export function Switch({ checked, onChange, label, description, disabled, className }: SwitchProps) {
   const reduced = useReducedMotion();
@@ -29,7 +33,7 @@ export function Switch({ checked, onChange, label, description, disabled, classN
   return (
     <label
       className={cn(
-        "flex min-h-11 items-start gap-3 py-2",
+        "flex min-h-11 flex-wrap items-start gap-3 py-2",
         disabled ? "cursor-not-allowed" : "cursor-pointer",
         noTapFlash,
         className,
@@ -62,7 +66,10 @@ export function Switch({ checked, onChange, label, description, disabled, classN
           )}
         />
       </span>
-      <span className="flex min-w-0 flex-col gap-0.5">
+      {/* Grows from nothing to its own width, never below its longest word:
+          beside the track it is as wide as it was without the wrap, and only
+          a word that can't fit there sends it under. */}
+      <span className="flex min-w-min max-w-max flex-1 flex-col gap-0.5">
         <span className={cn("type-body", disabled ? "text-ink-subtle" : "text-ink")}>{label}</span>
         {description && (
           <span id={descriptionId} className="text-sm leading-snug text-ink-muted">
