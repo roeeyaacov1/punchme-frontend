@@ -557,12 +557,15 @@ export function CardStep() {
             foot={walkButton(trayPart)}
             start={tray === "reward" && asked ? rewardField : tray === "colours" && atAccent ? stampColour : undefined}
           >
+            {/* The tray's body scrolls, and a scroller ends what its
+                ancestors say about taps: the frame's `manipulation` is said
+                again inside it. */}
             <div
               key={trayPart ?? ""}
               onAnimationEnd={(event) => {
                 if (event.target === event.currentTarget) setStepIn(null);
               }}
-              className={stepIn ?? undefined}
+              className={cn("touch-manipulation", stepIn)}
             >
               {panel(trayPart)}
             </div>
