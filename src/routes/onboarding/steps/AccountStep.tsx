@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { TokenPair } from "../../../api/auth";
 import type { Business, CardTemplate } from "../../../api/businesses";
 import { useAuth } from "../../../auth/useAuth";
+import { isOwner, roleOf } from "../../../business/gating";
 import { AuthAlternatives, AuthFields } from "../../../components/auth/AuthFormParts";
 import { useEmailPasswordAuth } from "../../../components/auth/useEmailPasswordAuth";
 import { rewardForRow } from "../../../components/card-studio/studioDraft";
@@ -158,13 +159,50 @@ export function AccountStep() {
       onBack={() => {
         if (!saving()) navigate("/onboarding/reward");
       }}
+      // After "Use a different account" the email takes focus, not this.
+      autoFocus={!switching}
     />
   );
 
   // Each state is its own panel (`key`), so its heading takes focus as the
   // state appears, the way each screen's does.
   let panel: ReactNode;
-  if (existing) {
+  if (existing && !isOwner(roleOf(existing.business))) {
+    // A hire's account belongs to someone else's business: it can't save a
+    // card of its own, and the card it can reach is the owner's. Nothing is
+    // replaced or thrown away; the design stays on this device for an
+    // account of the owner's own.
+    panel = (
+      <LitPanel key="hire" as="section" className={PANEL}>
+        <StepHeading
+          title={
+            <Trans
+              i18nKey="onboarding.account.hireTitle"
+              values={{ business: existing.business.name }}
+              components={{ b: <bdi /> }}
+            />
+          }
+          lead={t("onboarding.account.hireBody")}
+        />
+        <div className="flex flex-col gap-3">
+          <Button
+            size="lg"
+            onClick={() => {
+              setExisting(null);
+              setSwitching(true);
+              void logout();
+            }}
+            className="w-full !whitespace-normal text-center"
+          >
+            {t("onboarding.account.switchAccount")}
+          </Button>
+          <LinkButton to="/dashboard" variant="secondary" size="lg" className="w-full !whitespace-normal text-center">
+            {t("onboarding.account.toDashboard")}
+          </LinkButton>
+        </div>
+      </LitPanel>
+    );
+  } else if (existing) {
     panel = (
       <LitPanel key="existing" as="section" className={PANEL}>
         <StepHeading title={t("onboarding.account.existingTitle")} lead={t("onboarding.account.existingBody")} />

@@ -6,12 +6,14 @@ import { Check, CircleAlert } from "lucide-react";
 import { createCheckoutSession } from "../../../api/billing";
 import { listTemplates } from "../../../api/businesses";
 import { getTemplateDesign } from "../../../api/designs";
+import { isOwner } from "../../../business/gating";
 import { useBusiness } from "../../../business/useBusiness";
 import { Badge, Button, Figure, LitPanel, Skeleton } from "../../../components/kit";
 import { PUNCHME_MONTHLY_PRICE } from "../../../components/marketing/calculator";
 import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
 import { CardStage } from "../CardStage";
 import { checkoutProblemKey } from "../problems";
+import { Unreadable } from "../Unreadable";
 import { useOnboardingDraft } from "../useOnboardingDraft";
 import { usePublishedPreview } from "../usePublishedPreview";
 
@@ -39,16 +41,20 @@ function PriceFigure({ children }: { children?: ReactNode }) {
 export function BillingStep() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { business, isLoading: businessLoading } = useBusiness();
+  const { business, status, role, refetch, isFetching } = useBusiness();
   const { draft, clear, artUrl } = useOnboardingDraft();
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
 
   const businessId = business?.id ?? null;
 
+  // No business (a 404, never a read that failed) goes back to saving the
+  // card; a hire goes to the dashboard: going live is the owner's, and so
+  // is the draft.
   useEffect(() => {
-    if (!businessLoading && !businessId) navigate("/onboarding/account", { replace: true });
-  }, [businessLoading, businessId, navigate]);
+    if (role !== null && !isOwner(role)) navigate("/dashboard", { replace: true });
+    else if (status === "none") navigate("/onboarding/account", { replace: true });
+  }, [role, status, navigate]);
 
   // The card is the saved one, read again: a Skip on the wallet step has
   // already cleared the draft.
@@ -105,6 +111,19 @@ export function BillingStep() {
     ) : (
       <Skeleton className="mx-auto h-44 w-[340px] max-w-full !rounded-glass lg:h-[27rem]" />
     );
+
+  // The business couldn't be read: nothing here works without it, so the
+  // step says so in place of the case, with a way to ask again.
+  if (status === "failed") {
+    return (
+      <StepShell cardFirst card={card}>
+        <LitPanel light="band" as="section" className="flex flex-col gap-5 p-5 sm:p-6">
+          <StepHeading title={t("onboarding.billing.title")} />
+          <Unreadable onRetry={() => void refetch()} busy={isFetching} />
+        </LitPanel>
+      </StepShell>
+    );
+  }
 
   return (
     <StepShell cardFirst card={card}>

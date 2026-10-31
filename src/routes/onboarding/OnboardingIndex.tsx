@@ -14,6 +14,7 @@ import { whereToStart } from "./walk";
  * |-----------|-----------------------|---------------------------|-----------------------|
  * | no        | –                     | any                       | where the walk stands |
  * | yes       | none                  | any                       | where the walk stands |
+ * | yes       | couldn't be read      | any                       | /dashboard            |
  * | yes       | yours to staff/manage | any                       | /dashboard            |
  * | yes       | owned                 | committed with a template | wallet                |
  * | yes       | owned                 | anything else in progress | where the walk stands |
@@ -44,12 +45,16 @@ export function OnboardingIndex() {
 }
 
 function SignedInIndex() {
-  const { isLoading, hasBusiness, role } = useBusiness();
+  const { isLoading, status, role } = useBusiness();
   const { draft, hasArt } = useOnboardingDraft();
   if (isLoading) return null;
 
   const start = whereToStart(draft, hasArt);
-  if (!hasBusiness) return <Navigate to={`/onboarding/${start}`} replace />;
+  if (status === "none") return <Navigate to={`/onboarding/${start}`} replace />;
+  // A business that couldn't be read is never taken for none: the
+  // dashboard's own page says so and asks again, and a hire's draft stays
+  // where it is.
+  if (status !== "ready") return <Navigate to="/dashboard" replace />;
   if (!isOwner(role)) return <Navigate to="/dashboard" replace />;
   if (draft.committed?.templateId) return <Navigate to="/onboarding/wallet" replace />;
 

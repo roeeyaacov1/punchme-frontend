@@ -2,17 +2,20 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, Clock, LoaderCircle } from "lucide-react";
+import { ArrowRight, Clock, LoaderCircle, WifiOff } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { listTemplates, patchTemplate, type CardTemplate } from "../../../api/businesses";
 import { getTemplateDesign, type DesignOut } from "../../../api/designs";
 import { previewCard } from "../../../api/loyalty";
+import { isOwner } from "../../../business/gating";
 import { useBusiness } from "../../../business/useBusiness";
 import { Button, LinkButton, LitPanel, Notice, useReducedMotion } from "../../../components/kit";
 import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
+import { failureCause } from "../../dashboard/scan/answer";
 import { deviceWallet } from "../../public/wallet";
 import { WalletButton } from "../../public/WalletButton";
 import { CardStage } from "../CardStage";
+import { Unreadable } from "../Unreadable";
 import { useOnboardingDraft } from "../useOnboardingDraft";
 import { usePublishedPreview } from "../usePublishedPreview";
 
@@ -45,7 +48,14 @@ export function WalletStep() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const reduced = useReducedMotion();
-  const { business, isLoading: businessLoading } = useBusiness();
+  const {
+    business,
+    isLoading: businessLoading,
+    status: businessStatus,
+    role,
+    refetch: refetchBusiness,
+    isFetching: businessFetching,
+  } = useBusiness();
   const { draft, update, clear, artUrl } = useOnboardingDraft();
 
   const businessId = business?.id ?? null;
@@ -76,15 +86,21 @@ export function WalletStep() {
     setPhase(next);
   }
 
-  // No business at all: the account step never finished. Business but no
-  // template: same, one call later. Both go back there rather than to the
-  // index, which would only send them here again.
+  // No business at all (a 404, never a read that failed): the account step
+  // never finished. Business but no template: same, one call later. Both go
+  // back there rather than to the index, which would only send them here
+  // again. A hire goes to the dashboard: the pass and the draft are the
+  // owner's.
   useEffect(() => {
+    if (role !== null && !isOwner(role)) {
+      navigate("/dashboard", { replace: true });
+      return;
+    }
     if (businessLoading || templatesQuery.isLoading) return;
-    if (!businessId || (templatesQuery.data && templatesQuery.data.length === 0)) {
+    if (businessStatus === "none" || (templatesQuery.data && templatesQuery.data.length === 0)) {
       navigate("/onboarding/account", { replace: true });
     }
-  }, [businessLoading, templatesQuery.isLoading, templatesQuery.data, businessId, navigate]);
+  }, [role, businessLoading, businessStatus, templatesQuery.isLoading, templatesQuery.data, navigate]);
 
   useEffect(() => {
     if (phase === "resolving" && templateId) enter("syncing");
@@ -193,9 +209,30 @@ export function WalletStep() {
 
   const ready = phase === "ready" && !!passUrl;
   const onPhone = deviceWallet() !== "other";
+  // The business or its card couldn't be read: said, with a way to ask
+  // again, and nothing else claimed. Without a connection the reads wait
+  // (paused), and so does this step, saying so.
+  const unreadable = businessStatus === "failed" || templatesQuery.isError;
+  const offline =
+    [templatesQuery, designQuery, passQuery].some((query) => query.fetchStatus === "paused") ||
+    [designQuery, passQuery].some((query) => query.isError && failureCause(query.error) === "offline");
 
   let status: ReactNode;
-  if (phase === "failed") {
+  if (unreadable) {
+    status =
+      businessStatus === "failed" ? (
+        <Unreadable onRetry={() => void refetchBusiness()} busy={businessFetching} />
+      ) : (
+        <Unreadable onRetry={() => void templatesQuery.refetch()} busy={templatesQuery.isFetching} />
+      );
+  } else if (offline && !ready) {
+    status = (
+      <p role="status" className="type-body flex items-start gap-2 text-ink">
+        <WifiOff aria-hidden className="mt-0.5 size-5 shrink-0 text-ink-muted" />
+        <span>{t("onboarding.wallet.offline")}</span>
+      </p>
+    );
+  } else if (phase === "failed") {
     status = (
       <Notice
         tone="warn"
