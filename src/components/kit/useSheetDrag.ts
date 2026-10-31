@@ -38,6 +38,15 @@ interface Drag {
   trail: { y: number; t: number }[];
 }
 
+/** What a sheet let go of past the line does once it has been asked to
+ * close: carried the rest of the way down; left to the Modal's fade where
+ * it stands, with reduced motion; or, when its close said no (`false`),
+ * brought back where it rests, as a short drag is. */
+export function afterLetGo(closed: boolean | void, reduced: boolean): "out" | "fade" | "back" {
+  if (closed === false) return "back";
+  return reduced ? "fade" : "out";
+}
+
 /** How far the sheet sits below where it rests, even halfway back from a let-go. */
 function offsetOf(element: HTMLElement): number {
   const value = getComputedStyle(element).translate;
@@ -62,7 +71,8 @@ function offsetOf(element: HTMLElement): number {
  * that close and wait for it. With reduced motion it fades where it stands
  * instead. Otherwise it goes back on the drawer curve, and can be caught
  * again on the way. Pulled up, it gives a little, less the further it goes,
- * rather than stopping at a wall.
+ * rather than stopping at a wall. A sheet that can't close yet says so by
+ * its `onClose` returning `false`, and goes back as a short drag does.
  *
  * Only the head drags: the body keeps its own scroll and its rows their
  * taps. Once pressed, the window hears the pointer, so a mouse that leaves
@@ -82,7 +92,8 @@ export function useSheetDrag({
   scrim: RefObject<HTMLElement>;
   enabled: boolean;
   reduced: boolean;
-  onClose: () => void;
+  /** `false` when the sheet holds open (something on it is unfinished). */
+  onClose: () => boolean | void;
 }) {
   const drag = useRef<Drag | null>(null);
   const endedAt = useRef(-Infinity);
@@ -210,9 +221,10 @@ export function useSheetDrag({
       first && event.timeStamp > first.t ? (event.clientY - first.y) / (event.timeStamp - first.t) : 0;
     if (current.offset > 0 && (current.offset >= current.height * CLOSE_SHARE || velocity > FLICK)) {
       // With reduced motion there is no travel: the Modal's fade takes it
-      // where it stands.
-      if (!latest.current.reduced) letGo();
-      latest.current.onClose();
+      // where it stands. A close that says no leaves it open, so it goes back.
+      const next = afterLetGo(latest.current.onClose(), latest.current.reduced);
+      if (next === "out") letGo();
+      else if (next === "back") settle();
     } else {
       settle();
     }

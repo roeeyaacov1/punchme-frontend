@@ -1,15 +1,22 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowRight, Clock, LoaderCircle, WifiOff } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { listTemplates, patchTemplate, type CardTemplate } from "../../../api/businesses";
 import { getTemplateDesign, type DesignOut } from "../../../api/designs";
 import { previewCard } from "../../../api/loyalty";
+import { isOwner } from "../../../business/gating";
 import { useBusiness } from "../../../business/useBusiness";
-import { StepShell } from "../../../components/onboarding/StepShell";
-import { ctaClasses, focusRing } from "../../../components/marketing/primitives";
-import { cn } from "../../../lib/cn";
+import { Button, LinkButton, LitPanel, Notice, useReducedMotion } from "../../../components/kit";
+import { noticeSides, wrapButton } from "../../../components/onboarding/largeText";
+import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
+import { failureCause } from "../../dashboard/scan/answer";
+import { deviceWallet } from "../../public/wallet";
+import { WalletButton } from "../../public/WalletButton";
+import { CardStage } from "../CardStage";
+import { Unreadable } from "../Unreadable";
 import { useOnboardingDraft } from "../useOnboardingDraft";
 import { usePublishedPreview } from "../usePublishedPreview";
 
@@ -23,10 +30,16 @@ const SYNC_SLOW_MS = 180_000;
 const ISSUE_SLOW_MS = 60_000;
 
 /**
- * The card exists on the server now. This step waits for the wallet
- * provider to finish building it (asynchronous, slow), then issues the
- * owner's own pass and hands them the add-to-wallet link — and, on a
- * computer, a QR code so the phone can take it from here.
+ * The card in the owner's own wallet: the fourth stop, and the moment. The
+ * card exists on the server now. This step waits for the wallet provider to
+ * finish building it (asynchronous, slow), then issues the owner's own pass:
+ * on a phone, the coral button named by its wallet; on a computer, the QR
+ * code first, so the phone can take it from there.
+ *
+ * While it waits, one line in words says what is happening, its busy mark
+ * holding still under reduced motion, and there is one way on at a time:
+ * "Skip for now" while the pass isn't ready (the draft is cleared, as
+ * before, and it leads to going live), "Continue" once it is.
  *
  * "Synced" means synced *since we saved*: after Back-and-change the row still
  * carries last time's timestamp, and trusting it would show last time's PNGs.
@@ -35,8 +48,16 @@ export function WalletStep() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { business, isLoading: businessLoading } = useBusiness();
-  const { draft, update, clear, setPreviewOverride, artUrl } = useOnboardingDraft();
+  const reduced = useReducedMotion();
+  const {
+    business,
+    isLoading: businessLoading,
+    status: businessStatus,
+    role,
+    refetch: refetchBusiness,
+    isFetching: businessFetching,
+  } = useBusiness();
+  const { draft, update, clear, artUrl } = useOnboardingDraft();
 
   const businessId = business?.id ?? null;
   const committed = draft.committed;
@@ -66,15 +87,21 @@ export function WalletStep() {
     setPhase(next);
   }
 
-  // No business at all: the account step never finished. Business but no
-  // template: same, one call later. Both go back there rather than to the
-  // index, which would only send them here again.
+  // No business at all (a 404, never a read that failed): the account step
+  // never finished. Business but no template: same, one call later. Both go
+  // back there rather than to the index, which would only send them here
+  // again. A hire goes to the dashboard: the pass and the draft are the
+  // owner's.
   useEffect(() => {
+    if (role !== null && !isOwner(role)) {
+      navigate("/dashboard", { replace: true });
+      return;
+    }
     if (businessLoading || templatesQuery.isLoading) return;
-    if (!businessId || (templatesQuery.data && templatesQuery.data.length === 0)) {
+    if (businessStatus === "none" || (templatesQuery.data && templatesQuery.data.length === 0)) {
       navigate("/onboarding/account", { replace: true });
     }
-  }, [businessLoading, templatesQuery.isLoading, templatesQuery.data, businessId, navigate]);
+  }, [role, businessLoading, businessStatus, templatesQuery.isLoading, templatesQuery.data, navigate]);
 
   useEffect(() => {
     if (phase === "resolving" && templateId) enter("syncing");
@@ -139,19 +166,14 @@ export function WalletStep() {
     return () => window.clearInterval(timer);
   }, [phase]);
 
-  // Once the real design exists (synced since we saved), the phone shows it.
-  // Cleared on unmount so a walk back to the colour steps sees the live
-  // draft again.
+  // Once the real design exists (synced since we saved), the card is the
+  // published one, as soon as its pictures load; the draft's until then.
   const published = usePublishedPreview(
     syncedSinceSave(design) ? design : undefined,
     business,
     artUrl,
     template?.name,
   );
-  useEffect(() => {
-    if (published) setPreviewOverride(published);
-  }, [published, setPreviewOverride]);
-  useEffect(() => () => setPreviewOverride(null), [setPreviewOverride]);
 
   async function retrySync() {
     if (!businessId || !templateId) return;
@@ -179,90 +201,120 @@ export function WalletStep() {
     });
   }
 
-  function finish(to: string) {
-    if (to === "/dashboard") clear();
-    navigate(to);
+  /** Skipping while the pass isn't ready: the draft has done its job (the
+   * card is saved), and going live is still the next stop. */
+  function skip() {
+    clear();
+    navigate("/onboarding/billing");
   }
 
-  const status =
-    phase === "ready"
-      ? t("onboarding.wallet.ready")
-      : phase === "issuing"
-        ? t("onboarding.wallet.issuing")
-        : phase === "failed"
-          ? t("onboarding.wallet.failed")
-          : phase === "slow"
-            ? t("onboarding.wallet.slow")
-            : t("onboarding.wallet.preparing");
+  const ready = phase === "ready" && !!passUrl;
+  const onPhone = deviceWallet() !== "other";
+  // The business or its card couldn't be read: said, with a way to ask
+  // again, and nothing else claimed. Without a connection the reads wait
+  // (paused), and so does this step, saying so.
+  const unreadable = businessStatus === "failed" || templatesQuery.isError;
+  const offline =
+    [templatesQuery, designQuery, passQuery].some((query) => query.fetchStatus === "paused") ||
+    [designQuery, passQuery].some((query) => query.isError && failureCause(query.error) === "offline");
+
+  let status: ReactNode;
+  if (unreadable) {
+    status =
+      businessStatus === "failed" ? (
+        <Unreadable onRetry={() => void refetchBusiness()} busy={businessFetching} />
+      ) : (
+        <Unreadable onRetry={() => void templatesQuery.refetch()} busy={templatesQuery.isFetching} />
+      );
+  } else if (offline && !ready) {
+    status = (
+      <p role="status" className="type-body flex items-start gap-2 text-pretty text-ink">
+        <WifiOff aria-hidden className="mt-0.5 size-5 shrink-0 text-ink-muted" />
+        <span>{t("onboarding.wallet.offline")}</span>
+      </p>
+    );
+  } else if (phase === "failed") {
+    status = (
+      <Notice
+        tone="warn"
+        role="alert"
+        className={noticeSides}
+        action={
+          <Button variant="secondary" onClick={() => void retrySync()} className={wrapButton}>
+            {t("onboarding.wallet.retry")}
+          </Button>
+        }
+      >
+        {t("onboarding.wallet.failed")}
+      </Notice>
+    );
+  } else if (phase === "slow") {
+    status = (
+      <div className="flex flex-col items-start gap-3">
+        <p role="status" className="type-body flex items-start gap-2 text-pretty text-ink">
+          <Clock aria-hidden className="mt-0.5 size-5 shrink-0 text-ink-muted" />
+          <span>{t("onboarding.wallet.slow")}</span>
+        </p>
+        <Button variant="secondary" onClick={checkAgain}>
+          {t("onboarding.wallet.checkAgain")}
+        </Button>
+      </div>
+    );
+  } else if (!ready) {
+    status = (
+      <p role="status" className="type-body flex items-start gap-2 text-pretty text-ink">
+        <LoaderCircle aria-hidden className={reduced ? "mt-0.5 size-5 shrink-0" : "mt-0.5 size-5 shrink-0 animate-spin"} />
+        <span>{phase === "issuing" ? t("onboarding.wallet.issuing") : t("onboarding.wallet.preparing")}</span>
+      </p>
+    );
+  }
 
   return (
     <StepShell
-      title={t("onboarding.wallet.title")}
-      subtitle={t("onboarding.wallet.subtitle")}
-      hideNext
-      footer={
-        <button
-          type="button"
-          onClick={() => finish("/dashboard")}
-          className={cn("self-center text-sm text-ink-muted underline underline-offset-2 hover:text-ink", focusRing)}
-        >
-          {t("onboarding.wallet.skip")}
-        </button>
-      }
+      heading={<StepHeading title={t("onboarding.wallet.title")} lead={t("onboarding.wallet.subtitle")} />}
+      card={<CardStage preview={published ?? undefined} />}
     >
-      <div
-        role="status"
-        aria-live="polite"
-        className={cn(
-          "rounded-xl border px-4 py-3 text-sm",
-          phase === "failed"
-            ? "border-red-200 bg-red-50 text-red-800"
-            : phase === "ready"
-              ? "border-primary/40 bg-primary/10 text-ink"
-              : "border-border bg-background/60 text-ink-muted",
-        )}
-      >
-        <p className={cn("font-medium", phase !== "ready" && phase !== "failed" && "animate-pulse")}>{status}</p>
-        {(phase === "syncing" || phase === "resolving") && (
-          <p className="mt-1 text-ink-subtle">{t("onboarding.wallet.preparingHint")}</p>
+      {status}
+      {/* The owner's own pass, ready: it lights on as it arrives, once. */}
+      {ready &&
+        (onPhone ? (
+          <div className={reduced ? "animate-gentle-in" : "animate-lights-on"}>
+            <WalletButton href={passUrl} />
+          </div>
+        ) : (
+          <LitPanel light="lit" arrive className="flex flex-col items-center gap-4 p-5 sm:flex-row sm:items-center">
+            <span className="shrink-0 rounded-field bg-white p-3">
+              <QRCodeSVG value={passUrl} size={144} level="M" />
+            </span>
+            <span className="flex flex-col items-center gap-3 sm:items-start">
+              <span className="type-body text-pretty text-center text-ink sm:text-start">
+                {t("onboarding.wallet.scanHint")}
+              </span>
+              <LinkButton href={passUrl} variant="secondary">
+                {t("wallet.addToWallet")}
+              </LinkButton>
+            </span>
+          </LitPanel>
+        ))}
+      <div className="flex flex-col items-start">
+        {ready ? (
+          <Button
+            variant="secondary"
+            size="lg"
+            onClick={() => navigate("/onboarding/billing")}
+            iconEnd={<ArrowRight aria-hidden className="rtl:-scale-x-100" />}
+            className="w-full"
+          >
+            {t("onboarding.wallet.continue")}
+          </Button>
+        ) : (
+          // Its words line up with the column's edge, and its box stops at
+          // the screen's: the page's side is 1rem, its own start 1.25rem.
+          <Button variant="quiet" onClick={skip} className="-ms-4 !ps-4">
+            {t("onboarding.wallet.skip")}
+          </Button>
         )}
       </div>
-
-      {phase === "failed" && (
-        <button type="button" onClick={retrySync} className={ctaClasses("secondary", "lg", "w-full")}>
-          {t("onboarding.wallet.retry")}
-        </button>
-      )}
-
-      {phase === "slow" && (
-        <button type="button" onClick={checkAgain} className={ctaClasses("secondary", "lg", "w-full")}>
-          {t("onboarding.wallet.checkAgain")}
-        </button>
-      )}
-
-      {passUrl && (
-        <div className="flex flex-col gap-4">
-          <a href={passUrl} className={ctaClasses("primary", "lg", "w-full")}>
-            {t("wallet.addToWallet")}
-          </a>
-          <div className="hidden items-center gap-4 rounded-xl border border-border bg-surface p-3 sm:flex">
-            <span className="shrink-0 rounded-lg bg-white p-1.5">
-              <QRCodeSVG value={passUrl} size={112} level="M" />
-            </span>
-            <p className="text-sm text-ink-muted">{t("onboarding.wallet.scanHint")}</p>
-          </div>
-        </div>
-      )}
-
-      {(phase === "ready" || phase === "slow") && (
-        <button
-          type="button"
-          onClick={() => finish("/onboarding/billing")}
-          className={ctaClasses(passUrl ? "secondary" : "primary", "lg", "w-full")}
-        >
-          {t("onboarding.wallet.continue")}
-        </button>
-      )}
     </StepShell>
   );
 }

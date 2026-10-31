@@ -103,6 +103,8 @@ export function StampPicker({
 
   return (
     <div className="flex flex-col gap-5">
+      {/* Four to a row while four fit (13.25rem with their gaps); with large
+          text on a phone, as many as fit, rather than a row that scrolls. */}
       <ChoiceTiles
         legend={t("cardControls.glyph")}
         tiles={tiles}
@@ -110,7 +112,8 @@ export function StampPicker({
         onChange={onGlyph}
         disabled={!!locked}
         describedBy={locked ? lockedId : undefined}
-        listClassName="grid grid-cols-[repeat(4,2.75rem)] justify-between gap-y-3 sm:flex sm:justify-start"
+        className="[container-type:inline-size]"
+        listClassName="grid grid-cols-[repeat(4,2.75rem)] justify-between gap-y-3 [@container(max-width:13.25rem)]:grid-cols-[repeat(auto-fill,2.75rem)] sm:flex sm:justify-start"
       />
       {locked && (
         <p id={lockedId} className="-mt-2 text-sm leading-snug text-ink-muted">

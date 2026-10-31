@@ -93,3 +93,9 @@ export function charactersLeft(value: string, max: number, from: number): number
   if (value.length < from) return null;
   return Math.max(0, max - value.length);
 }
+
+/** A paragraph, never lines: a pasted break, with the spaces round it, is one
+ * space. The pass sets the reward as one run of words. */
+export function oneParagraph(text: string): string {
+  return text.replace(/[ \t]*[\r\n]+[ \t]*/g, " ");
+}

@@ -1375,7 +1375,7 @@ as it is.
 - [x] Phase 6, manager pages: A (22 Oct) · B (23 Oct) · C (23 Oct) · D (24 Oct) · merged (25 Oct)
 - [x] Phase 7, owner pages: A (25 Oct) · B (25 Oct) · C (25 Oct) · D (26 Oct) · merged (26 Oct)
 - [x] Phase 3, card studio: A (27 Oct) · B (27 Oct) · C (27 Oct) · D (27 Oct) · merged (27 Oct)
-- [ ] Phase 4, onboarding: A · B · C · D · merged
+- [ ] Phase 4, onboarding: A (28 Oct) · B (31 Oct) · C (31 Oct) · D · merged
 - [x] Phase 8, public pages: contract (27 Oct) · A (27 Oct) · B (27 Oct) · C (27 Oct) · D (30 Oct) · merged (30 Oct)
 - [x] Phase 9, landing page: A (27 Oct) · B (30 Oct) · C (30 Oct) · D (30 Oct) · merged (30 Oct)
 - [ ] Phase 10, cleanup

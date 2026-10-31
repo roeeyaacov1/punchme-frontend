@@ -220,7 +220,7 @@ export function AppleCardPreview(value: CardPreviewValue) {
             className="max-h-[26px] max-w-[140px] object-contain"
           />
         ) : (
-          <span className="truncate text-[15px] font-semibold">
+          <span dir="auto" className="truncate text-[15px] font-semibold">
             {value.businessName || "—"}
           </span>
         )}
@@ -322,7 +322,7 @@ export function GoogleCardPreview(value: CardPreviewValue) {
             )}
           </span>
         </span>
-        <span className="me-3 min-w-0 truncate p-1.5 text-[14px] font-medium tracking-[0.21px]">
+        <span dir="auto" className="me-3 min-w-0 truncate p-1.5 text-[14px] font-medium tracking-[0.21px]">
           {issuerName(value)}
         </span>
       </div>
@@ -332,7 +332,7 @@ export function GoogleCardPreview(value: CardPreviewValue) {
           one. */}
       <div className="h-px w-full bg-current opacity-[0.08]" />
 
-      <p className="mt-[10px] truncate px-3 py-px text-[20px] leading-[30px]">
+      <p dir="auto" className="mt-[10px] truncate px-3 py-px text-[20px] leading-[30px]">
         {programName(value)}
       </p>
 

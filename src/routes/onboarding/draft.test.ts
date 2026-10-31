@@ -11,6 +11,7 @@ import {
   parseDraft,
   resolveDraft,
   sampleStamps,
+  type MapPart,
   type OnboardingDraft,
 } from "./draft";
 
@@ -263,5 +264,25 @@ describe("preview", () => {
     d.stamp = { kind: "image", hash: "h" };
     const art = draftPreviewValue(resolveDraft(d, PRESETS, t), "en", t, "data:x");
     expect(art.stampArtUrl).toBe("data:x");
+  });
+});
+
+describe("parseDraft: the parts opened", () => {
+  it("keeps the known parts, once each, in the order they were opened", () => {
+    expect(parseDraft({ ...fullDraft(), seen: ["stamp", "nope", "business", "stamp", 3] })?.seen).toEqual([
+      "stamp",
+      "business",
+    ]);
+  });
+  it("reads a draft without them, or with something else there, as none recorded", () => {
+    expect(parseDraft(fullDraft())?.seen).toBeUndefined();
+    expect(parseDraft({ ...fullDraft(), seen: "stamp" })?.seen).toBeUndefined();
+  });
+  it("round-trips them", () => {
+    const draft = { ...fullDraft(), seen: ["business", "colours"] as MapPart[] };
+    expect(parseDraft(JSON.parse(JSON.stringify(draft)))).toEqual(draft);
+  });
+  it("leaves the first incomplete step to the fields alone", () => {
+    expect(firstIncompleteStep({ ...fullDraft(), seen: [] })).toBe("account");
   });
 });
