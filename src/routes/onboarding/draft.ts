@@ -43,6 +43,8 @@ export type MapPart = (typeof MAP_PARTS)[number];
 
 export const MIN_STAMPS = 2;
 export const MAX_STAMPS = 12;
+/** The API keeps a business name to 120 characters (BusinessIn.name). */
+export const NAME_MAX = 120;
 
 export type StampChoice =
   | { kind: "glyph"; glyph: string }

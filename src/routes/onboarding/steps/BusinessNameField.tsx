@@ -12,9 +12,8 @@ import {
   GoogleMapsNotConfiguredError,
   type PlaceResult,
 } from "../../../lib/googlePlaces";
+import { NAME_MAX } from "../draft";
 
-/** The API keeps a business name to 120 characters (BusinessIn.name). */
-const NAME_MAX = 120;
 /** The count says nothing until the name is this long. */
 const COUNT_FROM = 100;
 
@@ -174,7 +173,9 @@ export const BusinessNameField = forwardRef<
     }
   }
 
-  const left = charactersLeft(value, NAME_MAX, COUNT_FROM);
+  // Over the limit (a draft from before the field held it), the count would
+  // stand at 0 whatever is deleted: the business says how many are too many.
+  const left = value.length > NAME_MAX ? null : charactersLeft(value, NAME_MAX, COUNT_FROM);
 
   return (
     <Field

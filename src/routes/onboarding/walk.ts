@@ -5,7 +5,7 @@
  * its fields, so a refresh, a Back or a typed address finds the walk where
  * the owner left it. Pure: the screens own the effects. */
 
-import { firstIncompleteStep, MAP_PARTS, type DraftStep, type MapPart, type OnboardingDraft } from "./draft";
+import { firstIncompleteStep, MAP_PARTS, NAME_MAX, type DraftStep, type MapPart, type OnboardingDraft } from "./draft";
 
 export function seenOf(draft: Pick<OnboardingDraft, "seen">): MapPart[] {
   return draft.seen ?? [];
@@ -49,9 +49,13 @@ export function partAtAddress(step: string | undefined): MapPart | null {
   return null;
 }
 
-/** What the business still needs before the walk can leave it. */
-export function businessMissing(draft: Pick<OnboardingDraft, "name" | "niche">): "name" | "trade" | null {
-  if (!draft.name.trim()) return "name";
+/** What the business still needs before the walk can leave it: a name, one
+ * the API takes (the field holds it to 120 characters, but a draft made
+ * before it did can carry a longer one), and a trade. */
+export function businessMissing(draft: Pick<OnboardingDraft, "name" | "niche">): "name" | "long" | "trade" | null {
+  const name = draft.name.trim();
+  if (!name) return "name";
+  if (name.length > NAME_MAX) return "long";
   if (!draft.niche) return "trade";
   return null;
 }

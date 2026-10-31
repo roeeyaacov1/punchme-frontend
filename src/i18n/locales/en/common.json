@@ -352,6 +352,8 @@
     "lastStop": "You can do this later too",
     "missing": {
       "name": "Write your business's name.",
+      "nameLong_one": "The name has 1 character too many: it can be up to {{max}}.",
+      "nameLong_other": "The name has {{count}} characters too many: it can be up to {{max}}.",
       "trade": "Choose what kind of business it is.",
       "reward": "Write what customers get.",
       "account": "Write your email and a password."
@@ -472,8 +474,11 @@
       "keepCost": "The new design won't be saved.",
       "switchAccount": "Use a different account",
       "problem": {
-        "name": "The business's name couldn't be saved as it is. Check it, then save again.",
-        "toName": "Check the name"
+        "name": "The business's name is longer than the card takes: up to 120 characters. Shorten it, then save again.",
+        "toName": "Check the name",
+        "picture": "The stamp's picture couldn't be used. Choose it again, or another one, then save.",
+        "toPicture": "Choose the picture again",
+        "invalid": "Something on the card wasn't accepted, so it wasn't saved. Your design is still here."
       }
     },
     "wallet": {

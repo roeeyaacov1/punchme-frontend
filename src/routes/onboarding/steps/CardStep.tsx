@@ -214,17 +214,38 @@ export function CardStep() {
     setRewardWanted(0);
   }, [rewardWanted, tray]);
 
+  // Save found the name longer than the API takes and opened the business
+  // on it: the name takes focus, from 1024px as its tab shows, and on a
+  // phone as the tray opens (its `start`), for as long as it stays open.
+  // The router moves a beat after the press, so it holds until the business
+  // has been shown, and lets go once it is left.
+  const [nameAsked, setNameAsked] = useState(false);
+  const nameShown = useRef(false);
+  useEffect(() => {
+    if (!nameAsked) {
+      nameShown.current = false;
+      return;
+    }
+    if (showing === "business") {
+      nameShown.current = true;
+      if (wide) {
+        nameField.current?.focus();
+        setNameAsked(false);
+      }
+    } else if (nameShown.current) setNameAsked(false);
+  }, [nameAsked, showing, wide]);
+
   /** The picture that went is said where it is chosen again, and read out. */
   const sayLost = useCallback(() => lostMessage.current?.focus(), []);
 
-  /** The business can't be left without its name and its trade: what's
-   * missing is said where it is, and takes focus. */
+  /** The business can't be left without its name, one the API takes, and
+   * its trade: what's missing is said where it is, and takes focus. */
   const holdBusiness = useCallback((): boolean => {
     const missing = businessMissing(draft);
     if (!missing) return false;
     setBusinessAsked(true);
-    if (missing === "name") nameField.current?.focus();
-    else tradeBox.current?.querySelector<HTMLInputElement>("input")?.focus();
+    if (missing === "trade") tradeBox.current?.querySelector<HTMLInputElement>("input")?.focus();
+    else nameField.current?.focus();
     return true;
   }, [draft]);
 
@@ -381,6 +402,15 @@ export function CardStep() {
 
   const save = useCallback(() => {
     if (!leave()) return;
+    // A name longer than the API takes (a draft from before the field held
+    // it) is shortened where it is typed, rather than refused after sign-up.
+    if (businessMissing(draft)) {
+      setBusinessAsked(true);
+      setNameAsked(true);
+      if (wide) showTab("business");
+      else open("business");
+      return;
+    }
     // A picture this device no longer has is chosen again where it lives.
     if (lost) {
       if (wide) showTab("stamp");
@@ -406,7 +436,7 @@ export function CardStep() {
       reward,
     });
     navigate("/onboarding/account");
-  }, [card, lost, wide, leave, showTab, open, sayLost, update, navigate]);
+  }, [card, draft, lost, wide, leave, showTab, open, sayLost, update, navigate]);
 
   /** On from `from` to the next part not yet opened; once every part has
    * been, the card is saved. Leaving the business still checks it. */
@@ -626,7 +656,15 @@ export function CardStep() {
             onClose={close}
             onHeight={setTrayHeight}
             foot={walkButton(trayPart)}
-            start={tray === "reward" && asked ? rewardField : tray === "colours" && atAccent ? stampColour : undefined}
+            start={
+              tray === "reward" && asked
+                ? rewardField
+                : tray === "business" && nameAsked
+                  ? nameField
+                  : tray === "colours" && atAccent
+                    ? stampColour
+                    : undefined
+            }
           >
             {/* The tray's body scrolls, and a scroller ends what its
                 ancestors say about taps: the frame's `manipulation` is said
