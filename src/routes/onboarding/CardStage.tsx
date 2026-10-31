@@ -17,7 +17,7 @@ import {
   type CardPreviewValue,
   type PreviewPlatform,
 } from "../../components/card-studio/CardPreviews";
-import { SegmentedControl, WallpaperStage } from "../../components/kit";
+import { SegmentedControl, useReducedMotion, WallpaperStage } from "../../components/kit";
 import { cn } from "../../lib/cn";
 import { MAX_STAMPS, type MapPart, type Niche } from "./draft";
 import { useStageWallet } from "./stageWallet";
@@ -83,12 +83,16 @@ export const CardStage = forwardRef<
     onPart?: (part: Placed) => void;
     /** The part outlined on the pass: its rows, or the whole pass for the colours. */
     lit?: MapPart | null;
+    /** The stamp as chosen (its symbol or picture, and its colour): a
+     * change lands the last punched stamp on the card. */
+    land?: string;
     className?: string;
   }
->(function CardStage({ preview: given, crop = "whole", tag, onPart, lit = null, className }, ref) {
+>(function CardStage({ preview: given, crop = "whole", tag, onPart, lit = null, land, className }, ref) {
   const { t } = useTranslation();
   const { draft, preview: drafted } = useOnboardingDraft();
   const [wallet, setWallet] = useStageWallet();
+  const reduced = useReducedMotion();
   const slot = useRef<HTMLDivElement>(null);
   const preview = given ?? drafted;
   const [boxes, setBoxes] = useState<Partial<Record<MapPart, Box>>>({});
@@ -147,6 +151,32 @@ export const CardStage = forwardRef<
     }
     setBoxes(next);
   }, [wallet]);
+
+  // A stamp or its colour chosen lands on the card, as in the studio: the
+  // kit's stamp-land, 340ms on the overshoot, on the last punched stamp,
+  // found in the frozen grid and never drawn here; with reduced motion it
+  // fades in over 150ms. Set before paint, so the stamp never shows a frame
+  // early; a second pick mid-landing starts it again.
+  const landed = useRef(land);
+  const landing = useRef<(() => void) | null>(null);
+  useLayoutEffect(() => {
+    if (land === landed.current) return;
+    landed.current = land;
+    landing.current?.();
+    const strip = slot.current?.firstElementChild?.children[ROWS[wallet].stamp[0]];
+    if (!(strip instanceof HTMLDivElement)) return;
+    const stamp = strip.querySelectorAll<HTMLElement>(":scope > div > span")[shown.currentStamps - 1];
+    if (!stamp) return;
+    const motion = reduced ? "animate-gentle-in" : "animate-stamp-land";
+    const settle = () => {
+      stamp.removeEventListener("animationend", settle);
+      stamp.classList.remove(motion);
+      landing.current = null;
+    };
+    stamp.classList.add(motion);
+    stamp.addEventListener("animationend", settle);
+    landing.current = settle;
+  }, [land, wallet, shown.currentStamps, reduced]);
 
   useLayoutEffect(() => {
     if (!mapped) return;

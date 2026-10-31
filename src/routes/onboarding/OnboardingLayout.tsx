@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
 import type { PreviewPlatform } from "../../components/card-studio/CardPreviews";
-import { focusRing, linkText, LitPanel } from "../../components/kit";
+import { focusRing, linkText, LitPanel, useReducedMotion } from "../../components/kit";
 import { column } from "../../components/onboarding/column";
 import { ProgressLine } from "../../components/onboarding/ProgressLine";
+import { StepArrival } from "../../components/onboarding/stepArrival";
 import { TopBar } from "../../components/onboarding/TopBar";
 import { useDebounce } from "../../hooks/useDebounce";
 import { cn } from "../../lib/cn";
@@ -50,6 +51,7 @@ function Shell() {
   const { user, isAuthenticated } = useAuth();
   const location = useLocation();
   const { draft, resolved, preview, hasArt } = useOnboardingDraft();
+  const reduced = useReducedMotion();
   usePublicGround();
 
   const step = stepFromPath(location.pathname);
@@ -91,15 +93,34 @@ function Shell() {
 
   // Forward guard: a draft step past the first incomplete one is not
   // reachable by URL. Wallet and billing govern themselves.
-  if (step && (DRAFT_STEPS as readonly string[]).includes(step) && stepIndex(step) > stepIndex(first)) {
-    return <Navigate to={`/onboarding/${first}`} replace />;
-  }
   // And saving waits for the walk: until every part of the card has been
   // opened on the map, the account step sends the owner to the first that
   // hasn't.
-  if (step === "account" && !walkDone(seenOf(draft))) {
-    return <Navigate to={`/onboarding/${whereToStart(draft, hasArt)}`} replace />;
+  let redirect: string | null = null;
+  if (step && (DRAFT_STEPS as readonly string[]).includes(step) && stepIndex(step) > stepIndex(first)) {
+    redirect = `/onboarding/${first}`;
+  } else if (step === "account" && !walkDone(seenOf(draft))) {
+    redirect = `/onboarding/${whereToStart(draft, hasArt)}`;
   }
+
+  // A new stop arrives from the side it comes from (`StepArrival`): on from
+  // the end edge, Back from the start. Only a stop that was on screen
+  // counts, so the first screen and a redirect's passing stop move nothing,
+  // and a tray of the map is the map's own stop.
+  const shownStop = redirect ? null : (place?.stop ?? null);
+  const lastStop = useRef<number | null>(null);
+  const [arrival, setArrival] = useState<string | null>(null);
+  useLayoutEffect(() => {
+    if (shownStop === null) return;
+    const was = lastStop.current;
+    lastStop.current = shownStop;
+    if (was === null || was === shownStop) return;
+    setArrival(reduced ? "animate-gentle-in" : shownStop > was ? "animate-step-forward" : "animate-step-back");
+  }, [shownStop, reduced]);
+  const arrived = useCallback(() => setArrival(null), []);
+  const arrivalValue = useMemo(() => ({ motion: arrival, arrived }), [arrival, arrived]);
+
+  if (redirect) return <Navigate to={redirect} replace />;
 
   return (
     <div className="theme-lightbox flex min-h-svh flex-col bg-background text-ink [-webkit-tap-highlight-color:transparent] [&_button]:select-none">
@@ -136,7 +157,9 @@ function Shell() {
         )}
 
         <div id="onboarding-step" tabIndex={-1} className="outline-none">
-          <Outlet />
+          <StepArrival.Provider value={arrivalValue}>
+            <Outlet />
+          </StepArrival.Provider>
         </div>
       </main>
 

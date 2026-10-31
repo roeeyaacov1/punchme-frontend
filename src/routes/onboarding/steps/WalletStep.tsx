@@ -236,11 +236,14 @@ export function WalletStep() {
       card={<CardStage preview={published ?? undefined} />}
     >
       {status}
+      {/* The owner's own pass, ready: it lights on as it arrives, once. */}
       {ready &&
         (onPhone ? (
-          <WalletButton href={passUrl} />
+          <div className={reduced ? "animate-gentle-in" : "animate-lights-on"}>
+            <WalletButton href={passUrl} />
+          </div>
         ) : (
-          <LitPanel light="lit" className="flex flex-col items-center gap-4 p-5 sm:flex-row sm:items-center">
+          <LitPanel light="lit" arrive className="flex flex-col items-center gap-4 p-5 sm:flex-row sm:items-center">
             <span className="shrink-0 rounded-field bg-white p-3">
               <QRCodeSVG value={passUrl} size={144} level="M" />
             </span>
