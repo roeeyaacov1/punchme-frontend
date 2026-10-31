@@ -219,11 +219,14 @@ export function InvitePanel({
                 )}
               </div>
               <div className="flex flex-col items-start gap-2">
+                {/* Where its words can't stand beside the link icon, with
+                    large text in a phone's or a laptop's narrow column, they
+                    go under it. */}
                 <Button
                   type="submit"
                   busy={create.isPending}
                   icon={<Link2 aria-hidden />}
-                  className="max-w-full !whitespace-normal text-center"
+                  className="max-w-full flex-wrap !whitespace-normal text-center"
                 >
                   {t("team.invite.cta")}
                 </Button>
