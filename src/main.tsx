@@ -34,6 +34,7 @@ const dashboard = () => import("./routes/lazy/dashboard");
 const onboarding = () => import("./routes/lazy/onboarding");
 const admin = () => import("./routes/lazy/admin");
 const billing = () => import("./routes/lazy/billing");
+const info = () => import("./routes/lazy/info");
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,13 @@ const router = createBrowserRouter([
         lazy: async () => ({ Component: (await import("./routes/style-guide")).StyleGuidePage }),
       },
       { path: "debug/presets", element: <DebugPresetsPage /> },
+      // The site's reading pages, linked from the landing page's footer and
+      // from the back of every pass. Static: no API call and no session, so
+      // they load as a chunk of their own and no one else downloads them.
+      { path: "contact", lazy: async () => ({ Component: (await info()).ContactPage }) },
+      { path: "support", element: <Navigate to="/contact" replace /> },
+      { path: "privacy", lazy: async () => ({ Component: (await info()).PrivacyPage }) },
+      { path: "terms", lazy: async () => ({ Component: (await info()).TermsPage }) },
       { path: "login", element: <LoginPage /> },
       { path: "join/:templateId", element: <JoinPage /> },
       // Public like the join flow, and for the same reason: it is opened
