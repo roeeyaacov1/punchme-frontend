@@ -10,7 +10,7 @@ import { previewCard } from "../../../api/loyalty";
 import { isOwner } from "../../../business/gating";
 import { useBusiness } from "../../../business/useBusiness";
 import { Button, LinkButton, LitPanel, Notice, useReducedMotion } from "../../../components/kit";
-import { noticeButton, noticeSides } from "../../../components/onboarding/notice";
+import { noticeSides, wrapButton } from "../../../components/onboarding/largeText";
 import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
 import { failureCause } from "../../dashboard/scan/answer";
 import { deviceWallet } from "../../public/wallet";
@@ -240,7 +240,7 @@ export function WalletStep() {
         role="alert"
         className={noticeSides}
         action={
-          <Button variant="secondary" onClick={() => void retrySync()} className={noticeButton}>
+          <Button variant="secondary" onClick={() => void retrySync()} className={wrapButton}>
             {t("onboarding.wallet.retry")}
           </Button>
         }
@@ -308,7 +308,9 @@ export function WalletStep() {
             {t("onboarding.wallet.continue")}
           </Button>
         ) : (
-          <Button variant="quiet" onClick={skip} className="-ms-5">
+          // Its words line up with the column's edge, and its box stops at
+          // the screen's: the page's side is 1rem, its own start 1.25rem.
+          <Button variant="quiet" onClick={skip} className="-ms-4 !ps-4">
             {t("onboarding.wallet.skip")}
           </Button>
         )}

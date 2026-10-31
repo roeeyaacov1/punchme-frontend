@@ -10,7 +10,7 @@ import { isOwner } from "../../../business/gating";
 import { useBusiness } from "../../../business/useBusiness";
 import { Badge, Button, Figure, LitPanel, Skeleton } from "../../../components/kit";
 import { PUNCHME_MONTHLY_PRICE } from "../../../components/marketing/calculator";
-import { noticePanelSides } from "../../../components/onboarding/notice";
+import { panelSides } from "../../../components/onboarding/largeText";
 import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
 import { CardStage } from "../CardStage";
 import { checkoutProblemKey } from "../problems";
@@ -123,7 +123,7 @@ export function BillingStep() {
   if (status === "failed") {
     return (
       <StepShell cardFirst card={card}>
-        <LitPanel light="band" as="section" className={`flex flex-col gap-5 ${noticePanelSides}`}>
+        <LitPanel light="band" as="section" className={`flex flex-col gap-5 ${panelSides}`}>
           <StepHeading title={t("onboarding.billing.title")} />
           <Unreadable onRetry={() => void refetch()} busy={isFetching} />
         </LitPanel>

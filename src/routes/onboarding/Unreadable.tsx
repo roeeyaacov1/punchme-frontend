@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Button, Notice } from "../../components/kit";
-import { noticeButton, noticeSides } from "../../components/onboarding/notice";
+import { noticeSides, wrapButton } from "../../components/onboarding/largeText";
 
 /**
  * The business, or its card, couldn't be read: a 500, or no connection. Said
@@ -15,7 +15,7 @@ export function Unreadable({ onRetry, busy = false }: { onRetry: () => void; bus
       role="alert"
       className={noticeSides}
       action={
-        <Button variant="secondary" busy={busy} onClick={onRetry} className={noticeButton}>
+        <Button variant="secondary" busy={busy} onClick={onRetry} className={wrapButton}>
           {t("common.retry")}
         </Button>
       }

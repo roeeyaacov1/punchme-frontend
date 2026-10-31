@@ -6,6 +6,7 @@ import { StudioTray } from "../../../components/card-studio/StudioTray";
 import { rewardForRow } from "../../../components/card-studio/studioDraft";
 import { Button, focusRingInset, Tab, TabList, TabPanel, Tabs, useReducedMotion } from "../../../components/kit";
 import { noTapFlash } from "../../../components/kit/classes";
+import { wrapButton } from "../../../components/onboarding/largeText";
 import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
 import { useWide } from "../../../components/onboarding/useWide";
 import { cn } from "../../../lib/cn";
@@ -636,6 +637,7 @@ export function CardStep() {
                   ) : undefined
                 }
                 onClick={() => (tray === id ? close() : open(id))}
+                className={wrapButton}
               >
                 {t(PART_NAME[id])}
                 {saidOpened(id)}
