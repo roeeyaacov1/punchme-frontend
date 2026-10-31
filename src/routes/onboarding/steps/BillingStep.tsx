@@ -163,7 +163,7 @@ export function BillingStep() {
           <Button variant="secondary" size="lg" onClick={notNow} className="w-full !whitespace-normal text-center">
             {t("onboarding.billing.notNow")}
           </Button>
-          <p className="text-sm leading-snug text-ink-muted">{t("onboarding.billing.how")}</p>
+          <p className="text-pretty text-sm leading-snug text-ink-muted">{t("onboarding.billing.how")}</p>
         </div>
       </LitPanel>
       <section aria-labelledby="billing-free-title" className="flex flex-col gap-2">

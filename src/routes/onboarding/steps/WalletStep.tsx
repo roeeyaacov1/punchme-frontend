@@ -227,7 +227,7 @@ export function WalletStep() {
       );
   } else if (offline && !ready) {
     status = (
-      <p role="status" className="type-body flex items-start gap-2 text-ink">
+      <p role="status" className="type-body flex items-start gap-2 text-pretty text-ink">
         <WifiOff aria-hidden className="mt-0.5 size-5 shrink-0 text-ink-muted" />
         <span>{t("onboarding.wallet.offline")}</span>
       </p>
@@ -249,7 +249,7 @@ export function WalletStep() {
   } else if (phase === "slow") {
     status = (
       <div className="flex flex-col items-start gap-3">
-        <p role="status" className="type-body flex items-start gap-2 text-ink">
+        <p role="status" className="type-body flex items-start gap-2 text-pretty text-ink">
           <Clock aria-hidden className="mt-0.5 size-5 shrink-0 text-ink-muted" />
           <span>{t("onboarding.wallet.slow")}</span>
         </p>
@@ -260,7 +260,7 @@ export function WalletStep() {
     );
   } else if (!ready) {
     status = (
-      <p role="status" className="type-body flex items-start gap-2 text-ink">
+      <p role="status" className="type-body flex items-start gap-2 text-pretty text-ink">
         <LoaderCircle aria-hidden className={reduced ? "mt-0.5 size-5 shrink-0" : "mt-0.5 size-5 shrink-0 animate-spin"} />
         <span>{phase === "issuing" ? t("onboarding.wallet.issuing") : t("onboarding.wallet.preparing")}</span>
       </p>
