@@ -65,12 +65,22 @@ describe("withTradeLook", () => {
 });
 
 describe("defaultRewards", () => {
+  const t = ((key: string, options?: { lng?: string }) => `${key}@${options?.lng}`) as unknown as TFunction;
+
   it("names every trade's default reward in every language", () => {
-    const t = ((key: string, options?: { lng?: string }) => `${key}@${options?.lng}`) as unknown as TFunction;
     const all = defaultRewards(t);
-    expect(all).toHaveLength(10);
     expect(all).toContain("onboarding.card.reward.barber@he");
     expect(all).toContain("onboarding.card.reward.other@en");
+  });
+
+  it("counts the numbered defaults a draft saved before they lost their numbers still says", () => {
+    const all = defaultRewards(t);
+    expect(all).toHaveLength(20);
+    expect(all).toContain("התספורת העשירית חינם");
+    expect(all).toContain("Free coffee on your 8th visit");
+    // So a card of 8 stamps doesn't keep promising the tenth.
+    const old = draftOf({ niche: "barber", ...lookPatch(BUILTIN_LOOKS.barber[2]), reward: "התספורת העשירית חינם" });
+    expect(withTradeLook(old, undefined, all).reward).toBeNull();
   });
 });
 

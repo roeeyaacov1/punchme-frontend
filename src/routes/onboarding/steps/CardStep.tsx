@@ -137,15 +137,18 @@ export function CardStep() {
 
   // A draft that reaches the map with its business but not its look (a
   // business left before the map wrote it, or a draft from the old wizard)
-  // is finished here, once, as leaving the business would have finished it.
-  // Never one whose business isn't: the look is the trade's.
+  // is finished here, once, as leaving the business would have finished it;
+  // and one whose reward is still a default goes back to the trade's, as
+  // leaving would have done too. That includes the old ones with a number
+  // in them ("the tenth haircut free"), which the card's own count can
+  // contradict. Never one whose business isn't: the look is the trade's.
   const finished = useRef(false);
   useEffect(() => {
     if (finished.current) return;
     finished.current = true;
     if (businessMissing(draft)) return;
     const patch = withTradeLook(draft, presets, defaults);
-    if (LOOK_KEYS.some((key) => key in patch)) update(patch);
+    if (LOOK_KEYS.some((key) => key in patch) || patch.reward === null) update(patch);
     // Once, as the screen first stands.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
