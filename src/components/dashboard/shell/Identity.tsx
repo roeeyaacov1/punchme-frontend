@@ -13,9 +13,11 @@ import { ShopSign, type SignState } from "./ShopSign";
  * isn't live yet. Pro says nothing about the plan at all; the lit sign is
  * the whole of it.
  *
- * `line` is the masthead's single row, where the name truncates at the end
- * edge before the plan's state gives way. `stack` is the desktop rail's
- * head, where the state sits under the name.
+ * `line` is the masthead's row, where the name truncates at the end edge
+ * before the plan's state gives way. It gives way by moving under the sign
+ * and the name, once they no longer leave the name 5rem, a few letters:
+ * with large text on a phone. At 100% it always fits on the one line.
+ * `stack` is the desktop rail's head, where the state sits under the name.
  */
 export function Identity({ layout, switchOn }: { layout: "line" | "stack"; switchOn: boolean }) {
   const { business, isPro } = useBusiness();
@@ -49,10 +51,15 @@ export function Identity({ layout, switchOn }: { layout: "line" | "stack"; switc
   );
 
   if (layout === "line") {
+    // The sign and the name wrap as one, so the name never leaves the sign.
+    // They claim 8rem (the sign, its gap and 5rem of name) or less for a
+    // shorter name, and grow from there to the name's full width.
     return (
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        {sign}
-        {title}
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3">
+        <span className="flex min-w-0 max-w-max grow basis-32 items-center gap-3">
+          {sign}
+          {title}
+        </span>
         <PlanState />
       </div>
     );
@@ -72,13 +79,17 @@ export function Identity({ layout, switchOn }: { layout: "line" | "stack"; switc
  * "Not live yet", and for the owner the way to change that: "Activate", an
  * ink, underlined link to Billing with a 44px target. A hire is told the
  * same and offered nothing, since Billing would refuse them.
+ *
+ * Its words never break, but on a line of its own narrower than it, as in
+ * English at 200% text on a 320px phone, "Activate" goes under them rather
+ * than past the screen's edge.
  */
 function PlanState() {
   const { t } = useTranslation();
   const { isPro, role } = useBusiness();
   if (isPro) return null;
   return (
-    <span className="type-label flex shrink-0 items-center gap-1.5 whitespace-nowrap text-ink-muted">
+    <span className="type-label flex min-w-0 flex-wrap items-center gap-x-1.5 whitespace-nowrap text-ink-muted">
       {t("dashboard.plan.notLive")}
       {isOwner(role) && (
         <>
