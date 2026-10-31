@@ -590,7 +590,12 @@
       "lead": "Go through each part, then save.",
       "part": "Part {{n}} of {{total}}",
       "next": "Next: {{part}}",
-      "opened": "opened",
+      "opened": {
+        "business": "opened",
+        "colours": "opened",
+        "stamp": "opened",
+        "reward": "opened"
+      },
       "done": "Every part is open. You can save the card."
     }
   },

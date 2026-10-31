@@ -427,8 +427,10 @@ export function CardStep() {
     );
   };
 
-  /** A part opened is ticked, and said so after its name. A tick earned on
-   * this visit punches in like a stamp, once: `stamp-land`, or the fade. */
+  /** A part opened is ticked, and said so after its name, after a pause,
+   * in the word that agrees with it (in Hebrew, נפתח, נפתחו or נפתחה). A
+   * tick earned on this visit punches in like a stamp, once: `stamp-land`,
+   * or the fade. */
   const opened = (part: Tray) => seen.includes(part);
   const seenAtStart = useRef(seen);
   const punched = useRef(new Set<Tray>());
@@ -438,7 +440,7 @@ export function CardStep() {
       : cn("origin-center", reduced ? "animate-gentle-in" : "animate-stamp-land");
   const punchedIn = (part: Tray) => () => punched.current.add(part);
   const saidOpened = (part: Tray) =>
-    opened(part) && <span className="sr-only">{` ${t("onboarding.map.opened")}`}</span>;
+    opened(part) && <span className="sr-only">{`, ${t(`onboarding.map.opened.${part}`)}`}</span>;
 
   const under = (
     <>
@@ -486,7 +488,9 @@ export function CardStep() {
         ) : (
           <Pencil aria-hidden className="size-5 shrink-0 text-ink-muted" />
         )}
-        <span className="sr-only">{t("studio.editReward")}</span>
+        {/* Heard as the sentence, then what pressing it does, each after
+            a pause. */}
+        <span className="sr-only">{`. ${t("studio.editReward")}`}</span>
         {saidOpened("reward")}
       </button>
     </>
@@ -570,6 +574,8 @@ export function CardStep() {
             title={
               <span key={trayPart ?? ""} className={cn("flex flex-wrap items-baseline gap-x-2.5", stepIn)}>
                 <span>{t(PART_NAME[trayPart ?? "reward"])}</span>
+                {/* The part, then where it stands in the walk, after a pause. */}
+                <span className="sr-only">, </span>
                 <span className="type-label text-ink-muted">
                   {t("onboarding.map.part", { n: MAP_PARTS.indexOf(trayPart ?? "reward") + 1, total: MAP_PARTS.length })}
                 </span>
