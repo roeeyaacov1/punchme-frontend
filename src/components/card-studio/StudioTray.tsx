@@ -54,7 +54,8 @@ export function StudioTray({
   title: ReactNode;
   /** Which tray it is: a new one takes focus to its heading. */
   trayKey: string;
-  onClose: () => void;
+  /** `false` when the tray holds open: a drag that let it go then brings it back. */
+  onClose: () => boolean | void;
   onHeight?: (height: number) => void;
   children: ReactNode;
   foot?: ReactNode;
