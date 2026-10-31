@@ -11,7 +11,7 @@ import { useWide } from "../../../components/onboarding/useWide";
 import { cn } from "../../../lib/cn";
 import { CardStage, type StageHandle } from "../CardStage";
 import { buildTemplateInput, draftPreviewValue, MAP_PARTS, resolveDraft, sampleStamps, type MapPart } from "../draft";
-import { defaultRewards, withTradeLook } from "../looks";
+import { defaultRewards, numberedDefault, withTradeLook } from "../looks";
 import { MAP, openMove, TRAY_ROUTE, type TrayState } from "../mapHistory";
 import { useStorageFull } from "../storageCheck";
 import { StorageNotice } from "../StorageNotice";
@@ -137,18 +137,21 @@ export function CardStep() {
 
   // A draft that reaches the map with its business but not its look (a
   // business left before the map wrote it, or a draft from the old wizard)
-  // is finished here, once, as leaving the business would have finished it;
-  // and one whose reward is still a default goes back to the trade's, as
-  // leaving would have done too. That includes the old ones with a number
-  // in them ("the tenth haircut free"), which the card's own count can
-  // contradict. Never one whose business isn't: the look is the trade's.
+  // is finished here, once, as leaving the business would have finished it.
+  // A reward still saying one of the old defaults with a number in it ("the
+  // tenth haircut free"), which the card's own count can contradict, takes
+  // the trade's own default, written out: left empty, the card would count
+  // as unfinished, and the account step would send the owner back here.
+  // Never a draft whose business isn't whole: the look is the trade's.
   const finished = useRef(false);
   useEffect(() => {
     if (finished.current) return;
     finished.current = true;
     if (businessMissing(draft)) return;
     const patch = withTradeLook(draft, presets, defaults);
-    if (LOOK_KEYS.some((key) => key in patch) || patch.reward === null) update(patch);
+    if (numberedDefault(draft.reward)) {
+      update({ ...patch, reward: resolveDraft({ ...draft, ...patch, reward: null }, presets, t).reward });
+    } else if (LOOK_KEYS.some((key) => key in patch)) update(patch);
     // Once, as the screen first stands.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
