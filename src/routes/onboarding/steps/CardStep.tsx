@@ -12,6 +12,7 @@ import { cn } from "../../../lib/cn";
 import { CardStage, type StageHandle } from "../CardStage";
 import { buildTemplateInput, draftPreviewValue, MAP_PARTS, resolveDraft, sampleStamps, type MapPart } from "../draft";
 import { defaultRewards, withTradeLook } from "../looks";
+import { MAP, openMove, TRAY_ROUTE, type TrayState } from "../mapHistory";
 import { useStorageFull } from "../storageCheck";
 import { StorageNotice } from "../StorageNotice";
 import { useOnboardingDraft } from "../useOnboardingDraft";
@@ -28,16 +29,6 @@ const TABS: readonly Tray[] = MAP_PARTS;
 /** On a phone the reward sentence opens the reward, so the chips are the other three. */
 const CHIPS: Tray[] = ["business", "colours", "stamp"];
 
-/** The trays' addresses: the business at `/business`, the colours at `/color`
- * (and `/accent`, opened at the stamp colour), the stamp at `/stamp`. The
- * reward has no route of its own: it is the map's, at `/reward`. */
-const ROUTE: Record<Tray, string> = {
-  business: "/onboarding/business",
-  colours: "/onboarding/color",
-  stamp: "/onboarding/stamp",
-  reward: "/onboarding/reward",
-};
-
 /** Each part by name: the business by its stop's, the rest by the studio's chips. */
 const PART_NAME: Record<Tray, string> = {
   business: "onboarding.steps.business",
@@ -48,13 +39,6 @@ const PART_NAME: Record<Tray, string> = {
 
 /** What a look writes: a patch with any of these finishes the card. */
 const LOOK_KEYS = ["background", "accent", "stamp", "pattern", "stampsRequired"] as const;
-
-/** What a tray's history entry carries: opened from the map (so closing goes
- * back), and on `/reward`, that the reward tray is the one open. */
-interface TrayState {
-  fromCard?: boolean;
-  tray?: "reward";
-}
 
 function trayAt(last: string | undefined, state: TrayState | null): Tray | null {
   return partAtAddress(last) ?? (state?.tray === "reward" ? "reward" : null);
@@ -243,13 +227,13 @@ export function CardStep() {
         return;
       }
       if (!leave()) return;
-      // From the map it is a new entry; from another tray it takes that
-      // one's place, so Back still lands on the map.
-      const replace = tray !== null;
-      navigate(ROUTE[target], {
-        replace,
-        state: { fromCard: replace ? state?.fromCard === true : true, ...(target === "reward" ? { tray: "reward" } : {}) },
-      });
+      // So the phone's back gesture closes it onto the map (`openMove`).
+      const move = openMove(tray, state?.fromCard === true, target);
+      // The map under a tray is never shown, so its entry is rewritten in
+      // place, keeping the router's own record of it: the router takes one
+      // move at a time, and a second cuts the first short.
+      if (move.under) window.history.replaceState({ ...window.history.state, usr: null }, "", move.under);
+      navigate(move.to, { replace: move.replace, state: move.state });
     },
     [tray, state, lost, sayLost, leave, navigate],
   );
@@ -265,7 +249,7 @@ export function CardStep() {
     }
     if (!leave()) return false;
     if (state?.fromCard) navigate(-1);
-    else navigate(ROUTE.reward, { replace: true });
+    else navigate(MAP, { replace: true });
     return true;
   }, [tray, state, lost, sayLost, leave, navigate]);
 
@@ -292,7 +276,7 @@ export function CardStep() {
         return;
       }
       if (!leave()) return;
-      navigate(ROUTE[target], { replace: true });
+      navigate(TRAY_ROUTE[target], { replace: true });
     },
     [showing, lost, sayLost, leave, navigate],
   );
