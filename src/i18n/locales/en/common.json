@@ -502,7 +502,8 @@
     "billing": {
       "title": "Go live when you're ready",
       "notNow": "Not now, to the dashboard",
-      "how": "You pay on Stripe's page. You can cancel any time, from the dashboard."
+      "how": "You pay on Stripe's page. You can cancel any time, from the dashboard.",
+      "stays": "Designing the card, trying it on your own phone, the dashboard and your team: free, before activating and after."
     },
     "card": {
       "templateName": {
