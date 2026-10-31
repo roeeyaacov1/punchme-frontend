@@ -3,6 +3,10 @@ import { Button, EmptyState, LinkButton } from "../../kit";
 import { useLightboxPage } from "../../../theme/lightboxPage";
 import { usePageTitle } from "./pageTitle";
 
+/** A way out whose words wrap, as "To the Overview" must at 200% text on a
+ * 320px phone, rather than widen the page. */
+const WRAPS = "max-w-full !whitespace-normal text-center";
+
 /**
  * No page here: an address under /dashboard that names no page, an old link
  * or a mistyped one. Said inside the shell, so the bar or the rail stays
@@ -19,7 +23,7 @@ export function DashboardNotFound() {
       title={t("dashboard.notFound.title")}
       body={t("dashboard.notFound.body")}
       action={
-        <LinkButton to="/dashboard" variant="secondary">
+        <LinkButton to="/dashboard" variant="secondary" className={WRAPS}>
           {t("dashboard.toOverview")}
         </LinkButton>
       }
@@ -45,8 +49,10 @@ export function DashboardPageError() {
       body={t("dashboard.pageError.body")}
       action={
         <div className="flex flex-wrap justify-center gap-3">
-          <Button onClick={() => window.location.reload()}>{t("common.retry")}</Button>
-          <LinkButton to="/dashboard" variant="secondary">
+          <Button onClick={() => window.location.reload()} className={WRAPS}>
+            {t("common.retry")}
+          </Button>
+          <LinkButton to="/dashboard" variant="secondary" className={WRAPS}>
             {t("dashboard.toOverview")}
           </LinkButton>
         </div>
