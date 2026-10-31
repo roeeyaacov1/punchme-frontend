@@ -360,7 +360,7 @@
       "account": "Write your email and a password."
     },
     "storage": {
-      "full": "Your phone isn't saving your choices right now: its storage is full. What you change from here lasts only until you close the page; save the card now to keep it."
+      "full": "This device isn't saving your choices right now: its storage is full. What you change from here lasts only until you close the page; save the card now to keep it."
     },
     "progressSpoken": "Step {{n}} of {{total}}: {{step}}",
     "preview": {
@@ -372,7 +372,7 @@
     "business": {
       "nameLabel": "Business name",
       "namePlaceholder": "e.g. Danny's Barbershop",
-      "nicheLabel": "What kind of place is it?",
+      "nicheLabel": "What kind of business is it?",
       "autofillTitle": "Details auto-filled from Google",
       "autofillBody": "We filled in what we could find. You can edit anything.",
       "autofillClear": "Clear",
@@ -429,8 +429,8 @@
       "uploadHint": "Square works best — it's cropped into a circle on the card.",
       "uploadTooLarge": "That picture is too big — keep it under 8 MB.",
       "uploadUnreadable": "Couldn't read that picture — try a JPG or PNG.",
-      "artMemoryOnly": "Storage is full, so this picture only lasts until you close the tab.",
-      "notOnDevice": "Your picture isn't saved on this phone, so it needs choosing again.",
+      "artMemoryOnly": "This device has no room to keep the picture, so it lasts only until you close the page. Save the card to keep it.",
+      "notOnDevice": "Your picture isn't saved on this device. Choose it again, or a symbol.",
       "glyphs": {
         "check": "Check",
         "heart": "Heart",
