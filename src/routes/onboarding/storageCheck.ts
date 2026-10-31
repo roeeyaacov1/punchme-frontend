@@ -50,8 +50,10 @@ function storedDraft(): string | null {
 /**
  * True while this phone isn't keeping the wizard's draft. Checked as it
  * mounts and whenever the picture reports it couldn't be kept (a write of
- * the wizard's own key), and after every change (the draft read back, since
- * `DraftContext` doesn't report a failed write).
+ * the wizard's own key), and after every change: the draft read back,
+ * since `DraftContext` doesn't report a failed write, and the wizard's key
+ * written again, so a warning goes with the first change that is kept once
+ * the phone has room again, not only on the next screen.
  */
 export function useStorageFull(draft: OnboardingDraft, artPersisted: boolean): boolean {
   const [probe, setProbe] = useState(true);
@@ -69,7 +71,10 @@ export function useStorageFull(draft: OnboardingDraft, artPersisted: boolean): b
   // that save wrote, so a keystroke never reads as a failure in between.
   useEffect(() => {
     const written = draft.updatedAt ? JSON.stringify(draft) : null;
-    const id = window.setTimeout(() => setReadBack({ written, stored: written === null ? null : storedDraft() }), 0);
+    const id = window.setTimeout(() => {
+      if (written !== null) setProbe(probeWrite());
+      setReadBack({ written, stored: written === null ? null : storedDraft() });
+    }, 0);
     return () => window.clearTimeout(id);
   }, [draft]);
 
