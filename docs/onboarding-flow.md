@@ -4,9 +4,10 @@ What the onboarding wizard has: every step, who can open it, what it
 stores, and the API calls it makes. Written 8 Oct 2026 from `src/main.tsx`,
 `src/routes/onboarding/` and `src/components/onboarding/`, as the input for
 the redesign, and brought up to date by Phase 4's build (30 Oct 2026,
-`docs/redesign/briefs/onboarding.md`) and by the map (31 Oct 2026,
-`docs/redesign/briefs/onboarding-map.md`). Like `docs/dashboard-routes.md`,
-it says nothing about design on purpose.
+`docs/redesign/briefs/onboarding.md`), by the map (31 Oct 2026,
+`docs/redesign/briefs/onboarding-map.md`) and by step D's hardening (31 Oct
+2026). Like `docs/dashboard-routes.md`, it says nothing about design on
+purpose.
 
 - `{biz}` stands for `/api/businesses/{business_id}`.
 - The last column is the wrapper in `src/api/` (or the hook that calls it).
@@ -20,9 +21,13 @@ it says nothing about design on purpose.
 - `wallet` and `billing` sit behind `OnboardingGate`, which sends a
   signed-out visitor to `/onboarding/account`, never to `/login`. The gate
   asks for an account only; the two steps read the business themselves and
-  send an owner without one back to `account`.
+  send an owner without one (a 404) back to `account`, and a hire to
+  `/dashboard`. A business that couldn't be read (a 500, no connection) is
+  never taken for none: the step says so, with Try again.
 - `/onboarding` itself shows nothing and redirects:
   - signed out, or signed in with no business → where the walk stands;
+  - signed in, the business couldn't be read → `/dashboard`, whose own page
+    asks again;
   - signed in to a business they are not the owner of → `/dashboard` (a
     hire never resumes a draft left on the device);
   - the owner, with a saved card → `wallet`;
@@ -55,7 +60,7 @@ a control: Back is each screen's own.
 
 | # | Route | Stop | Public | What it collects | Limits | Pressed on with it missing |
 |---|---|---|---|---|---|---|
-| 1 | `/onboarding/business` | 1, the map, its business tray | yes | Business name (Google Places suggestions when `VITE_GOOGLE_MAPS_API_KEY` is set, which also fills the phone) and trade: barber, café, personal trainer, therapist, other | Name at most 120 (the field holds it). Trades without a preset are hidden once presets load | Every way out of it holds: says which is missing, there, and takes focus to it |
+| 1 | `/onboarding/business` | 1, the map, its business tray | yes | Business name (Google Places suggestions when `VITE_GOOGLE_MAPS_API_KEY` is set, which also fills the phone) and trade: barber, café, personal trainer, therapist, other | Name at most 120 (the field holds it; a longer one from a draft made before is held like a missing name, saying how many characters are too many). Trades without a preset are hidden once presets load, unless the catalog lists none; the trade chosen always shows | Every way out of it holds, Save included: says which is missing, there, and takes focus to it |
 | 2 | `/onboarding/color` | 1, the map, its colours tray | yes | Card colour: the trade's looks (colours only), 10 swatches, or one's own; the stamp colour; folded, the text colour | A card colour that leaves the stamp colour under 3:1 takes the first stamp colour that fits | – |
 | 3 | `/onboarding/accent` | 1, the same tray, opened at the stamp colour | yes | As `color` | As `color` | – |
 | 4 | `/onboarding/stamp` | 1, the map, its stamp tray | yes | The stamp, either one of the 16 glyphs the wallet renderer knows (the trade's first) or a picture; plus a texture behind the stamps (none, waves, dots, stripes) | Picture: png, jpeg, webp, gif or bmp, up to 8 MB, cropped square in the browser to at most 512px | A lost picture is said here, by its cause |
@@ -71,7 +76,10 @@ a control: Back is each screen's own.
   phone (Card Studio's `StudioTray`), each saying which part it is ("Part 2
   of 4"), and as tabs beside it from 1024px. The card's own rows open what
   they show (the name the business, the stamps the stamp, the count the
-  reward), and the open part is outlined on the card (`CardStage`).
+  reward), and the open part is outlined on the card (`CardStage`). From
+  1024px the walk's one button stands at the foot of the working column,
+  held at the screen's foot while a long part scrolls under it, as Card
+  Studio's Save bar is (Roee, 31 Oct 2026).
 - **The walk** (`walk.ts`), guided and free to jump:
   - a first visit opens the business;
   - each part's "Next: …" opens the next part in order not yet opened,
@@ -103,10 +111,14 @@ a control: Back is each screen's own.
   that look into every field the owner hasn't chosen (`withTradeLook` in
   `looks.ts`), once, however it is left. A choice is never overwritten. A
   card still wearing some trade's untouched first look follows a change of
-  trade, and so does a reward that is still a trade's own default.
+  trade, and so does a reward that is still a trade's own default. The
+  defaults from before 29 Oct, with a number in them ("the tenth haircut
+  free"), count as defaults too, and the map replaces one with the trade's
+  own as the card first stands.
 - **Save** writes down the card as shown (the colours, the stamp, the
   texture, the count, the reward trimmed). Nothing is disabled to mean "not
-  yet".
+  yet". It checks the business first: a name over 120 characters opens the
+  business on it.
 - **The card** shows the draft until it is saved, then the published pass
   (wallet, billing) once it has synced and its pictures load.
 
@@ -117,7 +129,9 @@ a control: Back is each screen's own.
   `punchme.onboardingDraft.art`, written only when the picture changes.
 - If storage fails, an in-memory copy stands in, and the wizard says so:
   - it writes and removes a key of its own, `punchme.onboardingStorageCheck`,
-    as each screen opens and whenever a picture couldn't be kept;
+    as each screen opens, whenever a picture couldn't be kept, and with
+    every change, so the warning goes with the first change kept once there
+    is room again;
   - after every change, it reads the draft back against what was just
     written (`storageCheck.ts`).
 
@@ -139,7 +153,8 @@ a control: Back is each screen's own.
 - Anything that isn't `v: 1` is discarded. A bad field is dropped on its own,
   without throwing away the rest of the draft.
 - It is cleared at exactly four points:
-  1. "Keep the one I have", when the account already has a card
+  1. "Keep the one I have", when the account already has a card, as the
+     step is left for the dashboard
   2. Wallet "Skip for now", which then goes on to `billing`
   3. Billing "Activate", before the redirect
   4. Billing "Not now"
@@ -148,15 +163,19 @@ a control: Back is each screen's own.
 
 ## Account step
 
-The step shows one of four states, in this order of priority:
+The step shows one of five states, in this order of priority:
 
-1. **This account already has a card.** Its name, reward and colour, from
+1. **This account is on another business's team** (the save found a
+   business the account doesn't own). Said by the business's name, with
+   "Use a different account" and "To the dashboard". Nothing is replaced,
+   and the design stays on the device.
+2. **This account already has a card.** Its name, reward and colour, from
    the template the save read, beside the card just designed; "Replace with
    my new design" or "Keep the one I have", with what keeping costs.
-2. **Session loading.**
-3. **Signed out**, and still this form while a new account saves its card:
+3. **Session loading.**
+4. **Signed out**, and still this form while a new account saves its card:
    email and password, the sign-up/sign-in toggle, and the Google button.
-4. **Signed in.** "Save the card", plus "Use a different account".
+5. **Signed in.** "Save the card", plus "Use a different account".
 
 Saving is the pressed button, busy, in place, in whichever state started
 it.
@@ -170,8 +189,10 @@ it.
 
 - A 409 on sign-up switches to sign-in and keeps the email.
 - A save that fails is said by its cause (`problems.ts`): no connection,
-  the server, too many tries, or a refused name, with a way back to it.
-  Never the server's own words.
+  the server, or too many tries; a refusal is placed on what was refused,
+  the stamp's picture (`invalid_image`) or a name over 120 characters, with
+  a way back to it, and any other refusal says the card wasn't accepted and
+  the design is still here. Never the server's own words.
 - There is no Apple button: `AppleAuthButton` returns nothing.
 
 ## Saving the card (`commit.ts`)
@@ -216,6 +237,10 @@ The step moves through these states, each said in one line:
 - **Slow.** Sync over 3 minutes or issuing over 1 minute; the card is saved
   and waits on the dashboard too; offers "Check again".
 - **Failed.** The card is saved; offers "Try again".
+- **No connection.** The reads wait; the card is saved, and the step
+  carries on by itself once the connection is back.
+- **Couldn't read** the business or its card (a 500, no connection at
+  load): said, with "Try again", which asks again.
 
 There is one way on at a time: "Skip for now" while the pass isn't ready,
 which clears the draft and goes to `billing`, and "Continue" once it is.
@@ -228,9 +253,14 @@ which clears the draft and goes to `billing`, and "Continue" once it is.
 | Activate | `POST /api/billing/checkout` `{business_id}`, then the browser goes to `checkout_url` | `createCheckoutSession` |
 
 - The price is Billing's own sentence, `billing.price`, with
-  `PUNCHME_MONTHLY_PRICE`: ₪99 a month, VAT included.
+  `PUNCHME_MONTHLY_PRICE`: ₪99 a month, VAT included, the figure isolated
+  left to right.
+- What stays free is said in the wizard's own words
+  (`onboarding.billing.stays`): Billing's English says "this dashboard".
 - "Not now" goes to `/dashboard`, and the free way out stays on the same
   screen as Activate, right under it.
+- A business that couldn't be read is said in place of the case, with "Try
+  again".
 - A checkout that doesn't start is said under Activate by its cause, focus
   kept on it.
 - Coming back from checkout lands on `/billing/success` or `/billing/cancel`
@@ -263,14 +293,18 @@ which clears the draft and goes to `billing`, and "Continue" once it is.
   heading takes it instead; the page title changes per step, a tray by its
   own name.
 - A tray's heading takes focus as it opens, however it was opened, and
-  however it closes, focus goes back to what opened it.
+  however it closes (a mouse drag included), focus goes back to what opened
+  it. Its name is the part, then "Part 2 of 4", after a pause. From 1024px,
+  a field that goes with its panel (Enter in the name) hands focus to the
+  tab now shown.
 - The places on the card are pointer shortcuts, out of the Tab order and
   hidden from screen readers: the chips, the tabs, the reward sentence and
-  each tray's Next are the controls. A tick is said as "opened" after its
-  part's name.
+  each tray's Next are the controls. A tick is said after its part's name
+  and a pause, in the word that agrees with it (in Hebrew נפתח, נפתחו,
+  נפתחה; in English "opened").
 - The account step moves focus with its states: the heading of "already
-  has a card", the button that tries again after a failed save, the email
-  after "Use a different account".
+  has a card" and of a hire's account, the button that tries again after a
+  failed save, the email after "Use a different account".
 - Screen readers hear these announcements:
   - a card summary, debounced 1.2 s;
   - "Step n of 4: {stop}", as the stop changes;
@@ -315,4 +349,16 @@ Fixed, except where it says otherwise.
 - **Places' suggestions in a tray** (found building the map, 31 Oct). Laid
   over the trades, they were cut off by the tray's own scroll box; they sit
   in the flow now, and the tray grows to hold them, up to half the screen.
-  Checked with a stand-in list: no Maps key runs locally.
+  Checked with a stand-in list: no Maps key runs locally. A mouse press
+  that takes focus from the name closes the list only once it lands.
+- **"Keep the one I have" landed on the business** (found in step D's real
+  checks, 31 Oct). It cleared the draft while the saving step stood, and
+  the forward guard moved first. It clears the draft as the step is left.
+- **A hire was offered "Replace"** over their employer's card on the saving
+  step (step D). The step now says the account is on that business's team.
+- **A business that couldn't be read was taken for none** on the wallet and
+  going-live steps, which sent the owner back to save a saved card (step D).
+- **Every refused save blamed the name** (step D): a refused picture read as
+  a name problem. A refusal is placed by what was refused.
+- **An empty catalog hid every trade** (step D), and the business could
+  never be finished. All five show then.
