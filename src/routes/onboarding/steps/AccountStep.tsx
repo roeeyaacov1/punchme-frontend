@@ -73,6 +73,17 @@ export function AccountStep() {
     };
   }, []);
 
+  // "Keep the one I have" clears the draft as the step is left, not before:
+  // cleared while it still stands, the forward guard (an empty card can't be
+  // saved) sent the owner back to the business before the dashboard came.
+  const clearOnLeave = useRef(false);
+  useEffect(
+    () => () => {
+      if (clearOnLeave.current) clear();
+    },
+    [clear],
+  );
+
   const artForUpload = resolved.stamp.kind !== "glyph" && art?.hash === resolved.stamp.hash ? art : null;
 
   async function commit(replaceExisting = false) {
@@ -239,7 +250,7 @@ export function AccountStep() {
             aria-describedby={keepCostId}
             onClick={() => {
               if (saving()) return;
-              clear();
+              clearOnLeave.current = true;
               navigate("/dashboard", { replace: true });
             }}
             className="w-full !whitespace-normal text-center"
