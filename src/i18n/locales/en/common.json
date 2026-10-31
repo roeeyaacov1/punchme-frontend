@@ -350,7 +350,6 @@
     "progress": "Step {{n}} of {{total}}",
     "next": "Next: {{step}}",
     "lastStop": "You can do this later too",
-    "continue": "Continue",
     "missing": {
       "name": "Write your business's name.",
       "trade": "Choose what kind of business it is.",
@@ -367,7 +366,6 @@
       "wallets": "Preview wallet"
     },
     "business": {
-      "title": "What's your business called?",
       "nameLabel": "Business name",
       "namePlaceholder": "e.g. Danny's Barbershop",
       "nicheLabel": "What kind of place is it?",
@@ -529,8 +527,6 @@
         "therapist": "A free treatment",
         "other": "A treat on us"
       },
-      "title": "Your card is ready",
-      "lead": "We started from a look made for your trade. Change anything, now or later in Card Studio.",
       "save": "Save the card"
     },
     "design": {

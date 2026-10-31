@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 
 /**
- * Where the owner is on the road, and what comes next: "Step 2 of 5 · Next:
+ * Where the owner is on the road, and what comes next: "Step 1 of 4 · Next:
  * Saving", over a hairline rule of as many parts as there are stops, ink up
  * to here. It is not a control: Back is the screen's own, so the Tab path
  * goes from the top bar straight to the question. A screen reader hears the
