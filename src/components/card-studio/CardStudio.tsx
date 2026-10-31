@@ -488,7 +488,12 @@ export function CardStudio({
 
   const sampleRow = (
     // Quick taps on + land one stamp each, never a double-tap zoom.
-    <div className="flex touch-manipulation items-center justify-center gap-3">
+    //
+    // The words stand between the two buttons while their longest word fits
+    // there: the buttons and gaps take 7rem and "stamps" 3rem. With large
+    // text on a phone (8rem at 200% on a 320px screen) they stand over the
+    // buttons at the row's width.
+    <div className="flex touch-manipulation flex-wrap items-center justify-center gap-3 [container-type:inline-size]">
       <Button
         variant="secondary"
         size="icon"
@@ -497,7 +502,10 @@ export function CardStudio({
         disabled={shownSample <= 0}
         onClick={() => setSample(Math.max(0, shownSample - 1))}
       />
-      <p aria-live="polite" className="type-body min-w-0 text-center text-ink-muted">
+      <p
+        aria-live="polite"
+        className="type-body min-w-min max-w-max flex-1 text-center text-ink-muted [@container(max-width:11rem)]:order-first [@container(max-width:11rem)]:max-w-none [@container(max-width:11rem)]:basis-full"
+      >
         {t("studio.sample", { count: shownSample, total: value.stamps_required })}
       </p>
       <Button
@@ -514,20 +522,22 @@ export function CardStudio({
     </div>
   );
 
+  // With large text on a phone, where the sentence's longest word can't stand
+  // between the gift and the pencil, the pencil goes under it, at the end.
   const rewardRow = (
     <div ref={rewardBox} className="flex flex-col gap-2">
       <button
         type="button"
         onClick={() => open("reward")}
         className={cn(
-          "theme-lit flex min-h-14 w-full items-center gap-3 rounded-panel border border-border bg-surface px-4 py-3 text-start shadow-panel",
+          "theme-lit flex min-h-14 w-full flex-wrap items-center gap-3 rounded-panel border border-border bg-surface px-4 py-3 text-start shadow-panel",
           "touch-manipulation select-none transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5",
           noTapFlash,
           focusRingInset,
         )}
       >
         <Gift aria-hidden className="size-5 shrink-0 text-ink" />
-        <span className="type-body min-w-0 flex-1 text-ink">
+        <span className="type-body min-w-min flex-1 text-ink">
           <Trans
             i18nKey="studio.rewardSentence"
             count={value.stamps_required}
@@ -535,7 +545,7 @@ export function CardStudio({
             components={{ b: <bdi className="font-semibold" /> }}
           />
         </span>
-        <Pencil aria-hidden className="size-5 shrink-0 text-ink-muted" />
+        <Pencil aria-hidden className="ms-auto size-5 shrink-0 text-ink-muted" />
         <span className="sr-only">{t("studio.editReward")}</span>
       </button>
       <BackDiffers back={back} onFollow={onFollow} />
