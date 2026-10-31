@@ -65,8 +65,8 @@ describe("whereToStart", () => {
     expect(whereToStart({ ...fullDraft(), seen: ["business"] })).toBe("color");
     expect(whereToStart({ ...fullDraft(), seen: ["business", "colours", "stamp"] })).toBe("reward");
   });
-  it("goes on to saving once the walk is done", () => {
-    expect(whereToStart({ ...fullDraft(), seen: [...MAP_PARTS] })).toBe("account");
+  it("comes back to the map, where Save is, once the walk is done", () => {
+    expect(whereToStart({ ...fullDraft(), seen: [...MAP_PARTS] })).toBe("reward");
     expect(whereToStart({ ...fullDraft(), reward: null, seen: [...MAP_PARTS] })).toBe("reward");
   });
   it("sends a lost picture back to the stamp first", () => {

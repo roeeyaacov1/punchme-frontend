@@ -31,7 +31,8 @@ it says nothing about design on purpose.
 
   Where the walk stands (`whereToStart` in `walk.ts`): the field the card
   still needs, or a lost picture's stamp; otherwise the first part of the
-  map not yet opened; and once every part has been, saving.
+  map not yet opened; and once every part has been, the map at rest, where
+  Save is.
 - A step URL past the first incomplete step redirects back to it, so a link
   can't skip ahead. A picture stamp whose pixels are gone sends the owner
   back to `stamp`.

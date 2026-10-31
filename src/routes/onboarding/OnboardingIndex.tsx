@@ -21,7 +21,7 @@ import { whereToStart } from "./walk";
  *
  * Where the walk stands (`whereToStart`): the field the card still needs,
  * or a lost picture's stamp; otherwise the first part of the map not yet
- * opened; and once every part has been, saving.
+ * opened; and once every part has been, the map at rest, where Save is.
  *
  * A hire never resumes a draft: one left on a shared device is someone
  * else's card, and the wizard's saves are the owner's to make.
