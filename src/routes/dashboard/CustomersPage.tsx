@@ -419,7 +419,11 @@ export function CustomersPage() {
   } else {
     body = (
       <>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        {/* From 640px the order stands beside the chips while their widest
+            chip fits there. With large text it is 15rem of a row that is
+            15.5rem at 200% on a 768px screen, and it left the chips none:
+            then it goes under them. */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
           <FilterChips
             label={t("dashboard.customers.filter.label")}
             hideLabel
@@ -430,7 +434,7 @@ export function CustomersPage() {
               label: t(`dashboard.customers.filter.${key}`),
               count: counts[key],
             }))}
-            className="min-w-0 flex-1"
+            className="min-w-0 flex-1 sm:min-w-min"
           />
           <Select
             label={t("dashboard.customers.sort.label")}
