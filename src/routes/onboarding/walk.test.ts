@@ -25,6 +25,9 @@ describe("nextUnseen", () => {
     expect(nextUnseen(["business", "stamp"], "business")).toBe("colours");
     expect(nextUnseen(["business", "stamp", "reward"], "reward")).toBe("colours");
   });
+  it("goes on from a part opened out of order, not back to the gap behind it", () => {
+    expect(nextUnseen(["business", "stamp"], "stamp")).toBe("reward");
+  });
   it("never offers the part that is open", () => {
     expect(nextUnseen(["business", "colours", "stamp"], "reward")).toBeNull();
   });
@@ -61,6 +64,10 @@ describe("whereToStart", () => {
   it("starts a new owner at the business", () => expect(whereToStart(emptyDraft())).toBe("business"));
   it("walks a finished card that never had the walk from its first part", () =>
     expect(whereToStart(fullDraft())).toBe("business"));
+  it("finishes a whole business that has no look yet at its colours", () => {
+    const business = { ...emptyDraft(), name: "Rothschild Coffee", niche: "cafe" as const, seen: ["business" as const] };
+    expect(whereToStart(business)).toBe("color");
+  });
   it("goes to the first part not yet opened", () => {
     expect(whereToStart({ ...fullDraft(), seen: ["business"] })).toBe("color");
     expect(whereToStart({ ...fullDraft(), seen: ["business", "colours", "stamp"] })).toBe("reward");
