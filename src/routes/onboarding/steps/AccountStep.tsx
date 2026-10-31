@@ -10,6 +10,7 @@ import { AuthAlternatives, AuthFields } from "../../../components/auth/AuthFormP
 import { useEmailPasswordAuth } from "../../../components/auth/useEmailPasswordAuth";
 import { rewardForRow } from "../../../components/card-studio/studioDraft";
 import { Button, LinkButton, LitPanel, Loading, Notice, Skeleton } from "../../../components/kit";
+import { noticeButton, noticePanelSides, noticeSides } from "../../../components/onboarding/notice";
 import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
 import { CardStage } from "../CardStage";
 import { commitDraft } from "../commit";
@@ -18,7 +19,7 @@ import { useStorageFull } from "../storageCheck";
 import { StorageNotice } from "../StorageNotice";
 import { useOnboardingDraft } from "../useOnboardingDraft";
 
-const PANEL = "flex flex-col gap-5 p-5 sm:p-6";
+const PANEL = `flex flex-col gap-5 ${noticePanelSides}`;
 
 /**
  * Saving the card: the third stop. Signed out it is Phase 8's sign-in form,
@@ -142,13 +143,14 @@ export function AccountStep() {
     <Notice
       tone="danger"
       role="alert"
+      className={noticeSides}
       action={
         problem.fix === "name" ? (
-          <LinkButton to="/onboarding/business" variant="secondary">
+          <LinkButton to="/onboarding/business" variant="secondary" className={noticeButton}>
             {t("onboarding.account.problem.toName")}
           </LinkButton>
         ) : problem.fix === "stamp" ? (
-          <LinkButton to="/onboarding/stamp" variant="secondary">
+          <LinkButton to="/onboarding/stamp" variant="secondary" className={noticeButton}>
             {t("onboarding.account.problem.toPicture")}
           </LinkButton>
         ) : undefined

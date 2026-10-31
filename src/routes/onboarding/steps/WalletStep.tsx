@@ -10,6 +10,7 @@ import { previewCard } from "../../../api/loyalty";
 import { isOwner } from "../../../business/gating";
 import { useBusiness } from "../../../business/useBusiness";
 import { Button, LinkButton, LitPanel, Notice, useReducedMotion } from "../../../components/kit";
+import { noticeButton, noticeSides } from "../../../components/onboarding/notice";
 import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
 import { failureCause } from "../../dashboard/scan/answer";
 import { deviceWallet } from "../../public/wallet";
@@ -237,8 +238,9 @@ export function WalletStep() {
       <Notice
         tone="warn"
         role="alert"
+        className={noticeSides}
         action={
-          <Button variant="secondary" onClick={() => void retrySync()}>
+          <Button variant="secondary" onClick={() => void retrySync()} className={noticeButton}>
             {t("onboarding.wallet.retry")}
           </Button>
         }
