@@ -177,12 +177,20 @@ export function DashboardOverview() {
 
   // The label stands over the placeholders as well as the tiles, so the
   // tiles light up where the placeholders stood rather than a line lower.
+  // A tile's widest word is "comparison:", 4.5rem, so two side by side need
+  // a row of about 15rem and four about 31rem. Large text narrows the row in
+  // rem, and then the tiles stack, or go two by two, rather than run their
+  // words into each other. At 100% the row is never under 18rem, nor under
+  // 54rem with four.
   const tiles = (content: ReactNode) => (
-    <section aria-labelledby="tiles-title" className="flex flex-col gap-3">
+    <section aria-labelledby="tiles-title" className="flex flex-col gap-3 [container-type:inline-size]">
       <h2 id="tiles-title" className="type-label text-ink-muted">
         {t("dashboard.brief.title", { days: BRIEF_DAYS })}
       </h2>
-      <div data-tour="overview-lead" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div
+        data-tour="overview-lead"
+        className="grid grid-cols-2 gap-3 lg:grid-cols-4 [@container(max-width:31rem)]:lg:grid-cols-2 [@container(max-width:15rem)]:grid-cols-1"
+      >
         {content}
       </div>
     </section>
