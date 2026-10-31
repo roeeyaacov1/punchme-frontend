@@ -21,6 +21,10 @@ function PriceFigure({ children }: { children?: ReactNode }) {
  * Its own panel rather than the Overview's `FreeLead`, which says the same
  * in one sentence with a link here: sharing it would change what the
  * Overview draws. "Activate" carries the tour's `billing-activate`.
+ *
+ * On a phone the band's sides and the button's hold at 20px and 28px as the
+ * text grows: at 200% on a 320px screen they left "Activate" 62px and
+ * "customers" ran out of its line.
  */
 export function ActivationPanel({
   heading,
@@ -40,7 +44,7 @@ export function ActivationPanel({
   const { t } = useTranslation();
   const headingId = useId();
   return (
-    <LitPanel light="band" as="section" aria-labelledby={headingId} className="flex flex-col gap-5 p-5 sm:p-6">
+    <LitPanel light="band" as="section" aria-labelledby={headingId} className="flex flex-col gap-5 p-5 sm:p-6 max-sm:px-[min(1.25rem,20px)]">
       <div className="flex flex-col gap-2">
         <h2 id={headingId} className="type-card-title text-ink">
           {heading}
@@ -74,7 +78,7 @@ export function ActivationPanel({
           data-tour="billing-activate"
           busy={busy}
           onClick={onActivate}
-          className="max-w-full !whitespace-normal text-center"
+          className="max-w-full !whitespace-normal text-center max-sm:px-[min(1.75rem,28px)]"
         >
           {t("billing.activateCta")}
         </Button>
