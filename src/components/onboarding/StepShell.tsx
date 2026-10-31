@@ -15,7 +15,9 @@ import { useWide } from "./useWide";
  * and the action is docked at the foot of the screen, above the safe area,
  * on a wall-coloured bar with a hairline over it, where a thumb finds it.
  * From 1024px the card stands in a sticky column of its own at the end, with
- * what goes under it, and the action at the foot of the step's column.
+ * what goes under it, and the action at the foot of the step's column, held
+ * on screen while a long step scrolls under it, as Card Studio's Save bar is
+ * (Roee's choice, 31 Oct 2026, over spec §3's place under the card).
  *
  * Each screen brings its own pieces, so a screen that holds its form in a
  * panel of its own (saving the card, going live) passes no heading or action
@@ -59,10 +61,12 @@ export function StepShell({
         className={cn("grid grid-cols-[minmax(0,1fr)_22rem] items-start gap-12 xl:gap-16", motion)}
         onAnimationEnd={onAnimationEnd}
       >
-        <div className="flex min-w-0 flex-col gap-6">
+        {/* What takes focus here is brought into view clear of the held
+            action, never under it. */}
+        <div className="flex min-w-0 flex-col gap-6 [&_*]:scroll-mb-24">
           {heading}
           {children}
-          {action}
+          {action && <HeldAction>{action}</HeldAction>}
         </div>
         <aside className="sticky top-6 flex flex-col gap-4">
           {notice}
@@ -153,6 +157,38 @@ export function StepHeading({
       </div>
       {lead && <p className="type-body text-pretty text-ink-muted">{lead}</p>}
     </div>
+  );
+}
+
+/**
+ * The action at the foot of the step's column from 1024px. While what is
+ * above it is longer than the screen, it holds at the screen's foot and the
+ * step scrolls under it, standing on the phone's bar: the wall's colour,
+ * with a hairline over it. At rest it is the button alone, where the column
+ * ends. A line of nothing right after it says which: once that line is
+ * below the screen, the action is held.
+ */
+function HeldAction({ children }: { children: ReactNode }) {
+  const end = useRef<HTMLDivElement>(null);
+  const [held, setHeld] = useState(false);
+  useEffect(() => {
+    const element = end.current;
+    if (!element || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) =>
+      setHeld(!entry.isIntersecting && entry.boundingClientRect.top > 0),
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <>
+      {/* The bar's own room above the button is taken from the column's
+          gap, so the button stands where it would alone. */}
+      <div className={cn("sticky bottom-0 z-20 -mt-3 pb-4 pt-3", held && "border-t border-border bg-background")}>
+        {children}
+      </div>
+      <div ref={end} aria-hidden className="-mt-6 h-px" />
+    </>
   );
 }
 

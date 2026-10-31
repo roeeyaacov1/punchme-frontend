@@ -86,6 +86,18 @@ card in a sticky column. The tabs carry the same ticks; each panel ends in
 X" until the walk is done, then "שמירת הכרטיסייה". Crossing 1024px keeps the
 part that's open.
 
+**31 Oct 2026, step D: the button moved.** The build put one walk button at
+the foot of the working column, right under the open panel, rather than two
+(the panel's and the card's) one above the other. Shown both in Hebrew at
+1280, Roee chose the foot of the working column, held on screen as Card
+Studio's Save bar is: while the part above it is longer than the screen,
+it holds at the screen's foot on the phone's bar (the wall's colour, a
+hairline over it), and the part scrolls under it. Measured at 1280×900 it
+stands where it did on every tab (524px on the business, 741px on the
+colours); at 1280×720 it holds in view on the colours and the stamp, where
+it had fallen below the first screen. Nothing reached by Tab stops under
+it. The button under the card is not built.
+
 ## 4. The draft and the guard
 
 - **`seen`**: the parts opened, any order, each once: `"business"`,
