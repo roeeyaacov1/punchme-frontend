@@ -188,10 +188,34 @@ export function readyLooks(looks: readonly CardLook[], t: TFunction): ReadyLook[
   }));
 }
 
-/** Every trade's default reward, in every language the app speaks: a reward
- * still saying one of them is the trade's, not the owner's (`withTradeLook`). */
+/**
+ * The trades' default rewards as they were until 29 Oct 2026, when they
+ * lost their numbers: a draft saved before then can still say one, and
+ * "the tenth haircut free" contradicts a card of eight stamps. Data to
+ * match, never shown, so not copy for `t()`: en, then he, in `NICHES`'
+ * order.
+ */
+const NUMBERED_DEFAULTS = [
+  "10th haircut free",
+  "Free coffee on your 8th visit",
+  "1 free training session",
+  "Free treatment on your 6th visit",
+  "Free reward after 10 visits",
+  "התספורת העשירית חינם",
+  "קפה שמיני חינם",
+  "אימון חינם אחרי 10 אימונים",
+  "טיפול שישי חינם",
+  "הטבה חינם אחרי 10 ביקורים",
+];
+
+/** Every trade's default reward, in every language the app speaks, and the
+ * numbered ones from before: a reward still saying one of them is the
+ * trade's, not the owner's (`withTradeLook`). */
 export function defaultRewards(t: TFunction): string[] {
-  return NICHES.flatMap((niche) => SUPPORTED_LANGS.map((lng) => t(`onboarding.card.reward.${niche}`, { lng })));
+  return [
+    ...NICHES.flatMap((niche) => SUPPORTED_LANGS.map((lng) => t(`onboarding.card.reward.${niche}`, { lng }))),
+    ...NUMBERED_DEFAULTS,
+  ];
 }
 
 /** The draft still wears this look whole: nothing a look writes was changed. */
