@@ -386,7 +386,10 @@
     },
     "progressSpoken": "שלב {{n}} מתוך {{total}}: {{step}}",
     "preview": {
-      "summary": "{{name}} — {{count}} חותמות עד להטבה. ההטבה: {{reward}}.",
+      "summary_one": "{{name}} — חותמת אחת עד להטבה. ההטבה: {{reward}}.",
+      "summary_two": "{{name}} — שתי חותמות עד להטבה. ההטבה: {{reward}}.",
+      "summary_many": "{{name}} — {{count}} חותמות עד להטבה. ההטבה: {{reward}}.",
+      "summary_other": "{{name}} — {{count}} חותמות עד להטבה. ההטבה: {{reward}}.",
       "yourBusiness": "העסק שלכם",
       "wallets": "ארנק לתצוגה מקדימה"
     },
