@@ -301,13 +301,16 @@ export function BroadcastComposerPage() {
   );
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+    // The page's column is a container, for the two columns below.
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 [container-type:inline-size]">
       <header className="flex flex-col items-start gap-1">
+        {/* Its sides hold at 20px on a phone as the text grows, so "messages"
+            fits beside the arrow at 200% on a 320px screen. */}
         <LinkButton
           to="/dashboard/messages?tab=broadcast"
           variant="quiet"
           icon={<ArrowLeft aria-hidden className="rtl:-scale-x-100" />}
-          className="-ms-3 max-w-full !whitespace-normal text-center"
+          className="-ms-3 max-w-full !whitespace-normal text-center max-sm:-ms-[min(0.75rem,12px)] max-sm:px-[min(1.25rem,20px)]"
         >
           {t("messaging.editor.back")}
         </LinkButton>
@@ -330,7 +333,12 @@ export function BroadcastComposerPage() {
         notice
       )}
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-8">
+      {/* Two columns from 1024px while the page's column is at least 52rem,
+          as it always is at the default text size (54.5rem at 1024, less a
+          scrollbar). Large text narrows it in rem: at 200% on a 1280px
+          screen it is 19rem, and the 22rem phone would leave the message no
+          column at all. */}
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-8 [@container(max-width:52rem)]:lg:grid-cols-1 [@container(max-width:52rem)]:lg:gap-5">
         <div className="flex min-w-0 flex-col gap-5">
           <MessageFields
             value={draft}
@@ -352,7 +360,7 @@ export function BroadcastComposerPage() {
 
         {/* Held clear of the masthead, which stands over the page until
             1280px, as the page's own scroll margin is. */}
-        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-[calc(5.5rem+env(safe-area-inset-top))] xl:top-8">
+        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-[calc(5.5rem+env(safe-area-inset-top))] xl:top-8 [@container(max-width:52rem)]:lg:static">
           {template && design.data ? (
             <div className="-mx-4 flex justify-center sm:mx-0">
               <MessageStage

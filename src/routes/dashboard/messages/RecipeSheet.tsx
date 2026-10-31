@@ -10,6 +10,11 @@ import { ruleName } from "./rules";
  * what it does, a link to a new rule seeded from it. Where a rule of that
  * kind already exists it says so, as a note and not a block, because a
  * second win-back at 60 days is a rule an owner may want.
+ *
+ * With large text on a phone the icon and the chevron left the words 22px:
+ * where the longest word can't stand beside them, the chevron goes under, at
+ * the end, and then the words under the icon. A name wraps rather than end
+ * in an ellipsis, so its words count too.
  */
 export function RecipeList({
   recipes,
@@ -49,6 +54,7 @@ export function RecipeList({
               key={recipe.key}
               to={`/dashboard/messages/automations/new?recipe=${recipe.key}`}
               chevron
+              className="[&>a>span:nth-child(2)]:min-w-min [&>a>svg:last-child]:ms-auto [&>a]:flex-wrap"
               leading={
                 <span
                   aria-hidden
@@ -57,7 +63,11 @@ export function RecipeList({
                   <Icon />
                 </span>
               }
-              title={<span dir="auto">{recipe.name}</span>}
+              title={
+                <span dir="auto" className="whitespace-normal">
+                  {recipe.name}
+                </span>
+              }
               meta={
                 <span className="flex flex-col gap-0.5 whitespace-normal">
                   <span dir="auto" className="[text-align:-webkit-match-parent] [text-align:match-parent]">
