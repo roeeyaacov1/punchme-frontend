@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Wallet } from "lucide-react";
 import { CardStudio } from "../../components/card-studio/CardStudio";
+import { useStudioWide } from "../../components/card-studio/useStudioWide";
 import { readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
@@ -64,6 +65,7 @@ import {
 import { previewCard, type EnrollOut } from "../../api/loyalty";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useWalletPass } from "../../hooks/useWalletPass";
+import { cn } from "../../lib/cn";
 import { dataUrlToFile } from "../../lib/stampArt";
 import { useLightboxPage } from "../../theme/lightboxPage";
 
@@ -83,6 +85,29 @@ function toStudioValue(template: CardTemplate, design: DesignOut): CardStudioVal
 }
 
 const isArt = (use: HeldUse): use is ArtUse => (ART_USES as readonly string[]).includes(use);
+
+/**
+ * In the studio's own shape while the card loads, so nothing jumps as it
+ * lands: where the studio stands in two columns, the tab row, the open
+ * tray, and the card beside it.
+ */
+function StudioSkeleton() {
+  const [wide, box] = useStudioWide();
+  return (
+    <>
+      <Skeleton className={cn("h-11 w-full max-w-xl rounded-field", !wide && "hidden")} />
+      <div ref={box} className={cn("grid items-start gap-8", wide && "grid-cols-[minmax(0,1fr)_22rem]")}>
+        <Skeleton className={cn("h-[28rem] rounded-panel", !wide && "hidden")} />
+        <div className="flex flex-col items-center gap-4">
+          <Skeleton className="h-11 w-56 rounded-full" />
+          <div data-tour="design-studio" className="flex w-full justify-center">
+            <Skeleton className="h-[29rem] w-[340px] max-w-full rounded-glass" />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
 
 interface Failure {
   problem: StudioProblem;
@@ -489,18 +514,7 @@ export function DesignPage() {
     return (
       <div className="flex flex-col gap-5">
         {title}
-        {/* In the studio's own shape, so nothing jumps as it lands: from
-            1024px the tab row, the open tray, and the card beside it. */}
-        <Skeleton className="hidden h-11 w-full max-w-xl rounded-field lg:block" />
-        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
-          <Skeleton className="hidden h-[28rem] rounded-panel lg:block" />
-          <div className="flex flex-col items-center gap-4">
-            <Skeleton className="h-11 w-56 rounded-full" />
-            <div data-tour="design-studio" className="flex w-full justify-center">
-              <Skeleton className="h-[29rem] w-[340px] max-w-full rounded-glass" />
-            </div>
-          </div>
-        </div>
+        <StudioSkeleton />
       </div>
     );
   }
