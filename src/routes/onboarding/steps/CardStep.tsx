@@ -151,9 +151,15 @@ export function CardStep() {
   }, []);
 
   // Back on an emptied business, the field that's missing has focus, after
-  // the heading's own.
+  // the heading's own: the name, or the trade's first choice when it is the
+  // trade that's gone (a stored one that no longer reads).
   useEffect(() => {
-    if (emptied && tray === "business") nameField.current?.focus({ preventScroll: true });
+    if (!emptied || tray !== "business") return;
+    if (businessMissing(draft) === "trade") {
+      tradeBox.current?.querySelector<HTMLInputElement>("input")?.focus({ preventScroll: true });
+    } else {
+      nameField.current?.focus({ preventScroll: true });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -288,28 +294,60 @@ export function CardStep() {
 
   // However a tray closes (its button, Escape, a drag, the phone's back
   // gesture), focus goes back to what opened it, unless it is already
-  // somewhere else on the page.
+  // somewhere else on the page. A mouse pressed on the tray's head to drag
+  // it leaves focus on the step itself, which is nowhere a hand put it.
   const wasTray = useRef(tray);
   useEffect(() => {
     const was = wasTray.current;
     wasTray.current = tray;
     if (!was || tray) return;
     const active = document.activeElement;
-    if (!active || active === document.body || active.closest("section[aria-labelledby]")) {
+    if (
+      !active ||
+      active === document.body ||
+      active.id === "onboarding-step" ||
+      active.closest("section[aria-labelledby]")
+    ) {
       openers.current.get(was)?.focus();
     }
   }, [tray]);
 
-  /** A tab from 1024px: its address in place of the last, never a new entry. */
+  // From 1024px a part's panel goes with its tab. A field in it that had
+  // focus (Enter in the name goes on) hands it to the tab now shown, never
+  // to the page.
+  const tabsBox = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!wide) return;
+    const active = document.activeElement;
+    if (active && active !== document.body) return;
+    tabsBox.current?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.focus();
+  }, [wide, showing]);
+
+  // Crossing below 1024px keeps the part that is open. The others have
+  // addresses, which open their trays; the reward's tab has none, so its
+  // tray is opened in place, on the map's own entry.
+  const wasWide = useRef(wide);
+  useEffect(() => {
+    const crossed = wasWide.current && !wide;
+    wasWide.current = wide;
+    if (crossed && !tray && last === "reward") navigate(MAP, { replace: true, state: { tray: "reward" } });
+    // Only as the width crosses.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wide]);
+
+  /** A tab from 1024px: its address in place of the last, never a new
+   * entry. False when the tab asked for isn't the one shown after: the
+   * business held, or a lost picture kept the owner at the stamp. */
   const showTab = useCallback(
-    (next: Tray) => {
+    (next: Tray): boolean => {
       const target = lost && next !== "stamp" ? "stamp" : next;
       if (target === showing) {
         if (lost) sayLost();
-        return;
+        return target === next;
       }
-      if (!leave()) return;
+      if (!leave()) return false;
       navigate(TRAY_ROUTE[target], { replace: true });
+      return target === next;
     },
     [showing, lost, sayLost, leave, navigate],
   );
@@ -458,8 +496,9 @@ export function CardStep() {
             else open("reward");
             return;
           }
-          setRewardWanted((count) => count + 1);
-          showTab("reward");
+          // The field is asked for only when its tab is what shows: a press
+          // the business held must not put focus there later.
+          if (showTab("reward")) setRewardWanted((count) => count + 1);
         }}
         className={cn(
           "flex min-h-14 w-full items-center gap-3 rounded-panel border border-border bg-surface px-4 py-3 text-start shadow-panel",
@@ -519,31 +558,33 @@ export function CardStep() {
         action={wide ? walkButton(showing) : !tray ? walkButton(null) : undefined}
       >
         {wide ? (
-          <Tabs value={showing ?? "reward"} onChange={(next) => showTab(next as Tray)}>
-            <TabList label={t("onboarding.steps.reward")}>
+          <div ref={tabsBox} className="contents">
+            <Tabs value={showing ?? "reward"} onChange={(next) => showTab(next as Tray)}>
+              <TabList label={t("onboarding.steps.reward")}>
+                {TABS.map((id) => (
+                  <Tab key={id} value={id}>
+                    <span className="flex items-center gap-1.5">
+                      {opened(id) && (
+                        <Check
+                          aria-hidden
+                          strokeWidth={3}
+                          onAnimationEnd={punchedIn(id)}
+                          className={cn("size-4 shrink-0", punch(id))}
+                        />
+                      )}
+                      {t(PART_NAME[id])}
+                      {saidOpened(id)}
+                    </span>
+                  </Tab>
+                ))}
+              </TabList>
               {TABS.map((id) => (
-                <Tab key={id} value={id}>
-                  <span className="flex items-center gap-1.5">
-                    {opened(id) && (
-                      <Check
-                        aria-hidden
-                        strokeWidth={3}
-                        onAnimationEnd={punchedIn(id)}
-                        className={cn("size-4 shrink-0", punch(id))}
-                      />
-                    )}
-                    {t(PART_NAME[id])}
-                    {saidOpened(id)}
-                  </span>
-                </Tab>
+                <TabPanel key={id} value={id} className="rounded-panel border border-border bg-surface p-5 shadow-panel">
+                  {panel(id)}
+                </TabPanel>
               ))}
-            </TabList>
-            {TABS.map((id) => (
-              <TabPanel key={id} value={id} className="rounded-panel border border-border bg-surface p-5 shadow-panel">
-                {panel(id)}
-              </TabPanel>
-            ))}
-          </Tabs>
+            </Tabs>
+          </div>
         ) : (
           <div role="group" aria-label={t("studio.chips.label")} className="flex touch-manipulation flex-wrap gap-2">
             {CHIPS.map((id) => (
