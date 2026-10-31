@@ -40,8 +40,10 @@ Hand-rolled primitives — no shadcn, no Radix. New code uses the Lightbox set i
 `src/components/kit`, with its own outline `focusRing`; `/style-guide` shows
 every piece. Three older sets stay in use until Phase 10 deletes them:
 `src/components/ui`, `src/components/dashboard/primitives.tsx` and
-`src/components/onboarding`. The card controls the studio and onboarding
-share are in `src/components/card-studio/controls`. Marketing layout primitives (`Section`,
+`LookTile`, the one old piece left in `src/components/onboarding` (`/admin`'s
+catalog list uses it); the rest of that folder is onboarding's new frame. The
+card controls the studio and onboarding share are in
+`src/components/card-studio/controls`. Marketing layout primitives (`Section`,
 `Container`, `SectionHeader`, `Eyebrow`, `ctaClasses`, `focusRing`) in
 `src/components/marketing/primitives.tsx`. `src/lib` has
 `usePrefersReducedMotion` and `cn`. `useInView` and `useCountUp` are there too,
@@ -54,12 +56,16 @@ Do not add UI dependencies without asking.
 `/onboarding` is **public**. The owner designs the card first — business name and
 trade, card colour, stamp colour, stamp (glyph or picture), stamps and
 reward — and only then makes an account; the wallet and billing steps sit behind
-`OnboardingGate`. The draft lives in `localStorage` (`punchme.onboardingDraft`,
-pictures under `punchme.onboardingDraft.art`) and is turned into the Business
-and CardTemplate by `src/routes/onboarding/commit.ts` in one idempotent pass:
-one Business per account (a second POST is a 500, not a 409), so it always
-looks before it creates, and a Back-and-change after sign-up patches instead
-of duplicating. The pure model in `draft.ts` is unit-tested; keep it that way.
+`OnboardingGate`. The design is a map, as in the studio: the business, the
+colours, the stamp and the reward open over the card, and Save appears once
+each has been opened (`walk.ts`). The draft lives in `localStorage`
+(`punchme.onboardingDraft`, pictures under `punchme.onboardingDraft.art`) and
+is turned into the Business and CardTemplate by
+`src/routes/onboarding/commit.ts` in one idempotent pass: one Business per
+account (a second POST is a 500, not a 409), so it always looks before it
+creates, and a Back-and-change after sign-up patches instead of duplicating.
+The pure model in `draft.ts` is unit-tested; keep it that way. Its `seen`, the
+parts opened so far, is read only by the walk and never reaches the server.
 Picture stamps are cropped square client-side and uploaded as `stamp_art` — the
 wallet renderer knows only those and the sixteen glyphs in
 `src/lib/stampGlyphs.ts`.
@@ -111,9 +117,8 @@ kept to its contract:
 8. Public pages and sign-in: `docs/public-pages.md`, which phase 8 writes first
 9. Landing page: `docs/landing-page.md`
 
-Phases 2, 5, 6, 7 and 3 are done. Phases 8, 4 and 9 run side by side, each in
-its own worktree; 4's build waits for 8, whose sign-in parts its account step
-takes.
+Phases 2, 5, 6, 7, 3, 8 and 9 are done. Phase 4 is the last page phase, and
+Phase 10, the cleanup, follows it.
 
 A phase changes only its own pages, and checks any page that shares code it
 touched. Beyond its contract, everything about a page is open, within the
@@ -216,9 +221,12 @@ Already in place and must survive any redesign: skip link, visible focus rings
 
 ## Verification
 
-There are **no component or render tests** — the 52 test files cover pure logic
-only: the API client, the calculator, the onboarding draft, the language a
-first visit opens in, the dashboard's navigation by role, the tour and where
+There are **no component or render tests** — the 59 test files cover pure logic
+only: the API client, the calculator, the onboarding draft and its road, the
+walk over the card's parts and the history its trays keep, the trades' looks,
+onboarding's failures said by cause, whether the device kept the draft, what
+a sheet let go of does, the language a first visit opens in, the dashboard's
+navigation by role, the tour and where
 its card stands, the Overview and Activity logic, the scan's failure causes,
 the customer search, the messages' rules, their one-sentence summary, the
 sent history, drafts and dates, the referrals' facts, the team's refusals and
