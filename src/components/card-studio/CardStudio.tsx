@@ -11,6 +11,7 @@ import type { LintReading } from "./lintProblems";
 import { StudioBar, type StudioBarProps } from "./StudioBar";
 import { StudioStage, type CardPart, type StageHandle, type Wallet } from "./StudioStage";
 import { StudioTray } from "./StudioTray";
+import { useStudioWide } from "./useStudioWide";
 import {
   backState,
   rewardForRow,
@@ -50,21 +51,6 @@ const PART_OF: Record<string, CardPart | undefined> = {
 /** The device's own wallet first, as the Overview's own pass opens. */
 function deviceWallet(): Wallet {
   return typeof navigator !== "undefined" && /iPhone|iPad|Macintosh/.test(navigator.userAgent) ? "apple" : "google";
-}
-
-/** From 1024px the trays become tabs beside a sticky card. */
-const WIDE = "(min-width: 1024px)";
-
-function useWide(): boolean {
-  const [wide, setWide] = useState(() => typeof window !== "undefined" && window.matchMedia(WIDE).matches);
-  useEffect(() => {
-    const query = window.matchMedia(WIDE);
-    const update = () => setWide(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
-  return wide;
 }
 
 /**
@@ -266,8 +252,9 @@ export interface CardStudioProps {
  * On a phone, the card first, the sample under it, the reward said as a
  * sentence, and a row of chips. A tap on the card's stamps, its names or its
  * logo, or on a chip, opens what it shows in a tray over the lower half, so
- * every choice lands on the card in view. From 1024px the trays are tabs in
- * a working column, beside the card in a sticky column with Save under it.
+ * every choice lands on the card in view. From 1024px (64rem, so later with
+ * larger text) the trays are tabs in a working column, beside the card in a
+ * sticky column with Save under it.
  *
  * Controlled: the page holds the draft, the held pictures and the save.
  */
@@ -300,7 +287,7 @@ export function CardStudio({
   saveRef,
 }: CardStudioProps) {
   const { t } = useTranslation();
-  const wide = useWide();
+  const [wide, studioBox] = useStudioWide();
   const reduced = useReducedMotion();
   const stage = useRef<StageHandle>(null);
   const chips = useRef(new Map<string, HTMLButtonElement>());
@@ -564,7 +551,7 @@ export function CardStudio({
   if (wide) {
     const tab = tray ?? "colours";
     return (
-      <div className="flex flex-col gap-5">
+      <div ref={studioBox} className="flex flex-col gap-5">
         {notices}
         <Tabs value={tab} onChange={onTray}>
           {/* Across the whole studio, so every tray's tab fits on one line
@@ -617,7 +604,7 @@ export function CardStudio({
 
   const chipTrays = trays.filter(({ id }) => id !== "reward");
   return (
-    <div className="flex flex-col gap-4">
+    <div ref={studioBox} className="flex flex-col gap-4">
       {stageView}
       {sampleRow}
       {notices}
