@@ -86,23 +86,29 @@ export function StepShell({
 
 /**
  * The question, taking focus as the screen appears, so a keyboard or a
- * screen reader starts there rather than wherever the last press was. A way
- * back, where there is one, is a 44px button at its start; a line under it
- * says only what the screen can't say by itself.
+ * screen reader starts there rather than wherever the last press was;
+ * unless the screen opens on something that takes focus itself (`autoFocus`
+ * false), such as a tray the map opens by itself. A way back, where there is
+ * one, is a 44px button at its start; a line under it says only what the
+ * screen can't say by itself.
  */
 export function StepHeading({
   title,
   lead,
   onBack,
+  autoFocus = true,
 }: {
   title: ReactNode;
   lead?: ReactNode;
   onBack?: () => void;
+  autoFocus?: boolean;
 }) {
   const { t } = useTranslation();
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
-    heading.current?.focus({ preventScroll: true });
+    if (autoFocus) heading.current?.focus({ preventScroll: true });
+    // As the screen first stands.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <div className="flex flex-col gap-2">

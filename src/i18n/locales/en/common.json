@@ -588,6 +588,10 @@
       "logoUpload": "Upload an image",
       "logoUrlLabel": "Or paste an image URL",
       "logoUploadError": "Couldn't upload that logo — paste a URL instead"
+    },
+    "map": {
+      "title": "Design your card",
+      "lead": "Go through each part, then save."
     }
   },
   "enroll": {
