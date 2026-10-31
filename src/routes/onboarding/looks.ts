@@ -208,6 +208,11 @@ const NUMBERED_DEFAULTS = [
   "הטבה חינם אחרי 10 ביקורים",
 ];
 
+/** A reward that is still one of the old numbered defaults. */
+export function numberedDefault(reward: string | null): boolean {
+  return reward !== null && NUMBERED_DEFAULTS.includes(reward.trim());
+}
+
 /** Every trade's default reward, in every language the app speaks, and the
  * numbered ones from before: a reward still saying one of them is the
  * trade's, not the owner's (`withTradeLook`). */

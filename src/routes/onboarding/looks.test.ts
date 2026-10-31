@@ -4,7 +4,7 @@ import type { Preset } from "../../api/presets";
 import { accentFits, derivedLabelColor } from "../../lib/accentPalette";
 import { readableInk } from "../../lib/color";
 import { emptyDraft, type OnboardingDraft } from "./draft";
-import { BUILTIN_LOOKS, defaultRewards, lookPatch, looksFor, readyLooks, withTradeLook } from "./looks";
+import { BUILTIN_LOOKS, defaultRewards, lookPatch, looksFor, numberedDefault, readyLooks, withTradeLook } from "./looks";
 
 const DEFAULTS = ["A free haircut", "A free coffee", "תספורת חינם", "קפה חינם"];
 
@@ -81,6 +81,16 @@ describe("defaultRewards", () => {
     // So a card of 8 stamps doesn't keep promising the tenth.
     const old = draftOf({ niche: "barber", ...lookPatch(BUILTIN_LOOKS.barber[2]), reward: "התספורת העשירית חינם" });
     expect(withTradeLook(old, undefined, all).reward).toBeNull();
+  });
+});
+
+describe("numberedDefault", () => {
+  it("tells an old default with a number in it from today's, and from the owner's own", () => {
+    expect(numberedDefault("התספורת העשירית חינם")).toBe(true);
+    expect(numberedDefault(" Free coffee on your 8th visit ")).toBe(true);
+    expect(numberedDefault("תספורת חינם")).toBe(false);
+    expect(numberedDefault("Free beard trim on your 10th visit")).toBe(false);
+    expect(numberedDefault(null)).toBe(false);
   });
 });
 
