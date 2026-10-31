@@ -45,6 +45,13 @@ export function cardWidth(screenWidth: number): number {
   return Math.min(CARD_MAX, screenWidth - MARGIN * 2);
 }
 
+/** The tallest the card gets on a screen this tall. Large text can make it
+ * taller than a phone; held to this, its words scroll inside it and the
+ * whole card still stands on screen, wherever it is placed. */
+export function cardMaxHeight(screenHeight: number): number {
+  return Math.max(0, screenHeight - MARGIN * 2);
+}
+
 /** Whether any of the box is on screen at all. */
 export function onScreen(box: Box, screen: Size): boolean {
   return (
