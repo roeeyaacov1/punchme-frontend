@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type AnimationEvent, type ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, Check, Gift, Pencil } from "lucide-react";
@@ -163,11 +163,30 @@ export function CardStep() {
   }, [showing, seen, update]);
 
   // Said once, as the walk is done on this visit; never on arriving done.
+  // Save rises into place then, once: `lights-on`, or the fade. Before
+  // paint, so Save never shows a frame early.
   const doneAtStart = useRef(done);
   const [saidDone, setSaidDone] = useState(false);
-  useEffect(() => {
-    if (done && !doneAtStart.current) setSaidDone(true);
+  const [saveArrives, setSaveArrives] = useState(false);
+  useLayoutEffect(() => {
+    if (!done || doneAtStart.current) return;
+    setSaidDone(true);
+    setSaveArrives(true);
   }, [done]);
+
+  // A tray's body changing in place (Next, or a chip with a tray open)
+  // steps in from the walk's direction: on from the end edge, back from the
+  // start, mirrored in Hebrew; with reduced motion, the fade. The tray itself
+  // stays where it is.
+  const lastTray = useRef(tray);
+  const [stepIn, setStepIn] = useState<string | null>(null);
+  useLayoutEffect(() => {
+    const was = lastTray.current;
+    lastTray.current = tray;
+    if (!was || !tray || was === tray) return;
+    if (reduced) setStepIn("animate-gentle-in");
+    else setStepIn(MAP_PARTS.indexOf(tray) > MAP_PARTS.indexOf(was) ? "animate-step-forward" : "animate-step-back");
+  }, [tray, reduced]);
 
   useEffect(() => {
     if (!rewardWanted || !rewardField.current) return;
@@ -373,16 +392,27 @@ export function CardStep() {
       <Button
         size="lg"
         onClick={() => advance(from)}
+        onAnimationEnd={(event: AnimationEvent<HTMLButtonElement>) => {
+          if (event.target === event.currentTarget) setSaveArrives(false);
+        }}
         iconEnd={<ArrowRight aria-hidden className="rtl:-scale-x-100" />}
-        className="w-full"
+        className={cn("w-full", !next && saveArrives && (reduced ? "animate-gentle-in" : "animate-lights-on"))}
       >
         {next ? t("onboarding.map.next", { part: t(PART_NAME[next]) }) : t("onboarding.card.save")}
       </Button>
     );
   };
 
-  /** A part opened is ticked, and said so after its name. */
+  /** A part opened is ticked, and said so after its name. A tick earned on
+   * this visit punches in like a stamp, once: `stamp-land`, or the fade. */
   const opened = (part: Tray) => seen.includes(part);
+  const seenAtStart = useRef(seen);
+  const punched = useRef(new Set<Tray>());
+  const punch = (part: Tray) =>
+    seenAtStart.current.includes(part) || punched.current.has(part)
+      ? undefined
+      : cn("origin-center", reduced ? "animate-gentle-in" : "animate-stamp-land");
+  const punchedIn = (part: Tray) => () => punched.current.add(part);
   const saidOpened = (part: Tray) =>
     opened(part) && <span className="sr-only">{` ${t("onboarding.map.opened")}`}</span>;
 
@@ -422,7 +452,11 @@ export function CardStep() {
           />
         </span>
         {opened("reward") ? (
-          <span aria-hidden className="grid size-[22px] shrink-0 place-items-center rounded-full bg-ink">
+          <span
+            aria-hidden
+            onAnimationEnd={punchedIn("reward")}
+            className={cn("grid size-[22px] shrink-0 place-items-center rounded-full bg-ink", punch("reward"))}
+          >
             <Check className="size-3.5 text-surface" strokeWidth={3.5} />
           </span>
         ) : (
@@ -450,6 +484,7 @@ export function CardStep() {
             preview={businessPreview}
             onPart={(part) => (wide ? showTab(part) : open(part))}
             lit={showing}
+            land={`${card.stamp.kind === "glyph" ? card.stamp.glyph : card.stamp.hash}|${card.accent}`}
           />
         }
         under={under}
@@ -461,7 +496,14 @@ export function CardStep() {
               {TABS.map((id) => (
                 <Tab key={id} value={id}>
                   <span className="flex items-center gap-1.5">
-                    {opened(id) && <Check aria-hidden className="size-4 shrink-0" strokeWidth={3} />}
+                    {opened(id) && (
+                      <Check
+                        aria-hidden
+                        strokeWidth={3}
+                        onAnimationEnd={punchedIn(id)}
+                        className={cn("size-4 shrink-0", punch(id))}
+                      />
+                    )}
                     {t(PART_NAME[id])}
                     {saidOpened(id)}
                   </span>
@@ -482,7 +524,11 @@ export function CardStep() {
                 ref={opener(id)}
                 variant={tray === id ? "ink" : "secondary"}
                 aria-expanded={tray === id}
-                icon={opened(id) ? <Check aria-hidden strokeWidth={3} /> : undefined}
+                icon={
+                  opened(id) ? (
+                    <Check aria-hidden strokeWidth={3} onAnimationEnd={punchedIn(id)} className={punch(id)} />
+                  ) : undefined
+                }
                 onClick={() => (tray === id ? close() : open(id))}
               >
                 {t(PART_NAME[id])}
@@ -511,7 +557,15 @@ export function CardStep() {
             foot={walkButton(trayPart)}
             start={tray === "reward" && asked ? rewardField : tray === "colours" && atAccent ? stampColour : undefined}
           >
-            {panel(trayPart)}
+            <div
+              key={trayPart ?? ""}
+              onAnimationEnd={(event) => {
+                if (event.target === event.currentTarget) setStepIn(null);
+              }}
+              className={stepIn ?? undefined}
+            >
+              {panel(trayPart)}
+            </div>
           </StudioTray>
           {/* Room under the page, so the card can scroll above the tray. */}
           {tray && <div aria-hidden style={{ height: trayHeight }} />}

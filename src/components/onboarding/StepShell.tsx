@@ -1,7 +1,9 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useContext, useEffect, useLayoutEffect, useRef, useState, type AnimationEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
+import { cn } from "../../lib/cn";
 import { Button } from "../kit";
+import { StepArrival } from "./stepArrival";
 import { useWide } from "./useWide";
 
 /**
@@ -18,6 +20,9 @@ import { useWide } from "./useWide";
  * Each screen brings its own pieces, so a screen that holds its form in a
  * panel of its own (saving the card, going live) passes no heading or action
  * and keeps its buttons where its words are.
+ *
+ * A screen reached by moving along the road arrives from the side it comes
+ * from (`StepArrival`): everything but the docked action, which stays put.
  */
 export function StepShell({
   heading,
@@ -43,10 +48,17 @@ export function StepShell({
   children?: ReactNode;
 }) {
   const wide = useWide();
+  const { motion, arrived } = useContext(StepArrival);
+  const onAnimationEnd = (event: AnimationEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) arrived();
+  };
 
   if (wide) {
     return (
-      <div className="grid grid-cols-[minmax(0,1fr)_22rem] items-start gap-12 xl:gap-16">
+      <div
+        className={cn("grid grid-cols-[minmax(0,1fr)_22rem] items-start gap-12 xl:gap-16", motion)}
+        onAnimationEnd={onAnimationEnd}
+      >
         <div className="flex min-w-0 flex-col gap-6">
           {heading}
           {children}
@@ -62,25 +74,27 @@ export function StepShell({
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      {cardFirst ? (
-        <>
-          {notice}
-          {card}
-          {under}
-          {heading}
-        </>
-      ) : (
-        <>
-          {heading}
-          {notice}
-          {card}
-          {under}
-        </>
-      )}
-      {children}
+    <>
+      <div className={cn("flex flex-col gap-5", motion)} onAnimationEnd={onAnimationEnd}>
+        {cardFirst ? (
+          <>
+            {notice}
+            {card}
+            {under}
+            {heading}
+          </>
+        ) : (
+          <>
+            {heading}
+            {notice}
+            {card}
+            {under}
+          </>
+        )}
+        {children}
+      </div>
       {action && <DockedAction>{action}</DockedAction>}
-    </div>
+    </>
   );
 }
 
@@ -154,7 +168,8 @@ function DockedAction({ children }: { children: ReactNode }) {
   }, []);
   return (
     <>
-      <div aria-hidden style={{ height }} />
+      {/* The column's own gap, now that the bar stands outside it. */}
+      <div aria-hidden className="mt-5" style={{ height }} />
       <div
         ref={bar}
         className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3"
