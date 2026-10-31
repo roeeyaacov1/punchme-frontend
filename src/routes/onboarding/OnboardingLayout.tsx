@@ -122,8 +122,10 @@ function Shell() {
 
   if (redirect) return <Navigate to={redirect} replace />;
 
+  // Every tap answers at once, and two quick taps on a swatch never zoom
+  // the page (`manipulation`: a pinch still does), as the trays already do.
   return (
-    <div className="theme-lightbox flex min-h-svh flex-col bg-background text-ink [-webkit-tap-highlight-color:transparent] [&_button]:select-none">
+    <div className="theme-lightbox flex min-h-svh touch-manipulation flex-col bg-background text-ink [-webkit-tap-highlight-color:transparent] [&_button]:select-none">
       <a
         href="#onboarding-step"
         className={cn(
