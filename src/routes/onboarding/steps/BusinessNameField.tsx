@@ -53,6 +53,44 @@ export const BusinessNameField = forwardRef<
   const [active, setActive] = useState(-1);
   const session = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const skipNext = useRef(false);
+  /** A pointer is down somewhere on the page right now. */
+  const pressing = useRef(false);
+
+  useEffect(() => {
+    const down = () => {
+      pressing.current = true;
+    };
+    const up = () => {
+      pressing.current = false;
+    };
+    window.addEventListener("pointerdown", down, true);
+    window.addEventListener("pointerup", up, true);
+    window.addEventListener("pointercancel", up, true);
+    return () => {
+      window.removeEventListener("pointerdown", down, true);
+      window.removeEventListener("pointerup", up, true);
+      window.removeEventListener("pointercancel", up, true);
+    };
+  }, []);
+
+  /** The list sits in the flow, so closing it moves what's under it. A
+   * mouse press that took focus from the field (on a trade, say) closes it
+   * only once the press has landed, or a slow press would come up on
+   * whatever moved under it; anything else closes it after a moment, time
+   * for a finger's tap on a suggestion to land first. */
+  function closeSoon() {
+    if (!pressing.current) {
+      window.setTimeout(() => setOpen(false), 150);
+      return;
+    }
+    const landed = () => {
+      window.removeEventListener("pointerup", landed);
+      window.removeEventListener("pointercancel", landed);
+      window.setTimeout(() => setOpen(false), 0);
+    };
+    window.addEventListener("pointerup", landed);
+    window.addEventListener("pointercancel", landed);
+  }
 
   useEffect(() => {
     if (skipNext.current) {
@@ -166,7 +204,7 @@ export const BusinessNameField = forwardRef<
             onChange={(event) => onChange(event.target.value)}
             onKeyDown={onKeyDown}
             onFocus={() => suggestions.length > 0 && setOpen(true)}
-            onBlur={() => window.setTimeout(() => setOpen(false), 150)}
+            onBlur={closeSoon}
             className={cn(fieldBox, "min-h-12")}
           />
           {listed && (
