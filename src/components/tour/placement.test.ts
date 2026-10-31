@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { GAP, MARGIN, cardWidth, centred, onScreen, placeCard, type Box } from "./placement";
+import {
+  GAP,
+  MARGIN,
+  cardMaxHeight,
+  cardWidth,
+  centred,
+  onScreen,
+  placeCard,
+  type Box,
+} from "./placement";
 
 const phone = { width: 375, height: 812 };
 const card = { width: cardWidth(phone.width), height: 220 };
@@ -57,6 +66,30 @@ describe("placeCard", () => {
       expect(top + card.height).toBeLessThanOrEqual(phone.height - MARGIN);
       expect(left).toBeGreaterThanOrEqual(MARGIN);
       expect(left + card.width).toBeLessThanOrEqual(phone.width - MARGIN);
+    }
+  });
+
+  it("keeps a card held to the screen's height whole on screen", () => {
+    // 200% text makes the card taller than a phone, and than some desks.
+    // Held to cardMaxHeight it stands between the margins wherever the
+    // element is, so its top (Skip) and its foot (Back, Next) are on screen.
+    const small = { width: 320, height: 568 };
+    const desk = { width: 1280, height: 900 };
+    const cases: [typeof small, Box | null][] = [
+      [small, null],
+      [small, { top: 100, left: 16, width: 288, height: 200 }],
+      [small, { top: 480, left: 122, width: 76, height: 80 }],
+      [small, { top: 10, left: 0, width: 320, height: 1400 }],
+      [desk, { top: 0, left: 0, width: 272, height: 900 }],
+      [desk, { top: 300, left: 500, width: 280, height: 200 }],
+    ];
+    for (const [screen, box] of cases) {
+      const tall = { width: cardWidth(screen.width), height: cardMaxHeight(screen.height) };
+      const { top, left } = placeCard(screen, tall, box);
+      expect(top).toBe(MARGIN);
+      expect(top + tall.height).toBe(screen.height - MARGIN);
+      expect(left).toBeGreaterThanOrEqual(MARGIN);
+      expect(left + tall.width).toBeLessThanOrEqual(screen.width - MARGIN);
     }
   });
 });

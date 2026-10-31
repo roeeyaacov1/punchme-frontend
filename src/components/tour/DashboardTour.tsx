@@ -18,7 +18,15 @@ import { cn } from "../../lib/cn";
 import { whenNothingModal } from "../dashboard/shell/whenNothingModal";
 import { tourSteps, type TourStep } from "./steps";
 import { hasSeenTour, markTourSeen, type TourContext } from "./seen";
-import { GAP, MARGIN, cardWidth, placeCard, type Box, type Size } from "./placement";
+import {
+  GAP,
+  MARGIN,
+  cardMaxHeight,
+  cardWidth,
+  placeCard,
+  type Box,
+  type Size,
+} from "./placement";
 
 /**
  * The dashboard, walked.
@@ -47,6 +55,11 @@ import { GAP, MARGIN, cardWidth, placeCard, type Box, type Size } from "./placem
  * It wears the frame's Lightbox: the kit's scrim with no blur, an ink rim
  * around what is lit, and a kit panel with kit buttons, its progress the
  * card filling up.
+ *
+ * Large text can make the card taller than the screen. It is held to the
+ * screen's height and scrolls itself, words and all, under a footer that
+ * stays put, so Next is always in reach; the card is what takes focus, so
+ * the arrow keys and the space bar scroll it too.
  */
 
 /** Breathing room between the lit element and the dark. */
@@ -405,7 +418,13 @@ function Walk({
   // The place itself is worked out while rendering (`placeCard`, below), from
   // the box, the screen and the card's size, so no effect can leave the card
   // without one. Only its size needs the DOM, and it is stored only when it
-  // changed.
+  // changed; so is whether its words run on below what it shows, which only
+  // happens where it is held to the screen's height.
+  const [more, setMore] = useState(false);
+  const measureMore = useCallback(() => {
+    const el = card.current;
+    if (el) setMore(el.scrollHeight - el.clientHeight - el.scrollTop > 1);
+  }, []);
   const measureCard = useCallback(() => {
     const el = card.current;
     if (!el) return;
@@ -414,7 +433,8 @@ function Walk({
     setCardSize((size) =>
       size && size.width === width && size.height === height ? size : { width, height },
     );
-  }, []);
+    measureMore();
+  }, [measureMore]);
   // Before paint, whenever what the card holds could have changed: the stop,
   // the "tap it" line that comes with a found element, the language, the
   // screen. The first of these is the one moment the card has no place yet,
@@ -429,6 +449,13 @@ function Walk({
     observer.observe(el);
     return () => observer.disconnect();
   }, [measureCard]);
+  // Each stop opens at the top of its words. The card is one element from
+  // stop to stop, and where large text makes it scroll it would otherwise
+  // open the next stop wherever the last one was left.
+  useLayoutEffect(() => {
+    if (card.current) card.current.scrollTop = 0;
+    measureMore();
+  }, [index, measureMore]);
 
   // ---- arriving -----------------------------------------------------------
   // Each stop's card arrives by light where it will stand: dark until its
@@ -539,6 +566,14 @@ function Walk({
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+  // So does a page wider than a phone, which widens what the card is laid
+  // out in, and narrows it again on the next page, with no resize at all:
+  // read again at every stop, once its page has drawn what it lights.
+  useLayoutEffect(() => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    setView((v) => (v.w === w && v.h === h ? v : { ...v, w, h }));
+  }, [index, target]);
 
   // The kit's scrim, ink at 40% by day and black at 60% at night, with no
   // blur: the page behind stays readable as the page it is. Fading out, it
@@ -556,6 +591,9 @@ function Walk({
       )
     : null;
   const place = placed && { top: placed.top + view.top, left: placed.left };
+  const maxHeight = cardMaxHeight(vh - view.top - view.bottom);
+  /** As tall as the screen allows: its words scroll inside it. */
+  const held = cardSize !== null && cardSize.height >= maxHeight;
   /** The box clipped to the screen — what the dark is laid out against. */
   const clip = (n: number, max: number) => Math.min(Math.max(0, n), max);
   const edge = box
@@ -629,14 +667,22 @@ function Walk({
         )}
       </div>
 
+      {/* Its spacing is in pixels, the same at 100% as the rem it replaced:
+          with large text the words grow and the air around them doesn't, or
+          a small phone at 200% has no room left to read in. Held to the
+          screen's height it scrolls, and keeps that scroll to itself rather
+          than handing it on to the page and the hole cut in the dark. Not
+          held, a wheel over it still scrolls the page, as it always did. */}
       <div
         ref={card}
         role="dialog"
         aria-modal="true"
         aria-label={t("tour.label")}
         tabIndex={-1}
+        onScroll={measureMore}
         className={cn(
-          "fixed flex flex-col gap-3 rounded-panel border border-border bg-surface p-5 shadow-panel-lift outline-none",
+          "fixed flex flex-col gap-[12px] overflow-y-auto rounded-panel border border-border bg-surface p-[20px] shadow-panel-lift outline-none",
+          held && "overscroll-contain",
           cardMotion,
           !place && "invisible",
         )}
@@ -644,72 +690,98 @@ function Walk({
           top: place?.top ?? 0,
           left: place?.left ?? 0,
           width: cardWidth(vw),
+          maxHeight,
         }}
       >
-        <div className="-mt-1 flex items-center justify-between gap-3">
+        <div className="-mt-[4px] flex items-center justify-between gap-[12px]">
           <p className="type-label text-ink-muted">{t("tour.title")}</p>
-          <Button variant="quiet" onClick={finish} className="-me-3">
+          <Button variant="quiet" onClick={finish} className="-me-[12px]">
             {t("tour.skip")}
           </Button>
         </div>
 
-        {/* One live region per stop, so moving on is announced as the
-            sentence it is rather than as three unrelated changes — position
-            first, because how much is left is the thing the stamps show and
-            speech cannot. */}
-        <div aria-live="polite" className="flex flex-col gap-2">
-          <p className="sr-only">
-            {t("tour.progress", { step: index + 1, total: steps.length })}
-          </p>
+        {/* The words and the footer, together: the footer stays put over
+            the words as they scroll, and never over the card's head, so
+            Skip can't be covered even where nothing else fits. */}
+        <div className="flex flex-col gap-[12px]">
+          {/* One live region per stop, so moving on is announced as the
+              sentence it is rather than as three unrelated changes —
+              position first, because how much is left is the thing the
+              stamps show and speech cannot. */}
+          <div aria-live="polite" className="flex flex-col gap-2">
+            <p className="sr-only">
+              {t("tour.progress", { step: index + 1, total: steps.length })}
+            </p>
 
-          <h2 className="type-card-title flex items-center gap-2 text-ink">
-            <step.Icon aria-hidden className="size-5 shrink-0" />
-            {t(step.title)}
-          </h2>
+            <h2 className="type-card-title flex items-center gap-2 text-ink">
+              <step.Icon aria-hidden className="size-5 shrink-0" />
+              {t(step.title)}
+            </h2>
 
-          {/* Where it lives, in the navigation's own words — the navigation
-              itself is under the dark at this moment. */}
-          <p className="type-label text-ink-muted">
-            {t(`dashboard.groups.${step.group}`)} · {t(`dashboard.nav.${step.nav}`)}
-          </p>
+            {/* Where it lives, in the navigation's own words — the
+                navigation itself is under the dark at this moment. */}
+            <p className="type-label text-ink-muted">
+              {t(`dashboard.groups.${step.group}`)} · {t(`dashboard.nav.${step.nav}`)}
+            </p>
 
-          <p className="type-body text-ink-muted">
-            {/* The price reads left to right inside Hebrew. */}
-            <Trans i18nKey={step.body} values={step.values} components={{ ltr: <bdi dir="ltr" /> }} />
-          </p>
+            <p className="type-body text-ink-muted">
+              {/* The price reads left to right inside Hebrew. */}
+              <Trans i18nKey={step.body} values={step.values} components={{ ltr: <bdi dir="ltr" /> }} />
+            </p>
 
-          {step.act && target && (
-            <p className="type-body font-semibold text-ink">{t(step.act)}</p>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between gap-3 border-t border-border pt-3">
-          {/* The card filling up, which is the one form this product already
-              means something by. Decorative — the line above says it in
-              words. Each step forward presses its stamp with the product's
-              one gesture, the kit's landing on the overshoot, at the scan's
-              pace: 60ms after the card's light starts, then 240ms, so the
-              stop has settled by 300ms and the two never arrive in the same
-              frame. A step back just takes it off. */}
-          <StampRow
-            total={steps.length}
-            filled={index + 1}
-            land={landed === index ? "snap" : undefined}
-            className="max-w-[8.5rem] justify-start"
-          />
-
-          <div className="flex items-center gap-2">
-            {index > 0 && (
-              <Button variant="secondary" onClick={() => go(-1)}>
-                {t("common.back")}
-              </Button>
+            {step.act && target && (
+              <p className="type-body font-semibold text-ink">{t(step.act)}</p>
             )}
-            <Button
-              onClick={last ? finish : () => go(1)}
-              iconEnd={last ? undefined : <ArrowRight aria-hidden className="rtl:-scale-x-100" />}
-            >
-              {last ? t("tour.done") : t("common.next")}
-            </Button>
+          </div>
+
+          {/* Stuck where it stands, above the card's padding (a sticky
+              `bottom` counts from inside it), on a ground of its own that
+              runs down over that padding too, so the words scroll out of
+              sight under it. While there are more of them below, the last
+              line showing fades into its rule, which says so even where a
+              paragraph happens to end just above it; with none, the fade is
+              only the empty gap over the rule, and shows nothing. Where one
+              row can't hold the stamps and the buttons, the buttons go
+              under the stamps, and where they can't sit side by side
+              either, they stack, each across the card. At 100% it is the
+              one row it always was. */}
+          <div
+            className={cn(
+              "sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-[12px] border-t border-border bg-surface pt-[12px] before:pointer-events-none before:absolute before:inset-x-0 before:bottom-[calc(100%+1px)] before:bg-gradient-to-b before:from-surface/0 before:to-surface after:absolute after:inset-x-0 after:top-full after:-z-10 after:h-[20px] after:bg-surface",
+              more ? "before:h-6" : "before:h-[12px]",
+            )}
+          >
+            {/* The card filling up, which is the one form this product
+                already means something by. Decorative — the line above
+                says it in words. Each step forward presses its stamp with
+                the product's one gesture, the kit's landing on the
+                overshoot, at the scan's pace: 60ms after the card's light
+                starts, then 240ms, so the stop has settled by 300ms and the
+                two never arrive in the same frame. A step back just takes
+                it off. Its row is no wider with large text than at 100%;
+                narrower than 2rem the stamps would be dots, and the buttons
+                go under them instead. */}
+            <StampRow
+              total={steps.length}
+              filled={index + 1}
+              land={landed === index ? "snap" : undefined}
+              className="max-w-[136px] grow basis-8 justify-start"
+            />
+
+            <div className="ms-auto flex flex-wrap items-center gap-[8px]">
+              {index > 0 && (
+                <Button variant="secondary" onClick={() => go(-1)} className="grow">
+                  {t("common.back")}
+                </Button>
+              )}
+              <Button
+                onClick={last ? finish : () => go(1)}
+                iconEnd={last ? undefined : <ArrowRight aria-hidden className="rtl:-scale-x-100" />}
+                className="grow"
+              >
+                {last ? t("tour.done") : t("common.next")}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
