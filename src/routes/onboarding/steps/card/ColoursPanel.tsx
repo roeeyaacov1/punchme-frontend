@@ -16,7 +16,13 @@ import { useOnboardingDraft } from "../../useOnboardingDraft";
  * the owner has them. The ref is the stamp colour's section, where
  * `/onboarding/accent` opens.
  */
-export const ColoursPanel = forwardRef<HTMLDivElement>(function ColoursPanel(_, stampColour) {
+export const ColoursPanel = forwardRef<
+  HTMLDivElement,
+  {
+    /** The stamp colour changed: the stamp lands on the card. */
+    onStampColour?: () => void;
+  }
+>(function ColoursPanel({ onStampColour }, stampColour) {
   const { t } = useTranslation();
   const moreId = useId();
   const { draft, resolved, update, presets } = useOnboardingDraft();
@@ -43,7 +49,14 @@ export const ColoursPanel = forwardRef<HTMLDivElement>(function ColoursPanel(_, 
         onBackground={onBackground}
       />
       <div ref={stampColour} tabIndex={-1} className="scroll-mt-4 outline-none">
-        <StampColourPicker background={resolved.background} value={resolved.accent} onChange={(accent) => update({ accent })} />
+        <StampColourPicker
+          background={resolved.background}
+          value={resolved.accent}
+          onChange={(accent) => {
+            update({ accent });
+            onStampColour?.();
+          }}
+        />
       </div>
       <div className="flex flex-col gap-4">
         <button

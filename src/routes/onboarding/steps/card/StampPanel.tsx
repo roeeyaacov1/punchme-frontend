@@ -16,10 +16,13 @@ import { useOnboardingDraft } from "../../useOnboardingDraft";
 export function StampPanel({
   storageFull,
   lostRef,
+  onPick,
 }: {
   storageFull: boolean;
   /** The lost picture's line, for the screen to take focus to. */
   lostRef?: RefObject<HTMLParagraphElement>;
+  /** A symbol or a picture picked: it lands on the card. */
+  onPick?: () => void;
 }) {
   const { t } = useTranslation();
   const { resolved, update, setArt, artUrl } = useOnboardingDraft();
@@ -46,6 +49,7 @@ export function StampPanel({
           onGlyph={(glyph) => {
             setNotKept(false);
             update({ stamp: { kind: "glyph", glyph } });
+            onPick?.();
           }}
           niche={resolved.niche}
           picture={{ url: artUrl ?? null, inUse: picture }}
@@ -53,6 +57,7 @@ export function StampPanel({
             const hash = hashDataUrl(dataUrl);
             setNotKept(!setArt({ hash, dataUrl }));
             update({ stamp: { kind: "image", hash } });
+            onPick?.();
           }}
           note={picture ? undefined : t("studio.picture.stays")}
         />
