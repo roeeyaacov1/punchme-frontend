@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowRight, Gift, Pencil } from "lucide-react";
+import { ArrowRight, Check, Gift, Pencil } from "lucide-react";
 import { StudioTray } from "../../../components/card-studio/StudioTray";
 import { rewardForRow } from "../../../components/card-studio/studioDraft";
 import { Button, focusRingInset, Tab, TabList, TabPanel, Tabs, useReducedMotion } from "../../../components/kit";
@@ -15,7 +15,7 @@ import { defaultRewards, withTradeLook } from "../looks";
 import { useStorageFull } from "../storageCheck";
 import { StorageNotice } from "../StorageNotice";
 import { useOnboardingDraft } from "../useOnboardingDraft";
-import { businessMissing, partAtAddress } from "../walk";
+import { businessMissing, nextUnseen, partAtAddress, seenOf, walkDone } from "../walk";
 import { BusinessPanel } from "./card/BusinessPanel";
 import { ColoursPanel } from "./card/ColoursPanel";
 import { RewardPanel } from "./card/RewardPanel";
@@ -79,6 +79,13 @@ function trayAt(last: string | undefined, state: TrayState | null): Tray | null 
  * trade's look the moment one is picked, and leaving it writes the name and
  * that look into the draft, once.
  *
+ * The owner walks all four before saving, guided and free to jump: a first
+ * visit opens the business, each part's "Next" opens the next one not yet
+ * opened, and any part opens at any time. A part counts as opened the
+ * moment it is on screen, however it got there; it is ticked, and kept in
+ * the draft's `seen`, so a refresh or a Back finds the walk where it was.
+ * Save takes Next's place once every part has been opened.
+ *
  * The screen stays mounted across its five addresses: the router gives all
  * five the same component, so a tray opens over the card as it stands.
  */
@@ -116,6 +123,8 @@ export function CardStep() {
   const tray = trayAt(last, state);
   /** The part on screen: the open tray on a phone, the shown tab from 1024px. */
   const showing: Tray | null = wide ? (tray ?? "reward") : tray;
+  const seen = useMemo(() => seenOf({ seen: draft.seen }), [draft.seen]);
+  const done = walkDone(seen);
   // A picture the card says it has but this device doesn't: the forward
   // guard holds the owner at the stamp until another is chosen.
   const lost = resolved.stamp.kind !== "glyph" && !artUrl;
@@ -163,6 +172,18 @@ export function CardStep() {
     if (emptied && tray === "business") nameField.current?.focus({ preventScroll: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // A part counts as opened as soon as it is on screen, however it got there.
+  useEffect(() => {
+    if (showing && !seen.includes(showing)) update({ seen: [...seen, showing] });
+  }, [showing, seen, update]);
+
+  // Said once, as the walk is done on this visit; never on arriving done.
+  const doneAtStart = useRef(done);
+  const [saidDone, setSaidDone] = useState(false);
+  useEffect(() => {
+    if (done && !doneAtStart.current) setSaidDone(true);
+  }, [done]);
 
   useEffect(() => {
     if (!rewardWanted || !rewardField.current) return;
@@ -330,8 +351,17 @@ export function CardStep() {
     navigate("/onboarding/account");
   }, [card, lost, wide, leave, showTab, open, sayLost, update, navigate]);
 
-  /** Enter in the business's name, and its tray's button: on, out of it. */
-  const goOn = useCallback(() => (wide ? showTab("reward") : close()), [wide, showTab, close]);
+  /** On from `from` to the next part not yet opened; once every part has
+   * been, the card is saved. Leaving the business still checks it. */
+  const advance = useCallback(
+    (from: Tray | null) => {
+      const next = nextUnseen(seen, from ?? undefined);
+      if (!next) save();
+      else if (wide) showTab(next);
+      else open(next);
+    },
+    [seen, wide, save, showTab, open],
+  );
 
   const opener = (id: Tray) => (element: HTMLButtonElement | null) => {
     if (element) openers.current.set(id, element);
@@ -340,24 +370,35 @@ export function CardStep() {
 
   const panel = (id: Tray | null): ReactNode => {
     if (id === "business")
-      return <BusinessPanel asked={businessAsked} nameRef={nameField} tradeRef={tradeBox} onEnter={goOn} />;
-    if (id === "reward") return <RewardPanel ref={rewardField} asked={asked} onSave={save} />;
+      return (
+        <BusinessPanel asked={businessAsked} nameRef={nameField} tradeRef={tradeBox} onEnter={() => advance(id)} />
+      );
+    if (id === "reward") return <RewardPanel ref={rewardField} asked={asked} onEnter={() => advance(id)} />;
     if (id === "colours") return <ColoursPanel ref={stampColour} />;
     if (id === "stamp") return <StampPanel storageFull={storageFull} lostRef={lostMessage} />;
     return null;
   };
 
-  const arrow = <ArrowRight aria-hidden className="rtl:-scale-x-100" />;
-  const saveButton = (
-    <Button size="lg" onClick={save} iconEnd={arrow} className="w-full">
-      {t("onboarding.card.save")}
-    </Button>
-  );
-  const continueButton = (
-    <Button size="lg" onClick={goOn} iconEnd={arrow} className="w-full">
-      {t("onboarding.continue")}
-    </Button>
-  );
+  /** The walk's one button after `from`: Next to the part not yet opened,
+   * or Save once every part has been. */
+  const walkButton = (from: Tray | null) => {
+    const next = nextUnseen(seen, from ?? undefined);
+    return (
+      <Button
+        size="lg"
+        onClick={() => advance(from)}
+        iconEnd={<ArrowRight aria-hidden className="rtl:-scale-x-100" />}
+        className="w-full"
+      >
+        {next ? t("onboarding.map.next", { part: t(PART_NAME[next]) }) : t("onboarding.card.save")}
+      </Button>
+    );
+  };
+
+  /** A part opened is ticked, and said so after its name. */
+  const opened = (part: Tray) => seen.includes(part);
+  const saidOpened = (part: Tray) =>
+    opened(part) && <span className="sr-only">{` ${t("onboarding.map.opened")}`}</span>;
 
   const under = (
     <>
@@ -394,8 +435,15 @@ export function CardStep() {
             components={{ b: <bdi className="font-semibold" /> }}
           />
         </span>
-        <Pencil aria-hidden className="size-5 shrink-0 text-ink-muted" />
+        {opened("reward") ? (
+          <span aria-hidden className="grid size-[22px] shrink-0 place-items-center rounded-full bg-ink">
+            <Check className="size-3.5 text-surface" strokeWidth={3.5} />
+          </span>
+        ) : (
+          <Pencil aria-hidden className="size-5 shrink-0 text-ink-muted" />
+        )}
         <span className="sr-only">{t("studio.editReward")}</span>
+        {saidOpened("reward")}
       </button>
     </>
   );
@@ -419,14 +467,18 @@ export function CardStep() {
           />
         }
         under={under}
-        action={wide || !tray ? saveButton : undefined}
+        action={wide ? walkButton(showing) : !tray ? walkButton(null) : undefined}
       >
         {wide ? (
           <Tabs value={showing ?? "reward"} onChange={(next) => showTab(next as Tray)}>
             <TabList label={t("onboarding.steps.reward")}>
               {TABS.map((id) => (
                 <Tab key={id} value={id}>
-                  {t(PART_NAME[id])}
+                  <span className="flex items-center gap-1.5">
+                    {opened(id) && <Check aria-hidden className="size-4 shrink-0" strokeWidth={3} />}
+                    {t(PART_NAME[id])}
+                    {saidOpened(id)}
+                  </span>
                 </Tab>
               ))}
             </TabList>
@@ -444,9 +496,11 @@ export function CardStep() {
                 ref={opener(id)}
                 variant={tray === id ? "ink" : "secondary"}
                 aria-expanded={tray === id}
+                icon={opened(id) ? <Check aria-hidden strokeWidth={3} /> : undefined}
                 onClick={() => (tray === id ? close() : open(id))}
               >
                 {t(PART_NAME[id])}
+                {saidOpened(id)}
               </Button>
             ))}
           </div>
@@ -457,11 +511,18 @@ export function CardStep() {
         <>
           <StudioTray
             open={!!tray}
-            title={t(PART_NAME[trayPart ?? "reward"])}
+            title={
+              <span className="flex flex-wrap items-baseline gap-x-2.5">
+                <span>{t(PART_NAME[trayPart ?? "reward"])}</span>
+                <span className="type-label text-ink-muted">
+                  {t("onboarding.map.part", { n: MAP_PARTS.indexOf(trayPart ?? "reward") + 1, total: MAP_PARTS.length })}
+                </span>
+              </span>
+            }
             trayKey={trayPart ?? ""}
             onClose={close}
             onHeight={setTrayHeight}
-            foot={trayPart === "business" ? continueButton : saveButton}
+            foot={walkButton(trayPart)}
             start={tray === "reward" && asked ? rewardField : tray === "colours" && atAccent ? stampColour : undefined}
           >
             {panel(trayPart)}
@@ -470,6 +531,10 @@ export function CardStep() {
           {tray && <div aria-hidden style={{ height: trayHeight }} />}
         </>
       )}
+
+      <p role="status" className="sr-only">
+        {saidDone ? t("onboarding.map.done") : ""}
+      </p>
     </>
   );
 }

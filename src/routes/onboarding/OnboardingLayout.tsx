@@ -16,6 +16,7 @@ import { ALL_STEPS, DRAFT_STEPS, firstIncompleteStep, stepIndex, type WizardStep
 import { roadOf } from "./road";
 import { StageWallet } from "./stageWallet";
 import { useOnboardingDraft } from "./useOnboardingDraft";
+import { seenOf, walkDone, whereToStart } from "./walk";
 
 /**
  * The wizard's frame: Lightbox by day, on the wall, outside the dashboard.
@@ -23,6 +24,10 @@ import { useOnboardingDraft } from "./useOnboardingDraft";
  * lives on this device until the account step turns it into a real card.
  * Anything after that (wallet, billing) sits behind `OnboardingGate` in the
  * route tree, not here.
+ *
+ * It keeps two doors: no draft step past the first one the card still
+ * needs, and no saving (`/account`) until every part of the card has been
+ * opened on the map (`walk.ts`).
  */
 export function OnboardingLayout() {
   const wallet = useState<PreviewPlatform>(() => (deviceWallet() === "google" ? "google" : "apple"));
@@ -88,6 +93,12 @@ function Shell() {
   // reachable by URL. Wallet and billing govern themselves.
   if (step && (DRAFT_STEPS as readonly string[]).includes(step) && stepIndex(step) > stepIndex(first)) {
     return <Navigate to={`/onboarding/${first}`} replace />;
+  }
+  // And saving waits for the walk: until every part of the card has been
+  // opened on the map, the account step sends the owner to the first that
+  // hasn't.
+  if (step === "account" && !walkDone(seenOf(draft))) {
+    return <Navigate to={`/onboarding/${whereToStart(draft, hasArt)}`} replace />;
   }
 
   return (

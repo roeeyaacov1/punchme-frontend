@@ -6,16 +6,17 @@ import { useOnboardingDraft } from "../../useOnboardingDraft";
 /**
  * What customers get, and after how many stamps: the card controls' reward
  * field (two lines) and stamp count. The reward is also what the back of the
- * card says, since the wizard writes it there, and Enter saves the card.
+ * card says, since the wizard writes it there. Enter goes on, as the tray's
+ * button does: to the next part not yet opened, or to saving the card.
  */
 export const RewardPanel = forwardRef<
   HTMLTextAreaElement,
   {
     /** The save found no reward: said under the field. */
     asked: boolean;
-    onSave: () => void;
+    onEnter: () => void;
   }
->(function RewardPanel({ asked, onSave }, ref) {
+>(function RewardPanel({ asked, onEnter }, ref) {
   const { t } = useTranslation();
   const { resolved, update, artUrl } = useOnboardingDraft();
   const glyph = resolved.stamp.kind === "glyph" ? resolved.stamp.glyph : "check";
@@ -27,7 +28,7 @@ export const RewardPanel = forwardRef<
         onChange={(reward) => update({ reward })}
         note={t("studio.back.follows")}
         error={asked && !resolved.reward.trim() ? t("onboarding.missing.reward") : undefined}
-        onEnter={onSave}
+        onEnter={onEnter}
       />
       <StampCountControl
         value={resolved.stampsRequired}
