@@ -362,3 +362,11 @@ Fixed, except where it says otherwise.
   a name problem. A refusal is placed by what was refused.
 - **An empty catalog hid every trade** (step D), and the business could
   never be finished. All five show then.
+- **Large text ran past a phone's screen** (found after step D, 31 Oct).
+  Step D's check compared the page with a viewport the phone's zoom-out had
+  already widened to fit it. At 200% text the English chips, "Use a
+  different account", the email, the stamp tray's grids and the notices'
+  buttons ran past a 320px screen; they wrap now, or keep their 100% sides
+  (`src/components/onboarding/largeText.ts`), and nothing changes at 100%.
+  "Skip for now" reached 4px past a phone's edge at 100%; its box now stops
+  at the screen's.
