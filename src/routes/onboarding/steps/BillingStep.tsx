@@ -20,9 +20,14 @@ import { usePublishedPreview } from "../usePublishedPreview";
 /** The four things activating turns on, in the order Billing names them. */
 const UNLOCKS = ["join", "messages", "standee", "referrals"] as const;
 
-/** The price as a figure, for `billing.price`'s `<ltr>` part. */
+/** The price as a figure, for `billing.price`'s `<ltr>` part: isolated left
+ * to right, so "₪99" reads the same inside Hebrew. */
 function PriceFigure({ children }: { children?: ReactNode }) {
-  return <Figure value={children} size="stat" />;
+  return (
+    <bdi dir="ltr">
+      <Figure value={children} size="stat" />
+    </bdi>
+  );
 }
 
 /**
@@ -165,7 +170,7 @@ export function BillingStep() {
         <h2 id="billing-free-title" className="type-card-title text-ink">
           {t("billing.free.staysTitle")}
         </h2>
-        <p className="type-body text-pretty text-ink-muted">{t("billing.free.stays")}</p>
+        <p className="type-body text-pretty text-ink-muted">{t("onboarding.billing.stays")}</p>
       </section>
     </StepShell>
   );
