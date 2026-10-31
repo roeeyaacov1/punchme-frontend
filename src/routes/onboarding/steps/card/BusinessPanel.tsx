@@ -41,9 +41,11 @@ export function BusinessPanel({
   const tradeErrorId = useId();
 
   // Only trades the server has a preset for, once it has said; until then,
-  // all five (the API's closed set either way).
-  const available = presets ? NICHES.filter((niche) => presets.some((preset) => preset.niche === niche)) : NICHES;
-  const niches = NICHE_ORDER.filter((niche) => available.includes(niche));
+  // or if it lists none at all, all five (the API's closed set either way,
+  // and the built-in looks dress every one). The trade already chosen
+  // always stays, so a catalog that changed under a draft never hides it.
+  const listed = presets?.length ? NICHES.filter((niche) => presets.some((preset) => preset.niche === niche)) : NICHES;
+  const niches = NICHE_ORDER.filter((niche) => listed.includes(niche) || niche === draft.niche);
 
   const nameMissing = asked && !draft.name.trim();
   const tradeMissing = asked && !draft.niche;
