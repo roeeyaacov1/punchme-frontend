@@ -254,17 +254,19 @@ export function CardStep() {
     [tray, state, lost, sayLost, leave, navigate],
   );
 
-  const close = useCallback(() => {
-    if (!tray) return;
+  /** False when the tray holds open, so a drag that let it go brings it back. */
+  const close = useCallback((): boolean => {
+    if (!tray) return true;
     // The stamp tray holds while its picture is lost: the card can't go on
     // without a stamp, and the guard would only open it again.
     if (lost && tray === "stamp") {
       sayLost();
-      return;
+      return false;
     }
-    if (!leave()) return;
+    if (!leave()) return false;
     if (state?.fromCard) navigate(-1);
     else navigate(ROUTE.reward, { replace: true });
+    return true;
   }, [tray, state, lost, sayLost, leave, navigate]);
 
   // However a tray closes (its button, Escape, a drag, the phone's back
