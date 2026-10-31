@@ -117,8 +117,7 @@ kept to its contract:
 8. Public pages and sign-in: `docs/public-pages.md`, which phase 8 writes first
 9. Landing page: `docs/landing-page.md`
 
-Phases 2, 5, 6, 7, 3, 8 and 9 are done. Phase 4 is the last page phase, and
-Phase 10, the cleanup, follows it.
+Every page phase, 2 to 9, is done. Phase 10, the cleanup, is next.
 
 A phase changes only its own pages, and checks any page that shares code it
 touched. Beyond its contract, everything about a page is open, within the
