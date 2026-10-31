@@ -369,4 +369,7 @@ Fixed, except where it says otherwise.
   buttons ran past a 320px screen; they wrap now, or keep their 100% sides
   (`src/components/onboarding/largeText.ts`), and nothing changes at 100%.
   "Skip for now" reached 4px past a phone's edge at 100%; its box now stops
-  at the screen's.
+  at the screen's. The reward sentence's words ran up to 37px out of their
+  box at 200%: where its longest word can't stand between the gift and the
+  pencil (or the tick), that mark goes under it, at the end, as in Card
+  Studio.
