@@ -2298,11 +2298,11 @@
               "Mobile number: required. It identifies you, and the verification code is sent to it.",
               "Name: optional. It appears on the card and in the business's dashboard.",
               "Birthday: optional. It's used only for the business's birthday rewards and messages.",
-              "Your consent to marketing messages from the business, if you ticked it, and when you gave it, as well as when you accepted the privacy notice on joining.",
+              "Your consent to marketing messages, if you ticked it on joining, and when you gave it, as well as when you accepted the privacy notice.",
               "The card's history: stamps, rewards redeemed, the dates of your visits, and which team member gave each stamp.",
               "The messages the business sent to your card, and whether they were delivered.",
               "Verification code requests: the code is valid for a short time and stored only as a hash. With each request we keep the phone number, the time and the IP address, to limit attempts and prevent abuse.",
-              "From the digital wallet: whether the card is installed, and the device identifier its updates are sent through (in Apple Wallet)."
+              "From Apple Wallet: whether the card is installed, and the identifier of the device its updates are sent to."
             ],
             "The business sees your name, your phone number and the card's history in its dashboard."
           ]
@@ -2312,7 +2312,8 @@
           "heading": "Refer a friend",
           "blocks": [
             "If the business has turned the program on, the barcode on your card leads to a page where friends can join. Who referred whom, and when, is kept so the business's rewards can be given.",
-            "When someone who isn't signed in opens that page, hashes of their IP address and browser details, and a random identifier kept in their browser, are stored to spot abuse. The IP address itself isn't stored."
+            "If the business chooses, someone who scans your card sees your first name or its first letter. Messages about a referral can name the friend who joined and say when they visited or filled a card, and you may be told when someone scans your card.",
+            "When someone who isn't signed in opens that page, hashes of their IP address, their browser details and a random identifier kept in their browser are stored to spot abuse, and again if they join. Neither the IP address nor the identifier itself is stored."
           ]
         },
         {
@@ -2334,7 +2335,7 @@
           "blocks": [
             "The website has no analytics, advertising or tracking tools, and the site itself sets no cookies.",
             "The website keeps a few things it needs in your browser (localStorage), such as the language you chose, a draft card design, your sign-in and the cards you've joined in this browser. You can delete them in your browser's settings.",
-            "The website's fonts load from Google Fonts, so Google receives the IP address and browser details of anyone who opens the site. The Sign in with Google button loads from Google's servers. Our servers use each request's IP address to limit load and protect the service."
+            "The website's fonts load from Google Fonts, so Google receives the IP address and browser details of anyone who opens the site. The Sign in with Google button loads from Google's servers. Our servers use each request's IP address to limit load and protect the service. Their logs, kept by our host Railway, record each request, such as the link asked for, the time and the browser."
           ]
         },
         {
@@ -2359,8 +2360,8 @@
             [
               "Railway: hosting for PunchMe's servers and database, in the United States.",
               "019 (Telzar): sending verification codes by SMS. It receives the phone number and the code.",
-              "Apple and Google: the card in your digital wallet. In Google Wallet the card is also stored on Google's servers, with your name (if you gave one), the stamp count and the link in the barcode. In Apple Wallet it's stored on your phone, and Apple delivers its update notifications. Your phone number isn't shared with either.",
-              "Stripe: collecting businesses' subscription payments.",
+              "Apple and Google: the card in your digital wallet. In Google Wallet the card is also stored on Google's servers, with your name (if you gave one), the stamp count, the link in the barcode and the business's messages to you. In Apple Wallet it's stored on your phone, and Apple delivers its update notifications. Your phone number isn't shared with either.",
+              "Stripe: collecting businesses' subscription payments. It receives the owner's email address.",
               "Google: the mailbox that receives emails to the support address, the website's fonts, Sign in with Google and the business search at sign-up."
             ],
             "The cards are issued to wallets by a service we run ourselves, not by a third party. We'll hand data to authorities only when the law requires it."
@@ -2377,12 +2378,12 @@
           "id": "retention",
           "heading": "How long data is kept",
           "blocks": [
-            "A card is kept until the business deletes it. When it's deleted, its stamps, redeemed rewards, the messages sent to it and its history go with it, and the card in the wallet is voided.",
-            "When your last card at any business is deleted, your phone number, name, birthday and verification code requests are deleted too.",
+            "A card is kept until the business deletes it. When it's deleted, its stamps and redeemed rewards go with it, and the card in the wallet is voided. Two kinds of record stay, without the link to the card: refer-a-friend records (who referred whom, and the messages about it, which can include first names), and copies of the messages sent to the card, kept by the service that issues the cards.",
+            "When your last card at any business is deleted, your phone number, name, birthday and verification code requests are deleted too, apart from what the records above hold.",
             "Removing the card from the wallet on your phone doesn't delete the data the business holds. To delete it, contact the business or us.",
             "After a deletion, each business keeps a hash of the phone number, not the number itself, so its refer-a-friend program can tell who has already been its customer. The number can't be recovered from it without a key that only we hold.",
             "Verification code requests from a number that never joined a card are kept to prevent abuse, and you can ask us to delete them.",
-            "A business's account is kept until its owner deletes it."
+            "A business owner's account is kept until the owner asks us to delete it."
           ]
         },
         {
@@ -2411,7 +2412,7 @@
           "heading": "Messages from the business",
           "blocks": [
             "The business can send messages to your card, for example about a reward that's waiting for you or on your birthday. Messages appear on the card in your wallet, and on some phones as a notification too. They aren't sent by SMS. The business is responsible for what they say, and for sending marketing messages only as the law allows.",
-            "To stop receiving messages, turn off the card's notifications in your wallet's settings, remove the card from your wallet, or ask the business or us to withdraw your consent."
+            "To stop receiving messages, turn off the card's notifications in your wallet's settings or remove the card from your wallet. To withdraw your consent to marketing messages, write to us."
           ]
         },
         {
@@ -2448,7 +2449,7 @@
           "id": "joining",
           "heading": "Joining",
           "blocks": [
-            "Joining takes an Israeli mobile number, and usually a verification code sent to it by SMS. Only join with your own number, and give accurate details.",
+            "Joining takes a mobile number, and usually a verification code sent to it by SMS. Only join with your own number, and give accurate details.",
             "What you give us is stored and processed as the privacy policy describes."
           ]
         },
@@ -2459,7 +2460,7 @@
             "The business alone sets the number of stamps, the reward, the conditions for getting it and how long it's valid, and it may change them or end the offer. The business is responsible for everything it offers and for honouring the reward.",
             "Questions and complaints about stamps, rewards or the service at the business go to the business.",
             "Stamps and rewards are personal. Unless the business says otherwise, they have no cash value and can't be exchanged, transferred or sold.",
-            "Stamps are given by the business's team, and it may correct stamps given by mistake or against its conditions."
+            "Stamps are given by the business's team or by rules the business sets, and the business may correct stamps given by mistake or against its conditions."
           ]
         },
         {
