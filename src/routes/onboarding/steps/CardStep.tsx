@@ -523,7 +523,10 @@ export function CardStep() {
       <p className="type-body text-center text-ink-muted">
         {t("studio.sample", { count: sampleStamps(card.stampsRequired), total: card.stampsRequired })}
       </p>
-      {/* The screen's question: is this what you give? */}
+      {/* The screen's question: is this what you give? With large text on a
+          phone, where the sentence's longest word can't stand between the
+          gift and the pencil (or the tick), that mark goes under it, at the
+          end, as in Card Studio. */}
       <button
         ref={opener("reward")}
         type="button"
@@ -539,14 +542,14 @@ export function CardStep() {
           if (showTab("reward")) setRewardWanted((count) => count + 1);
         }}
         className={cn(
-          "flex min-h-14 w-full items-center gap-3 rounded-panel border border-border bg-surface px-4 py-3 text-start shadow-panel",
+          "flex min-h-14 w-full flex-wrap items-center gap-3 rounded-panel border border-border bg-surface px-4 py-3 text-start shadow-panel",
           "touch-manipulation select-none transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5",
           noTapFlash,
           focusRingInset,
         )}
       >
         <Gift aria-hidden className="size-5 shrink-0 text-ink" />
-        <span className="type-body min-w-0 flex-1 text-ink">
+        <span className="type-body min-w-min flex-1 text-ink">
           <Trans
             i18nKey="studio.rewardSentence"
             count={card.stampsRequired}
@@ -558,12 +561,12 @@ export function CardStep() {
           <span
             aria-hidden
             onAnimationEnd={punchedIn("reward")}
-            className={cn("grid size-[22px] shrink-0 place-items-center rounded-full bg-ink", punch("reward"))}
+            className={cn("ms-auto grid size-[1.375rem] shrink-0 place-items-center rounded-full bg-ink", punch("reward"))}
           >
             <Check className="size-3.5 text-surface" strokeWidth={3.5} />
           </span>
         ) : (
-          <Pencil aria-hidden className="size-5 shrink-0 text-ink-muted" />
+          <Pencil aria-hidden className="ms-auto size-5 shrink-0 text-ink-muted" />
         )}
         {/* Heard as the sentence, then what pressing it does, each after
             a pause. */}
