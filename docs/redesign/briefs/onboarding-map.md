@@ -180,3 +180,33 @@ is cleared.
 The docs that follow the build: `docs/onboarding-flow.md` (the contract)
 and `docs/card-studio.md`'s "where used". `onboarding.md` already carries a
 dated note pointing here.
+
+## 9. What only a real phone can confirm
+
+Step D (31 Oct 2026) checked the map in headless Chrome at 320, 375 and
+1280, in both languages, at 100% and 200% text and with reduced motion,
+with touch emulated. Three things that emulation can't settle are left for
+a phone in Hebrew, before the branch merges:
+
+- **The Places list with a Maps key and the keyboard up.** No Maps key
+  runs locally: the list was checked with a stand-in of five two-line
+  suggestions, in the flow under the name, the business tray growing to
+  its cap to hold them, and a held mouse press on a trade landing on the
+  trade. Still open: with iOS and Android keyboards up, whether the tray
+  (fixed to the foot of the layout viewport) and the list stay above the
+  keyboard or slide under it, whether a tap on a suggestion lands before
+  the field's blur closes the list, and whether the real suggestions'
+  lengths fit as the stand-in's did.
+- **The taps answering at once.** The frame and every tray body say
+  `touch-action: manipulation`, and the frame turns the tap flash off.
+  Headless Chrome reports the tap highlight transparent whatever the page
+  says, and its emulated taps carry no delay to remove, so neither the
+  300ms wait nor a flash under the finger can be seen there: a chip, a
+  swatch, the walk's button and the sentence each want a quick tap, and a
+  double tap on a swatch must not zoom.
+- **The stamp landing and the step-ins at full speed.** Both were read
+  frame by frame from headless Chrome's screencast (about 18ms apart) and
+  through `getAnimations()`: the stamp lands in 340ms on the overshoot, a
+  tray's body steps in from the walk's side, mirrored in Hebrew, and both
+  fade under reduced motion. Whether they hold their frames on a phone's
+  own GPU, at 60 and 120Hz, under a finger, is a phone's to say.
