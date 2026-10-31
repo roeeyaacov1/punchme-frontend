@@ -278,15 +278,18 @@ export function ReferralsPage() {
           }}
         />
       ) : (
-        <LitPanel className="flex flex-col gap-3 p-5 sm:p-6">
+        <LitPanel className="flex flex-col gap-3 p-5 sm:p-6 max-sm:px-[min(1.25rem,20px)]">
           <Skeleton className="h-7 w-48" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-3/4" />
         </LitPanel>
       );
   } else {
+    // On a phone the panel's sides, and its buttons', hold at 20px as the
+    // text grows, so "Activate" and "Settings" keep their words whole at 200%
+    // on a 320px screen; there "Settings" also goes under its icon.
     programPanel = (
-      <LitPanel as="section" aria-label={t("referrals.master.label")} className="flex flex-col gap-3 p-5 sm:p-6">
+      <LitPanel as="section" aria-label={t("referrals.master.label")} className="flex flex-col gap-3 p-5 sm:p-6 max-sm:px-[min(1.25rem,20px)]">
         <Switch
           checked={switchProgram.isPending ? !!switchProgram.variables : settings.enabled}
           disabled={!!blocker}
@@ -314,7 +317,7 @@ export function ReferralsPage() {
                   components={{ ltr: <bdi dir="ltr" className="type-figure" /> }}
                 />
               </p>
-              <LinkButton to="/dashboard/billing" variant="primary" className="max-w-full !whitespace-normal text-center">
+              <LinkButton to="/dashboard/billing" variant="primary" className="max-w-full !whitespace-normal text-center max-sm:px-[min(1.25rem,20px)]">
                 {t("billing.activateCta")}
               </LinkButton>
             </div>
@@ -337,7 +340,7 @@ export function ReferralsPage() {
         ) : (
           <p role="status" className="sr-only" />
         )}
-        <Button variant="secondary" icon={<Settings2 aria-hidden />} onClick={() => setSettingsOpen(true)} className="self-start max-w-full !whitespace-normal text-center">
+        <Button variant="secondary" icon={<Settings2 aria-hidden />} onClick={() => setSettingsOpen(true)} className="self-start max-w-full !whitespace-normal text-center max-sm:flex-wrap max-sm:px-[min(1.25rem,20px)]">
           {t("referrals.settings.open")}
         </Button>
       </LitPanel>
@@ -542,6 +545,10 @@ function ProgramCost({
  * Who brought whom: the line, where it got to as a badge (gold only for a
  * finished card, the reward), the day with the year when it isn't this
  * one, why it wasn't counted, and the gifts it gave, granted or not.
+ *
+ * With large text on a phone the badge left the words a few pixels, down to
+ * none: where their longest word can't stand beside it, the badge goes under
+ * them, at the end.
  */
 function ReferralRow({
   referral,
@@ -584,6 +591,7 @@ function ReferralRow({
       : null;
   return (
     <ListRow
+      className="[&>div>span:first-child]:min-w-min [&>div>span:last-child]:ms-auto [&>div]:flex-wrap"
       title={
         <span className="block whitespace-normal font-normal [overflow-wrap:anywhere]">
           <ReferralLine referral={referral} />

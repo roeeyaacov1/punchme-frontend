@@ -101,11 +101,13 @@ export function DecisionCard({
           <Trans i18nKey="referrals.decision.skip" values={people} components={PEOPLE} />
         </li>
       </ul>
-      <div className="grid grid-cols-2 gap-3">
-        <Button variant="secondary" onClick={() => onAsk("approve")} className="max-w-full !whitespace-normal text-center">
+      {/* Two halves of the row while each holds its longest word; with large
+          text on a phone, where they don't, one under the other. */}
+      <div className="flex flex-wrap gap-3">
+        <Button variant="secondary" onClick={() => onAsk("approve")} className="min-w-min max-w-full flex-1 !whitespace-normal text-center">
           {t("referrals.list.review.approve")}
         </Button>
-        <Button variant="secondary" onClick={() => onAsk("reject")} className="max-w-full !whitespace-normal text-center">
+        <Button variant="secondary" onClick={() => onAsk("reject")} className="min-w-min max-w-full flex-1 !whitespace-normal text-center">
           {t("referrals.list.review.reject")}
         </Button>
       </div>
