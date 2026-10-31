@@ -58,6 +58,10 @@ describe("businessMissing", () => {
     expect(businessMissing({ name: "Rothschild Coffee", niche: null })).toBe("trade");
     expect(businessMissing({ name: "Rothschild Coffee", niche: "cafe" })).toBeNull();
   });
+  it("holds a name longer than the API takes, from a draft made before the field held it", () => {
+    expect(businessMissing({ name: "מ".repeat(121), niche: "cafe" })).toBe("long");
+    expect(businessMissing({ name: ` ${"מ".repeat(120)} `, niche: "cafe" })).toBeNull();
+  });
 });
 
 describe("whereToStart", () => {

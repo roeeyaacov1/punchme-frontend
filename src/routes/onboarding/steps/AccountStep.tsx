@@ -12,7 +12,7 @@ import { Button, LinkButton, LitPanel, Loading, Notice, Skeleton } from "../../.
 import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
 import { CardStage } from "../CardStage";
 import { commitDraft } from "../commit";
-import { saveProblemKey } from "../problems";
+import { saveProblem, type SaveProblem } from "../problems";
 import { useStorageFull } from "../storageCheck";
 import { StorageNotice } from "../StorageNotice";
 import { useOnboardingDraft } from "../useOnboardingDraft";
@@ -41,7 +41,7 @@ export function AccountStep() {
   const storageFull = useStorageFull(draft, artPersisted);
   const keepCostId = useId();
   const [committing, setCommitting] = useState(false);
-  const [problem, setProblem] = useState<string | null>(null);
+  const [problem, setProblem] = useState<SaveProblem | null>(null);
   const [pressed, setPressed] = useState(false);
   const [existing, setExisting] = useState<{ business: Business; template: CardTemplate } | null>(null);
   const inFlight = useRef(false);
@@ -96,7 +96,7 @@ export function AccountStep() {
       }
       navigate("/onboarding/wallet");
     } catch (err) {
-      if (mounted.current) setProblem(saveProblemKey(err));
+      if (mounted.current) setProblem(saveProblem(err, resolved));
     } finally {
       inFlight.current = false;
       if (mounted.current) setCommitting(false);
@@ -124,20 +124,25 @@ export function AccountStep() {
     void auth.submitPassword();
   }
 
-  // The name is the one thing a refused save can be placed on: a way back to it.
+  // A refusal placed on the card (the name, the stamp's picture) comes with
+  // a way back to it.
   const problemNotice = problem && (
     <Notice
       tone="danger"
       role="alert"
       action={
-        problem === "onboarding.account.problem.name" ? (
+        problem.fix === "name" ? (
           <LinkButton to="/onboarding/business" variant="secondary">
             {t("onboarding.account.problem.toName")}
+          </LinkButton>
+        ) : problem.fix === "stamp" ? (
+          <LinkButton to="/onboarding/stamp" variant="secondary">
+            {t("onboarding.account.problem.toPicture")}
           </LinkButton>
         ) : undefined
       }
     >
-      {t(problem)}
+      {t(problem.key)}
     </Notice>
   );
 

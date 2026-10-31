@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { CircleAlert } from "lucide-react";
 import { ChoiceTiles, type Tile } from "../../../../components/card-studio/controls/ChoiceTiles";
 import type { PlaceResult } from "../../../../lib/googlePlaces";
-import { NICHES, type Niche } from "../../draft";
+import { NAME_MAX, NICHES, type Niche } from "../../draft";
 import { useOnboardingDraft } from "../../useOnboardingDraft";
 import { BusinessNameField } from "../BusinessNameField";
 
@@ -48,6 +48,9 @@ export function BusinessPanel({
   const niches = NICHE_ORDER.filter((niche) => listed.includes(niche) || niche === draft.niche);
 
   const nameMissing = asked && !draft.name.trim();
+  // Longer than the API takes: only a draft from before the field held it.
+  const over = draft.name.trim().length - NAME_MAX;
+  const nameLong = asked && over > 0;
   const tradeMissing = asked && !draft.niche;
 
   function onPlace(place: PlaceResult) {
@@ -72,7 +75,13 @@ export function BusinessPanel({
         value={draft.name}
         onChange={(name) => update({ name })}
         onPlace={onPlace}
-        error={nameMissing ? t("onboarding.missing.name") : undefined}
+        error={
+          nameMissing
+            ? t("onboarding.missing.name")
+            : nameLong
+              ? t("onboarding.missing.nameLong", { count: over, max: NAME_MAX })
+              : undefined
+        }
       />
       <div ref={tradeRef} className="flex flex-col gap-2">
         <ChoiceTiles
