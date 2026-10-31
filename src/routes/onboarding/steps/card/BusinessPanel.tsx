@@ -26,12 +26,15 @@ export function BusinessPanel({
   nameRef,
   tradeRef,
   onEnter,
+  onPick,
 }: {
   /** The owner tried to leave without a name or a trade. */
   asked: boolean;
   nameRef: Ref<HTMLInputElement>;
   tradeRef: Ref<HTMLDivElement>;
   onEnter: () => void;
+  /** A trade picked: its stamp lands on the card. */
+  onPick?: () => void;
 }) {
   const { t } = useTranslation();
   const { draft, update, presets } = useOnboardingDraft();
@@ -74,7 +77,10 @@ export function BusinessPanel({
           legend={t("onboarding.business.nicheLabel")}
           tiles={tiles}
           value={draft.niche}
-          onChange={(niche) => update({ niche })}
+          onChange={(niche) => {
+            update({ niche });
+            onPick?.();
+          }}
           shape="pill"
           listClassName="gap-2"
           describedBy={tradeMissing ? tradeErrorId : undefined}

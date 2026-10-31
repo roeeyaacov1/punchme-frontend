@@ -83,9 +83,9 @@ export const CardStage = forwardRef<
     onPart?: (part: Placed) => void;
     /** The part outlined on the pass: its rows, or the whole pass for the colours. */
     lit?: MapPart | null;
-    /** The stamp as chosen (its symbol or picture, and its colour): a
-     * change lands the last punched stamp on the card. */
-    land?: string;
+    /** Counted up each time the owner picks a stamp or its colour: lands
+     * the last punched stamp on the card. */
+    land?: number;
     className?: string;
   }
 >(function CardStage({ preview: given, crop = "whole", tag, onPart, lit = null, land, className }, ref) {
@@ -152,11 +152,12 @@ export const CardStage = forwardRef<
     setBoxes(next);
   }, [wallet]);
 
-  // A stamp or its colour chosen lands on the card, as in the studio: the
+  // A stamp or its colour picked lands on the card, as in the studio: the
   // kit's stamp-land, 340ms on the overshoot, on the last punched stamp,
   // found in the frozen grid and never drawn here; with reduced motion it
   // fades in over 150ms. Set before paint, so the stamp never shows a frame
-  // early; a second pick mid-landing starts it again.
+  // early. Each landing runs out on its own: a second pick mid-landing
+  // carries on with it rather than starting again.
   const landed = useRef(land);
   const landing = useRef<(() => void) | null>(null);
   useLayoutEffect(() => {

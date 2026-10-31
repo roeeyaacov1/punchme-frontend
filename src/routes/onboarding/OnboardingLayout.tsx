@@ -41,6 +41,9 @@ export function OnboardingLayout() {
   );
 }
 
+/** Past a screen's 240ms arrival (or the 150ms fade), with room to spare. */
+const ARRIVAL_EXPIRES_MS = 400;
+
 function stepFromPath(pathname: string): WizardStep | null {
   const last = pathname.replace(/\/+$/, "").split("/").pop() ?? "";
   return (ALL_STEPS as readonly string[]).includes(last) ? (last as WizardStep) : null;
@@ -106,7 +109,9 @@ function Shell() {
   // A new stop arrives from the side it comes from (`StepArrival`): on from
   // the end edge, Back from the start. Only a stop that was on screen
   // counts, so the first screen and a redirect's passing stop move nothing,
-  // and a tray of the map is the map's own stop.
+  // and a tray of the map is the map's own stop. The arrival is a moment:
+  // it ends with its animation, and expires past it however that ends (the
+  // screen hidden or gone mid-way), so a later new root never replays it.
   const shownStop = redirect ? null : (place?.stop ?? null);
   const lastStop = useRef<number | null>(null);
   const [arrival, setArrival] = useState<string | null>(null);
@@ -116,6 +121,8 @@ function Shell() {
     lastStop.current = shownStop;
     if (was === null || was === shownStop) return;
     setArrival(reduced ? "animate-gentle-in" : shownStop > was ? "animate-step-forward" : "animate-step-back");
+    const expiry = window.setTimeout(() => setArrival(null), ARRIVAL_EXPIRES_MS);
+    return () => window.clearTimeout(expiry);
   }, [shownStop, reduced]);
   const arrived = useCallback(() => setArrival(null), []);
   const arrivalValue = useMemo(() => ({ motion: arrival, arrived }), [arrival, arrived]);

@@ -163,8 +163,9 @@ export function CardStep() {
   }, [showing, seen, update]);
 
   // Said once, as the walk is done on this visit; never on arriving done.
-  // Save rises into place then, once: `lights-on`, or the fade. Before
-  // paint, so Save never shows a frame early.
+  // Save's words light up then, once (`light-up`, or the fade): the button
+  // is the one just pressed as Next, so it stays where it is. Before paint,
+  // so Save never shows a frame early.
   const doneAtStart = useRef(done);
   const [saidDone, setSaidDone] = useState(false);
   const [saveArrives, setSaveArrives] = useState(false);
@@ -180,6 +181,19 @@ export function CardStep() {
   // stays where it is.
   const lastTray = useRef(tray);
   const [stepIn, setStepIn] = useState<string | null>(null);
+
+  // The stamp lands on the card when the owner picks one (its symbol, its
+  // picture, a trade that brings its own) or its colour: counted here,
+  // played by `CardStage`, never on a change nobody made. A colour dragged
+  // in its own picker lands once, as the change starts, not on every step.
+  const [landing, setLanding] = useState(0);
+  const land = useCallback(() => setLanding((count) => count + 1), []);
+  const colourChanged = useRef(-Infinity);
+  const landColour = useCallback(() => {
+    const now = performance.now();
+    if (now - colourChanged.current > 400) land();
+    colourChanged.current = now;
+  }, [land]);
   useLayoutEffect(() => {
     const was = lastTray.current;
     lastTray.current = tray;
@@ -376,11 +390,17 @@ export function CardStep() {
   const panel = (id: Tray | null): ReactNode => {
     if (id === "business")
       return (
-        <BusinessPanel asked={businessAsked} nameRef={nameField} tradeRef={tradeBox} onEnter={() => advance(id)} />
+        <BusinessPanel
+          asked={businessAsked}
+          nameRef={nameField}
+          tradeRef={tradeBox}
+          onEnter={() => advance(id)}
+          onPick={land}
+        />
       );
     if (id === "reward") return <RewardPanel ref={rewardField} asked={asked} onEnter={() => advance(id)} />;
-    if (id === "colours") return <ColoursPanel ref={stampColour} />;
-    if (id === "stamp") return <StampPanel storageFull={storageFull} lostRef={lostMessage} />;
+    if (id === "colours") return <ColoursPanel ref={stampColour} onStampColour={landColour} />;
+    if (id === "stamp") return <StampPanel storageFull={storageFull} lostRef={lostMessage} onPick={land} />;
     return null;
   };
 
@@ -392,13 +412,17 @@ export function CardStep() {
       <Button
         size="lg"
         onClick={() => advance(from)}
-        onAnimationEnd={(event: AnimationEvent<HTMLButtonElement>) => {
-          if (event.target === event.currentTarget) setSaveArrives(false);
-        }}
         iconEnd={<ArrowRight aria-hidden className="rtl:-scale-x-100" />}
-        className={cn("w-full", !next && saveArrives && (reduced ? "animate-gentle-in" : "animate-lights-on"))}
+        className="w-full"
       >
-        {next ? t("onboarding.map.next", { part: t(PART_NAME[next]) }) : t("onboarding.card.save")}
+        <span
+          onAnimationEnd={(event: AnimationEvent<HTMLSpanElement>) => {
+            if (event.target === event.currentTarget) setSaveArrives(false);
+          }}
+          className={!next && saveArrives ? (reduced ? "animate-gentle-in" : "animate-light-up") : undefined}
+        >
+          {next ? t("onboarding.map.next", { part: t(PART_NAME[next]) }) : t("onboarding.card.save")}
+        </span>
       </Button>
     );
   };
@@ -484,7 +508,7 @@ export function CardStep() {
             preview={businessPreview}
             onPart={(part) => (wide ? showTab(part) : open(part))}
             lit={showing}
-            land={`${card.stamp.kind === "glyph" ? card.stamp.glyph : card.stamp.hash}|${card.accent}`}
+            land={landing}
           />
         }
         under={under}
@@ -544,7 +568,7 @@ export function CardStep() {
           <StudioTray
             open={!!tray}
             title={
-              <span className="flex flex-wrap items-baseline gap-x-2.5">
+              <span key={trayPart ?? ""} className={cn("flex flex-wrap items-baseline gap-x-2.5", stepIn)}>
                 <span>{t(PART_NAME[trayPart ?? "reward"])}</span>
                 <span className="type-label text-ink-muted">
                   {t("onboarding.map.part", { n: MAP_PARTS.indexOf(trayPart ?? "reward") + 1, total: MAP_PARTS.length })}
