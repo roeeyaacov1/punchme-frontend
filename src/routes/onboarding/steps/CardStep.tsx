@@ -274,12 +274,12 @@ export function CardStep() {
     [showing, lost, sayLost, leave, navigate],
   );
 
-  // Bring the stamps into view above a tray as it opens, and as it grows:
-  // they sit at the foot of Google's card, under its barcode. The business
-  // is the pass's top, already in view.
+  // Bring what the tray changes into view above it as it opens, and as it
+  // grows: the name for the business, the stamps for the rest (they sit at
+  // the foot of Google's card, under its barcode).
   useEffect(() => {
-    if (wide || !tray || tray === "business" || !trayHeight) return;
-    const rect = stage.current?.stampsRect();
+    if (wide || !tray || !trayHeight) return;
+    const rect = stage.current?.rect(tray === "business" ? "business" : "stamp");
     if (!rect) return;
     const edge = window.innerHeight - trayHeight - 8;
     let delta = Math.max(0, rect.bottom - edge);
@@ -410,7 +410,14 @@ export function CardStep() {
           <StepHeading title={t("onboarding.map.title")} lead={t("onboarding.map.lead")} autoFocus={wide || !tray} />
         }
         notice={<StorageNotice full={storageFull} />}
-        card={<CardStage ref={stage} preview={businessPreview} />}
+        card={
+          <CardStage
+            ref={stage}
+            preview={businessPreview}
+            onPart={(part) => (wide ? showTab(part) : open(part))}
+            lit={showing}
+          />
+        }
         under={under}
         action={wide || !tray ? saveButton : undefined}
       >
