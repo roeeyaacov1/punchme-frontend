@@ -186,7 +186,8 @@ dated note pointing here.
 Step D (31 Oct 2026) checked the map in headless Chrome at 320, 375 and
 1280, in both languages, at 100% and 200% text and with reduced motion,
 with touch emulated. Three things that emulation can't settle are left for
-a phone in Hebrew, before the branch merges:
+a phone in Hebrew. Roee merged the branch first (1 Nov), so they are checked
+on `main`:
 
 - **The Places list with a Maps key and the keyboard up.** No Maps key
   runs locally: the list was checked with a stand-in of five two-line
