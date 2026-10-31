@@ -84,7 +84,10 @@ a control: Back is each screen's own.
   - Opening a tray from the map pushes its address, and closing goes back,
     so the phone's back gesture closes a tray and closing never stacks
     history. Switching from one tray to another (a chip, a place on the
-    card, Next) takes the open one's place.
+    card, Next) takes the open one's place. A tray arrived at by its
+    address has no map under it, so as it's left its entry becomes the
+    map's and the next tray goes on top (`mapHistory.ts`): Back on a first
+    walk closes a tray onto the map, never out of the wizard.
   - The reward tray has no route of its own: it is the map's history entry
     with `state.tray = "reward"`.
   - Arriving at `business`, `color`, `accent` or `stamp` directly (a first
