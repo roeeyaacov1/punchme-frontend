@@ -31,8 +31,10 @@ interface Suggestion {
  * Enter and Escape on the list. At most the API's 120 characters, counted
  * from 100, so a name the server would refuse can't be typed. `dir="auto"`
  * once there is a name, so an English name runs left to right in a Hebrew
- * page. Its label is the screen's question, so the field's own is for a
- * screen reader only.
+ * page. Its label is shown: in the map's business tray, nothing else asks
+ * the question. The suggestions sit in the flow under the field, not over
+ * what follows it: laid over the trades, the tray's own scroll box cut them
+ * off, and in the flow the tray grows to hold them.
  */
 export const BusinessNameField = forwardRef<
   HTMLInputElement,
@@ -138,7 +140,7 @@ export const BusinessNameField = forwardRef<
 
   return (
     <Field
-      label={<span className="sr-only">{t("onboarding.business.nameLabel")}</span>}
+      label={t("onboarding.business.nameLabel")}
       hint={left === null ? undefined : t("cardControls.charactersLeft", { count: left })}
       error={error}
     >
@@ -172,7 +174,7 @@ export const BusinessNameField = forwardRef<
               id={listId}
               role="listbox"
               aria-label={t("onboarding.business.nameLabel")}
-              className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-field border border-border bg-surface py-1 text-ink shadow-panel-lift"
+              className="mt-2 overflow-hidden rounded-field border border-border bg-surface py-1 text-ink shadow-panel"
             >
               {suggestions.map((suggestion, index) => (
                 <li

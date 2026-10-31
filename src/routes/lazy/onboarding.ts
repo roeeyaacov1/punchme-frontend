@@ -3,11 +3,11 @@
 export { OnboardingLayout } from "../onboarding/OnboardingLayout";
 export { OnboardingIndex } from "../onboarding/OnboardingIndex";
 export { OnboardingGate } from "../onboarding/OnboardingGate";
-export { BusinessStep } from "../onboarding/steps/BusinessStep";
-// One screen at four addresses: the card at /reward, its trays at /color,
-// /accent and /stamp. The same component under every name, so moving
+// One screen at five addresses: the map at /reward, its trays at /business,
+// /color, /accent and /stamp. The same component under every name, so moving
 // between them keeps the card on screen rather than mounting it again.
 export {
+  CardStep as BusinessStep,
   CardStep as ColorStep,
   CardStep as AccentStep,
   CardStep as StampStep,

@@ -1,17 +1,18 @@
 import type { WizardStep } from "./draft";
 
 /**
- * The road the owner walks: five stops, the same from the first screen to
+ * The road the owner walks: four stops, the same from the first screen to
  * the last, signed in or out. Each stop is named by the route it stands on.
- * The card screen at `/reward` is one stop with its three trays (`color`,
- * `accent`, `stamp`), so a ready-made look decides nothing about the road and
- * signing up adds no stops to it.
+ * The map at `/reward` is the first stop, and the business is one of its
+ * trays with the others (`business`, `color`, `accent`, `stamp`), so walking
+ * the card's parts decides nothing about the road and signing up adds no
+ * stops to it.
  */
-export const ROAD = ["business", "reward", "account", "wallet", "billing"] as const;
+export const ROAD = ["reward", "account", "wallet", "billing"] as const;
 export type RoadStop = (typeof ROAD)[number];
 
 const STOP_OF: Record<WizardStep, RoadStop> = {
-  business: "business",
+  business: "reward",
   color: "reward",
   accent: "reward",
   stamp: "reward",
@@ -22,7 +23,7 @@ const STOP_OF: Record<WizardStep, RoadStop> = {
 };
 
 export interface RoadPlace {
-  /** 1 to 5. */
+  /** 1 to 4. */
   stop: number;
   total: number;
   /** The stop this screen belongs to. */

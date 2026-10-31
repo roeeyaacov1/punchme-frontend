@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, Gift, Pencil } from "lucide-react";
@@ -10,83 +10,112 @@ import { StepHeading, StepShell } from "../../../components/onboarding/StepShell
 import { useWide } from "../../../components/onboarding/useWide";
 import { cn } from "../../../lib/cn";
 import { CardStage, type StageHandle } from "../CardStage";
-import { sampleStamps } from "../draft";
+import { buildTemplateInput, draftPreviewValue, MAP_PARTS, resolveDraft, sampleStamps, type MapPart } from "../draft";
 import { defaultRewards, withTradeLook } from "../looks";
 import { useStorageFull } from "../storageCheck";
 import { StorageNotice } from "../StorageNotice";
 import { useOnboardingDraft } from "../useOnboardingDraft";
+import { businessMissing, partAtAddress } from "../walk";
+import { BusinessPanel } from "./card/BusinessPanel";
 import { ColoursPanel } from "./card/ColoursPanel";
 import { RewardPanel } from "./card/RewardPanel";
 import { StampPanel } from "./card/StampPanel";
 
-type Tray = "reward" | "colours" | "stamp";
+type Tray = MapPart;
 
-/** From 1024px the trays are tabs, the reward first. */
-const TABS: Tray[] = ["reward", "colours", "stamp"];
-/** On a phone the reward row opens the reward, so the chips are the other two. */
-const CHIPS: Tray[] = ["colours", "stamp"];
+/** From 1024px the parts are tabs, in the walk's order. */
+const TABS: readonly Tray[] = MAP_PARTS;
+/** On a phone the reward sentence opens the reward, so the chips are the other three. */
+const CHIPS: Tray[] = ["business", "colours", "stamp"];
 
-/** The trays' addresses: the colours at `/color` (and `/accent`, opened at the
- * stamp colour), the stamp at `/stamp`. The reward has no route of its own:
- * it is the card screen's, at `/reward`. */
+/** The trays' addresses: the business at `/business`, the colours at `/color`
+ * (and `/accent`, opened at the stamp colour), the stamp at `/stamp`. The
+ * reward has no route of its own: it is the map's, at `/reward`. */
 const ROUTE: Record<Tray, string> = {
-  reward: "/onboarding/reward",
+  business: "/onboarding/business",
   colours: "/onboarding/color",
   stamp: "/onboarding/stamp",
+  reward: "/onboarding/reward",
 };
 
-/** What a tray's history entry carries: opened from the card screen (so
- * closing goes back), and on `/reward`, that the reward tray is the one open. */
+/** Each part by name: the business by its stop's, the rest by the studio's chips. */
+const PART_NAME: Record<Tray, string> = {
+  business: "onboarding.steps.business",
+  colours: "studio.chips.colours",
+  stamp: "studio.chips.stamp",
+  reward: "studio.chips.reward",
+};
+
+/** What a look writes: a patch with any of these finishes the card. */
+const LOOK_KEYS = ["background", "accent", "stamp", "pattern", "stampsRequired"] as const;
+
+/** What a tray's history entry carries: opened from the map (so closing goes
+ * back), and on `/reward`, that the reward tray is the one open. */
 interface TrayState {
   fromCard?: boolean;
   tray?: "reward";
 }
 
 function trayAt(last: string | undefined, state: TrayState | null): Tray | null {
-  if (last === "color" || last === "accent") return "colours";
-  if (last === "stamp") return "stamp";
-  return state?.tray === "reward" ? "reward" : null;
+  return partAtAddress(last) ?? (state?.tray === "reward" ? "reward" : null);
 }
 
 /**
- * Your card, ready: the second stop, at `/onboarding/reward`. The finished
- * card at full size with the reward said as a sentence under it, and one
- * coral "Save the card".
+ * The map: the first stop, at `/onboarding/reward` and the addresses of its
+ * trays. The card at full size with the reward said as a sentence under it,
+ * chips for the other parts, and one coral "Save the card".
  *
- * On a phone, the reward row and two chips open trays over the lower half
- * (Card Studio's own `StudioTray`), so every choice lands on the card in
- * view above them. Opening one pushes its address and closing goes back, so
- * the phone's back gesture closes a tray and closing never stacks history;
- * arriving at a tray's address (a reload, the forward guard) opens the card
- * with that tray open. From 1024px the trays are tabs beside the card, the
- * open tab its address.
+ * Its parts are the business (the name, with Places, and the trade), the
+ * colours, the stamp and the reward. On a phone each opens in a tray over the
+ * lower half (Card Studio's own `StudioTray`), so every choice lands on the
+ * card in view above it. Opening one pushes its address and closing goes
+ * back, so the phone's back gesture closes a tray and closing never stacks
+ * history; arriving at a tray's address (a first visit, a reload, the forward
+ * guard) opens the card with that tray open. From 1024px the parts are tabs
+ * beside the card, the open tab its address.
  *
- * The screen stays mounted across its four addresses: the router gives all
- * four the same component, so a tray opens over the card as it stands.
+ * The business can't be left unfinished, by any way out: it says what's
+ * missing, there, and stays. While it is on screen the card wears the
+ * trade's look the moment one is picked, and leaving it writes the name and
+ * that look into the draft, once.
+ *
+ * The screen stays mounted across its five addresses: the router gives all
+ * five the same component, so a tray opens over the card as it stands.
  */
 export function CardStep() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const wide = useWide();
   const reduced = useReducedMotion();
   const { draft, resolved, update, artUrl, artPersisted, presets } = useOnboardingDraft();
   const storageFull = useStorageFull(draft, artPersisted);
+  const lang = i18n.resolvedLanguage ?? "en";
   const stage = useRef<StageHandle>(null);
   const openers = useRef(new Map<Tray, HTMLButtonElement>());
+  const nameField = useRef<HTMLInputElement>(null);
+  const tradeBox = useRef<HTMLDivElement>(null);
   const rewardField = useRef<HTMLTextAreaElement>(null);
   const stampColour = useRef<HTMLDivElement>(null);
   const lostMessage = useRef<HTMLParagraphElement>(null);
   const [asked, setAsked] = useState(false);
+  // A business with a look but no name was emptied after it was finished
+  // (and then Back, or a reload): it says so at once.
+  const [emptied] = useState(() => !!businessMissing(draft) && draft.background !== null);
+  const [businessAsked, setBusinessAsked] = useState(emptied);
   const [trayHeight, setTrayHeight] = useState(0);
   // Counted up when something asks for the reward field: it takes focus as
   // soon as its tray or tab is there to hold it.
   const [rewardWanted, setRewardWanted] = useState(0);
+  // A reward still saying a trade's default follows a change of trade.
+  const defaults = useMemo(() => defaultRewards(t), [t]);
 
   const state = location.state as TrayState | null;
   const last = location.pathname.replace(/\/+$/, "").split("/").pop();
   const atAccent = last === "accent";
   const tray = trayAt(last, state);
+  /** The part on screen: the open tray on a phone, the shown tab from 1024px. */
+  const showing: Tray | null = wide ? (tray ?? "reward") : tray;
   // A picture the card says it has but this device doesn't: the forward
   // guard holds the owner at the stamp until another is chosen.
   const lost = resolved.stamp.kind !== "glyph" && !artUrl;
@@ -96,21 +125,42 @@ export function CardStep() {
     if (tray) setShownTray(tray);
   }, [tray]);
 
-  // A draft that reaches the card without its look (the business left
-  // without Continue, or a draft from the old wizard) is finished here, once,
-  // as Continue would have finished it. The forward guard sent it to the
-  // first empty field's tray, so the finished card is shown instead; closing
-  // that tray would only have been sent back.
+  // While the business is on screen the card wears what leaving it will
+  // write: the trade's look, the moment one is picked. Everywhere else the
+  // draft has it already.
+  const onBusiness = showing === "business";
+  const card = useMemo(
+    () =>
+      onBusiness && draft.niche
+        ? resolveDraft({ ...draft, ...withTradeLook(draft, presets, defaults) }, presets, t)
+        : resolved,
+    [onBusiness, draft, presets, defaults, t, resolved],
+  );
+  const businessPreview = useMemo(
+    () =>
+      onBusiness ? draftPreviewValue(card, lang, t, artUrl, buildTemplateInput(card, presets, lang, t).name) : undefined,
+    [onBusiness, card, lang, t, artUrl, presets],
+  );
+
+  // A draft that reaches the map with its business but not its look (a
+  // business left before the map wrote it, or a draft from the old wizard)
+  // is finished here, once, as leaving the business would have finished it.
+  // Never one whose business isn't: the look is the trade's.
   const finished = useRef(false);
   useEffect(() => {
     if (finished.current) return;
     finished.current = true;
-    const patch = withTradeLook(draft, presets, defaultRewards(t));
-    const look = (["background", "accent", "stamp", "pattern", "stampsRequired"] as const).some((key) => key in patch);
-    if (!look) return;
-    update(patch);
-    if (tray && !state?.fromCard && !lost) navigate(ROUTE.reward, { replace: true });
+    if (businessMissing(draft)) return;
+    const patch = withTradeLook(draft, presets, defaults);
+    if (LOOK_KEYS.some((key) => key in patch)) update(patch);
     // Once, as the screen first stands.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Back on an emptied business, the field that's missing has focus, after
+  // the heading's own.
+  useEffect(() => {
+    if (emptied && tray === "business") nameField.current?.focus({ preventScroll: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -123,22 +173,64 @@ export function CardStep() {
   /** The picture that went is said where it is chosen again, and read out. */
   const sayLost = useCallback(() => lostMessage.current?.focus(), []);
 
+  /** The business can't be left without its name and its trade: what's
+   * missing is said where it is, and takes focus. */
+  const holdBusiness = useCallback((): boolean => {
+    const missing = businessMissing(draft);
+    if (!missing) return false;
+    setBusinessAsked(true);
+    if (missing === "name") nameField.current?.focus();
+    else tradeBox.current?.querySelector<HTMLInputElement>("input")?.focus();
+    return true;
+  }, [draft]);
+
+  /** The name, and the trade's look in what the owner hasn't chosen
+   * (`withTradeLook`), written as the business is left. Nothing when it is
+   * written already. */
+  const writeBusiness = useCallback(() => {
+    const patch = withTradeLook(draft, presets, defaults);
+    const name = draft.name.trim();
+    if (name !== draft.name) patch.name = name;
+    if (Object.keys(patch).length) update(patch);
+  }, [draft, presets, defaults, update]);
+
+  /** Leaving the part on screen: false while the business holds. */
+  const leave = useCallback((): boolean => {
+    if (showing !== "business") return true;
+    if (holdBusiness()) return false;
+    writeBusiness();
+    return true;
+  }, [showing, holdBusiness, writeBusiness]);
+
+  // The phone's back gesture leaves the business without asking: it is
+  // written then. (Unfinished, the forward guard brings the owner back.)
+  const wasShowing = useRef(showing);
+  useEffect(() => {
+    const was = wasShowing.current;
+    wasShowing.current = showing;
+    if (was === "business" && showing !== "business" && !businessMissing(draft)) writeBusiness();
+    // Only as the part on screen changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showing]);
+
   const open = useCallback(
     (next: Tray) => {
-      if (next === tray) return;
-      if (lost && next !== "stamp") {
-        sayLost();
+      // A lost picture keeps the owner at the stamp.
+      const target = lost && next !== "stamp" ? "stamp" : next;
+      if (target === tray) {
+        if (lost) sayLost();
         return;
       }
-      // From the card it is a new entry; from another tray it takes that
-      // one's place, so Back still lands on the card.
+      if (!leave()) return;
+      // From the map it is a new entry; from another tray it takes that
+      // one's place, so Back still lands on the map.
       const replace = tray !== null;
-      navigate(ROUTE[next], {
+      navigate(ROUTE[target], {
         replace,
-        state: { fromCard: replace ? state?.fromCard === true : true, ...(next === "reward" ? { tray: "reward" } : {}) },
+        state: { fromCard: replace ? state?.fromCard === true : true, ...(target === "reward" ? { tray: "reward" } : {}) },
       });
     },
-    [tray, state, lost, sayLost, navigate],
+    [tray, state, lost, sayLost, leave, navigate],
   );
 
   const close = useCallback(() => {
@@ -149,9 +241,10 @@ export function CardStep() {
       sayLost();
       return;
     }
+    if (!leave()) return;
     if (state?.fromCard) navigate(-1);
     else navigate(ROUTE.reward, { replace: true });
-  }, [tray, state, lost, sayLost, navigate]);
+  }, [tray, state, lost, sayLost, leave, navigate]);
 
   // However a tray closes (its button, Escape, a drag, the phone's back
   // gesture), focus goes back to what opened it, unless it is already
@@ -170,19 +263,22 @@ export function CardStep() {
   /** A tab from 1024px: its address in place of the last, never a new entry. */
   const showTab = useCallback(
     (next: Tray) => {
-      if (lost && next !== "stamp") {
-        sayLost();
+      const target = lost && next !== "stamp" ? "stamp" : next;
+      if (target === showing) {
+        if (lost) sayLost();
         return;
       }
-      navigate(ROUTE[next], { replace: true });
+      if (!leave()) return;
+      navigate(ROUTE[target], { replace: true });
     },
-    [lost, sayLost, navigate],
+    [showing, lost, sayLost, leave, navigate],
   );
 
   // Bring the stamps into view above a tray as it opens, and as it grows:
-  // they sit at the foot of Google's card, under its barcode.
+  // they sit at the foot of Google's card, under its barcode. The business
+  // is the pass's top, already in view.
   useEffect(() => {
-    if (wide || !tray || !trayHeight) return;
+    if (wide || !tray || tray === "business" || !trayHeight) return;
     const rect = stage.current?.stampsRect();
     if (!rect) return;
     const edge = window.innerHeight - trayHeight - 8;
@@ -206,6 +302,7 @@ export function CardStep() {
   }, [atAccent, wide, trayHeight]);
 
   const save = useCallback(() => {
+    if (!leave()) return;
     // A picture this device no longer has is chosen again where it lives.
     if (lost) {
       if (wide) showTab("stamp");
@@ -213,7 +310,7 @@ export function CardStep() {
       sayLost();
       return;
     }
-    const reward = resolved.reward.trim();
+    const reward = card.reward.trim();
     if (!reward) {
       setAsked(true);
       setRewardWanted((count) => count + 1);
@@ -223,15 +320,18 @@ export function CardStep() {
     }
     // Written down as the owner sees it, so what they saw is what is kept.
     update({
-      background: resolved.background,
-      accent: resolved.accent,
-      stamp: resolved.stamp,
-      pattern: resolved.pattern,
-      stampsRequired: resolved.stampsRequired,
+      background: card.background,
+      accent: card.accent,
+      stamp: card.stamp,
+      pattern: card.pattern,
+      stampsRequired: card.stampsRequired,
       reward,
     });
     navigate("/onboarding/account");
-  }, [resolved, lost, wide, showTab, open, sayLost, update, navigate]);
+  }, [card, lost, wide, leave, showTab, open, sayLost, update, navigate]);
+
+  /** Enter in the business's name, and its tray's button: on, out of it. */
+  const goOn = useCallback(() => (wide ? showTab("reward") : close()), [wide, showTab, close]);
 
   const opener = (id: Tray) => (element: HTMLButtonElement | null) => {
     if (element) openers.current.set(id, element);
@@ -239,22 +339,30 @@ export function CardStep() {
   };
 
   const panel = (id: Tray | null): ReactNode => {
+    if (id === "business")
+      return <BusinessPanel asked={businessAsked} nameRef={nameField} tradeRef={tradeBox} onEnter={goOn} />;
     if (id === "reward") return <RewardPanel ref={rewardField} asked={asked} onSave={save} />;
     if (id === "colours") return <ColoursPanel ref={stampColour} />;
     if (id === "stamp") return <StampPanel storageFull={storageFull} lostRef={lostMessage} />;
     return null;
   };
 
+  const arrow = <ArrowRight aria-hidden className="rtl:-scale-x-100" />;
   const saveButton = (
-    <Button size="lg" onClick={save} iconEnd={<ArrowRight aria-hidden className="rtl:-scale-x-100" />} className="w-full">
+    <Button size="lg" onClick={save} iconEnd={arrow} className="w-full">
       {t("onboarding.card.save")}
+    </Button>
+  );
+  const continueButton = (
+    <Button size="lg" onClick={goOn} iconEnd={arrow} className="w-full">
+      {t("onboarding.continue")}
     </Button>
   );
 
   const under = (
     <>
       <p className="type-body text-center text-ink-muted">
-        {t("studio.sample", { count: sampleStamps(resolved.stampsRequired), total: resolved.stampsRequired })}
+        {t("studio.sample", { count: sampleStamps(card.stampsRequired), total: card.stampsRequired })}
       </p>
       {/* The screen's question: is this what you give? */}
       <button
@@ -281,8 +389,8 @@ export function CardStep() {
         <span className="type-body min-w-0 flex-1 text-ink">
           <Trans
             i18nKey="studio.rewardSentence"
-            count={resolved.stampsRequired}
-            values={{ reward: rewardForRow(resolved.reward) || t("studio.noReward") }}
+            count={card.stampsRequired}
+            values={{ reward: rewardForRow(card.reward) || t("studio.noReward") }}
             components={{ b: <bdi className="font-semibold" /> }}
           />
         </span>
@@ -292,27 +400,26 @@ export function CardStep() {
     </>
   );
 
+  const trayPart = tray ?? shownTray;
+
   return (
     <>
       <StepShell
         heading={
-          <StepHeading
-            title={t("onboarding.card.title")}
-            lead={t("onboarding.card.lead")}
-            onBack={() => navigate("/onboarding/business")}
-          />
+          // A tray the map opens by itself takes focus to its own heading.
+          <StepHeading title={t("onboarding.map.title")} lead={t("onboarding.map.lead")} autoFocus={wide || !tray} />
         }
         notice={<StorageNotice full={storageFull} />}
-        card={<CardStage ref={stage} />}
+        card={<CardStage ref={stage} preview={businessPreview} />}
         under={under}
         action={wide || !tray ? saveButton : undefined}
       >
         {wide ? (
-          <Tabs value={tray ?? "reward"} onChange={(next) => showTab(next as Tray)}>
+          <Tabs value={showing ?? "reward"} onChange={(next) => showTab(next as Tray)}>
             <TabList label={t("onboarding.steps.reward")}>
               {TABS.map((id) => (
                 <Tab key={id} value={id}>
-                  {t(`studio.chips.${id}`)}
+                  {t(PART_NAME[id])}
                 </Tab>
               ))}
             </TabList>
@@ -332,7 +439,7 @@ export function CardStep() {
                 aria-expanded={tray === id}
                 onClick={() => (tray === id ? close() : open(id))}
               >
-                {t(`studio.chips.${id}`)}
+                {t(PART_NAME[id])}
               </Button>
             ))}
           </div>
@@ -343,14 +450,14 @@ export function CardStep() {
         <>
           <StudioTray
             open={!!tray}
-            title={t(`studio.chips.${tray ?? shownTray ?? "reward"}`)}
-            trayKey={tray ?? shownTray ?? ""}
+            title={t(PART_NAME[trayPart ?? "reward"])}
+            trayKey={trayPart ?? ""}
             onClose={close}
             onHeight={setTrayHeight}
-            foot={saveButton}
+            foot={trayPart === "business" ? continueButton : saveButton}
             start={tray === "reward" && asked ? rewardField : tray === "colours" && atAccent ? stampColour : undefined}
           >
-            {panel(tray ?? shownTray)}
+            {panel(trayPart)}
           </StudioTray>
           {/* Room under the page, so the card can scroll above the tray. */}
           {tray && <div aria-hidden style={{ height: trayHeight }} />}
