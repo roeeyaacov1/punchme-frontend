@@ -89,17 +89,19 @@ const isArt = (use: HeldUse): use is ArtUse => (ART_USES as readonly string[]).i
 /**
  * In the studio's own shape while the card loads, so nothing jumps as it
  * lands: where the studio stands in two columns, the tab row, the open
- * tray, and the card beside it.
+ * tray, and the card beside it. Otherwise one column, held to the page's
+ * width: a column left to size itself grows to its widest placeholder,
+ * past a phone's edge.
  */
 function StudioSkeleton() {
   const [wide, box] = useStudioWide();
   return (
     <>
       <Skeleton className={cn("h-11 w-full max-w-xl rounded-field", !wide && "hidden")} />
-      <div ref={box} className={cn("grid items-start gap-8", wide && "grid-cols-[minmax(0,1fr)_22rem]")}>
+      <div ref={box} className={cn("grid items-start gap-8", wide ? "grid-cols-[minmax(0,1fr)_22rem]" : "grid-cols-1")}>
         <Skeleton className={cn("h-[28rem] rounded-panel", !wide && "hidden")} />
         <div className="flex flex-col items-center gap-4">
-          <Skeleton className="h-11 w-56 rounded-full" />
+          <Skeleton className="h-11 w-56 max-w-full rounded-full" />
           <div data-tour="design-studio" className="flex w-full justify-center">
             <Skeleton className="h-[29rem] w-[340px] max-w-full rounded-glass" />
           </div>
