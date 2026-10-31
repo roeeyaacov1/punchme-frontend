@@ -126,7 +126,7 @@ export function StepHeading({
   }, []);
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-start gap-1">
+      <div className="flex flex-wrap items-start gap-x-1">
         {onBack && (
           <Button
             variant="quiet"
@@ -138,9 +138,16 @@ export function StepHeading({
             className="-ms-3 -mt-1 shrink-0"
           />
         )}
-        {/* A word wider than the room beside Back (הכרטיסייה, with large
-            text in a panel) breaks rather than widen the page. */}
-        <h1 ref={heading} tabIndex={-1} className="type-title min-w-0 text-balance break-words outline-none">
+        {/* Beside Back while nine of its own characters fit there; under it
+            once large text leaves less room than that, so a long word
+            (הכרטיסייה) isn't cut in two. On a narrow phone with large text
+            the title stops growing at 12vw, which 100% text never reaches;
+            a word wider than even that breaks rather than widen the page. */}
+        <h1
+          ref={heading}
+          tabIndex={-1}
+          className="type-title min-w-0 flex-1 basis-[9ch] text-balance break-words text-[length:min(1.75rem,12vw)] outline-none"
+        >
           {title}
         </h1>
       </div>
