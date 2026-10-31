@@ -484,7 +484,8 @@ export function CardStep() {
         size="lg"
         onClick={() => advance(from)}
         iconEnd={<ArrowRight aria-hidden className="rtl:-scale-x-100" />}
-        className="w-full"
+        // With large text on a narrow phone the words wrap inside the pill.
+        className="w-full !whitespace-normal text-center"
       >
         <span
           onAnimationEnd={(event: AnimationEvent<HTMLSpanElement>) => {
