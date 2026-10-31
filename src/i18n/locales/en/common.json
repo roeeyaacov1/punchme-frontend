@@ -350,6 +350,7 @@
     "progress": "Step {{n}} of {{total}}",
     "next": "Next: {{step}}",
     "lastStop": "You can do this later too",
+    "unreadable": "We couldn't reach PunchMe just now. Check the connection and try again.",
     "missing": {
       "name": "Write your business's name.",
       "nameLong_one": "The name has 1 character too many: it can be up to {{max}}.",
@@ -473,6 +474,9 @@
       "keep": "Keep the one I have",
       "keepCost": "The new design won't be saved.",
       "switchAccount": "Use a different account",
+      "hireTitle": "This account is on <b>{{business}}</b>'s team",
+      "hireBody": "So it can't save a card of its own. To keep what you designed, use an account of your own.",
+      "toDashboard": "To the dashboard",
       "problem": {
         "name": "The business's name is longer than the card takes: up to 120 characters. Shorten it, then save again.",
         "toName": "Check the name",
@@ -492,7 +496,8 @@
       "failed": "Your card is saved, but making it for the wallet didn't work.",
       "retry": "Try again",
       "continue": "Continue",
-      "skip": "Skip for now"
+      "skip": "Skip for now",
+      "offline": "No connection. Your card is saved, and this carries on by itself once the connection is back."
     },
     "billing": {
       "title": "Go live when you're ready",
