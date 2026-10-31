@@ -591,7 +591,11 @@
     },
     "map": {
       "title": "Design your card",
-      "lead": "Go through each part, then save."
+      "lead": "Go through each part, then save.",
+      "part": "Part {{n}} of {{total}}",
+      "next": "Next: {{part}}",
+      "opened": "opened",
+      "done": "Every part is open. You can save the card."
     }
   },
   "enroll": {
