@@ -250,7 +250,9 @@ function RuleSlotRow({
   }
 
   return (
-    <li className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0">
+    // A container, so the gift and the message can drop their indent where
+    // large text leaves the row too narrow for it.
+    <li className="flex flex-col gap-3 py-4 [container-type:inline-size] first:pt-0 last:pb-0">
       <h3 className="type-label text-ink-muted">{when}</h3>
       <div className="flex flex-col gap-1">
         <Switch
@@ -274,9 +276,14 @@ function RuleSlotRow({
       </div>
 
       {rule.enabled && (
+        // Indented to stand under the switch's words, beside its track. Where
+        // the row is under 10rem, which only large text makes it (it is 17rem
+        // at 100% on a 320px screen), the indent goes: at 200% on that screen
+        // the switch's words have gone under the track already, and the
+        // 120px indent left the chips 102px, narrower than "business" alone.
         <div
           className={cn(
-            "flex flex-col gap-4 ps-[3.75rem]",
+            "flex flex-col gap-4 ps-[3.75rem] [@container(max-width:10rem)]:ps-0",
             opened && (reduced ? "animate-gentle-in" : "animate-lights-on"),
           )}
         >
@@ -357,6 +364,12 @@ function RuleSlotRow({
               />
             )}
           </Field>
+          {/* On a phone a chip's sides hold at 20px as the text grows, as the
+              message editor's chips do. Its words stand beside the plus while
+              their longest word fits there, at their own width and never
+              below that word, so at 100% on a 320px screen "the other person"
+              still takes two lines beside it; with large text, where it
+              doesn't fit, they go under it, and the placeholder under them. */}
           <div className="flex flex-wrap gap-2" role="group" aria-label={t("referrals.message.insert")}>
             {placeholders.map((chip) => (
               <Button
@@ -365,9 +378,9 @@ function RuleSlotRow({
                 icon={<Plus aria-hidden />}
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => insert(chip.token)}
-                className="max-w-full !whitespace-normal text-center"
+                className="max-w-full !whitespace-normal text-center max-sm:flex-wrap max-sm:px-[min(1.25rem,20px)]"
               >
-                {t(`referrals.message.chip.${chip.key}`)}
+                <span className="min-w-min max-w-max flex-1">{t(`referrals.message.chip.${chip.key}`)}</span>
                 <span dir="auto" className="font-body font-normal text-ink-muted">
                   {chip.token}
                 </span>
