@@ -633,11 +633,16 @@ function BroadcastTab({
   const lang = i18n.resolvedLanguage ?? "he";
 
   if (!isPro) {
+    // On a phone the panel's sides and the button's hold at 20px as the text
+    // grows. The words stand beside the pen while their longest word fits
+    // there, never below that word, so at 100% on a 320px screen they still
+    // take two lines beside it; with large text, where they don't fit, they
+    // go under it: at 200% on that screen "yourself" had 36px beside the pen.
     return (
-      <LitPanel className="flex flex-col items-start gap-4 p-5 sm:p-6">
+      <LitPanel className="flex flex-col items-start gap-4 p-5 sm:p-6 max-sm:px-[min(1.25rem,20px)]">
         <p className="type-body text-ink">{t("messaging.broadcast.freeLine")}</p>
-        <LinkButton to="/dashboard/messages/new" variant="secondary" icon={<PenLine aria-hidden />} className="max-w-full !whitespace-normal text-center">
-          {t("messaging.broadcast.writeSample")}
+        <LinkButton to="/dashboard/messages/new" variant="secondary" icon={<PenLine aria-hidden />} className="max-w-full !whitespace-normal text-center max-sm:flex-wrap max-sm:px-[min(1.25rem,20px)]">
+          <span className="min-w-min max-w-max flex-1">{t("messaging.broadcast.writeSample")}</span>
         </LinkButton>
       </LitPanel>
     );
@@ -664,7 +669,11 @@ function BroadcastTab({
 
   return (
     <div className="flex flex-col gap-4">
-      <LitPanel className="flex flex-col items-start gap-3 p-5 sm:p-6">
+      {/* On a phone the panel's sides and its buttons' hold at 20px as the
+          text grows, and the pen goes above the words where they can't stand
+          beside it: at 200% on a 320px screen "message" alone was wider than
+          the 36px left there. */}
+      <LitPanel className="flex flex-col items-start gap-3 p-5 sm:p-6 max-sm:px-[min(1.25rem,20px)]">
         {/* No quota where sending is closed: the notice above says why. */}
         {open && (
           <h2 id="broadcast-quota" className="type-card-title text-ink">
@@ -684,15 +693,15 @@ function BroadcastTab({
           )}
         </p>
         {nobody ? (
-          <LinkButton to="/dashboard/standee" variant="secondary" className="max-w-full !whitespace-normal text-center">
+          <LinkButton to="/dashboard/standee" variant="secondary" className="max-w-full !whitespace-normal text-center max-sm:px-[min(1.25rem,20px)]">
             {t("messaging.broadcast.toStandee")}
           </LinkButton>
         ) : open && !spent ? (
-          <LinkButton to="/dashboard/messages/new" variant="primary" icon={<PenLine aria-hidden />} className="max-w-full !whitespace-normal text-center">
+          <LinkButton to="/dashboard/messages/new" variant="primary" icon={<PenLine aria-hidden />} className="max-w-full !whitespace-normal text-center max-sm:flex-wrap max-sm:px-[min(1.25rem,20px)]">
             {t("messaging.broadcast.write")}
           </LinkButton>
         ) : (
-          <Button variant="primary" icon={<PenLine aria-hidden />} disabled aria-describedby={open ? "broadcast-quota" : undefined} className="max-w-full !whitespace-normal text-center">
+          <Button variant="primary" icon={<PenLine aria-hidden />} disabled aria-describedby={open ? "broadcast-quota" : undefined} className="max-w-full !whitespace-normal text-center max-sm:flex-wrap max-sm:px-[min(1.25rem,20px)]">
             {t("messaging.broadcast.write")}
           </Button>
         )}
