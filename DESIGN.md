@@ -144,6 +144,13 @@ rounded:
   glass: "28px"
   card: "32px"
   hero: "40px"
+  # Half a two-line chip or segment (their 44px holds two lines), half a
+  # two-line badge with its 2px of air, half a two-line stage caption: one
+  # line or two is a full pill at any text size, and words that large text
+  # wraps further keep those ends with straight sides.
+  chip: "1.375rem"
+  badge: "calc(1.18125rem + 1px)"
+  caption: "1.30625rem"
   pill: "9999px"
   # Half a two-line button: one line or two is a full pill at any text size,
   # and a label that wraps further keeps those ends with straight sides.
@@ -214,21 +221,21 @@ components:
     backgroundColor: "{colors.soft-ink}"
     textColor: "{colors.lit-acrylic}"
     typography: "{typography.control}"
-    rounded: "{rounded.pill}"
+    rounded: "{rounded.chip}"
     height: "{spacing.target}"
   badge-brand:
     backgroundColor: "{colors.sign-coral}"
     textColor: "{colors.soft-ink}"
     typography: "{typography.tag}"
-    rounded: "{rounded.pill}"
-    padding: "0 10px"
+    rounded: "{rounded.badge}"
+    padding: "2px 10px"
     height: "24px"
   badge-reward:
     backgroundColor: "{colors.reward-gold}"
     textColor: "{colors.soft-ink}"
     typography: "{typography.tag}"
-    rounded: "{rounded.pill}"
-    padding: "0 10px"
+    rounded: "{rounded.badge}"
+    padding: "2px 10px"
     height: "24px"
   panel:
     backgroundColor: "{colors.lit-acrylic}"
@@ -397,8 +404,9 @@ Generous and soft. Buttons, chips, segments and tags are full pills, though a bu
 - **Focus:** the kit's `focusRing`: 2px of ink at a 2px offset, drawn as an outline, so a panel's shadow can't switch it off, its gap stays clear, and it survives Windows' high-contrast mode. Rows draw it inside the edge.
 
 ### Chips
+- **Shape:** full pills up to two lines, at any text size. A filter chip and a segment are 44px tall, which holds two lines, and their corners are half that; a badge is 24px tall with 2px of air above and below its words, and its corners are half a two-line badge's height; both in rem, so they grow with the text. Words that large text wraps further keep those ends with straight sides between them: a full pill there turns into an oval and its first and last lines cross the curve.
 - **Badges** say one word about something and are never controls. Neutral is ink-muted with a soft edge; brand is solid coral with ink; reward is ink on gold; ok is Ok Tag on ok's 15% wash; warn and danger are their words and an icon with a soft edge and no fill.
-- **Segmented control:** native radios in a pill track on the wall; the chosen one is an ink pill with a cream label that slides between segments on the in-out, mirrored in Hebrew. Where large text leaves the segments too narrow for their words, they stand one under another in a rounded track, and the chosen one's colour crosses over, as with reduced motion.
+- **Segmented control:** native radios in a pill track on the wall; the chosen one is an ink pill with a cream label that slides between segments on the in-out, mirrored in Hebrew. Where large text leaves the segments too narrow to hold their words clear of the pill's curve, they stand one under another in a rounded track, and the chosen one's colour crosses over, as with reduced motion.
 
 ### Cards / Containers
 - **Corner Style:** 24px in the dashboard, 32px for the landing page's tall cards, 40px for its hero.
@@ -422,7 +430,7 @@ Generous and soft. Buttons, chips, segments and tags are full pills, though a bu
 Scan answers like a photo snap. A flash of Panel Light covers the whole viewfinder and clears from 0.85 to nothing in 220ms (from 0.6 at night); the answer, an inset lit panel, is there at once under it and settles from 1.04 in 180ms on the ease-out; the newest stamp lands in 240ms after 60ms, from 1.45 on the overshoot. The answer is complete at 300ms. With reduced motion it is a 150ms fade, the flash a 0.3 glow, no settle, and the stamp at its final size. A second answer within 400ms gets no second flash, so the frame can never flash three times a second. Inside: the word (Answer), the count (Count), the stamps as one unbroken row that never wraps and marks the next stamp as "now", and on a full card the reward, "Reward given" as an ink pill and "Not now".
 
 ### The wallpaper stage
-The owner's card on the customer's phone: a wallpaper made from the card's own colour, a tone of it 30% of the way to white and a hint 28% of the way to its stamp colour, blurred 44px, with no saturation boost, under the message the pass brings as a lock-screen notification, and "Roughly how it looks on the lock screen" beneath. The blur is written into gradient stops, so nothing blurs at runtime. It is the customer's phone, so it looks the same at night.
+The owner's card on the customer's phone: a wallpaper made from the card's own colour, a tone of it 30% of the way to white and a hint 28% of the way to its stamp colour, blurred 44px, with no saturation boost, under the message the pass brings as a lock-screen notification, and "Roughly how it looks on the lock screen" beneath, on a lit tag whose lines, when large text wraps them, are centred under the pass and keep a two-line tag's ends. The blur is written into gradient stops, so nothing blurs at runtime. It is the customer's phone, so it looks the same at night.
 
 ### Charts
 One series in the data's apricot, never coral and never a state colour: a 2px Series line with round joins over an area of Series Light that fades from 80% under the line to 10% at the baseline (30% to 4% at night), on a 1px baseline one step off the panel; bars of Series Light under a 2px Series cap, at most 24px wide with 4px tops, square at the base, 2px apart. A picked day is a band of Series at 12%. Time runs like the numbers in both languages, oldest at the left and today at the right, so a plot and its axis sit in a `dir="ltr"` box while the title, the readout and the panel around them follow the page. Only two values are printed on the line, the peak once and today at its end, in ink-muted and ink at 13px, Rubik's tabular figures; nothing under 13px and no Plex Mono. One hit surface snaps to the nearest day, and the readout above the plot leads with the value. A day that wasn't loaded is drawn as not loaded, never as zero, and every chart has a twin for a screen reader: a one-line summary and the days as a list.

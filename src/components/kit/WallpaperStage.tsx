@@ -49,6 +49,12 @@ export interface WallpaperStageProps {
  * The slot is exactly 300px, never squeezed: Apple's type is sized for it.
  * So the stage wants 340px; on a screen narrower than that, the stage clips
  * the edges of the pass rather than shrink it.
+ *
+ * Large text can wrap the caption. Its lines are centred under the pass,
+ * and its corners are half a two-line caption's height, in rem so they grow
+ * with the text: one line or two is a full pill at any text size, and more
+ * keep those ends with straight sides between them, where a full pill would
+ * turn into an oval whose curve cuts its first and last lines.
  */
 export function WallpaperStage({
   cardColor,
@@ -100,7 +106,7 @@ export function WallpaperStage({
           </div>
         )}
         <div className="w-[300px] shrink-0 font-normal not-italic leading-normal tracking-normal">{children}</div>
-        <span className="theme-lit type-tag rounded-full bg-surface/95 px-3 py-1 text-ink-muted">
+        <span className="theme-lit type-tag rounded-[1.30625rem] bg-surface/95 px-3 py-1 text-center text-ink-muted">
           {t("messaging.editor.previewLabel")}
         </span>
       </div>
