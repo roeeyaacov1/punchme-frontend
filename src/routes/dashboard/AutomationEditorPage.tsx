@@ -435,12 +435,14 @@ function AutomationEditor() {
     );
   }
 
+  // Its sides hold at 20px on a phone as the text grows, so "messages" fits
+  // beside the arrow at 200% on a 320px screen.
   const back = (
     <LinkButton
       to="/dashboard/messages?tab=rules"
       variant="quiet"
       icon={<ArrowLeft aria-hidden className="rtl:-scale-x-100" />}
-      className="-ms-3 self-start max-w-full !whitespace-normal text-center"
+      className="-ms-3 self-start max-w-full !whitespace-normal text-center max-sm:-ms-[min(0.75rem,12px)] max-sm:px-[min(1.25rem,20px)]"
     >
       {t("messaging.editor.back")}
     </LinkButton>
@@ -477,9 +479,9 @@ function AutomationEditor() {
       );
     }
     return (
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 [container-type:inline-size]">
         {back}
-        <Loading className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-8">
+        <Loading className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-8 [@container(max-width:52rem)]:lg:grid-cols-1 [@container(max-width:52rem)]:lg:gap-5">
           <div className="flex flex-col gap-5">
             <Skeleton className="h-9 w-48" />
             <Skeleton className="h-64 w-full rounded-panel" />
@@ -557,11 +559,17 @@ function AutomationEditor() {
       : firstRun;
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+    // The page's column is a container, for the two columns below.
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 [container-type:inline-size]">
       <header className="flex flex-col gap-1">
         {back}
-        <div className="flex items-start justify-between gap-3">
-          <h1 className="type-title flex min-w-0 items-center gap-3 text-ink">
+        {/* With large text on a phone, where the name can't keep a word's
+            room beside the icon and the switch, the switch goes under it, at
+            the end: at 200% on a 375px screen it left the name 16px. The
+            heading grows from nothing to its own width, never below its
+            longest word, so only that sends the switch under. */}
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h1 className="type-title flex min-w-min max-w-max flex-1 items-center gap-3 text-ink">
             <span aria-hidden className="flex size-11 shrink-0 items-center justify-center rounded-full bg-background text-ink-muted [&_svg]:size-6">
               <Icon />
             </span>
@@ -584,7 +592,7 @@ function AutomationEditor() {
                   <span aria-hidden>{t(isActive ? "messaging.automations.on" : "messaging.automations.off")}</span>
                 </>
               }
-              className="shrink-0 pt-1"
+              className="ms-auto shrink-0 pt-1"
             />
           )}
         </div>
@@ -596,10 +604,16 @@ function AutomationEditor() {
 
       {notice}
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-8">
+      {/* Two columns from 1024px while the page's column is at least 52rem,
+          as it always is at the default text size (54.5rem at 1024, less a
+          scrollbar). Large text narrows it in rem: at 200% on a 1280px
+          screen it is 19rem, and the 22rem phone would leave the rule no
+          column at all. Then the phone stands first and scrolls with the
+          page, as on a tablet. */}
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-8 [@container(max-width:52rem)]:lg:grid-cols-1 [@container(max-width:52rem)]:lg:gap-5">
         {/* Held clear of the masthead, which stands over the page until
             1280px, as the page's own scroll margin is. */}
-        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-[calc(5.5rem+env(safe-area-inset-top))] lg:order-last xl:top-8">
+        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-[calc(5.5rem+env(safe-area-inset-top))] lg:order-last xl:top-8 [@container(max-width:52rem)]:lg:static [@container(max-width:52rem)]:lg:order-none">
           <LitPanel light="lit" className="flex flex-col gap-3 p-5">
             <p role="status" className="type-body text-ink">
               {pieces.length === 0 ? (
@@ -722,7 +736,7 @@ function AutomationEditor() {
               </Button>
             )}
             {rule && (
-              <Button variant="danger" icon={<Trash2 aria-hidden />} onClick={() => setConfirmDelete(true)} disabled={busy} className="max-w-full !whitespace-normal text-center">
+              <Button variant="danger" icon={<Trash2 aria-hidden />} onClick={() => setConfirmDelete(true)} disabled={busy} className="max-w-full !whitespace-normal text-center max-sm:px-[min(1.25rem,20px)]">
                 {t("messaging.editor.delete")}
               </Button>
             )}

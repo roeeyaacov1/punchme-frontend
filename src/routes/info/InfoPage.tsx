@@ -7,8 +7,9 @@ import { column } from "../../components/marketing/landingLayout";
 import { LOGO_HEIGHT, LOGO_WIDTH } from "../../components/marketing/SiteHeader";
 import { SiteFooter } from "../../components/marketing/SiteFooter";
 import { cn } from "../../lib/cn";
+import { usePublicGround } from "../../theme/usePublicGround";
 import { LanguageSwitch } from "../public/LanguageSwitch";
-import { useDocumentTitle, usePublicGround } from "../public/usePublicGround";
+import { useDocumentTitle } from "../public/useDocumentTitle";
 import logo from "../../assets/logo.png";
 
 /**

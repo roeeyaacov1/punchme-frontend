@@ -24,9 +24,11 @@ decision for the owner, and the redesign guide asks for it first.
 | `wallet-card/PassBarcode.tsx` | The barcode, drawn for real in all four formats |
 | `src/lib/passBarcode.ts`, `cardPatterns.ts`, `stampGlyphs.ts`; `designImageUrls` in `src/api/designs.ts` | The logic those files rely on (already protected as `src/lib` and `src/api`) |
 
-Two corrections have been made to this table's files, both on 27 Oct 2026
-with Roee's yes (Phase 3, `docs/redesign/briefs/card-studio.md` §7 and §13,
-and step D). In each, nothing else in the file changed.
+Three corrections have been made to this table's files, each with Roee's
+yes: the first two on 27 Oct 2026 (Phase 3, `docs/redesign/briefs/card-studio.md`
+§7 and §13, and step D), the third on 30 Oct 2026 (Phase 4,
+`docs/redesign/briefs/onboarding.md` §10). In each, nothing else in the file
+changed.
 
 - `StampGrid` drew a filled stamp's glyph in white whatever the stamp's
   colour, so a white stamp was a blank disc. The server knocks the glyph out
@@ -37,6 +39,11 @@ and step D). In each, nothing else in the file changed.
   label as it is given (`apps/wallet/design.py`, `_build_data_field`), so a
   cleared label shows nothing on the real card. The previews now fall back
   to the default only when the card has no such field.
+- The business name took the page's direction, so on a Hebrew page an
+  English name printed backwards (".Danny’s Barbershop & Beard Co" on
+  Apple's pass, its start cut off on Google's). The wallets set each string
+  by its own first letter. Apple's name row, Google's issuer line and its
+  program line ("{business} - {card}") now carry `dir="auto"`.
 
 Staging around the card is ours to change: the frame, the well, the shadow
 and the motion. One constraint applies. The previews are built for a 300px
@@ -47,10 +54,10 @@ type drifts, while the barcode plates hold at any width.
 
 | File | What it is |
 |---|---|
-| `card-studio/CardStudio.tsx` | The studio (Phase 3). The card is the map: on a phone the stage, the sample, the reward as a sentence and a row of chips, each opening a tray over the lower half; from 1024px the trays are tabs beside a sticky card |
+| `card-studio/CardStudio.tsx` | The studio (Phase 3). The card is the map: on a phone the stage, the sample, the reward as a sentence and a row of chips, each opening a tray over the lower half; from 1024px the trays are tabs beside a sticky card. That line is 64rem (`useStudioWide.ts`, which the loading skeleton follows too), so a larger text size keeps the phone's layout until the screen is as much wider: 2048px at 200%, where the card's 22rem column would otherwise be wider than the page's |
 | `card-studio/StudioStage.tsx` | The kit's `WallpaperStage` with the pass in its 300px slot, the Apple/Google switch, and the tap regions over the pass (pointer shortcuts, measured from the pass's own rows) |
-| `card-studio/StudioTray.tsx`, `StudioBar.tsx`, `UploadTile.tsx`, `trays/` | The non-modal tray, the save bar, the picture tile, and the six trays: colours, the stamp, the reward, the names, the logo, Wallet details |
-| `card-studio/controls/` | The card controls the studio and (from Phase 4) onboarding share: card, stamp and text colour, the stamp, the texture, the stamp count, the reward, and a colour of one's own |
+| `card-studio/StudioTray.tsx`, `StudioBar.tsx`, `UploadTile.tsx`, `trays/` | The non-modal tray, the save bar, the picture tile, and the six trays: colours, the stamp, the reward, the names, the logo, Wallet details. A tray stops at half the screen, or at 18rem where half would hold little past its heading and foot (large text, a short screen, a phone on its side), never past 85% (onboarding's step D, 31 Oct 2026) |
+| `card-studio/controls/` | The card controls the studio and (from Phase 4) onboarding share: card, stamp and text colour, the stamp, the texture, the stamp count, the reward, and a colour of one's own. The reward is a paragraph of two lines that grows to three (Phase 4): Enter does the screen's own action, if it passes one, and a pasted line break becomes a space. With large text on a phone, the glyphs and the textures take as many to a row as fit, and four at 100% (Phase 4) |
 | `card-studio/studioDraft.ts`, `lintProblems.ts`, `studioProblems.ts`, `studioSession.ts` | The draft's rules (tested), the server's check read by kind (tested), a failed save or upload as a sentence (tested), and the draft kept in the tab |
 | `wallet-card/WalletCardPreview.tsx` | A legacy mock that nothing uses since `/style-guide` was rebuilt on the kit (Phase 1, step 1.4). Its English strings are hard-coded; Phase 10 deletes it |
 
@@ -59,22 +66,27 @@ type drifts, while the barcode plates hold at any width.
 | | `/dashboard/design` | `/admin/catalog/:id` | `/dashboard` | `/onboarding/*` | Public pages (`/join`, `/c/:serial`, `/p/:token`) | `/` |
 |---|---|---|---|---|---|---|
 | `CardStudio` and its editors | yes | yes | – | – | – | – |
-| `AppleCardPreview` / `GoogleCardPreview` | yes | yes | yes | yes, in `PhoneFrame` | yes, in `PassStage` | Apple only, in the hero |
+| `AppleCardPreview` / `GoogleCardPreview` | yes | yes | yes | yes, in `CardStage` on the kit's `WallpaperStage` | yes, in `PassStage` | Apple only, in the hero |
 
-**Onboarding does not use `CardStudio`.** Its steps have their own
-controls, which are second copies of what the studio offers:
+**Onboarding does not use `CardStudio`**, but its map (`/onboarding/reward`
+and its trays) is built on the same controls and the same `StudioTray`
+(Phase 4). Like the studio's stage, its card is the map: `CardStage` lays
+places of its own over the pass's rows (the name opens the business, the
+stamps the stamp, the count the reward) and outlines the open part, measured
+from the frozen previews and never drawn on them.
 
 | Concern | Onboarding | Studio |
 |---|---|---|
-| Card colour | 10 swatches, the trade's looks, `ui/ColorField` | `CardColourPicker`: the 6 palettes as ready looks, the same 10 backgrounds, one's own |
-| Stamp colour | Related swatches, each at least 3:1 | `StampColourPicker`: the same swatches, and one's own with a warning under 3:1 |
-| Glyph and texture | `ChoiceGrid` | `StampPicker` (the trade's glyph first) and `TexturePicker` |
-| Stamp picture | Cropped in the browser, uploaded at save | Cropped in the browser, held until Save |
-| Stamp count | Its own slider | `StampCountControl`: the kit's slider and the strip |
+| Card colour | `CardColourPicker`: the trade's looks (colours only), the same 10 backgrounds, one's own | `CardColourPicker`: the 6 palettes as ready looks, the 10 backgrounds, one's own |
+| Stamp colour | `StampColourPicker` | `StampColourPicker`: the swatches that clear 3:1, and one's own with a warning under it |
+| Glyph and texture | `StampPicker` and `TexturePicker` | `StampPicker` (the trade's glyph first) and `TexturePicker` |
+| Stamp picture | Cropped in the browser, kept on the device, uploaded at save | Cropped in the browser, held until Save |
+| Stamp count | `StampCountControl` | `StampCountControl`: the kit's slider and the strip |
+| Reward | `RewardField`, two lines; Enter goes on, as the tray's button does: the next part, or saving | `RewardField`, two lines; Enter does nothing |
 | Saving | Draft in `localStorage`, then `commit.ts` | Explicit Save: the held pictures, then one PATCH. The draft is kept in the tab |
 
 Roee chose one shared set (Phase 3): the studio is built on
-`card-studio/controls`, and onboarding moves onto it in Phase 4.
+`card-studio/controls`, and onboarding moved onto it in Phase 4.
 
 ## Rules the editor has to keep
 

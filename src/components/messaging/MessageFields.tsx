@@ -14,11 +14,15 @@ import { cn } from "../../lib/cn";
 import { MESSAGE_LIMITS } from "./limits";
 import { GIFT_CHOICES, giftChoiceOf, giftPatch, hasGift, messageProblems, type MessageDraft } from "./messageDraft";
 
-/** A panel under its own heading: one part of the message being written. */
+/**
+ * A panel under its own heading: one part of the message being written. On a
+ * phone its sides hold at 20px as the text grows, so large text grows the
+ * words rather than the air beside them.
+ */
 export function FieldSection({ title, children }: { title: ReactNode; children: ReactNode }) {
   const id = useId();
   return (
-    <LitPanel as="section" aria-labelledby={id} className="flex flex-col gap-5 p-5 sm:p-6">
+    <LitPanel as="section" aria-labelledby={id} className="flex flex-col gap-5 p-5 sm:p-6 max-sm:px-[min(1.25rem,20px)]">
       <h2 id={id} className="type-card-title text-ink">
         {title}
       </h2>
@@ -172,6 +176,11 @@ export function MessageFields({
           <p id={chipsLabel} className="type-label text-ink">
             {t("messaging.fields.insert")}
           </p>
+          {/* A chip is as wide as its one line wherever that fits. With large
+              text on a phone, where it doesn't, its sides hold at 20px and its
+              words go under the plus, the placeholder under them: "Customer"
+              is 152px at 200%, and beside the plus it had 92px on a 320px
+              screen. */}
           <div role="group" aria-labelledby={chipsLabel} className="flex flex-wrap gap-2">
             {chips.map((chip) => (
               <Button
@@ -182,7 +191,7 @@ export function MessageFields({
                 // Keep the field's caret: the chip goes where the owner was typing.
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => insert(chip.token)}
-                className="max-w-full !whitespace-normal text-center"
+                className="max-w-full !whitespace-normal text-center max-sm:flex-wrap max-sm:px-[min(1.25rem,20px)]"
               >
                 {t(`messaging.editor.chip.${chip.key satisfies PlaceholderKey}`)}
                 <span dir="auto" className="font-body font-normal text-ink-muted">

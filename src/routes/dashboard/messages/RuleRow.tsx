@@ -22,6 +22,11 @@ export const KIND_ICONS = {
  * words, and one line of where it stands. The switch at the end is named
  * after the rule, its state the switch's own, and a refusal is said under
  * the row that caused it.
+ *
+ * With large text on a phone, where the rule's longest word can't stand
+ * beside the icon and the switch, the switch goes under the row, at the end,
+ * and then the words under the icon: at 200% on a 375px screen the icon and
+ * the switch had left the words 13px.
  */
 export function RuleRow({
   rule,
@@ -90,13 +95,13 @@ export function RuleRow({
 
   return (
     <li className={cn("flex flex-col gap-1 py-2 pe-3 ps-1", className)}>
-      <div className="flex items-start gap-2">
+      <div className="flex flex-wrap items-start gap-2">
         <Link
           to={`/dashboard/messages/automations/${rule.id}`}
           className={cn(
             // A control, like the kit's rows: a long press neither selects
             // the rule's words nor opens the link's callout.
-            "group flex min-w-0 flex-1 touch-manipulation select-none items-start gap-3 rounded-field px-3 py-2 transition-colors duration-gentle ease-out [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] active:bg-ink/[0.06] hover-fine:bg-ink/5",
+            "group flex min-w-min flex-1 touch-manipulation select-none flex-wrap items-start gap-3 rounded-field px-3 py-2 transition-colors duration-gentle ease-out [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] active:bg-ink/[0.06] hover-fine:bg-ink/5",
             focusRingInset,
           )}
         >
@@ -110,7 +115,9 @@ export function RuleRow({
             <Icon className={cn("absolute inset-0 m-auto text-ink-muted", fade, lit ? "opacity-0" : "opacity-100")} />
             <Icon className={cn("relative text-surface", fade, lit ? "opacity-100" : "opacity-0")} />
           </span>
-          <span className="flex min-w-0 flex-col gap-0.5">
+          {/* Grows from nothing to its own width, never below its longest
+              word: only a word that can't fit beside the icon sends it under. */}
+          <span className="flex min-w-min max-w-max flex-1 flex-col gap-0.5">
             <span
               dir="auto"
               className="type-body line-clamp-2 font-semibold text-ink [overflow-wrap:anywhere] [text-align:-webkit-match-parent] [text-align:match-parent]"
@@ -136,7 +143,7 @@ export function RuleRow({
           description={disabledReason}
           // The reason stands under the switch rather than beside it, so a
           // phone keeps its width for the rule's own words.
-          className="max-w-[6.5rem] shrink-0 flex-col items-end pt-3 [&>span:last-child]:text-end"
+          className="ms-auto max-w-[6.5rem] shrink-0 flex-col items-end pt-3 [&>span:last-child]:text-end"
         />
       </div>
       {problem && <div className="ps-16">{problem}</div>}

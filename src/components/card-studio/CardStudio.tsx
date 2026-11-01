@@ -11,6 +11,7 @@ import type { LintReading } from "./lintProblems";
 import { StudioBar, type StudioBarProps } from "./StudioBar";
 import { StudioStage, type CardPart, type StageHandle, type Wallet } from "./StudioStage";
 import { StudioTray } from "./StudioTray";
+import { useStudioWide } from "./useStudioWide";
 import {
   backState,
   rewardForRow,
@@ -50,21 +51,6 @@ const PART_OF: Record<string, CardPart | undefined> = {
 /** The device's own wallet first, as the Overview's own pass opens. */
 function deviceWallet(): Wallet {
   return typeof navigator !== "undefined" && /iPhone|iPad|Macintosh/.test(navigator.userAgent) ? "apple" : "google";
-}
-
-/** From 1024px the trays become tabs beside a sticky card. */
-const WIDE = "(min-width: 1024px)";
-
-function useWide(): boolean {
-  const [wide, setWide] = useState(() => typeof window !== "undefined" && window.matchMedia(WIDE).matches);
-  useEffect(() => {
-    const query = window.matchMedia(WIDE);
-    const update = () => setWide(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
-  return wide;
 }
 
 /**
@@ -266,8 +252,9 @@ export interface CardStudioProps {
  * On a phone, the card first, the sample under it, the reward said as a
  * sentence, and a row of chips. A tap on the card's stamps, its names or its
  * logo, or on a chip, opens what it shows in a tray over the lower half, so
- * every choice lands on the card in view. From 1024px the trays are tabs in
- * a working column, beside the card in a sticky column with Save under it.
+ * every choice lands on the card in view. From 1024px (64rem, so later with
+ * larger text) the trays are tabs in a working column, beside the card in a
+ * sticky column with Save under it.
  *
  * Controlled: the page holds the draft, the held pictures and the save.
  */
@@ -300,7 +287,7 @@ export function CardStudio({
   saveRef,
 }: CardStudioProps) {
   const { t } = useTranslation();
-  const wide = useWide();
+  const [wide, studioBox] = useStudioWide();
   const reduced = useReducedMotion();
   const stage = useRef<StageHandle>(null);
   const chips = useRef(new Map<string, HTMLButtonElement>());
@@ -488,7 +475,12 @@ export function CardStudio({
 
   const sampleRow = (
     // Quick taps on + land one stamp each, never a double-tap zoom.
-    <div className="flex touch-manipulation items-center justify-center gap-3">
+    //
+    // The words stand between the two buttons while their longest word fits
+    // there: the buttons and gaps take 7rem and "stamps" 3rem. With large
+    // text on a phone (8rem at 200% on a 320px screen) they stand over the
+    // buttons at the row's width.
+    <div className="flex touch-manipulation flex-wrap items-center justify-center gap-3 [container-type:inline-size]">
       <Button
         variant="secondary"
         size="icon"
@@ -497,7 +489,10 @@ export function CardStudio({
         disabled={shownSample <= 0}
         onClick={() => setSample(Math.max(0, shownSample - 1))}
       />
-      <p aria-live="polite" className="type-body min-w-0 text-center text-ink-muted">
+      <p
+        aria-live="polite"
+        className="type-body min-w-min max-w-max flex-1 text-center text-ink-muted [@container(max-width:11rem)]:order-first [@container(max-width:11rem)]:max-w-none [@container(max-width:11rem)]:basis-full"
+      >
         {t("studio.sample", { count: shownSample, total: value.stamps_required })}
       </p>
       <Button
@@ -514,20 +509,22 @@ export function CardStudio({
     </div>
   );
 
+  // With large text on a phone, where the sentence's longest word can't stand
+  // between the gift and the pencil, the pencil goes under it, at the end.
   const rewardRow = (
     <div ref={rewardBox} className="flex flex-col gap-2">
       <button
         type="button"
         onClick={() => open("reward")}
         className={cn(
-          "theme-lit flex min-h-14 w-full items-center gap-3 rounded-panel border border-border bg-surface px-4 py-3 text-start shadow-panel",
+          "theme-lit flex min-h-14 w-full flex-wrap items-center gap-3 rounded-panel border border-border bg-surface px-4 py-3 text-start shadow-panel",
           "touch-manipulation select-none transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5",
           noTapFlash,
           focusRingInset,
         )}
       >
         <Gift aria-hidden className="size-5 shrink-0 text-ink" />
-        <span className="type-body min-w-0 flex-1 text-ink">
+        <span className="type-body min-w-min flex-1 text-ink">
           <Trans
             i18nKey="studio.rewardSentence"
             count={value.stamps_required}
@@ -535,7 +532,7 @@ export function CardStudio({
             components={{ b: <bdi className="font-semibold" /> }}
           />
         </span>
-        <Pencil aria-hidden className="size-5 shrink-0 text-ink-muted" />
+        <Pencil aria-hidden className="ms-auto size-5 shrink-0 text-ink-muted" />
         <span className="sr-only">{t("studio.editReward")}</span>
       </button>
       <BackDiffers back={back} onFollow={onFollow} />
@@ -564,7 +561,7 @@ export function CardStudio({
   if (wide) {
     const tab = tray ?? "colours";
     return (
-      <div className="flex flex-col gap-5">
+      <div ref={studioBox} className="flex flex-col gap-5">
         {notices}
         <Tabs value={tab} onChange={onTray}>
           {/* Across the whole studio, so every tray's tab fits on one line
@@ -617,7 +614,7 @@ export function CardStudio({
 
   const chipTrays = trays.filter(({ id }) => id !== "reward");
   return (
-    <div className="flex flex-col gap-4">
+    <div ref={studioBox} className="flex flex-col gap-4">
       {stageView}
       {sampleRow}
       {notices}

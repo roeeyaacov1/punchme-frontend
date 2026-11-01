@@ -234,7 +234,9 @@ export function StandeePage() {
 
           {canEnroll ? (
             <>
-              <Button size="lg" icon={<Printer aria-hidden />} onClick={() => window.print()} className="w-full max-w-full !whitespace-normal text-center">
+              {/* Its sides hold at 28px as the text grows, so the word stays
+                  beside the printer at 200% (in Hebrew it ran 9px out). */}
+              <Button size="lg" icon={<Printer aria-hidden />} onClick={() => window.print()} className="w-full max-w-full !whitespace-normal text-center !px-[min(1.75rem,28px)]">
                 {t("standee.print")}
               </Button>
               <div className="flex flex-col gap-1 text-sm leading-snug text-ink-muted">
@@ -243,7 +245,9 @@ export function StandeePage() {
               </div>
             </>
           ) : owns ? (
-            <LitPanel className="flex flex-col gap-3 p-4 sm:p-5">
+            // The panel's sides and the button's hold at their 100% widths
+            // as the text grows: at 200% "Activate" had 76px inside them.
+            <LitPanel className="flex flex-col gap-3 px-[min(1rem,16px)] py-4 sm:px-[min(1.25rem,20px)] sm:py-5">
               <p className="type-body text-ink">
                 <Trans
                   i18nKey="standee.free.owner"
@@ -251,7 +255,7 @@ export function StandeePage() {
                   components={{ ltr: <bdi dir="ltr" className="type-figure" /> }}
                 />
               </p>
-              <LinkButton to="/dashboard/billing" variant="primary" size="lg" className="w-full max-w-full !whitespace-normal text-center">
+              <LinkButton to="/dashboard/billing" variant="primary" size="lg" className="w-full max-w-full !whitespace-normal text-center !px-[min(1.75rem,28px)]">
                 {t("billing.activateCta")}
               </LinkButton>
             </LitPanel>
@@ -285,6 +289,12 @@ export function StandeePage() {
  * tree, or each option would read out a whole poster before its name.
  *
  * Chosen is drawn in ink, a 2px ring and a check, never in coral.
+ *
+ * Two by two while each card holds its words. A card's widest word is
+ * "Counter", 3.4rem, and its sides take 1.5rem, so two need about 11rem; at
+ * 100% the group is never under 18rem. Large text narrows it in rem, and
+ * under 14rem the cards stand one per row (8rem at 200% on a 320px phone,
+ * 8.6rem in the laptop's 45% column).
  */
 function DesignChoice({
   value,
@@ -303,12 +313,12 @@ function DesignChoice({
   const name = useId();
   const hintId = useId();
   return (
-    <fieldset className="min-w-0" aria-describedby={hintId}>
+    <fieldset className="min-w-0 [container-type:inline-size]" aria-describedby={hintId}>
       <legend className="type-label text-ink">{t("standee.designLabel")}</legend>
       <p id={hintId} className="mb-3 mt-0.5 text-sm leading-snug text-ink-muted">
         {t("standee.designHint")}
       </p>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 [@container(max-width:14rem)]:grid-cols-1">
         {STANDEE_DESIGNS.map((key) => {
           const chosen = key === value;
           return (

@@ -42,13 +42,19 @@ export interface NoticeProps extends Omit<HTMLAttributes<HTMLDivElement>, "title
  * words say, so the state is also named to a screen reader.
  *
  * Not a live region by itself: a page that needs one passes `role`.
+ *
+ * The words and the action stand beside the icon while their longest word,
+ * or the action, fits there. With large text on a phone, where it doesn't,
+ * they go under the icon at the panel's full width.
  */
 export function Notice({ tone, title, children, action, lit, icon, className, ...props }: NoticeProps) {
   const { t } = useTranslation();
   return (
-    <LitPanel light={lit ? "lit" : "panel"} className={cn("flex items-start gap-3 p-4 sm:px-5", className)} {...props}>
+    <LitPanel light={lit ? "lit" : "panel"} className={cn("flex flex-wrap items-start gap-3 p-4 sm:px-5", className)} {...props}>
       <span className={cn("flex h-6 shrink-0 items-center [&_svg]:size-5", TONES[tone])}>{icon ?? ICONS[tone]}</span>
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
+      {/* Takes the rest of the line, never less than its longest word: only
+          a word or an action that can't fit beside the icon sends it under. */}
+      <div className="flex min-w-min flex-1 flex-col gap-1">
         <span className="sr-only">{t(`kit.notice.${tone}`)}</span>
         {title && <p className={cn("type-body font-semibold", TONES[tone])}>{title}</p>}
         {children && <div className="type-body text-ink">{children}</div>}

@@ -419,7 +419,11 @@ export function CustomersPage() {
   } else {
     body = (
       <>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        {/* From 640px the order stands beside the chips while their widest
+            chip fits there. With large text it is 15rem of a row that is
+            15.5rem at 200% on a 768px screen, and it left the chips none:
+            then it goes under them. */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
           <FilterChips
             label={t("dashboard.customers.filter.label")}
             hideLabel
@@ -430,7 +434,7 @@ export function CustomersPage() {
               label: t(`dashboard.customers.filter.${key}`),
               count: counts[key],
             }))}
-            className="min-w-0 flex-1"
+            className="min-w-0 flex-1 sm:min-w-min"
           />
           <Select
             label={t("dashboard.customers.sort.label")}
@@ -510,7 +514,9 @@ export function CustomersPage() {
     <div className="mx-auto flex w-full max-w-[45rem] flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-baseline gap-x-3">
-          <h1 ref={headingRef} tabIndex={-1} className="type-title text-ink outline-none">
+          {/* "Customers" alone is wider than a 320px phone's line at 200%
+              text: the word breaks rather than widen the page. */}
+          <h1 ref={headingRef} tabIndex={-1} className="type-title text-ink outline-none [overflow-wrap:anywhere]">
             {t("dashboard.customers.title")}
           </h1>
           {all.length > 0 && (
@@ -600,6 +606,10 @@ function nameSortKey(c: CustomerListItem): string {
  * still lines it up with the Hebrew names around it (Chrome and Safari know
  * it only as `-webkit-match-parent`). With no name, the number is the
  * title. The count stands over the badge, so a name gets the width.
+ *
+ * With large text on a phone the monogram, the count and the badge leave the
+ * name no room on one line, so the count and the badge go under it, at the
+ * end; at 100% they always share the line.
  */
 function Row({ customer: c, onOpen }: { customer: CustomerListItem; onOpen: () => void }) {
   const { t } = useTranslation();
@@ -620,7 +630,7 @@ function Row({ customer: c, onOpen }: { customer: CustomerListItem; onOpen: () =
   return (
     <ListRow
       onClick={onOpen}
-      className="[&>button]:min-h-[3.75rem]"
+      className="[&>button]:min-h-[3.75rem] [&>button]:flex-wrap [&>button>span:last-child]:ms-auto"
       leading={<Monogram name={c.customer_display_name} />}
       title={
         <span

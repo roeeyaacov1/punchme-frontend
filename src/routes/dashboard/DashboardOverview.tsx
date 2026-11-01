@@ -177,12 +177,20 @@ export function DashboardOverview() {
 
   // The label stands over the placeholders as well as the tiles, so the
   // tiles light up where the placeholders stood rather than a line lower.
+  // A tile's widest word is "comparison:", 4.5rem, so two side by side need
+  // a row of about 15rem and four about 31rem. Large text narrows the row in
+  // rem, and then the tiles stack, or go two by two, rather than run their
+  // words into each other. At 100% the row is never under 18rem, nor under
+  // 54rem with four.
   const tiles = (content: ReactNode) => (
-    <section aria-labelledby="tiles-title" className="flex flex-col gap-3">
+    <section aria-labelledby="tiles-title" className="flex flex-col gap-3 [container-type:inline-size]">
       <h2 id="tiles-title" className="type-label text-ink-muted">
         {t("dashboard.brief.title", { days: BRIEF_DAYS })}
       </h2>
-      <div data-tour="overview-lead" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div
+        data-tour="overview-lead"
+        className="grid grid-cols-2 gap-3 lg:grid-cols-4 [@container(max-width:31rem)]:lg:grid-cols-2 [@container(max-width:15rem)]:grid-cols-1"
+      >
         {content}
       </div>
     </section>
@@ -291,7 +299,8 @@ export function DashboardOverview() {
   );
 
   return (
-    <div className="flex flex-col gap-5">
+    // A container, for the panels' rows below.
+    <div className="flex flex-col gap-5 [container-type:inline-size]">
       {title}
 
       {justActivated && (
@@ -322,10 +331,22 @@ export function DashboardOverview() {
 
       {/* While the reads load, the two panels stand with their titles and a
           placeholder of the chart's and the week's own height, so nothing
-          below moves when the figures land. */}
+          below moves when the figures land.
+
+          Side by side from 1024px while the page's column is at least 52rem,
+          as it always is at the default text size (54.5rem at 1024, less a
+          scrollbar), here and in the row of what customers see below. Large
+          text narrows it in rem: at 200% on a 1280px screen it is 19rem,
+          which left the week a 3rem column for its seven days and the pass's
+          wallet tabs half of 19rem. Then they stand one under another, as on
+          a tablet. */}
       {!failed && !held && !empty && (
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-          <LitPanel as="section" aria-labelledby="month-title" className="flex flex-col gap-1 p-4 sm:p-5 lg:col-span-2">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 [@container(max-width:52rem)]:lg:grid-cols-1">
+          <LitPanel
+            as="section"
+            aria-labelledby="month-title"
+            className="flex flex-col gap-1 p-4 sm:p-5 lg:col-span-2 max-sm:px-[min(1rem,16px)] [@container(max-width:52rem)]:lg:col-span-1"
+          >
             <h2 id="month-title" className="type-card-title text-ink">
               {t("dashboard.overview.chartTitle")}
             </h2>
@@ -352,7 +373,10 @@ export function DashboardOverview() {
             </LinkButton>
           </LitPanel>
 
-          <LitPanel as="section" aria-labelledby="week-title" className="flex flex-col gap-4 p-4 sm:p-5">
+          {/* On a phone both panels' sides hold at 16px as the text grows:
+              at 200% on a 320px screen the week's seven days had 20px each,
+              and "ש׳" is 23px. */}
+          <LitPanel as="section" aria-labelledby="week-title" className="flex flex-col gap-4 p-4 sm:p-5 max-sm:px-[min(1rem,16px)]">
             <h2 id="week-title" className="type-card-title text-ink">
               {t("dashboard.week.title")}
             </h2>
@@ -375,7 +399,7 @@ export function DashboardOverview() {
       {manages ? (
         <section aria-labelledby="facing-title" className="flex flex-col gap-3">
           {facing}
-          <div className={cn("grid grid-cols-1 items-start gap-5", !empty && "lg:grid-cols-2")}>
+          <div className={cn("grid grid-cols-1 items-start gap-5", !empty && "lg:grid-cols-2 [@container(max-width:52rem)]:lg:grid-cols-1")}>
             {!empty && <JoinQr templateId={template.id!} />}
             <OwnPass businessName={business?.name ?? ""} template={template} design={design} preview={preview} trial={false} className={cn(empty && "max-w-xl")} />
           </div>

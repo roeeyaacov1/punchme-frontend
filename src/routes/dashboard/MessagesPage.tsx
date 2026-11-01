@@ -471,7 +471,9 @@ export function MessagesPage() {
   return (
     <div className="mx-auto flex w-full max-w-[45rem] flex-col gap-5">
       <header className="flex flex-col gap-1">
-        <h1 className="type-title text-ink">{t("messaging.title")}</h1>
+        {/* "messages" alone is wider than a 320px phone's line at 200% text:
+            the word breaks rather than run out of the page. */}
+        <h1 className="type-title text-ink [overflow-wrap:anywhere]">{t("messaging.title")}</h1>
         {isPro && <ReachLine summary={facts} loading={summary.isLoading} />}
       </header>
 

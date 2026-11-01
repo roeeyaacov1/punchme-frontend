@@ -30,8 +30,9 @@ function clearEdge(element: HTMLElement) {
  * as it opens, or to where the studio asks (`start`); Escape, the close
  * button, a drag down by its head or another chip closes it, and the studio
  * puts focus back on the chip that opened it.
- * It is as tall as what it holds, up to half the screen, and scrolls inside
- * past that; the save bar sits at its foot, and the edge goes with it.
+ * It is as tall as what it holds, up to half the screen (more where half
+ * would hold little past its heading and foot), and scrolls inside past
+ * that; the save bar sits at its foot, and the edge goes with it.
  *
  * It rises and falls on the kit's sheet motion, a crossfade with reduced
  * motion, and drags with the kit's `useSheetDrag`, used as it is: the hook
@@ -54,7 +55,8 @@ export function StudioTray({
   title: ReactNode;
   /** Which tray it is: a new one takes focus to its heading. */
   trayKey: string;
-  onClose: () => void;
+  /** `false` when the tray holds open: a drag that let it go then brings it back. */
+  onClose: () => boolean | void;
   onHeight?: (height: number) => void;
   children: ReactNode;
   foot?: ReactNode;
@@ -200,8 +202,11 @@ export function StudioTray({
       ref={panel}
       aria-labelledby={headingId}
       className={cn(
-        // Over the phone bar, as a sheet is: the card keeps the height.
-        "fixed inset-x-0 bottom-0 z-40 mx-auto flex max-h-[50dvh] w-full max-w-2xl touch-manipulation flex-col",
+        // Over the phone bar, as a sheet is: the card keeps the height. Half
+        // the screen, unless that leaves no room past its heading and foot
+        // (large text, a short screen, a phone on its side): then 18rem,
+        // but never more than 85% of the screen.
+        "fixed inset-x-0 bottom-0 z-40 mx-auto flex max-h-[min(85dvh,max(50dvh,18rem))] w-full max-w-2xl touch-manipulation flex-col",
         "rounded-t-glass border border-b-0 border-border bg-surface text-ink shadow-panel-lift",
         motion,
       )}

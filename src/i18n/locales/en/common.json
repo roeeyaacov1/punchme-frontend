@@ -339,25 +339,40 @@
   "onboarding": {
     "steps": {
       "business": "Your business",
-      "color": "Card look",
+      "color": "Colours",
       "accent": "Stamp colour",
-      "stamp": "Stamp",
-      "reward": "Reward",
-      "account": "Account",
-      "wallet": "Your wallet",
-      "billing": "Go live"
+      "stamp": "The stamp",
+      "reward": "Your card",
+      "account": "Saving",
+      "wallet": "In your wallet",
+      "billing": "Going live"
     },
     "progress": "Step {{n}} of {{total}}",
+    "next": "Next: {{step}}",
+    "lastStop": "You can do this later too",
+    "unreadable": "We couldn't reach PunchMe just now. Check the connection and try again.",
+    "missing": {
+      "name": "Write your business's name.",
+      "nameLong_one": "The name has 1 character too many: it can be up to {{max}}.",
+      "nameLong_other": "The name has {{count}} characters too many: it can be up to {{max}}.",
+      "trade": "Choose what kind of business it is.",
+      "reward": "Write what customers get.",
+      "account": "Write your email and a password."
+    },
+    "storage": {
+      "full": "This device isn't saving your choices right now: its storage is full. What you change from here lasts only until you close the page; save the card now to keep it."
+    },
+    "progressSpoken": "Step {{n}} of {{total}}: {{step}}",
     "preview": {
-      "ariaLabel": "Preview of your card",
-      "summary": "{{name}} — {{count}} stamps to a reward. Reward: {{reward}}.",
+      "summary_one": "{{name}} — 1 stamp to a reward. Reward: {{reward}}.",
+      "summary_other": "{{name}} — {{count}} stamps to a reward. Reward: {{reward}}.",
+      "yourBusiness": "Your business",
       "wallets": "Preview wallet"
     },
     "business": {
-      "title": "What's your business called?",
       "nameLabel": "Business name",
       "namePlaceholder": "e.g. Danny's Barbershop",
-      "nicheLabel": "What kind of place is it?",
+      "nicheLabel": "What kind of business is it?",
       "autofillTitle": "Details auto-filled from Google",
       "autofillBody": "We filled in what we could find. You can edit anything.",
       "autofillClear": "Clear",
@@ -370,9 +385,6 @@
       }
     },
     "color": {
-      "title": "Pick your card look",
-      "custom": "Custom colour",
-      "customLabel": "Card colour",
       "names": {
         "midnight": "Midnight",
         "slate": "Slate",
@@ -388,8 +400,6 @@
       }
     },
     "looks": {
-      "legend": "Ready-made looks",
-      "orColor": "Or pick your own colour",
       "names": {
         "classic": "Classic",
         "warm": "Warm",
@@ -398,7 +408,8 @@
         "night": "Night",
         "fresh": "Fresh",
         "calm": "Calm"
-      }
+      },
+      "numbered": "Look {{n}}"
     },
     "accent": {
       "title": "Now the stamp colour",
@@ -413,20 +424,13 @@
       "customAccent": "Custom stamp colour"
     },
     "stamp": {
-      "title": "Choose your stamp",
-      "tabs": {
-        "icons": "Icons",
-        "image": "Your picture"
-      },
-      "gridLabel": "Stamp icon",
-      "textureLabel": "Texture behind the stamps",
       "uploadCta": "Choose a picture",
       "uploadReplace": "Choose a different picture",
       "uploadHint": "Square works best — it's cropped into a circle on the card.",
       "uploadTooLarge": "That picture is too big — keep it under 8 MB.",
       "uploadUnreadable": "Couldn't read that picture — try a JPG or PNG.",
-      "artMissing": "Your picture didn't survive the reload — please add it again.",
-      "artMemoryOnly": "Storage is full, so this picture only lasts until you close the tab.",
+      "artMemoryOnly": "This device has no room to keep the picture, so it lasts only until you close the page. Save the card to keep it.",
+      "notOnDevice": "Your picture isn't saved on this device. Choose it again, or a symbol.",
       "glyphs": {
         "check": "Check",
         "heart": "Heart",
@@ -447,55 +451,60 @@
       }
     },
     "reward": {
-      "title": "How many stamps, and what's the reward?",
       "stampsLabel": "Stamps to a reward",
       "stampsValue_one": "{{count}} stamp",
       "stampsValue_other": "{{count}} stamps",
-      "rewardLabel": "The reward",
-      "rewardPlaceholder": "e.g. 10th haircut free"
+      "rewardPlaceholder": "e.g. A free haircut"
     },
     "account": {
       "title": "Save your card",
-      "subtitle": "An account keeps it yours. Free — no card details.",
+      "subtitle": "Your account keeps what you designed. Free, no credit card.",
       "signedInAs": "Signed in as {{email}}",
-      "saveCta": "Save my card",
-      "createCta": "Create my account",
+      "signedInLine": "Signed in as <ltr>{{email}}</ltr>.",
+      "saveCta": "Save the card",
+      "createCta": "Create account and save",
+      "signInCta": "Sign in and save",
       "saving": "Saving your card…",
       "alreadyRegistered": "That email already has an account — sign in instead.",
       "throttled": "Too many attempts — try again in a minute.",
-      "existingTitle": "You already have a card",
-      "existingBody": "This account already has a loyalty card. Replace its design with the one you just made, or keep the current one?",
+      "existingTitle": "This account already has a card",
+      "existingBody": "Replace its design with the one you just made, or keep the one it has?",
+      "existingCard": "The card this account has",
+      "newDesign": "The card you just designed",
       "replace": "Replace with my new design",
-      "keep": "Keep my current card",
-      "switchAccount": "Use a different account"
+      "keep": "Keep the one I have",
+      "keepCost": "The new design won't be saved.",
+      "switchAccount": "Use a different account",
+      "hireTitle": "This account is on <b>{{business}}</b>'s team",
+      "hireBody": "So it can't save a card of its own. To keep what you designed, use an account of your own.",
+      "toDashboard": "To the dashboard",
+      "problem": {
+        "name": "The business's name is longer than the card takes: up to 120 characters. Shorten it, then save again.",
+        "toName": "Check the name",
+        "picture": "The stamp's picture couldn't be used. Choose it again, or another one, then save.",
+        "toPicture": "Choose the picture again",
+        "invalid": "Something on the card wasn't accepted, so it wasn't saved. Your design is still here."
+      }
     },
     "wallet": {
-      "title": "Add it to your own wallet",
-      "subtitle": "Try it exactly as your customers will.",
-      "preparing": "Preparing your card…",
-      "preparingHint": "We're building the pass for Apple Wallet and Google Wallet. This takes about a minute.",
-      "issuing": "Almost there — issuing your pass…",
-      "ready": "Your card is ready.",
-      "scanHint": "On a computer? Scan this with your phone to add the card there.",
-      "slow": "This is taking longer than usual. Your card is still being prepared — you can continue and add it from the dashboard later.",
+      "title": "Your card in your own wallet",
+      "subtitle": "This is how customers will see it. Add it to your phone and try it.",
+      "preparing": "Making the wallet card. It usually takes about a minute.",
+      "issuing": "Almost ready: issuing your card.",
+      "scanHint": "Scan this with your phone to add it there.",
+      "slow": "This is taking longer than usual. Your card is saved, and it will wait for you on the dashboard too.",
       "checkAgain": "Check again",
-      "failed": "Something went wrong preparing your card.",
+      "failed": "Your card is saved, but making it for the wallet didn't work.",
       "retry": "Try again",
       "continue": "Continue",
-      "skip": "Skip for now"
+      "skip": "Skip for now",
+      "offline": "No connection. Your card is saved, and this carries on by itself once the connection is back."
     },
     "billing": {
       "title": "Go live when you're ready",
-      "subtitle": "Your card and dashboard are free. Pay only when real customers can join.",
-      "priceNote": "a month, cancel any time",
-      "bullets": [
-        "Your QR code and a printable stand for the counter",
-        "Real customers can add the card and collect stamps",
-        "Cancel any time from the dashboard"
-      ],
-      "freeNote": "Not ready? Everything you've made stays free — activate whenever you like.",
-      "activateCta": "Activate for ₪99/month",
-      "notNow": "Not now — take me to my dashboard"
+      "notNow": "Not now, to the dashboard",
+      "how": "You pay on Stripe's page. You can cancel any time, from the dashboard.",
+      "stays": "Designing the card, trying it on your own phone, the dashboard and your team: free, before activating and after."
     },
     "card": {
       "templateName": {
@@ -524,12 +533,13 @@
         "info": "Info"
       },
       "reward": {
-        "barber": "10th haircut free",
-        "cafe": "Free coffee on your 8th visit",
-        "trainer": "1 free training session",
-        "therapist": "Free treatment on your 6th visit",
-        "other": "Free reward after 10 visits"
-      }
+        "barber": "A free haircut",
+        "cafe": "A free coffee",
+        "trainer": "A free session",
+        "therapist": "A free treatment",
+        "other": "A treat on us"
+      },
+      "save": "Save the card"
     },
     "design": {
       "title": "Design your card",
@@ -586,6 +596,19 @@
       "logoUpload": "Upload an image",
       "logoUrlLabel": "Or paste an image URL",
       "logoUploadError": "Couldn't upload that logo — paste a URL instead"
+    },
+    "map": {
+      "title": "Design your card",
+      "lead": "Go through each part, then save.",
+      "part": "Part {{n}} of {{total}}",
+      "next": "Next: {{part}}",
+      "opened": {
+        "business": "opened",
+        "colours": "opened",
+        "stamp": "opened",
+        "reward": "opened"
+      },
+      "done": "Every part is open. You can save the card."
     }
   },
   "enroll": {

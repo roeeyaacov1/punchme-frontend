@@ -37,8 +37,14 @@ export type DraftStep = (typeof DRAFT_STEPS)[number];
 export const ALL_STEPS = [...DRAFT_STEPS, "wallet", "billing"] as const;
 export type WizardStep = (typeof ALL_STEPS)[number];
 
+/** The parts of the card the owner walks on the map, in the walk's order. */
+export const MAP_PARTS = ["business", "colours", "stamp", "reward"] as const;
+export type MapPart = (typeof MAP_PARTS)[number];
+
 export const MIN_STAMPS = 2;
 export const MAX_STAMPS = 12;
+/** The API keeps a business name to 120 characters (BusinessIn.name). */
+export const NAME_MAX = 120;
 
 export type StampChoice =
   | { kind: "glyph"; glyph: string }
@@ -79,6 +85,10 @@ export interface OnboardingDraft {
   reward: string | null;
   committed: CommittedRecord | null;
   updatedAt: number;
+  /** The parts of the card opened on the map so far, each once. Absent on
+   * a draft from before the map, which reads as none opened. Only the walk
+   * reads it: `commit.ts` never does, so it never reaches the server. */
+  seen?: MapPart[];
 }
 
 export function emptyDraft(): OnboardingDraft {
@@ -135,6 +145,17 @@ function parseCommitted(value: unknown): CommittedRecord | null {
   };
 }
 
+/** The known parts, once each, in the order they were opened. */
+function parseSeen(value: unknown[]): MapPart[] {
+  const seen: MapPart[] = [];
+  for (const part of value) {
+    if ((MAP_PARTS as readonly unknown[]).includes(part) && !seen.includes(part as MapPart)) {
+      seen.push(part as MapPart);
+    }
+  }
+  return seen;
+}
+
 /** Anything that isn't a v1 draft becomes null — a stale shape from an
  * older build must never resurrect as half a card. Field by field, so one
  * bad value drops that value rather than the whole draft. */
@@ -160,6 +181,9 @@ export function parseDraft(value: unknown): OnboardingDraft | null {
     reward: typeof raw.reward === "string" ? raw.reward : null,
     committed: parseCommitted(raw.committed),
     updatedAt: typeof raw.updatedAt === "number" ? raw.updatedAt : 0,
+    // Left out, not emptied, when there is nothing to read: a draft from
+    // before the map parses back to exactly what was stored.
+    ...(Array.isArray(raw.seen) ? { seen: parseSeen(raw.seen) } : {}),
   };
 }
 

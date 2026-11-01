@@ -17,13 +17,17 @@ export interface CheckboxProps {
  * Space, a screen reader and a form all work as they always have, restyled:
  * the field edge when empty (3.35:1), an ink box with a cream check when
  * ticked. The label is the 44px target.
+ *
+ * The words stand beside the box while their longest word fits there. With
+ * large text on a phone, where it doesn't, they go under it at the label's
+ * full width, as a switch's do.
  */
 export function Checkbox({ checked, onChange, label, description, disabled, className }: CheckboxProps) {
   const descriptionId = useId();
   return (
     <label
       className={cn(
-        "flex min-h-11 items-start gap-3 py-2",
+        "flex min-h-11 flex-wrap items-start gap-3 py-2",
         disabled ? "cursor-not-allowed" : "cursor-pointer",
         noTapFlash,
         className,
@@ -47,7 +51,9 @@ export function Checkbox({ checked, onChange, label, description, disabled, clas
           className="pointer-events-none absolute size-4 text-surface opacity-0 transition-opacity duration-gentle ease-out peer-checked:opacity-100"
         />
       </span>
-      <span className="flex min-w-0 flex-col gap-0.5">
+      {/* Grows from nothing to its own width, never below its longest word:
+          only a word that can't fit beside the box sends it under. */}
+      <span className="flex min-w-min max-w-max flex-1 flex-col gap-0.5">
         <span className={cn("type-body", disabled ? "text-ink-subtle" : "text-ink")}>{label}</span>
         {description && (
           <span id={descriptionId} className="text-sm leading-snug text-ink-muted">

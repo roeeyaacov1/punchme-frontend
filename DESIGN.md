@@ -394,7 +394,7 @@ Generous and soft. Buttons, chips, segments and tags are full pills; stamps are 
 
 ### Chips
 - **Badges** say one word about something and are never controls. Neutral is ink-muted with a soft edge; brand is solid coral with ink; reward is ink on gold; ok is Ok Tag on ok's 15% wash; warn and danger are their words and an icon with a soft edge and no fill.
-- **Segmented control:** native radios in a pill track on the wall; the chosen one is an ink pill with a cream label that slides between segments on the in-out, mirrored in Hebrew.
+- **Segmented control:** native radios in a pill track on the wall; the chosen one is an ink pill with a cream label that slides between segments on the in-out, mirrored in Hebrew. Where large text leaves the segments too narrow for their words, they stand one under another in a rounded track, and the chosen one's colour crosses over, as with reduced motion.
 
 ### Cards / Containers
 - **Corner Style:** 24px in the dashboard, 32px for the landing page's tall cards, 40px for its hero.

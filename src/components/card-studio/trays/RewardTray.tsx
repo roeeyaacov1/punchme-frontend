@@ -6,7 +6,7 @@ import { stampColourOf, withReward, type BackState, type CardStudioValue } from 
 
 /** What customers get, after how many stamps, and what the back of the card says. */
 export const RewardTray = forwardRef<
-  HTMLInputElement,
+  HTMLTextAreaElement,
   {
     value: CardStudioValue;
     onChange: (next: CardStudioValue) => void;

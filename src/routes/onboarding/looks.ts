@@ -1,10 +1,13 @@
+import type { TFunction } from "i18next";
 import type { DesignDoc } from "../../api/designs";
 import type { Preset } from "../../api/presets";
-import { relatedAccents } from "../../lib/accentPalette";
+import type { ReadyLook } from "../../components/card-studio/controls/controlRules";
+import { SUPPORTED_LANGS } from "../../i18n/languages";
+import { derivedLabelColor, relatedAccents } from "../../lib/accentPalette";
 import { CARD_PATTERNS, type CardPattern } from "../../lib/cardPatterns";
 import { normalizeHex, readableInk } from "../../lib/color";
 import { STAMP_GLYPH_NAMES } from "../../lib/stampGlyphs";
-import { NICHE_GLYPH, type Niche, type OnboardingDraft } from "./draft";
+import { NICHE_GLYPH, NICHES, type Niche, type OnboardingDraft } from "./draft";
 
 /**
  * Ready-made looks — a finished card an owner can take whole.
@@ -163,4 +166,113 @@ export function lookPatch(look: CardLook): Partial<OnboardingDraft> {
     pattern: look.pattern,
     stampsRequired: look.stamps,
   };
+}
+
+/**
+ * The trade's looks as the card controls offer them (`CardColourPicker`'s
+ * ready looks): the stamp colour as `stamp`, the words in the automatic
+ * colour and the labels as the card derives them, so the look the card
+ * started from is found again. A built-in look is named in the page's
+ * language; a catalog look by its place ("Look 1"), since the catalog has
+ * one name, in one language, until the backend gives it one per language.
+ * The names are for a screen reader: the tiles show the look itself.
+ */
+export function readyLooks(looks: readonly CardLook[], t: TFunction): ReadyLook[] {
+  return looks.map((look, index) => ({
+    key: look.key,
+    name: look.name ? t("onboarding.looks.numbered", { n: index + 1 }) : t(`onboarding.looks.names.${look.key}`),
+    background: look.background,
+    stamp: look.accent,
+    text: readableInk(look.background),
+    label: derivedLabelColor(look.background),
+  }));
+}
+
+/**
+ * The trades' default rewards as they were until 29 Oct 2026, when they
+ * lost their numbers: a draft saved before then can still say one, and
+ * "the tenth haircut free" contradicts a card of eight stamps. Data to
+ * match, never shown, so not copy for `t()`: en, then he, in `NICHES`'
+ * order.
+ */
+const NUMBERED_DEFAULTS = [
+  "10th haircut free",
+  "Free coffee on your 8th visit",
+  "1 free training session",
+  "Free treatment on your 6th visit",
+  "Free reward after 10 visits",
+  "התספורת העשירית חינם",
+  "קפה שמיני חינם",
+  "אימון חינם אחרי 10 אימונים",
+  "טיפול שישי חינם",
+  "הטבה חינם אחרי 10 ביקורים",
+];
+
+/** A reward that is still one of the old numbered defaults. */
+export function numberedDefault(reward: string | null): boolean {
+  return reward !== null && NUMBERED_DEFAULTS.includes(reward.trim());
+}
+
+/** Every trade's default reward, in every language the app speaks, and the
+ * numbered ones from before: a reward still saying one of them is the
+ * trade's, not the owner's (`withTradeLook`). */
+export function defaultRewards(t: TFunction): string[] {
+  return [
+    ...NICHES.flatMap((niche) => SUPPORTED_LANGS.map((lng) => t(`onboarding.card.reward.${niche}`, { lng }))),
+    ...NUMBERED_DEFAULTS,
+  ];
+}
+
+/** The draft still wears this look whole: nothing a look writes was changed. */
+function wears(draft: OnboardingDraft, look: CardLook): boolean {
+  return (
+    draft.background?.toLowerCase() === look.background.toLowerCase() &&
+    draft.accent?.toLowerCase() === look.accent.toLowerCase() &&
+    draft.stamp?.kind === "glyph" &&
+    draft.stamp.glyph === look.glyph &&
+    draft.pattern === look.pattern &&
+    draft.stampsRequired === look.stamps
+  );
+}
+
+/**
+ * What the business's Next writes, so the card screen opens on a finished
+ * card: the trade's first look, in every field the owner hasn't chosen.
+ *
+ * A field the owner chose is never overwritten. One thing does follow a
+ * change of trade: a card still wearing some trade's first look, untouched,
+ * takes the new trade's, so going back and turning a barber into a café
+ * doesn't leave scissors on the café's card. So does a reward that is still
+ * one of the trades' own defaults (`defaultRewards`, in every language),
+ * which goes back to empty and reads the new trade's.
+ */
+export function withTradeLook(
+  draft: OnboardingDraft,
+  presets: Preset[] | undefined,
+  defaultRewards: readonly string[],
+): Partial<OnboardingDraft> {
+  const look = looksFor(draft.niche ?? "other", presets)[0];
+  if (!look) return {};
+  const patch: Partial<OnboardingDraft> = {};
+  const untouched = NICHES.some((trade) => {
+    const first = looksFor(trade, presets)[0];
+    return first !== undefined && wears(draft, first);
+  });
+  if (untouched) {
+    if (!wears(draft, look)) Object.assign(patch, lookPatch(look));
+  } else {
+    if (draft.background === null) patch.background = look.background;
+    if (draft.accent === null) {
+      // A card colour of the owner's own gets a stamp colour that reads on it.
+      patch.accent =
+        draft.background === null
+          ? look.accent
+          : (relatedAccents(draft.background)[0] ?? readableInk(draft.background));
+    }
+    if (draft.stamp === null) patch.stamp = { kind: "glyph", glyph: look.glyph };
+    if (draft.pattern === null) patch.pattern = look.pattern;
+    if (draft.stampsRequired === null) patch.stampsRequired = look.stamps;
+  }
+  if (draft.reward !== null && defaultRewards.includes(draft.reward.trim())) patch.reward = null;
+  return patch;
 }

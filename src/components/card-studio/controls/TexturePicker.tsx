@@ -7,6 +7,8 @@ import { ChoiceTiles, type Tile } from "./ChoiceTiles";
  * The texture behind the stamps, each tile a piece of the strip: the card
  * colour with the pattern in the stamp colour, as the renderer bakes it.
  * Its name sits on a chip of the panel at 13px, so it reads on any card.
+ * Four to a row while each name fits its tile (16.25rem); with large text
+ * on a phone, as many as fit, rather than names that run out of their tiles.
  */
 export function TexturePicker({
   value,
@@ -42,7 +44,8 @@ export function TexturePicker({
       value={value}
       onChange={onChange}
       shape="rounded"
-      listClassName="grid grid-cols-4 gap-2 [&>label]:w-full"
+      className="[container-type:inline-size]"
+      listClassName="grid grid-cols-4 gap-2 [&>label]:w-full [@container(max-width:16.25rem)]:grid-cols-[repeat(auto-fill,minmax(3.5rem,1fr))]"
     />
   );
 }

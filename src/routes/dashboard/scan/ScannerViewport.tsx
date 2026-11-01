@@ -97,14 +97,16 @@ function CameraState({ status, onRetry }: { status: ScannerStatus; onRetry: () =
   const { t } = useTranslation();
   const key = status === "starting" || status === "running" ? "slow" : status;
   return (
-    <div className="relative flex flex-col items-center gap-2 px-6 py-6 text-center">
+    // Its sides hold at 24px as the text grows: at 200% on a 320px phone,
+    // 1.5rem a side left "again" too little room and widened the frame.
+    <div className="relative flex flex-col items-center gap-2 px-[min(1.5rem,24px)] py-6 text-center">
       <CameraOff aria-hidden className="size-7" />
       <p className="type-card-title">{t(`dashboard.scan.${key}.title`)}</p>
       <p className="type-body max-w-sm">{t(`dashboard.scan.${key}.body`)}</p>
       {(status === "denied" || status === "failed" || key === "slow") && (
         // A lit pill on the glass: the day's secondary button in both themes.
         <span className="theme-lit contents">
-          <Button variant="secondary" onClick={onRetry} className="mt-1">
+          <Button variant="secondary" onClick={onRetry} className="mt-1 max-w-full !whitespace-normal text-center">
             {t("dashboard.scan.retry")}
           </Button>
         </span>
