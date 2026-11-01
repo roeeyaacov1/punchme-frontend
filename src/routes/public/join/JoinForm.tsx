@@ -54,7 +54,9 @@ export function JoinForm({ flow }: { flow: JoinFlow }) {
       <h1 ref={heading} tabIndex={-1} className="type-title text-balance outline-none">
         {t("enroll.form.heading")}
       </h1>
-      <LitPanel as="section" className="p-5 sm:p-6">
+      {/* The panel's sides and the button's hold at their 100% widths on a
+          phone as the text grows, so the button keeps its words at 200%. */}
+      <LitPanel as="section" className="p-5 sm:p-6 max-sm:px-[min(1.25rem,20px)]">
         <form
           noValidate
           onSubmit={(event) => {
@@ -124,7 +126,12 @@ export function JoinForm({ flow }: { flow: JoinFlow }) {
               {t(flow.errors.form)}
             </Notice>
           )}
-          <Button type="submit" size="lg" busy={flow.busy} className="w-full !whitespace-normal text-center">
+          <Button
+            type="submit"
+            size="lg"
+            busy={flow.busy}
+            className="w-full !whitespace-normal text-center max-sm:px-[min(1.75rem,28px)]"
+          >
             {t(flow.otpRequired ? "enroll.sendCodeCta" : "enroll.submit")}
           </Button>
           {flow.otpRequired && (

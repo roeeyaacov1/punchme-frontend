@@ -68,8 +68,10 @@ export function JoinSign({
       {held === "notTaking" && (
         <p className="type-body text-pretty text-ink">{notTakingLine ?? t("enroll.upgradeRequired")}</p>
       )}
+      {/* Its sides hold at 28px on a phone as the text grows: at 200% they
+          left "הצטרפות" 98px at 320. */}
       {!held && (
-        <Button size="lg" className="mt-1 w-full" onClick={onJoin}>
+        <Button size="lg" className="mt-1 w-full max-sm:px-[min(1.75rem,28px)]" onClick={onJoin}>
           {t("enroll.sign.join")}
         </Button>
       )}
