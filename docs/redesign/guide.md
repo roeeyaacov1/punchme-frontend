@@ -1379,8 +1379,8 @@ as it is.
 - [x] Phase 8, public pages: contract (27 Oct) · A (27 Oct) · B (27 Oct) · C (27 Oct) · D (30 Oct) · merged (30 Oct)
 - [x] Phase 9, landing page: A (27 Oct) · B (30 Oct) · C (30 Oct) · D (30 Oct) · merged (30 Oct)
 - [x] The dashboard at 200% text, found by Phase 4's step D: the shell, the pages and the kit, the studio, the tour (PRs #27–#30, merged 1 Nov)
+- [x] A stacked segment's sides close in for a word too wide beside them, and its one column never grows past the track, so in English at 320 the account sheet's and the landing page's trade picker keep inside it at 200% text (1 Nov)
 - [ ] 200% text, still open:
-  - a stacked segment keeps its 2rem sides, so in English at 320 the account sheet's and the landing page's trade picker run 13px and 7px past their track;
   - on `/login`, `/join` and `/invite`, at 320 the buttons' words run into their padding and two headings past their box, and at 768 the language switch widens the page;
   - `/style-guide`;
   - on a desk an open studio tray covers the rail;
