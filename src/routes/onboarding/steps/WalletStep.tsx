@@ -298,12 +298,17 @@ export function WalletStep() {
         ))}
       <div className="flex flex-col items-start">
         {ready ? (
+          // Its sides and the gap before the arrow hold at their 100%
+          // widths on a phone as the text grows, as the wallet button's
+          // above it do, and on a narrow phone its word stops growing at
+          // 9vw, which 100% text never reaches: at 320 with 200% text
+          // "Continue" is 150px, exactly what the held sides leave it.
           <Button
             variant="secondary"
             size="lg"
             onClick={() => navigate("/onboarding/billing")}
             iconEnd={<ArrowRight aria-hidden className="rtl:-scale-x-100" />}
-            className="w-full"
+            className="w-full !whitespace-normal text-center !text-[length:min(1.0625rem,9vw)] max-sm:gap-[min(0.5rem,8px)] max-sm:px-[min(1.75rem,28px)]"
           >
             {t("onboarding.wallet.continue")}
           </Button>
