@@ -1383,11 +1383,11 @@ as it is.
 - [x] The public pages at 200% text: `/login`, `/join` and `/invite` in every state, `/p`'s buttons and its stamp screen's count (cut to "0/1" before), the wizard's saving step and its wallet step's "Continue", and the top bars `/c` and `/p` share (PR #35, merged 1 Nov)
 - [x] A label that wraps past two lines keeps a two-line pill's ends, where a full pill turned into an oval whose curve cut its first and last lines: the kit's buttons, chips, segments and badges, and the wallpaper stage's caption, whose lines are now centred (PRs #33 and #34, merged 1 Nov)
 - [x] Buttons whose words were wider than the room inside them at 200% text, which no corner could fix, keep their words clear of their sides: their sides, and their panel's, hold at their 100% widths on a phone (the team page's ready link's at any width, for the laptop's narrow column), an icon goes above words that can't stand beside it, and the billing step's labels stop growing at 9vw. That covers the referral settings' placeholder chips (by up to 90px; the row's indent goes where large text leaves it under 10rem), "Write a message", "Write a sample to yourself", the wizard billing step's "Not now, to the dashboard", "Copy link" and "Share", and the composer's send and its "Yes, send" (1 Nov)
+- [x] The wizard's two columns wait for room: from 1024px only while the screen is at least 58rem, so the step keeps the 30rem the one column gives it beside the card's 22rem, and until then every screen keeps the tablet's one column, its action docked and the map's parts in trays (`useWide.ts`). At 100% they start at 1024px as before; at 200% from 1856px, where the step had been left 160px at 1024 and 236px at 1100 and the billing step's words ran out of their boxes (1 Nov)
 - [ ] 200% text, still open:
   - `/style-guide`;
   - on a desk an open studio tray covers the rail;
   - the admin header's email runs past a 375px screen;
-  - the wizard's two columns from 1024px keep the card's 22rem as the text grows, so at 200% the card takes 704px and the step's column is 160px at 1024 (its panel's words get 64px) and 236px at 1100: on the billing step the words there run out of their boxes and its buttons cross their outlines, and no button's sides can make that room;
   - the landing page's sample answer draws its own "Give the reward" pill, which crosses its outline by 2.3px in English at 320 and 375
 - [ ] Phase 10, cleanup
 
