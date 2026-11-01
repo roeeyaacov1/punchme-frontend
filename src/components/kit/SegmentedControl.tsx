@@ -21,7 +21,8 @@ export interface SegmentedControlProps<T extends string> {
 /**
  * How the segments stand: side by side, each with its 1rem sides or, for a
  * label on one line, closer to its pill's edges (`inset`, in px); or one
- * under another.
+ * under another, where a word too wide for the track beside its sides
+ * brings them closer the same way.
  */
 interface Fit {
   stacked: boolean;
@@ -65,7 +66,8 @@ function fitOf(track: HTMLElement, count: number): Fit {
   const ts = getComputedStyle(track);
   const edges =
     parseFloat(ts.paddingLeft) + parseFloat(ts.paddingRight) + parseFloat(ts.borderLeftWidth) + parseFloat(ts.borderRightWidth);
-  const share = (room - edges) / count;
+  const inner = room - edges;
+  const share = inner / count;
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
   // The labels' `px-4`, both sides.
   const sides = 2 * rem;
@@ -86,7 +88,11 @@ function fitOf(track: HTMLElement, count: number): Fit {
     if (rem <= 16) return ROW;
     return { stacked: false, inset: Math.ceil(((share - line) / 2) * 64) / 64 };
   }
-  return STACKED;
+  // Stacked, each segment has the track's whole width. A word too wide for
+  // it beside the sides brings them in, rounded down so it never runs into
+  // them.
+  if (word <= inner - sides) return STACKED;
+  return { stacked: true, inset: Math.max(0, Math.floor(((inner - word) / 2) * 64) / 64) };
 }
 
 /**
@@ -143,7 +149,9 @@ function useFit(track: RefObject<HTMLDivElement>, count: number): Fit {
  * Hebrew's "Other" does among five at 200% on a laptop. Where neither holds,
  * with large text on a phone, the segments stand one under another at the
  * room's width, and the chosen one's colour crosses over, as with reduced
- * motion.
+ * motion. Stacked, a word too wide to keep its sides brings them in the same
+ * way, as English's "Automatic" does in the account sheet at 200% on a 320px
+ * phone.
  */
 export function SegmentedControl<T extends string>({
   label,
@@ -170,7 +178,10 @@ export function SegmentedControl<T extends string>({
         ref={track}
         className={cn(
           "relative border border-border bg-background p-1",
-          fit.stacked ? "grid auto-rows-fr rounded-[1.625rem]" : "inline-grid grid-flow-col auto-cols-fr rounded-full",
+          // Stacked, one column as wide as the track and never wider, as a
+          // row's are: an implicit `auto` one would grow to fit a long word
+          // and its sides, and the chosen pill with it.
+          fit.stacked ? "grid grid-cols-1 auto-rows-fr rounded-[1.625rem]" : "inline-grid grid-flow-col auto-cols-fr rounded-full",
         )}
       >
         {slide && index >= 0 && (
