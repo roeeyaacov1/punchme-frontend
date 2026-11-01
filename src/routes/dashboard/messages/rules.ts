@@ -117,13 +117,14 @@ export function isLate(rule: AutomationOut, canReachOne: boolean, now = Date.now
  * - a birthday rule, the birthdays in this month.
  *
  * Not for a reward reminder: the summary counts every reward waiting,
- * however long, and the rule waits a number of days first. Not for a rule
- * kept to customers who opted in, which the summary doesn't count.
+ * however long, and the rule waits a number of days first. Both count only
+ * the customers who agreed to messages, as every rule reaches since
+ * 2026-11-01.
  */
 export type Reach = { when: "now" | "month"; count: number };
 
 export function ruleReach(rule: AutomationOut, summary: MessagingSummary | undefined): Reach | null {
-  if (!summary || rule.opt_in_only) return null;
+  if (!summary) return null;
   if (rule.kind === "inactive" && rule.inactive_days !== null) {
     const count = summary.inactive_counts[String(rule.inactive_days)];
     return count === undefined ? null : { when: "now", count };

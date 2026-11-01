@@ -71,8 +71,9 @@ export interface SentencePiece {
  * - A birthday rule runs at its hour on the birthday, or some days before.
  * - A reward reminder runs at its hour for a reward that has waited its days.
  *
- * Then its gift, and whether it keeps to those who opted in. `phrase` says
- * a number of days and an hour the way the page's language does.
+ * Then its gift, and that it reaches only those who agreed to messages, as
+ * every rule does since 2026-11-01 (the counts are of them too). `phrase`
+ * says a number of days and an hour the way the page's language does.
  */
 export function ruleSentence(
   rule: RuleDraft,
@@ -106,6 +107,6 @@ export function ruleSentence(
     if (rule.gift_complete_card) pieces.push({ key: "messaging.sentence.giftFull" });
     else if (rule.gift_stamps > 0) pieces.push({ key: "messaging.sentence.giftStamps", count: rule.gift_stamps });
   }
-  if (rule.opt_in_only) pieces.push({ key: "messaging.sentence.optIn" });
+  pieces.push({ key: "messaging.sentence.optIn" });
   return pieces;
 }

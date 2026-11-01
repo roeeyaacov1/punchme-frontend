@@ -18,7 +18,6 @@ export interface MessageDraft {
   body: string;
   gift_stamps: number;
   gift_complete_card: boolean;
-  opt_in_only: boolean;
   template_id: string | null;
 }
 
@@ -27,7 +26,6 @@ export const EMPTY_MESSAGE: MessageDraft = {
   body: "",
   gift_stamps: 0,
   gift_complete_card: false,
-  opt_in_only: false,
   template_id: null,
 };
 

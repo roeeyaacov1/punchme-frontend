@@ -93,7 +93,6 @@ function fromAutomation(rule: AutomationOut): RuleDraft {
     birthday_days_before: rule.birthday_days_before,
     reward_waiting_days: rule.reward_waiting_days ?? 7,
     send_hour_local: rule.send_hour_local,
-    opt_in_only: rule.opt_in_only,
     template_id: rule.template_id ?? null,
   };
 }
@@ -122,7 +121,6 @@ function toPayload(draft: RuleDraft, fallbackName: string): AutomationIn {
     birthday_days_before: draft.kind === "birthday" ? draft.birthday_days_before : 0,
     reward_waiting_days: draft.kind === "reward_waiting" ? draft.reward_waiting_days : null,
     send_hour_local: draft.send_hour_local,
-    opt_in_only: draft.opt_in_only,
     template_id: draft.template_id,
     is_active: false,
   };
@@ -296,7 +294,6 @@ function AutomationEditor() {
       settled?.inactive_days,
       settled?.reward_waiting_days,
       settled?.birthday_days_before,
-      settled?.opt_in_only,
       settled?.template_id,
     ],
     queryFn: () =>
@@ -305,7 +302,6 @@ function AutomationEditor() {
         inactive_days: settled!.kind === "inactive" ? settled!.inactive_days : undefined,
         reward_waiting_days: settled!.kind === "reward_waiting" ? settled!.reward_waiting_days : undefined,
         birthday_days_before: settled!.kind === "birthday" ? settled!.birthday_days_before : undefined,
-        opt_in_only: settled!.opt_in_only,
         template_id: settled!.template_id ?? undefined,
       }),
     enabled: !!businessId && !!settled && triggerValid(settled),
@@ -336,7 +332,6 @@ function AutomationEditor() {
         birthday_days_before: payload.birthday_days_before,
         reward_waiting_days: payload.reward_waiting_days,
         send_hour_local: payload.send_hour_local,
-        opt_in_only: payload.opt_in_only,
         template_id: payload.template_id,
         ...(activate === undefined ? {} : { is_active: activate }),
       });
@@ -679,7 +674,6 @@ function AutomationEditor() {
             language={language}
             rewardText={template?.reward_description ?? ""}
             templates={templates.data?.map((tpl) => ({ id: tpl.id!, name: tpl.name }))}
-            optInAvailable={canReachOne}
             disabled={busy}
             titleInputRef={titleInput}
             before={<RuleWhen key={generation} draft={draft} onChange={update} />}
