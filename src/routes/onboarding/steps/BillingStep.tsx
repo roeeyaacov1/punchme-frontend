@@ -21,6 +21,14 @@ import { usePublishedPreview } from "../usePublishedPreview";
 /** The four things activating turns on, in the order Billing names them. */
 const UNLOCKS = ["join", "messages", "standee", "referrals"] as const;
 
+/** Activate's and "Not now"'s sides (28px at 100%) hold on a phone as the
+ * text grows, as the panel's do, and on a narrow phone their words stop
+ * growing at 9vw, which 100% text never reaches, as the saving step's do: at
+ * 320 with 200% text "dashboard" is 175px, wider than the button leaves even
+ * with its sides held. */
+const BIG_BUTTON =
+  "w-full !whitespace-normal text-center !text-[length:min(1.0625rem,9vw)] max-sm:px-[min(1.75rem,28px)]";
+
 /** The price as a figure, for `billing.price`'s `<ltr>` part: isolated left
  * to right, so "₪99" reads the same inside Hebrew. */
 function PriceFigure({ children }: { children?: ReactNode }) {
@@ -133,7 +141,7 @@ export function BillingStep() {
 
   return (
     <StepShell cardFirst card={card}>
-      <LitPanel light="band" as="section" className="flex flex-col gap-5 p-5 sm:p-6">
+      <LitPanel light="band" as="section" className={`flex flex-col gap-5 ${panelSides}`}>
         <StepHeading title={t("onboarding.billing.title")} />
         <p className="type-body flex flex-wrap items-baseline gap-x-2 text-ink-muted">
           <Trans i18nKey="billing.price" values={{ price: PUNCHME_MONTHLY_PRICE }} components={{ ltr: <PriceFigure /> }} />
@@ -150,7 +158,7 @@ export function BillingStep() {
           </ul>
         </div>
         <div className="flex flex-col gap-3">
-          <Button size="lg" busy={busy} onClick={() => void activate()} className="w-full !whitespace-normal text-center">
+          <Button size="lg" busy={busy} onClick={() => void activate()} className={BIG_BUTTON}>
             {t("billing.activateCta")}
           </Button>
           {/* Danger's red on the band: 5.96:1 at its light end, 5.50:1 at
@@ -161,7 +169,7 @@ export function BillingStep() {
               <span>{t(problem)}</span>
             </p>
           )}
-          <Button variant="secondary" size="lg" onClick={notNow} className="w-full !whitespace-normal text-center">
+          <Button variant="secondary" size="lg" onClick={notNow} className={BIG_BUTTON}>
             {t("onboarding.billing.notNow")}
           </Button>
           <p className="text-pretty text-sm leading-snug text-ink-muted">{t("onboarding.billing.how")}</p>
