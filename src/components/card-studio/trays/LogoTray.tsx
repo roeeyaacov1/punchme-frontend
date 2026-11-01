@@ -19,25 +19,26 @@ export function LogoTray({
   notKept?: boolean;
 }) {
   const { t } = useTranslation();
-  const [error, setError] = useState<string | null>(null);
+  // The error's key, not its sentence, so that it follows a switch of language.
+  const [errorKey, setErrorKey] = useState<string | null>(null);
   return (
     <UploadTile
       title={t("studio.logoTitle")}
       hint={t("studio.logoHint")}
       src={logo}
       ground={ground}
-      error={error}
+      error={errorKey ? t(errorKey) : null}
       note={notKept ? t("studio.picture.notKept") : undefined}
       onFile={(file) => {
-        setError(null);
+        setErrorKey(null);
         readPicture(file)
           .then((dataUrl) => fitPicture(dataUrl, "logo"))
           .then(onPick)
           .catch((err: unknown) =>
-            setError(
+            setErrorKey(
               err instanceof Error && err.message === "too large"
-                ? t("onboarding.stamp.uploadTooLarge")
-                : t("onboarding.stamp.uploadUnreadable"),
+                ? "onboarding.stamp.uploadTooLarge"
+                : "onboarding.stamp.uploadUnreadable",
             ),
           );
       }}
