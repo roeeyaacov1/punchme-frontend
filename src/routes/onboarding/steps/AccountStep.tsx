@@ -21,6 +21,11 @@ import { useOnboardingDraft } from "../useOnboardingDraft";
 
 const PANEL = `flex flex-col gap-5 ${panelSides}`;
 
+/** A large button's sides (28px at 100%) hold as the text grows, as
+ * `wrapButton` holds a small one's: at 200% they left "שמירת הכרטיסייה"
+ * 100px at 320, and "To the dashboard" 172px on a desk. */
+const BIG_BUTTON = "w-full !whitespace-normal !px-[min(1.75rem,28px)] text-center";
+
 /**
  * Saving the card: the third stop. Signed out it is Phase 8's sign-in form,
  * its parts as they are, in one lit panel under the top of the card; signed
@@ -197,6 +202,10 @@ export function AccountStep() {
           }
           lead={t("onboarding.account.hireBody")}
         />
+        {/* On a narrow phone with large text these labels stop growing at
+            9vw, which 100% text never reaches, as a title stops at 12vw:
+            at 320 with 200% text "dashboard" was 174px, wider than the
+            button leaves even with its sides held. */}
         <div className="flex flex-col gap-3">
           <Button
             size="lg"
@@ -205,11 +214,16 @@ export function AccountStep() {
               setSwitching(true);
               void logout();
             }}
-            className="w-full !whitespace-normal text-center"
+            className={`${BIG_BUTTON} !text-[length:min(1.0625rem,9vw)]`}
           >
             {t("onboarding.account.switchAccount")}
           </Button>
-          <LinkButton to="/dashboard" variant="secondary" size="lg" className="w-full !whitespace-normal text-center">
+          <LinkButton
+            to="/dashboard"
+            variant="secondary"
+            size="lg"
+            className={`${BIG_BUTTON} !text-[length:min(1.0625rem,9vw)]`}
+          >
             {t("onboarding.account.toDashboard")}
           </LinkButton>
         </div>
@@ -242,7 +256,7 @@ export function AccountStep() {
             size="lg"
             busy={committing}
             onClick={() => void commit(true)}
-            className="w-full !whitespace-normal text-center"
+            className={BIG_BUTTON}
           >
             {t("onboarding.account.replace")}
           </Button>
@@ -255,7 +269,7 @@ export function AccountStep() {
               clearOnLeave.current = true;
               navigate("/dashboard", { replace: true });
             }}
-            className="w-full !whitespace-normal text-center"
+            className={BIG_BUTTON}
           >
             {t("onboarding.account.keep")}
           </Button>
@@ -301,7 +315,7 @@ export function AccountStep() {
           ) : (
             problemNotice
           )}
-          <Button type="submit" size="lg" busy={auth.submitting} className="w-full !whitespace-normal text-center">
+          <Button type="submit" size="lg" busy={auth.submitting} className={BIG_BUTTON}>
             {auth.mode === "signup" ? t("onboarding.account.createCta") : t("onboarding.account.signInCta")}
           </Button>
         </form>
@@ -326,7 +340,7 @@ export function AccountStep() {
             size="lg"
             busy={committing}
             onClick={() => void commit()}
-            className="w-full !whitespace-normal text-center"
+            className={BIG_BUTTON}
           >
             {t("onboarding.account.saveCta")}
           </Button>
@@ -375,9 +389,11 @@ function CardLine({
   const { t } = useTranslation();
   return (
     <li className="flex items-start gap-3">
+      {/* The swatch holds its 40px as the text grows, leaving the words
+          room beside it: at 200% "התספורת" didn't fit what it left at 320. */}
       <span
         aria-hidden
-        className="mt-0.5 size-10 shrink-0 rounded-field ring-1 ring-inset ring-field"
+        className="mt-0.5 size-[min(2.5rem,40px)] shrink-0 rounded-field ring-1 ring-inset ring-field"
         style={{ backgroundColor: colour }}
       />
       <span className="flex min-w-0 flex-col">
