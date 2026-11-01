@@ -14,6 +14,11 @@ import { Button, LinkButton, LitPanel, Loading, Notice, Skeleton } from "../../c
 import { PublicPage } from "../public/PublicPage";
 import { hasDraftInProgress, loadDraft } from "../onboarding/draft";
 
+/** The panel's sides, and the submit button's, hold at their 100% widths on
+ * a phone as the text grows: at 320 with 200% text they left "Sign in" 60px
+ * of a 256px column. */
+const PANEL_SIDES = "p-5 sm:p-6 max-sm:px-[min(1.25rem,20px)]";
+
 /**
  * Where an owner belongs when nothing sent them here.
  *
@@ -76,7 +81,7 @@ export function LoginPage() {
   if ((isLoading && getRefreshToken()) || (isAuthenticated && navigation.state !== "idle")) {
     return (
       <LoginFrame>
-        <LitPanel as="section" className="p-5 sm:p-6">
+        <LitPanel as="section" className={PANEL_SIDES}>
           <Loading className="flex flex-col gap-4">
             <Skeleton className="h-8 w-2/3" />
             <Skeleton className="h-12 w-full !rounded-field" />
@@ -96,7 +101,7 @@ export function LoginPage() {
 
   return (
     <LoginFrame>
-      <LitPanel as="section" aria-labelledby="login-title" className="flex flex-col gap-5 p-5 sm:p-6">
+      <LitPanel as="section" aria-labelledby="login-title" className={`flex flex-col gap-5 ${PANEL_SIDES}`}>
         <Heading
           id="login-title"
           title={signup ? t("auth.signUpTitle") : t("auth.signInTitle")}
@@ -127,7 +132,7 @@ export function LoginPage() {
             size="lg"
             busy={auth.submitting}
             disabled={!auth.canSubmit}
-            className="w-full !whitespace-normal text-center"
+            className="w-full !whitespace-normal text-center max-sm:px-[min(1.75rem,28px)]"
           >
             {signup ? t("auth.signUpCta") : t("auth.signInCta")}
           </Button>
@@ -138,7 +143,7 @@ export function LoginPage() {
         to="/onboarding"
         variant="secondary"
         iconEnd={<ArrowRight aria-hidden className="rtl:-scale-x-100" />}
-        className="mt-5 max-w-full self-center !whitespace-normal text-balance text-center"
+        className="mt-5 max-w-full self-center !whitespace-normal text-balance text-center max-sm:px-[min(1.25rem,20px)]"
       >
         {t("auth.newHere")}
       </LinkButton>
@@ -147,7 +152,12 @@ export function LoginPage() {
 }
 
 /** The page's title and what it is for. The title takes focus when the form
- * mounts, so a screen reader starts at the question, not the top bar. */
+ * mounts, so a screen reader starts at the question, not the top bar.
+ *
+ * On a narrow phone with large text the title stops growing at 12vw, which
+ * 100% text never reaches, as the wizard's titles do: at 200% "Welcome" was
+ * 236px in a 216px panel at 320. A word wider than even that breaks rather
+ * than run out of the panel. */
 function Heading({ id, title, subtitle }: { id: string; title: string; subtitle: string }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
@@ -155,7 +165,12 @@ function Heading({ id, title, subtitle }: { id: string; title: string; subtitle:
   }, []);
   return (
     <div className="flex flex-col gap-2">
-      <h1 ref={heading} id={id} tabIndex={-1} className="type-title text-balance outline-none">
+      <h1
+        ref={heading}
+        id={id}
+        tabIndex={-1}
+        className="type-title text-balance break-words text-[length:min(1.75rem,12vw)] outline-none"
+      >
         {title}
       </h1>
       <p className="type-body text-pretty text-ink-muted">{subtitle}</p>

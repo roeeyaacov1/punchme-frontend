@@ -27,6 +27,18 @@ import { PublicPage } from "../public/PublicPage";
  * than its line (as the team pages set one). */
 const address = <bdi dir="ltr" className="[overflow-wrap:anywhere]" />;
 
+/** The panel's sides, and the buttons' in it, hold at their 100% widths on a
+ * phone as the text grows: at 320 with 200% text they left "Create account
+ * and join" 60px of a 256px column. */
+const PANEL_SIDES = "p-5 sm:p-6 max-sm:px-[min(1.25rem,20px)]";
+const BIG_BUTTON = "w-full !whitespace-normal text-center max-sm:px-[min(1.75rem,28px)]";
+
+/** On a narrow phone with large text a title stops growing at 12vw, which
+ * 100% text never reaches, as the wizard's titles do: at 200% "invitation"
+ * was wider than the panel at 320 and 375. A word wider than even that
+ * breaks rather than run out of the panel. */
+const TITLE = "type-title text-balance break-words text-[length:min(1.75rem,12vw)] outline-none";
+
 /**
  * The other end of the link the owner sent over WhatsApp.
  *
@@ -148,7 +160,7 @@ export function InvitePage() {
   if (loading) {
     return (
       <InviteFrame title={t("invite.pageTitleLoading")}>
-        <LitPanel as="section" className="p-5 sm:p-6">
+        <LitPanel as="section" className={PANEL_SIDES}>
           <Loading className="flex flex-col gap-4">
             <Skeleton className="h-8 w-3/4" />
             <Skeleton className="h-6 w-24 !rounded-full" />
@@ -208,7 +220,7 @@ export function InvitePage() {
 
   return (
     <InviteFrame title={title}>
-      <LitPanel as="section" aria-labelledby="invite-title" className="flex flex-col gap-5 p-5 sm:p-6">
+      <LitPanel as="section" aria-labelledby="invite-title" className={`flex flex-col gap-5 ${PANEL_SIDES}`}>
         <Invitation invitation={invitation} language={i18n.resolvedLanguage ?? "he"} />
 
         {isAuthenticated ? (
@@ -221,12 +233,23 @@ export function InvitePage() {
               />
             </p>
             {refusal && (
+              // At 200% text its button was 404px wide on a phone, and the
+              // page with it. The notice's sides and the button's hold on a
+              // phone, and the button's words wrap where large text leaves
+              // the notice under 12rem (13.25rem at 320 with 100% text,
+              // where the button stays one line and the words stay under
+              // the icon).
               <Notice
                 tone="danger"
                 role="alert"
+                className="max-sm:px-[min(1rem,16px)] [container-type:inline-size]"
                 action={
                   wrongAccount ? (
-                    <Button variant="secondary" onClick={switchAccount}>
+                    <Button
+                      variant="secondary"
+                      onClick={switchAccount}
+                      className="max-w-full text-center max-sm:px-[min(1.25rem,20px)] [@container(max-width:12rem)]:!whitespace-normal"
+                    >
                       {t("invite.switchShort")}
                     </Button>
                   ) : null
@@ -235,7 +258,7 @@ export function InvitePage() {
                 {refusal}
               </Notice>
             )}
-            <Button size="lg" busy={accepting} onClick={() => void accept()} className="w-full !whitespace-normal text-center">
+            <Button size="lg" busy={accepting} onClick={() => void accept()} className={BIG_BUTTON}>
               {t("invite.joinCta")}
             </Button>
             <button
@@ -274,7 +297,7 @@ export function InvitePage() {
                 size="lg"
                 busy={auth.submitting || accepting}
                 disabled={!auth.canSubmit}
-                className="w-full !whitespace-normal text-center"
+                className={BIG_BUTTON}
               >
                 {auth.mode === "signup" ? t("invite.signUpCta") : t("invite.signInCta")}
               </Button>
@@ -298,7 +321,7 @@ function Invitation({ invitation, language }: { invitation: InvitationPreview; l
   const expires = new Date(invitation.expires_at);
   return (
     <div className="flex flex-col items-start gap-3">
-      <h1 ref={heading} id="invite-title" tabIndex={-1} className="type-title text-balance outline-none">
+      <h1 ref={heading} id="invite-title" tabIndex={-1} className={TITLE}>
         <Trans
           i18nKey="invite.title"
           values={{ business: invitation.business_name }}
@@ -339,8 +362,8 @@ function Dead({ title, body, action }: { title?: string; body?: string; action?:
     heading.current?.focus({ preventScroll: true });
   }, []);
   return (
-    <LitPanel as="section" aria-labelledby="invite-dead" className="flex flex-col gap-3 p-5 sm:p-6">
-      <h1 ref={heading} id="invite-dead" tabIndex={-1} className="type-title text-balance outline-none">
+    <LitPanel as="section" aria-labelledby="invite-dead" className={`flex flex-col gap-3 ${PANEL_SIDES}`}>
+      <h1 ref={heading} id="invite-dead" tabIndex={-1} className={TITLE}>
         {title ?? t("invite.dead.title")}
       </h1>
       {body && <p className="type-body text-pretty text-ink-muted">{body}</p>}
