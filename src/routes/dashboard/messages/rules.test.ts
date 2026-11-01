@@ -9,6 +9,7 @@ function summary(patch: Partial<MessagingSummary> = {}): MessagingSummary {
     can_send: true,
     is_pro: true,
     customers_with_card: 300,
+    customers_who_agreed: 300,
     customers_with_birthday: 120,
     inactive_counts: { "14": 80, "30": 86, "60": 12, "90": 3 },
     reward_waiting_count: 22,

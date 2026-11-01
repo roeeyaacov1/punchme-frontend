@@ -661,6 +661,10 @@ function BroadcastTab({
   const left = Math.max(0, summary.broadcasts_limit_7d - summary.broadcasts_used_7d);
   const spent = !!summary.next_broadcast_allowed_at || left === 0;
   const nobody = summary.customers_with_card === 0;
+  // Who a broadcast reaches: of the customers holding the card, the ones
+  // who agreed to messages. This page ships before the backend that counts
+  // them (punchme-backend#16), which until then says only who holds it.
+  const reach = summary.customers_who_agreed ?? summary.customers_with_card;
   const quota = summary.next_broadcast_allowed_at
     ? t("messaging.broadcast.nextAllowed", { when: relativeWhen(summary.next_broadcast_allowed_at, t, lang) })
     : left === 0
@@ -683,11 +687,13 @@ function BroadcastTab({
         <p className="type-body text-ink-muted">
           {nobody ? (
             t("messaging.broadcast.nobody")
+          ) : reach === 0 ? (
+            t("messaging.broadcast.nobodyOptedIn")
           ) : (
             <Trans
               i18nKey="messaging.broadcast.what"
-              count={summary.customers_with_card}
-              values={{ value: formatCount(summary.customers_with_card, lang), limit: summary.broadcasts_limit_7d }}
+              count={reach}
+              values={{ value: formatCount(reach, lang), limit: summary.broadcasts_limit_7d }}
               components={{ n: figure }}
             />
           )}

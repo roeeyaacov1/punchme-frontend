@@ -2034,6 +2034,8 @@ export interface components {
             is_pro: boolean;
             /** Customers With Card */
             customers_with_card: number;
+            /** Customers Who Agreed */
+            customers_who_agreed: number;
             /** Customers With Birthday */
             customers_with_birthday: number;
             /** Inactive Counts */
