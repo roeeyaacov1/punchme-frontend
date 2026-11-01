@@ -1379,13 +1379,15 @@ as it is.
 - [x] Phase 8, public pages: contract (27 Oct) · A (27 Oct) · B (27 Oct) · C (27 Oct) · D (30 Oct) · merged (30 Oct)
 - [x] Phase 9, landing page: A (27 Oct) · B (30 Oct) · C (30 Oct) · D (30 Oct) · merged (30 Oct)
 - [x] The dashboard at 200% text, found by Phase 4's step D: the shell, the pages and the kit, the studio, the tour (PRs #27–#30, merged 1 Nov)
-- [x] A stacked segment's sides close in for a word too wide beside them, and its one column never grows past the track, so in English at 320 the account sheet's and the landing page's trade picker keep inside it at 200% text (1 Nov)
-- [x] The public pages at 200% text: `/login`, `/join` and `/invite` in every state, `/p`'s buttons and its stamp screen's count (cut to "0/1" before), the wizard's saving step and its wallet step's "Continue", and the top bars `/c` and `/p` share (1 Nov)
+- [x] A stacked segment's sides close in for a word too wide beside them, and its one column never grows past the track, so in English at 320 the account sheet's and the landing page's trade picker keep inside it at 200% text (PR #31, merged 1 Nov)
+- [x] The public pages at 200% text: `/login`, `/join` and `/invite` in every state, `/p`'s buttons and its stamp screen's count (cut to "0/1" before), the wizard's saving step and its wallet step's "Continue", and the top bars `/c` and `/p` share (PR #35, merged 1 Nov)
+- [x] A label that wraps past two lines keeps a two-line pill's ends, where a full pill turned into an oval whose curve cut its first and last lines: the kit's buttons, chips, segments and badges, and the wallpaper stage's caption, whose lines are now centred (PRs #33 and #34, merged 1 Nov)
 - [ ] 200% text, still open:
   - `/style-guide`;
   - on a desk an open studio tray covers the rail;
   - the admin header's email runs past a 375px screen;
-  - a label that wraps to three lines or more is still in a full pill, so its first and last lines cross the curve: on `/login` "New here? Design your card first" by 10–12px at 320, on `/invite` the wrong account's "Use another account" by 1–4px, on the saving step "Replace with my new design" by 1px, and the wallpaper stage's tag "Roughly how it looks on the lock screen", five lines at 320 on the wallet step
+  - at 320 some buttons' words are wider than the room inside them and run into their sides, which no corner can fix: the referral settings' placeholder chips (by up to 90px), "Write a message", "Write a sample to yourself", the wizard billing step's "Not now, to the dashboard", "Copy link" in Hebrew, and the composer's send and its "Yes, send";
+  - the landing page's sample answer draws its own "Give the reward" pill, which crosses its outline by 2.3px in English at 320 and 375
 - [ ] Phase 10, cleanup
 
 ---

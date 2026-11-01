@@ -391,7 +391,7 @@ Lit, not lifted. By day a panel's depth is light: a 1px highlight inside its top
 
 ## Shapes
 
-Generous and soft. Buttons, chips, segments and tags are full pills, though a button whose label wraps past two lines, which only large text causes, keeps a two-line pill's ends; stamps are circles. Fields have 16px corners, dashboard panels and a scan's answer 24px, the viewfinder 28px, the landing page's tall cards 32px and its lit hero panel 40px. A checkbox is a 24px box with 6px corners. A hairline is 1px and decoration only; Field Edge marks an edge that identifies a control, 1px round a field and 2px round a checkbox, a radio and a switch's track.
+Generous and soft. Buttons, chips, segments and tags are full pills up to two lines, and keep a two-line pill's ends when large text wraps their words further; stamps are circles. Fields have 16px corners, dashboard panels and a scan's answer 24px, the viewfinder 28px, the landing page's tall cards 32px and its lit hero panel 40px. A checkbox is a 24px box with 6px corners. A hairline is 1px and decoration only; Field Edge marks an edge that identifies a control, 1px round a field and 2px round a checkbox, a radio and a switch's track.
 
 ## Components
 
