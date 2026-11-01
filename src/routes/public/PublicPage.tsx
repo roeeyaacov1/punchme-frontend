@@ -58,7 +58,9 @@ export function PublicPage({
       ) : (
         // Over the customer's column, as the team's bar stands over theirs,
         // so on a wide screen the switch isn't left in the window's corner.
-        <header className="mx-auto flex h-14 w-full max-w-[30rem] items-center justify-end px-4 sm:px-0">
+        // The column is the screen less its gutters where that's narrower
+        // than 30rem, as it is at 200% text on a 768px screen.
+        <header className="mx-auto flex h-14 w-full max-w-[30rem] items-center justify-end px-4 sm:max-w-[min(30rem,calc(100%-2rem))] sm:px-0">
           <LanguageSwitch className="-me-3" />
         </header>
       )}
