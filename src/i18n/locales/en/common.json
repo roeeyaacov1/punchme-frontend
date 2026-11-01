@@ -2271,7 +2271,7 @@
     },
     "privacy": {
       "title": "Privacy policy",
-      "updated": "Last updated 31 October 2026",
+      "updated": "Last updated 1 November 2026",
       "lead": "PunchMe runs digital loyalty cards for businesses in Israel. This page explains what data the service collects, why, who processes it, how long it's kept and what rights you have over it.",
       "sections": [
         {
@@ -2433,7 +2433,7 @@
     },
     "terms": {
       "title": "Terms of use",
-      "updated": "Last updated 31 October 2026",
+      "updated": "Last updated 1 November 2026",
       "lead": "These terms apply to PunchMe's digital loyalty cards and to the punchmeapp.com website. By joining or using a card, you agree to them.",
       "sections": [
         {
@@ -2501,6 +2501,13 @@
           "heading": "Availability",
           "blocks": [
             "We work to keep the service running, but it's provided as is and also depends on Apple, Google and other providers. There may be faults, outages and delays in updating your card."
+          ]
+        },
+        {
+          "id": "closing",
+          "heading": "Closing the service",
+          "blocks": [
+            "We may stop offering the service, in whole or in part, at any time. If we decide to close it, we'll try to announce it ahead of time on the website and to the businesses. From then on, cards may stop updating or be deleted, and businesses' subscriptions stop being charged."
           ]
         },
         {
