@@ -48,7 +48,9 @@ export function CodeStep({ flow }: { flow: JoinFlow }) {
           />
         </p>
       </div>
-      <LitPanel as="section" className="p-5 sm:p-6">
+      {/* The panel's sides and the button's hold at their 100% widths on a
+          phone as the text grows: at 200% they left "והצטרפות" 60px at 320. */}
+      <LitPanel as="section" className="p-5 sm:p-6 max-sm:px-[min(1.25rem,20px)]">
         <form
           noValidate
           onSubmit={(event) => {
@@ -83,7 +85,13 @@ export function CodeStep({ flow }: { flow: JoinFlow }) {
               {t(flow.errors.form)}
             </Notice>
           )}
-          <Button type="submit" size="lg" busy={busy} disabled={code.length !== 6} className="w-full !whitespace-normal text-center">
+          <Button
+            type="submit"
+            size="lg"
+            busy={busy}
+            disabled={code.length !== 6}
+            className="w-full !whitespace-normal text-center max-sm:px-[min(1.75rem,28px)]"
+          >
             {t("enroll.verifyCta")}
           </Button>
           <div className="flex flex-wrap items-center justify-between gap-x-4">
