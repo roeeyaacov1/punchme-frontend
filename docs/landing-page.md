@@ -73,7 +73,7 @@ CLAUDE.md still describe it; Roee updates those.
 | The price | `pricing` | Free is the sign with its code not live yet; Pro is ₪99 a month including VAT and what it opens; how to cancel and what cancelling does, in Billing's words |
 | FAQ | `faq` | Eight questions in native `<details>`: no app; what customers give; iPhone and Android; changing phones; adding a stamp; changing the design; the cost; how to stop |
 | The close | – | "Start with the card. Pay only once customers can join.", "Start free" and the price |
-| Footer | – | Logo, the anchors, sign in, language, "© 2026 PunchMe". No Terms/Privacy/Contact links, because those pages don't exist |
+| Footer | – | Logo, the anchors, sign in, "© 2026 PunchMe", Contact, Privacy and Terms (`/contact`, `/privacy`, `/terms`, since 31 Oct 2026), language |
 
 Fifteen things on the page weren't true. Seven were fixed on 15 Oct 2026,
 in one small change right after Phase 0, outside the phases; the rest in
@@ -133,7 +133,11 @@ Phase 9's step B.
   offset for the sticky header (`scroll-mt-24`), and a link from another
   page to a section (`/#pricing`, say) lands there once the page and its
   fonts are in.
-- Only `/onboarding`'s top bar and the dashboard's logo link back to `/`.
+- The footer also stands under the reading pages (`/contact`, `/privacy`,
+  `/terms`). There its anchors are routes to `/#how-it-works`, `/#pricing`
+  and `/#faq`; on the landing page they stay plain anchors.
+- Only `/onboarding`'s top bar, the reading pages' bar and footer, and the
+  dashboard's logo link back to `/`.
 
 ## Header behaviour
 

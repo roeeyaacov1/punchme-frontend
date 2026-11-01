@@ -189,7 +189,9 @@ a calculator come back.
 **Not on hand, so never fabricated:** customer quotes, customer names or logos,
 usage, return-rate or setup-time figures, case studies, press, photos, and the
 official Apple Wallet and Google Wallet badges (the wallet buttons stay plain
-until Roee adds them before launch). No Terms, Privacy or Contact page exists.
+until Roee adds them before launch). `/contact`, `/privacy` and `/terms`
+exist since 31 Oct 2026; the privacy policy and the terms are drafts until a
+lawyer has read them.
 The landing page's illustrations (the sample scan answer, the message on a
 lock screen, the sign at the counter) are not evidence either.
 

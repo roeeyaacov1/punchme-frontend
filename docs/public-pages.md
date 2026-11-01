@@ -335,6 +335,36 @@ again."
 - The card's face: nothing about the holder, the sign-in link coming back
   here.
 
+## The reading pages
+
+Added on 31 Oct 2026, after Phase 8, for the switch from PassKit: every
+PunchMe pass links `/terms` on its back, and Google Wallet's issuer profile
+wants a contact page. `docs/landing-page.md` has the footer that links them.
+
+| Route | What it shows |
+|---|---|
+| `/contact` | Who to ask first (the shop, about its reward), the support address with "Write to us" (`mailto:`) and "Copy address", privacy requests, and who runs PunchMe |
+| `/privacy` | The privacy policy: what is collected from card holders, owners and visitors, why, who processes it, where, for how long, and the reader's rights |
+| `/terms` | The terms of use for card holders, and a short section for businesses |
+| `/support` | Sends on to `/contact` |
+
+**Who.** Anyone; they read no session. **Calls.** None of their own: only the
+app's start-up check that every page makes. **Frame.** `src/routes/info/InfoPage`:
+the wordmark home and the language on the landing page's column, the page,
+and `SiteFooter`. Light, like every public page. The page opens at its top,
+or at the section a link names.
+
+**Must survive.**
+
+- The copy under `info` in both languages, one key per page, with the
+  sections' `id`s the same in both: they are the anchors (`/privacy#rights`).
+  `src/routes/info/infoCopy.test.ts` checks them.
+- The support address in one place, `SUPPORT_EMAIL` in
+  `src/routes/info/infoCopy.ts`; the copy names it as `<email>{{email}}</email>`,
+  so every mention is a link.
+- The date at the top of `/privacy` and `/terms` (`info.privacy.updated`,
+  `info.terms.updated`) moves with any change to what they say.
+
 ## Calls Phase 8 adds
 
 Approved by Roee on 27 Oct 2026, in Phase 8's step A

@@ -1,23 +1,11 @@
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { focusRing } from "../../components/kit";
 import { cn } from "../../lib/cn";
 import { usePublicGround } from "../../theme/usePublicGround";
 import { LanguageSwitch } from "./LanguageSwitch";
 import { PublicTopBar } from "./PublicTopBar";
-
-/** "{name} — PunchMe" for as long as the page is mounted. */
-function useDocumentTitle(name: string) {
-  const { t } = useTranslation();
-  const title = `${name} — ${t("app.name")}`;
-  useEffect(() => {
-    const previous = document.title;
-    document.title = title;
-    return () => {
-      document.title = previous;
-    };
-  }, [title]);
-}
+import { useDocumentTitle } from "./useDocumentTitle";
 
 /**
  * The one frame for the five public pages (the brief's §7.2): the wall, a

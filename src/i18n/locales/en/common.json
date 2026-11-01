@@ -2242,5 +2242,335 @@
       "offline": "This device is offline. You're still signed in, and the page opens by itself when the connection is back.",
       "server": "PunchMe isn't answering right now. You're still signed in, and we'll keep trying."
     }
+  },
+  "info": {
+    "nav": {
+      "label": "About",
+      "contact": "Contact",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
+    "toc": "On this page",
+    "emailLabel": "Support email",
+    "write": "Write to us",
+    "copy": "Copy address",
+    "copied": "Address copied",
+    "contact": {
+      "title": "Contact",
+      "lead": "A question about a card, your account or your data? Write to us.",
+      "sections": [
+        {
+          "id": "customers",
+          "heading": "If you hold a card",
+          "blocks": [
+            "Questions about stamps, the reward or the offer's conditions are best asked at the business that gave you the card: they're the ones who set them.",
+            "New phone? Scan the sign at the business again and join with the same mobile number. Your card comes back with the stamps you'd already collected.",
+            "For a card that won't open or update, or anything else, write to us at <email>{{email}}</email>."
+          ]
+        },
+        {
+          "id": "businesses",
+          "heading": "If you run a business",
+          "blocks": [
+            "For help with your card's design, your account, your team or billing, write to us from the address you signed up with and tell us the business's name."
+          ]
+        },
+        {
+          "id": "privacy",
+          "heading": "Privacy requests",
+          "blocks": [
+            "To see, correct or delete the data held about you, write to us with the mobile number you joined with and the business's name. Before we share or delete anything, we may ask you to confirm the number is yours."
+          ]
+        },
+        {
+          "id": "operator",
+          "heading": "Who we are",
+          "blocks": [
+            "PunchMe is run by Roee Yaacov, a sole proprietor (osek murshe) in Israel."
+          ]
+        }
+      ],
+      "more": "What's kept and why, and the terms for using a card:"
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "updated": "Last updated 1 November 2026",
+      "lead": "PunchMe runs digital loyalty cards for businesses in Israel. This page explains what data the service collects, why, who processes it, how long it's kept and what rights you have over it.",
+      "sections": [
+        {
+          "id": "who",
+          "heading": "Who we are",
+          "blocks": [
+            "PunchMe is run by Roee Yaacov, a sole proprietor (osek murshe) in Israel. This policy covers the punchmeapp.com website, the join and card pages, the cards in digital wallets and the businesses' dashboard."
+          ]
+        },
+        {
+          "id": "roles",
+          "heading": "Whose data it is",
+          "blocks": [
+            "Data about someone who joins a business's card is kept in that business's customer database. The business is the database's controller, and PunchMe processes the data on its behalf to run the card.",
+            "For data about business owners, their teams and visitors to the website, PunchMe is responsible.",
+            "The service keeps one record per phone number. If you've joined several businesses' cards with the same number, your name and birthday are stored once and used by all of your cards: a name corrected when joining one business is updated on your cards at the others too. A business can't see which other businesses you hold cards at."
+          ]
+        },
+        {
+          "id": "customers",
+          "heading": "What's collected when you join a card",
+          "blocks": [
+            [
+              "Mobile number: required. It identifies you, and the verification code is sent to it.",
+              "Name: optional. It appears on the card and in the business's dashboard.",
+              "Birthday: optional. It's used only for the business's birthday rewards and messages.",
+              "Your consent to marketing messages, if you ticked it on joining, and when you gave it, as well as when you accepted the privacy notice.",
+              "The card's history: stamps, rewards redeemed, the dates of your visits, and which team member gave each stamp.",
+              "The messages the business sent to your card, and whether they were delivered.",
+              "Verification code requests: the code is valid for a short time and stored only as a hash. With each request we keep the phone number, the time and the IP address, to limit attempts and prevent abuse.",
+              "From Apple Wallet: whether the card is installed, and the identifier of the device its updates are sent to."
+            ],
+            "The business sees your name, your phone number and the card's history in its dashboard."
+          ]
+        },
+        {
+          "id": "referrals",
+          "heading": "Refer a friend",
+          "blocks": [
+            "If the business has turned the program on, the barcode on your card leads to a page where friends can join. Who referred whom, and when, is kept so the business's rewards can be given.",
+            "If the business chooses, someone who scans your card sees your first name or its first letter. Messages about a referral can name the friend who joined and say when they visited or filled a card, and you may be told when someone scans your card.",
+            "When someone who isn't signed in opens that page, hashes of their IP address, their browser details and a random identifier kept in their browser are stored to spot abuse, and again if they join. Neither the IP address nor the identifier itself is stored."
+          ]
+        },
+        {
+          "id": "businesses",
+          "heading": "What's collected about business owners and teams",
+          "blocks": [
+            [
+              "Email address, your name if you gave it, and a password stored only as a hash. If you sign in with a Google account: the identifier and email address Google provides.",
+              "The business's details: name, trade, phone number, the card's design and the pictures you uploaded.",
+              "Team invitations: the role, and the invitee's email address if one was entered.",
+              "Your subscription: your Stripe customer and subscription identifiers and the subscription's status. Card details are entered on Stripe's page and never reach us.",
+              "At sign-up you can look your business up on Google Maps. What you type in that search is sent to Google."
+            ]
+          ]
+        },
+        {
+          "id": "visitors",
+          "heading": "Visitors to the website",
+          "blocks": [
+            "The website has no analytics, advertising or tracking tools, and the site itself sets no cookies.",
+            "The website keeps a few things it needs in your browser (localStorage), such as the language you chose, a draft card design, your sign-in and the cards you've joined in this browser. You can delete them in your browser's settings.",
+            "The website's fonts load from Google Fonts, so Google receives the IP address and browser details of anyone who opens the site. The Sign in with Google button loads from Google's servers. Our servers use each request's IP address to limit load and protect the service. Their logs, kept by our host Railway, record each request, such as the link asked for, the time and the browser."
+          ]
+        },
+        {
+          "id": "purposes",
+          "heading": "What the data is used for",
+          "blocks": [
+            [
+              "To issue your card and keep its stamps, rewards and messages up to date.",
+              "To verify your phone number and prevent duplicate joins, fraud and abuse.",
+              "To let the business manage its customers and send them messages, as it sets up.",
+              "To run businesses' accounts, their teams and billing.",
+              "To answer questions and meet our legal obligations."
+            ],
+            "We don't sell personal data, we don't use it for our own advertising, and we don't show a business your cards at other businesses."
+          ]
+        },
+        {
+          "id": "processors",
+          "heading": "Who else processes the data",
+          "blocks": [
+            "Each provider gets only what its job needs:",
+            [
+              "Railway: hosting for PunchMe's servers and database, in the United States.",
+              "019 (Telzar): sending verification codes by SMS. It receives the phone number and the code.",
+              "Apple and Google: the card in your digital wallet. In Google Wallet the card is also stored on Google's servers, with your name (if you gave one), the stamp count, the link in the barcode and the business's messages to you. In Apple Wallet it's stored on your phone, and Apple delivers its update notifications. Your phone number isn't shared with either.",
+              "Stripe: collecting businesses' subscription payments. It receives the owner's email address.",
+              "Google: the mailbox that receives emails to the support address, the website's fonts, Sign in with Google and the business search at sign-up."
+            ],
+            "The cards are issued to wallets by a service we run ourselves, not by a third party. We'll hand data to authorities only when the law requires it."
+          ]
+        },
+        {
+          "id": "abroad",
+          "heading": "Data outside Israel",
+          "blocks": [
+            "Our servers and some of the providers above are outside Israel, mostly in the United States, so the data is stored and processed there too."
+          ]
+        },
+        {
+          "id": "retention",
+          "heading": "How long data is kept",
+          "blocks": [
+            "A card is kept until the business deletes it. When it's deleted, its stamps and redeemed rewards go with it, and the card in the wallet is voided. Two kinds of record stay, without the link to the card: refer-a-friend records (who referred whom, and the messages about it, which can include first names), and copies of the messages sent to the card, kept by the service that issues the cards.",
+            "When your last card at any business is deleted, your phone number, name, birthday and verification code requests are deleted too, apart from what the records above hold.",
+            "Removing the card from the wallet on your phone doesn't delete the data the business holds. To delete it, contact the business or us.",
+            "After a deletion, each business keeps a hash of the phone number, not the number itself, so its refer-a-friend program can tell who has already been its customer. The number can't be recovered from it without a key that only we hold.",
+            "Verification code requests from a number that never joined a card are kept to prevent abuse, and you can ask us to delete them.",
+            "A business owner's account is kept until the owner asks us to delete it."
+          ]
+        },
+        {
+          "id": "security",
+          "heading": "Security",
+          "blocks": [
+            "Connections to the website and servers are encrypted (HTTPS), passwords and verification codes are stored only as hashes, and access in the dashboard is limited to each business's team by role. No system is completely secure. If a security incident affects your data, we'll act as the law requires."
+          ]
+        },
+        {
+          "id": "rights",
+          "heading": "Your rights",
+          "blocks": [
+            [
+              "To see the data held about you (section 13 of the Israeli Privacy Protection Law, 1981).",
+              "To ask for data that's inaccurate, incomplete, unclear or out of date to be corrected or deleted (section 14).",
+              "To ask to be removed from a database used for direct mail (section 17F).",
+              "To withdraw your consent to marketing messages at any time."
+            ],
+            "You can send a request about a card to the business, which controls the database, or to us at <email>{{email}}</email>. We'll pass a request that concerns a business on to it and help it deal with it. Before we share or delete anything, we may ask you to confirm the phone number is yours.",
+            "If you feel a request wasn't handled properly, you can contact the Israeli Privacy Protection Authority."
+          ]
+        },
+        {
+          "id": "messages",
+          "heading": "Messages from the business",
+          "blocks": [
+            "The business can send messages to your card, for example about a reward that's waiting for you or on your birthday. Messages appear on the card in your wallet, and on some phones as a notification too. They aren't sent by SMS. The business is responsible for what they say, and for sending marketing messages only as the law allows.",
+            "To stop receiving messages, turn off the card's notifications in your wallet's settings or remove the card from your wallet. To withdraw your consent to marketing messages, write to us."
+          ]
+        },
+        {
+          "id": "changes",
+          "heading": "Changes to this policy",
+          "blocks": [
+            "When we change this policy, we'll update the date at the top of the page. We'll also announce any significant change on the website."
+          ]
+        },
+        {
+          "id": "contact",
+          "heading": "Privacy questions",
+          "blocks": [
+            "Questions and requests about privacy: <email>{{email}}</email>."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms of use",
+      "updated": "Last updated 1 November 2026",
+      "lead": "These terms apply to PunchMe's digital loyalty cards and to the punchmeapp.com website. By joining or using a card, you agree to them.",
+      "sections": [
+        {
+          "id": "service",
+          "heading": "What PunchMe is",
+          "blocks": [
+            "PunchMe is a service businesses use to give their customers a digital loyalty card in Apple or Google Wallet, with no app, no account and no password. The business gives you a stamp on each visit, and when the card is full you get the reward the business set.",
+            "PunchMe runs the card on the business's behalf. We don't sell the business's products or services, and we aren't a party to its reward.",
+            "The service is run by Roee Yaacov, a sole proprietor (osek murshe) in Israel."
+          ]
+        },
+        {
+          "id": "joining",
+          "heading": "Joining",
+          "blocks": [
+            "Joining takes a mobile number, and usually a verification code sent to it by SMS. Only join with your own number, and give accurate details.",
+            "What you give us is stored and processed as the privacy policy describes."
+          ]
+        },
+        {
+          "id": "rewards",
+          "heading": "The reward is the business's",
+          "blocks": [
+            "The business alone sets the number of stamps, the reward, the conditions for getting it and how long it's valid, and it may change them or end the offer. The business is responsible for everything it offers and for honouring the reward.",
+            "Questions and complaints about stamps, rewards or the service at the business go to the business.",
+            "Stamps and rewards are personal. Unless the business says otherwise, they have no cash value and can't be exchanged, transferred or sold.",
+            "Stamps are given by the business's team or by rules the business sets, and the business may correct stamps given by mistake or against its conditions."
+          ]
+        },
+        {
+          "id": "referrals",
+          "heading": "Refer a friend",
+          "blocks": [
+            "If the business has turned the program on, someone who scans the barcode on your card can join and get a card of their own, and you may get a reward under the rules the business set. The business may refuse a referral that looks like abuse."
+          ]
+        },
+        {
+          "id": "messages",
+          "heading": "Messages",
+          "blocks": [
+            "The business can send messages to the card, as the privacy policy describes. You can turn off the card's notifications in your wallet's settings."
+          ]
+        },
+        {
+          "id": "removing",
+          "heading": "Removing the card",
+          "blocks": [
+            [
+              "In Apple Wallet: open the card, tap the options button (three dots) and choose to remove the pass.",
+              "In Google Wallet: open the card, tap the menu (three dots) and choose Remove."
+            ],
+            "Removing it from your phone doesn't delete your stamps or details at the business: if you join again with the same number, the card comes back with its stamps. To have the data deleted, contact the business or us at <email>{{email}}</email>.",
+            "The business may remove a card. If a business stops using PunchMe, its cards may stop updating or be deleted."
+          ]
+        },
+        {
+          "id": "fair-use",
+          "heading": "Fair use",
+          "blocks": [
+            "Don't fake stamps or referrals, join in someone else's name, disrupt the service, try to reach data that isn't yours, or use the service unlawfully. If that happens, the business or PunchMe may cancel a card."
+          ]
+        },
+        {
+          "id": "availability",
+          "heading": "Availability",
+          "blocks": [
+            "We work to keep the service running, but it's provided as is and also depends on Apple, Google and other providers. There may be faults, outages and delays in updating your card."
+          ]
+        },
+        {
+          "id": "closing",
+          "heading": "Closing the service",
+          "blocks": [
+            "We may stop offering the service, in whole or in part, at any time. If we decide to close it, we'll try to announce it ahead of time on the website and to the businesses. From then on, cards may stop updating or be deleted, and businesses' subscriptions stop being charged."
+          ]
+        },
+        {
+          "id": "liability",
+          "heading": "Liability",
+          "blocks": [
+            "As far as the law allows, PunchMe isn't liable for businesses' rewards, products or services, for stamps that weren't given, or for indirect damage from using the service or being unable to use it. Nothing here limits rights the law gives you that can't be waived."
+          ]
+        },
+        {
+          "id": "businesses",
+          "heading": "For businesses",
+          "blocks": [
+            "A business that uses PunchMe is responsible for the rewards it offers and for honouring them, for what its messages say, for sending marketing messages only to people who agreed to receive them, and for having the right to use the name, logo and pictures it uploads.",
+            "The business controls its customer database, and PunchMe processes the data on its behalf. It may use the data only to run its loyalty program, as the law allows.",
+            "The subscription is paid monthly through Stripe and can be cancelled at any time from the billing page in the dashboard."
+          ]
+        },
+        {
+          "id": "changes",
+          "heading": "Changes to these terms",
+          "blocks": [
+            "We may update these terms. The date at the top of the page shows the last update, and we'll announce any significant change on the website. Using the service after an update means you accept the updated terms."
+          ]
+        },
+        {
+          "id": "law",
+          "heading": "Governing law",
+          "blocks": [
+            "These terms are governed by the laws of the State of Israel, and the competent courts in Israel have exclusive jurisdiction."
+          ]
+        },
+        {
+          "id": "contact",
+          "heading": "Contact",
+          "blocks": [
+            "Questions about these terms: <email>{{email}}</email>."
+          ]
+        }
+      ]
+    }
   }
 }
