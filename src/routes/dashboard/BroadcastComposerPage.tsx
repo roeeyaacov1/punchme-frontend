@@ -285,6 +285,9 @@ export function BroadcastComposerPage() {
 
   const weekAfter = left === null ? null : left - 1 <= 0 ? t("messaging.broadcast.lastOne") : t("messaging.broadcast.leftAfter", { count: left - 1 });
 
+  // On a phone its sides and the gap beside its icon hold at their 100%
+  // widths as the text grows, as the docked bar's own sides do: at 200% on a
+  // 320px screen "customers" was wider than the 86px they left it.
   const sendButton = isPro && (
     <Button
       size="lg"
@@ -292,7 +295,7 @@ export function BroadcastComposerPage() {
       disabled={!canSend}
       aria-describedby={spent && open ? "composer-quota" : undefined}
       onClick={() => setConfirming(true)}
-      className="w-full max-w-full !whitespace-normal text-center"
+      className="w-full max-w-full !whitespace-normal text-center max-sm:gap-[min(0.5rem,8px)] max-sm:px-[min(1.75rem,28px)]"
     >
       {count !== null && count > 0
         ? t("messaging.broadcast.send", { count, value: formatCount(count, lang) })
@@ -400,7 +403,7 @@ export function BroadcastComposerPage() {
           {/* On a phone the send waits above the phone bar, always in
               reach; its own padding runs under the raised Scan button. */}
           {sendButton && (
-            <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t border-border bg-surface px-4 pb-7 pt-3 md:static md:z-auto md:border-0 md:bg-transparent md:p-0">
+            <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t border-border bg-surface px-4 pb-7 pt-3 max-sm:px-[min(1rem,16px)] md:static md:z-auto md:border-0 md:bg-transparent md:p-0">
               {sendButton}
             </div>
           )}
@@ -440,12 +443,15 @@ export function BroadcastComposerPage() {
         title={t("messaging.broadcast.confirmTitle")}
         initialFocus={cancelRef}
         returnFocus={problemRef}
+        // On a phone both buttons' sides hold at 20px as the text grows, and
+        // the icon goes above "Yes, send" where the words can't stand beside
+        // it: at 200% on a 320px screen it left "לשלוח" 20px.
         footer={
           <>
-            <Button ref={cancelRef} variant="secondary" onClick={() => setConfirming(false)} className="max-w-full !whitespace-normal text-center">
+            <Button ref={cancelRef} variant="secondary" onClick={() => setConfirming(false)} className="max-w-full !whitespace-normal text-center max-sm:px-[min(1.25rem,20px)]">
               {t("messaging.editor.cancel")}
             </Button>
-            <Button busy={send.isPending} icon={<Send aria-hidden className="rtl:-scale-x-100" />} onClick={() => send.mutate()} className="max-w-full !whitespace-normal text-center">
+            <Button busy={send.isPending} icon={<Send aria-hidden className="rtl:-scale-x-100" />} onClick={() => send.mutate()} className="max-w-full !whitespace-normal text-center max-sm:flex-wrap max-sm:px-[min(1.25rem,20px)]">
               {t("messaging.broadcast.confirmYes")}
             </Button>
           </>
