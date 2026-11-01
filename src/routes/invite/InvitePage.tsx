@@ -57,8 +57,8 @@ export function InvitePage() {
   const { isAuthenticated, isLoading: sessionLoading, user, login, logout } = useAuth();
 
   const [accepting, setAccepting] = useState(false);
-  const [refusal, setRefusal] = useState<ReactNode>(null);
-  const [wrongAccount, setWrongAccount] = useState(false);
+  const [refusal, setRefusal] = useState<Refusal | null>(null);
+  const wrongAccount = refusal?.code === "invitation_email_mismatch";
   const form = useRef<HTMLFormElement>(null);
   const [switched, setSwitched] = useState(false);
 
@@ -70,25 +70,23 @@ export function InvitePage() {
   });
   const invitation = preview.data;
 
-  /** A refusal in the page's words, never the server's. */
-  function describe(err: unknown): ReactNode {
-    if (err instanceof ApiError) {
-      if (err.code === "invitation_email_mismatch") {
-        return invitation?.masked_email ? (
-          <Trans
-            i18nKey="invite.error.wrongAccount"
-            values={{ email: invitation.masked_email }}
-            components={{ email: address }}
-          />
-        ) : (
-          t("invite.error.generic")
-        );
-      }
-      if (err.code === "already_a_member") return t("invite.error.alreadyIn");
-      if (err.code === "invitation_unusable") {
-        const reason = String(err.extra.reason ?? "");
-        return t(`invite.dead.${reason}`, { defaultValue: t("invite.dead.revoked") });
-      }
+  /** A refusal in the page's words, never the server's, worded as the page
+   * renders so that it is in the page's language now. */
+  function describe({ code, reason, email }: Refusal): ReactNode {
+    if (code === "invitation_email_mismatch") {
+      return email ? (
+        <Trans
+          i18nKey="invite.error.wrongAccount"
+          values={{ email }}
+          components={{ email: address }}
+        />
+      ) : (
+        t("invite.error.generic")
+      );
+    }
+    if (code === "already_a_member") return t("invite.error.alreadyIn");
+    if (code === "invitation_unusable") {
+      return t(`invite.dead.${reason}`, { defaultValue: t("invite.dead.revoked") });
     }
     return t("invite.error.generic");
   }
@@ -98,7 +96,6 @@ export function InvitePage() {
   async function accept() {
     if (accepting) return;
     setRefusal(null);
-    setWrongAccount(false);
     setAccepting(true);
     try {
       await acceptInvitation(token);
@@ -110,8 +107,8 @@ export function InvitePage() {
       // code, and a second press would only be refused.
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setWrongAccount(err instanceof ApiError && err.code === "invitation_email_mismatch");
-      setRefusal(describe(err));
+      const refused = err instanceof ApiError ? err : null;
+      setRefusal({ code: refused?.code, reason: String(refused?.extra.reason ?? ""), email: invitation?.masked_email });
       setAccepting(false);
     }
   }
@@ -128,7 +125,6 @@ export function InvitePage() {
    * server too) and offer the sign-in form, the invitation still above it. */
   function switchAccount() {
     setRefusal(null);
-    setWrongAccount(false);
     logout();
     // Signing out empties the query cache; the invitation goes straight back
     // in, so it stays on screen without being read again.
@@ -255,7 +251,7 @@ export function InvitePage() {
                   ) : null
                 }
               >
-                {refusal}
+                {describe(refusal)}
               </Notice>
             )}
             <Button size="lg" busy={accepting} onClick={() => void accept()} className={BIG_BUTTON}>
@@ -287,9 +283,9 @@ export function InvitePage() {
                 onEmail={auth.setEmail}
                 onPassword={auth.setPassword}
               />
-              {(refusal ?? auth.error) && (
+              {(refusal || auth.error) && (
                 <Notice tone="danger" role="alert">
-                  {refusal ?? auth.error}
+                  {refusal ? describe(refusal) : auth.error}
                 </Notice>
               )}
               <Button
@@ -308,6 +304,16 @@ export function InvitePage() {
       </LitPanel>
     </InviteFrame>
   );
+}
+
+/** Why "Join" was refused: the server's code, the reason an invitation that
+ * can't be used gives, and the masked address it names. The page keeps the
+ * cause and words it as it renders; a sentence kept instead stayed in the
+ * language it was made in, through a switch of language. */
+interface Refusal {
+  code?: string;
+  reason: string;
+  email?: string;
 }
 
 /** Whose shop, which role, what it opens, until when, and for whom: all of
