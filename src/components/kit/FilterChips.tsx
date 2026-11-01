@@ -32,6 +32,12 @@ export interface FilterChipsProps<T extends string> {
  * 9.43:1 at night). Every chip is 44px tall. A chip is a control: it
  * presses with the kit's 6% ink well, takes a tap without waiting for a
  * double tap, and never selects its words on a long press.
+ *
+ * Its corners are half its 44px, which holds two lines, in rem so they grow
+ * with the text: one line or two is a full pill at any text size, and a
+ * chip that wraps further keeps those ends with straight sides between
+ * them, where a full pill would turn into an oval whose curve cuts its
+ * first and last lines.
  */
 export function FilterChips<T extends string>({
   label,
@@ -55,7 +61,7 @@ export function FilterChips<T extends string>({
             <label
               key={option.value}
               className={cn(
-                "inline-flex min-h-11 max-w-full touch-manipulation select-none items-center gap-2 rounded-full border px-4 font-heading text-base font-medium leading-tight transition-[color,background-color,border-color,box-shadow] duration-gentle ease-out has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
+                "inline-flex min-h-11 max-w-full touch-manipulation select-none items-center gap-2 rounded-[1.375rem] border px-4 font-heading text-base font-medium leading-tight transition-[color,background-color,border-color,box-shadow] duration-gentle ease-out has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
                 noTapFlash,
                 chosen
                   ? "cursor-pointer border-ink bg-ink text-surface"

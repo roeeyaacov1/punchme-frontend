@@ -30,6 +30,13 @@ const ICONS: Partial<Record<BadgeTone, ReactNode>> = {
  * A short word about something: a plan, a state, a reward waiting. Not a
  * control. The text says what it means; the colour and the icon only repeat
  * it, so a tag means the same to someone who can't see the colour.
+ *
+ * One line, unless a page lets its words wrap under large text. For those it
+ * keeps 2px of air above and below its words, which its 24px holds anyway
+ * with one line, and its corners are half a two-line badge's height, in rem
+ * so they grow with the text: one line or two is a full pill at any text
+ * size, and more keep those ends with straight sides between them. Without
+ * the air a two-line badge's first line touches its curve.
  */
 export function Badge({
   tone = "neutral",
@@ -47,7 +54,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "type-tag inline-flex min-h-6 items-center gap-1 whitespace-nowrap rounded-full px-2.5 [&_svg]:size-3.5 [&_svg]:shrink-0",
+        "type-tag inline-flex min-h-6 items-center gap-1 whitespace-nowrap rounded-[calc(1.18125rem+1px)] px-2.5 py-0.5 [&_svg]:size-3.5 [&_svg]:shrink-0",
         TONES[tone],
         className,
       )}

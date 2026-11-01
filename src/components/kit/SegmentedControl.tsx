@@ -32,17 +32,20 @@ interface Fit {
 const ROW: Fit = { stacked: false, inset: null };
 const STACKED: Fit = { stacked: true, inset: null };
 
-/** A label's longest word, and its width on one line. */
-function widths(label: HTMLElement): [word: number, line: number] {
+/** A label's longest word, its width on one line, and its words' height. */
+function widths(label: HTMLElement): [word: number, line: number, tall: number] {
   const range = document.createRange();
   let word = 0;
+  let tall = 0;
   const walker = document.createTreeWalker(label, NodeFilter.SHOW_TEXT);
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     // A break only at a space: a no-break space or a word joiner holds.
     for (const match of (node.nodeValue ?? "").matchAll(/[^ \t\n\r\f]+/g)) {
       range.setStart(node, match.index);
       range.setEnd(node, match.index + match[0].length);
-      word = Math.max(word, range.getBoundingClientRect().width);
+      const rect = range.getBoundingClientRect();
+      word = Math.max(word, rect.width);
+      tall = Math.max(tall, rect.height);
     }
   }
   const was = label.style.whiteSpace;
@@ -50,7 +53,19 @@ function widths(label: HTMLElement): [word: number, line: number] {
   range.selectNodeContents(label);
   const line = range.getBoundingClientRect().width;
   label.style.whiteSpace = was;
-  return [word, line];
+  return [word, line, tall];
+}
+
+/**
+ * How far in from its pill's end a line of words `tall` high must start so
+ * the curve doesn't cut its corners: the line sits halfway down a segment
+ * one line tall, and the segment's corners are as drawn.
+ */
+function curveOf(label: HTMLElement, tall: number): number {
+  const box = label.getBoundingClientRect();
+  const r = Math.min(parseFloat(getComputedStyle(label).borderTopLeftRadius) || 0, box.height / 2, box.width / 2);
+  const half = Math.min(tall / 2, r);
+  return r - Math.sqrt(r * r - half * half);
 }
 
 /**
@@ -73,10 +88,12 @@ function fitOf(track: HTMLElement, count: number): Fit {
   const sides = 2 * rem;
   let word = 0;
   let line = 0;
+  let curve = 0;
   for (const label of track.querySelectorAll<HTMLElement>(":scope > label")) {
-    const [w, l] = widths(label);
+    const [w, l, tall] = widths(label);
     word = Math.max(word, w);
     line = Math.max(line, l);
+    curve = Math.max(curve, curveOf(label, tall));
   }
   if (word <= share - sides + 0.5) return ROW;
   if (line <= share - 2) {
@@ -84,9 +101,13 @@ function fitOf(track: HTMLElement, count: number): Fit {
     // doing so, as "Other" among five always has on a 320px phone: nothing
     // moves at 100%. With large text the label's sides close in instead,
     // rounded up to layout's 1/64px so the labels are never narrower than
-    // their share and the track keeps the room's width.
+    // their share and the track keeps the room's width; but never so far
+    // that the pill's curve cuts the words, as "English" beside "עברית"
+    // would on a 320px phone at 200%. Those stand one under another.
     if (rem <= 16) return ROW;
-    return { stacked: false, inset: Math.ceil(((share - line) / 2) * 64) / 64 };
+    if (line <= share - 2 * Math.max(1, curve)) {
+      return { stacked: false, inset: Math.ceil(((share - line) / 2) * 64) / 64 };
+    }
   }
   // Stacked, each segment has the track's whole width. A word too wide for
   // it beside the sides brings them in, rounded down so it never runs into
@@ -146,12 +167,18 @@ function useFit(track: RefObject<HTMLDivElement>, count: number): Fit {
  *
  * A segment keeps its sides while its longest word fits inside them; with
  * large text a label on one line may come closer to its pill's edges, as
- * Hebrew's "Other" does among five at 200% on a laptop. Where neither holds,
- * with large text on a phone, the segments stand one under another at the
- * room's width, and the chosen one's colour crosses over, as with reduced
- * motion. Stacked, a word too wide to keep its sides brings them in the same
- * way, as English's "Automatic" does in the account sheet at 200% on a 320px
- * phone.
+ * Hebrew's "Other" does among five at 200% on a laptop, but never into its
+ * curve. Where neither holds, with large text on a phone, the segments stand
+ * one under another at the room's width, and the chosen one's colour crosses
+ * over, as with reduced motion. Stacked, a word too wide to keep its sides
+ * brings them in the same way, as English's "Automatic" does in the account
+ * sheet at 200% on a 320px phone.
+ *
+ * A segment's corners are half its 44px, which holds two lines, in rem so
+ * they grow with the text: one line or two is a full pill at any text size,
+ * and a label that wraps further keeps those ends with straight sides
+ * between them, where a full pill would turn into an oval whose curve cuts
+ * its first and last lines.
  */
 export function SegmentedControl<T extends string>({
   label,
@@ -180,14 +207,18 @@ export function SegmentedControl<T extends string>({
           "relative border border-border bg-background p-1",
           // Stacked, one column as wide as the track and never wider, as a
           // row's are: an implicit `auto` one would grow to fit a long word
-          // and its sides, and the chosen pill with it.
-          fit.stacked ? "grid grid-cols-1 auto-rows-fr rounded-[1.625rem]" : "inline-grid grid-flow-col auto-cols-fr rounded-full",
+          // and its sides, and the chosen pill with it. Side by side, the
+          // track's corners are its segments' with its padding and border
+          // round them: a full pill while they are.
+          fit.stacked
+            ? "grid grid-cols-1 auto-rows-fr rounded-[1.625rem]"
+            : "inline-grid grid-flow-col auto-cols-fr rounded-[calc(1.625rem+1px)]",
         )}
       >
         {slide && index >= 0 && (
           <span
             aria-hidden
-            className="absolute inset-y-1 start-1 rounded-full bg-ink transition-transform duration-move ease-in-out-strong"
+            className="absolute inset-y-1 start-1 rounded-[1.375rem] bg-ink transition-transform duration-move ease-in-out-strong"
             style={pill}
           />
         )}
@@ -198,8 +229,7 @@ export function SegmentedControl<T extends string>({
               key={option.value}
               style={fit.inset === null ? undefined : { paddingInline: fit.inset }}
               className={cn(
-                "relative flex min-h-11 cursor-pointer touch-manipulation select-none items-center justify-center px-4 text-center font-heading text-base font-medium leading-tight has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
-                fit.stacked ? "rounded-[1.375rem]" : "rounded-full",
+                "relative flex min-h-11 cursor-pointer touch-manipulation select-none items-center justify-center rounded-[1.375rem] px-4 text-center font-heading text-base font-medium leading-tight has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
                 noTapFlash,
                 chosen ? "text-surface" : "text-ink-muted active:bg-ink/[0.06] hover-fine:text-ink",
                 slide
