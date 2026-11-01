@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { ApiError } from "../../../api/errors";
-import { birthdayProblem, cardLine, isReturning, joinAnswer, localDay, phoneProblem, stepDirection } from "./joinRules";
+import {
+  birthdayProblem,
+  cardLine,
+  isReturning,
+  joinAnswer,
+  localDay,
+  optInProblem,
+  phoneProblem,
+  stepDirection,
+} from "./joinRules";
 
 describe("joinAnswer", () => {
   it("says a Free shop isn't taking customers, from the code request too", () => {
@@ -117,5 +126,23 @@ describe("cardLine", () => {
     expect(cardLine({ stamp_count: 3, stamps_required: 8, status: "active" })).toBe("have");
     expect(cardLine({ stamp_count: 8, stamps_required: 8, status: "reward_ready" })).toBe("full");
     expect(cardLine({ stamp_count: 9, stamps_required: 8, status: "active" })).toBe("full");
+  });
+});
+
+describe("the marketing box", () => {
+  // Joining needs it ticked (Roee, 2026-11-01): the club's benefits come as
+  // its messages. Refused in the browser before a code is spent on a join the
+  // API would refuse, and under the box when the API says so all the same.
+  it("refuses a join without it, and takes one with it", () => {
+    expect(optInProblem(false)).toBe("enroll.optInRequired");
+    expect(optInProblem(true)).toBeNull();
+  });
+
+  it("puts the API's refusal under the box", () => {
+    expect(joinAnswer(new ApiError(422, "Joining needs the box ticked.", "marketing_consent_required"))).toEqual({
+      kind: "field",
+      field: "optIn",
+      key: "enroll.optInRequired",
+    });
   });
 });

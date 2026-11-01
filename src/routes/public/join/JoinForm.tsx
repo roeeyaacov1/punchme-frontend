@@ -18,20 +18,23 @@ function latestBirthday(): string {
 }
 
 /**
- * The details, phone first and the only one required. `noValidate`, so the
- * browser's own bubble never speaks: an error is said under its field, tied
- * to it, and the field takes focus; what belongs to no field is a notice
- * over the button.
+ * The details, phone first; the phone and the marketing box are required.
+ * `noValidate`, so the browser's own bubble never speaks: an error is said
+ * under its field, tied to it, and the field takes focus; what belongs to
+ * no field is a notice over the button.
  *
  * The legal pair is here word for word: the marketing consent as its own
- * unticked box (Spam Law), and the privacy notice (s.11) one tap away, in a
- * sheet, so reading it never moves the form or the button.
+ * box (Spam Law), which joining needs ticked since 2026-11-01 (the club's
+ * benefits come as its messages) but which is never ticked for them, and
+ * the privacy notice (s.11) one tap away, in a sheet, so reading it never
+ * moves the form or the button.
  */
 export function JoinForm({ flow }: { flow: JoinFlow }) {
   const { t } = useTranslation();
   const heading = useRef<HTMLHeadingElement>(null);
   const phone = useRef<HTMLInputElement>(null);
   const birthday = useRef<HTMLInputElement>(null);
+  const optIn = useRef<HTMLInputElement>(null);
   const noticeRow = useRef<HTMLButtonElement>(null);
   const [notice, setNotice] = useState(false);
   const [latest] = useState(latestBirthday);
@@ -41,13 +44,14 @@ export function JoinForm({ flow }: { flow: JoinFlow }) {
     heading.current?.focus({ preventScroll: true });
   }, []);
 
-  // A refused field takes focus, every time it is refused: the phone first
-  // when both are.
-  const { phone: phoneError, birthday: birthdayError, seq } = flow.errors;
+  // A refused field takes focus, every time it is refused: the first of
+  // them, in the form's order.
+  const { phone: phoneError, birthday: birthdayError, optIn: optInError, seq } = flow.errors;
   useEffect(() => {
     if (phoneError) phone.current?.focus();
     else if (birthdayError) birthday.current?.focus();
-  }, [phoneError, birthdayError, seq]);
+    else if (optInError) optIn.current?.focus();
+  }, [phoneError, birthdayError, optInError, seq]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -105,7 +109,14 @@ export function JoinForm({ flow }: { flow: JoinFlow }) {
             onChange={(e) => flow.setBirthday(e.target.value)}
             error={birthdayError ? t(birthdayError) : undefined}
           />
-          <Checkbox checked={flow.optIn} onChange={flow.setOptIn} label={t("enroll.marketingOptIn")} />
+          <Checkbox
+            ref={optIn}
+            checked={flow.optIn}
+            onChange={flow.setOptIn}
+            label={t("enroll.marketingOptIn")}
+            description={t("enroll.marketingOptInHint")}
+            error={optInError ? t(optInError) : undefined}
+          />
           <button
             ref={noticeRow}
             type="button"

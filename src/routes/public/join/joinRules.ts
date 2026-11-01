@@ -10,7 +10,8 @@ import type { JoinStep } from "./useJoinFlow";
  *   Free shop that isn't taking new customers, said on the sign too
  *   (the code request's was "something went wrong" before);
  * - `invalid_phone` under the phone, `otp_invalid` under the code,
- *   `invalid_birthday` under the birthday;
+ *   `invalid_birthday` under the birthday, `marketing_consent_required`
+ *   under the marketing box;
  * - `otp_throttled`, the address's own throttle (a bare 429, which a
  *   counter's shared Wi-Fi reaches sooner), the SMS service being down
  *   (`sms_unavailable`), an unreachable API and anything else over the
@@ -19,7 +20,7 @@ import type { JoinStep } from "./useJoinFlow";
 export type JoinAnswer =
   | { kind: "dead" }
   | { kind: "notTaking" }
-  | { kind: "field"; field: "phone" | "code" | "birthday"; key: string }
+  | { kind: "field"; field: "phone" | "code" | "birthday" | "optIn"; key: string }
   | { kind: "form"; key: string };
 
 export function joinAnswer(err: unknown): JoinAnswer {
@@ -31,6 +32,7 @@ export function joinAnswer(err: unknown): JoinAnswer {
   if (err.code === "invalid_phone") return { kind: "field", field: "phone", key: "enroll.phoneInvalid" };
   if (err.code === "otp_invalid") return { kind: "field", field: "code", key: "enroll.otpInvalid" };
   if (err.code === "invalid_birthday") return { kind: "field", field: "birthday", key: "enroll.birthdayInvalid" };
+  if (err.code === "marketing_consent_required") return { kind: "field", field: "optIn", key: "enroll.optInRequired" };
   if (err.code === "sms_unavailable") return { kind: "form", key: "enroll.smsUnavailable" };
   if (err.status === 429) return { kind: "form", key: "onboarding.account.throttled" };
   if (err.status === 404) return { kind: "dead" };
@@ -42,6 +44,13 @@ export function joinAnswer(err: unknown): JoinAnswer {
 export function phoneProblem(phone: string): "enroll.phoneMissing" | "enroll.phoneInvalid" | null {
   if (!phone.trim()) return "enroll.phoneMissing";
   return isLikelyIlPhone(phone) ? null : "enroll.phoneInvalid";
+}
+
+/** The marketing box, which joining needs ticked (Roee, 2026-11-01): the
+ * club's benefits come as its messages. Checked in the browser before any
+ * request, so no code is spent on a join the API would refuse. */
+export function optInProblem(optIn: boolean): "enroll.optInRequired" | null {
+  return optIn ? null : "enroll.optInRequired";
 }
 
 /** The earliest birthday the API takes. */
