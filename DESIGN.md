@@ -145,6 +145,10 @@ rounded:
   card: "32px"
   hero: "40px"
   pill: "9999px"
+  # Half a two-line button: one line or two is a full pill at any text size,
+  # and a label that wraps further keeps those ends with straight sides.
+  button: "calc(1.75rem + 1px)"
+  button-large: "calc(1.953125rem + 1px)"
 spacing:
   gutter: "16px"
   panel-inset: "20px"
@@ -161,7 +165,7 @@ components:
     backgroundColor: "{colors.sign-coral}"
     textColor: "{colors.soft-ink}"
     typography: "{typography.control}"
-    rounded: "{rounded.pill}"
+    rounded: "{rounded.button}"
     padding: "8px 20px"
     height: "{spacing.target}"
   button-primary-hover:
@@ -169,34 +173,34 @@ components:
   button-primary-large:
     backgroundColor: "{colors.sign-coral}"
     textColor: "{colors.soft-ink}"
-    rounded: "{rounded.pill}"
+    rounded: "{rounded.button-large}"
     padding: "10px 28px"
     height: "{spacing.button-large}"
   button-secondary:
     backgroundColor: "{colors.lit-acrylic}"
     textColor: "{colors.soft-ink}"
     typography: "{typography.control}"
-    rounded: "{rounded.pill}"
+    rounded: "{rounded.button}"
     padding: "8px 20px"
     height: "{spacing.target}"
   button-ink:
     backgroundColor: "{colors.soft-ink}"
     textColor: "{colors.lit-acrylic}"
     typography: "{typography.control}"
-    rounded: "{rounded.pill}"
+    rounded: "{rounded.button}"
     padding: "8px 20px"
     height: "{spacing.target}"
   button-quiet:
     textColor: "{colors.soft-ink}"
     typography: "{typography.control}"
-    rounded: "{rounded.pill}"
+    rounded: "{rounded.button}"
     padding: "8px 20px"
     height: "{spacing.target}"
   button-danger:
     backgroundColor: "{colors.lit-acrylic}"
     textColor: "{colors.danger}"
     typography: "{typography.control}"
-    rounded: "{rounded.pill}"
+    rounded: "{rounded.button}"
     padding: "8px 20px"
     height: "{spacing.target}"
   input:
@@ -380,12 +384,12 @@ Lit, not lifted. By day a panel's depth is light: a 1px highlight inside its top
 
 ## Shapes
 
-Generous and soft. Buttons, chips, segments and tags are full pills; stamps are circles. Fields have 16px corners, dashboard panels and a scan's answer 24px, the viewfinder 28px, the landing page's tall cards 32px and its lit hero panel 40px. A checkbox is a 24px box with 6px corners. A hairline is 1px and decoration only; Field Edge marks an edge that identifies a control, 1px round a field and 2px round a checkbox, a radio and a switch's track.
+Generous and soft. Buttons, chips, segments and tags are full pills, though a button whose label wraps past two lines, which only large text causes, keeps a two-line pill's ends; stamps are circles. Fields have 16px corners, dashboard panels and a scan's answer 24px, the viewfinder 28px, the landing page's tall cards 32px and its lit hero panel 40px. A checkbox is a 24px box with 6px corners. A hairline is 1px and decoration only; Field Edge marks an edge that identifies a control, 1px round a field and 2px round a checkbox, a radio and a switch's track.
 
 ## Components
 
 ### Buttons
-- **Shape:** full pills (9999px), at least 44px tall (52px large), with 20px of inline padding and 8px above and below (28px and 10px large), so a label allowed to wrap keeps air round its words; an icon button is a 44px square that always carries a label for screen readers.
+- **Shape:** full pills up to two lines, at least 44px tall (52px large), with 20px of inline padding and 8px above and below (28px and 10px large), so a label allowed to wrap keeps air round its words. The corners are half a two-line button's height (29px, 32.25px large, in rem so they grow with the text), so one line or two is a full pill at any text size. A label that wraps further, which only large text on a phone causes, keeps those ends with straight sides between them: a full pill there turns into an oval and its first and last lines cross the curve. An icon button is a 44px square that always carries a label for screen readers.
 - **Primary:** Sign Coral with a Soft Ink label, one per screen. Hover darkens to #f2683a, only where a pointer hovers and never on a disabled button.
 - **Ink:** Soft Ink with a Lit Acrylic label (14.88:1): the action on a gold surface, and "Reward given" on a full card.
 - **Secondary, quiet and danger:** a lit panel with a soft edge; a text button; red words with a red edge and no fill.
