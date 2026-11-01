@@ -36,20 +36,23 @@ export function useEmailPasswordAuth({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // The error's key, not its sentence: worded as the form renders, it
+  // follows a switch of language, where a sentence kept here stayed in the
+  // language it was made in.
+  const [errorKey, setErrorKey] = useState<string | null>(null);
 
   /** `method` travels with the call: a Google 401 and a password 401 look
    * the same on the wire and must not read the same. */
   async function run(method: AuthMethod, getTokens: () => Promise<TokenPair>) {
     if (submitting) return;
-    setError(null);
+    setErrorKey(null);
     setSubmitting(true);
     try {
       const tokens = await getTokens();
       await onAuthenticated(tokens);
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) setMode("signin");
-      setError(t(authErrorKey(err, { mode, method })));
+      setErrorKey(authErrorKey(err, { mode, method }));
     } finally {
       setSubmitting(false);
     }
@@ -58,7 +61,7 @@ export function useEmailPasswordAuth({
   return {
     mode,
     toggleMode: () => {
-      setError(null);
+      setErrorKey(null);
       setMode(mode === "signup" ? "signin" : "signup");
     },
     email,
@@ -66,15 +69,14 @@ export function useEmailPasswordAuth({
     password,
     setPassword,
     submitting,
-    error,
-    setError,
+    error: errorKey ? t(errorKey) : null,
     canSubmit: email.trim().length > 0 && password.length > 0,
     submitPassword: async () => {
       // A sign-up address that can't be one is caught before the account
       // is made under it (`signUpEmailProblem`).
       const problem = mode === "signup" ? signUpEmailProblem(email) : null;
       if (problem) {
-        setError(t(problem));
+        setErrorKey(problem);
         return;
       }
       await run("password", () =>
