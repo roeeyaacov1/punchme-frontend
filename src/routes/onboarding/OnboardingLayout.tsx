@@ -8,6 +8,7 @@ import { column } from "../../components/onboarding/column";
 import { ProgressLine } from "../../components/onboarding/ProgressLine";
 import { StepArrival } from "../../components/onboarding/stepArrival";
 import { TopBar } from "../../components/onboarding/TopBar";
+import { useWide, useWideFrame, WideProvider } from "../../components/onboarding/useWide";
 import { useDebounce } from "../../hooks/useDebounce";
 import { cn } from "../../lib/cn";
 import { usePublicGround } from "../../theme/usePublicGround";
@@ -32,10 +33,14 @@ import { seenOf, walkDone, whereToStart } from "./walk";
  */
 export function OnboardingLayout() {
   const wallet = useState<PreviewPlatform>(() => (deviceWallet() === "google" ? "google" : "apple"));
+  // One column or two, for the top bar, the page and every screen in it.
+  const [wide, setColumn] = useWideFrame();
   return (
     <OnboardingDraftProvider>
       <StageWallet.Provider value={wallet}>
-        <Shell />
+        <WideProvider value={wide}>
+          <Shell columnRef={setColumn} />
+        </WideProvider>
       </StageWallet.Provider>
     </OnboardingDraftProvider>
   );
@@ -49,12 +54,13 @@ function stepFromPath(pathname: string): WizardStep | null {
   return (ALL_STEPS as readonly string[]).includes(last) ? (last as WizardStep) : null;
 }
 
-function Shell() {
+function Shell({ columnRef }: { columnRef: (element: HTMLElement | null) => void }) {
   const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
   const location = useLocation();
   const { draft, resolved, preview, hasArt } = useOnboardingDraft();
   const reduced = useReducedMotion();
+  const wide = useWide();
   usePublicGround();
 
   const step = stepFromPath(location.pathname);
@@ -144,7 +150,7 @@ function Shell() {
       </a>
       <TopBar showSignIn={!isAuthenticated} />
 
-      <main className={cn(column, "flex flex-1 flex-col gap-6 pb-10 pt-2")}>
+      <main ref={columnRef} className={cn(column(wide), "flex flex-1 flex-col gap-6 pb-10 pt-2")}>
         {/* A staff account usually has no Business of its own, so it never
             reaches the dashboard, the only other place the admin link lives. */}
         {user?.is_staff && (

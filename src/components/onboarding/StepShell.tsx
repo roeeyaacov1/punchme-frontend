@@ -10,14 +10,15 @@ import { useWide } from "./useWide";
  * One screen of the wizard: its heading, the card, what it asks, and its one
  * coral action.
  *
- * On a phone, and up to 1023px, it is one column. The card stands under the
+ * On a phone and a tablet it is one column, and so it is from 1024px while
+ * large text leaves no room for two (`useWide`). The card stands under the
  * heading, or above it on a screen that leads with the card (`cardFirst`),
  * and the action is docked at the foot of the screen, above the safe area,
  * on a wall-coloured bar with a hairline over it, where a thumb finds it.
- * From 1024px the card stands in a sticky column of its own at the end, with
- * what goes under it, and the action at the foot of the step's column, held
- * on screen while a long step scrolls under it, as Card Studio's Save bar is
- * (Roee's choice, 31 Oct 2026, over spec §3's place under the card).
+ * In two columns the card stands in a sticky column of its own at the end,
+ * with what goes under it, and the action at the foot of the step's column,
+ * held on screen while a long step scrolls under it, as Card Studio's Save
+ * bar is (Roee's choice, 31 Oct 2026, over spec §3's place under the card).
  *
  * Each screen brings its own pieces, so a screen that holds its form in a
  * panel of its own (saving the card, going live) passes no heading or action
@@ -161,7 +162,7 @@ export function StepHeading({
 }
 
 /**
- * The action at the foot of the step's column from 1024px. While what is
+ * The action at the foot of the step's column in two columns. While what is
  * above it is longer than the screen, it holds at the screen's foot and the
  * step scrolls under it, standing on the phone's bar: the wall's colour,
  * with a hairline over it. At rest it is the button alone, where the column
@@ -193,7 +194,7 @@ function HeldAction({ children }: { children: ReactNode }) {
 }
 
 /**
- * The action at the foot of a phone, and as much room under the page as the
+ * The action at the foot of the screen, and as much room under the page as the
  * bar is tall, so the page's own foot scrolls clear of it at any text size.
  */
 function DockedAction({ children }: { children: ReactNode }) {

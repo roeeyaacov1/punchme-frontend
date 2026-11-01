@@ -25,7 +25,7 @@ import { StampPanel } from "./card/StampPanel";
 
 type Tray = MapPart;
 
-/** From 1024px the parts are tabs, in the walk's order. */
+/** In two columns (`useWide`) the parts are tabs, in the walk's order. */
 const TABS: readonly Tray[] = MAP_PARTS;
 /** On a phone the reward sentence opens the reward, so the chips are the other three. */
 const CHIPS: Tray[] = ["business", "colours", "stamp"];
@@ -56,8 +56,9 @@ function trayAt(last: string | undefined, state: TrayState | null): Tray | null 
  * card in view above it. Opening one pushes its address and closing goes
  * back, so the phone's back gesture closes a tray and closing never stacks
  * history; arriving at a tray's address (a first visit, a reload, the forward
- * guard) opens the card with that tray open. From 1024px the parts are tabs
- * beside the card, the open tab its address.
+ * guard) opens the card with that tray open. In two columns (from 1024px,
+ * while large text leaves room) the parts are tabs beside the card, the open
+ * tab its address.
  *
  * The business can't be left unfinished, by any way out: it says what's
  * missing, there, and stays. While it is on screen the card wears the
@@ -106,7 +107,7 @@ export function CardStep() {
   const last = location.pathname.replace(/\/+$/, "").split("/").pop();
   const atAccent = last === "accent";
   const tray = trayAt(last, state);
-  /** The part on screen: the open tray on a phone, the shown tab from 1024px. */
+  /** The part on screen: the open tray on a phone, the shown tab in two columns. */
   const showing: Tray | null = wide ? (tray ?? "reward") : tray;
   const seen = useMemo(() => seenOf({ seen: draft.seen }), [draft.seen]);
   const done = walkDone(seen);
@@ -222,7 +223,7 @@ export function CardStep() {
   }, [rewardWanted, tray]);
 
   // Save found the name longer than the API takes and opened the business
-  // on it: the name takes focus, from 1024px as its tab shows, and on a
+  // on it: the name takes focus, in two columns as its tab shows, and on a
   // phone as the tray opens (its `start`), for as long as it stays open.
   // The router moves a beat after the press, so it holds until the business
   // has been shown, and lets go once it is left.
@@ -340,7 +341,7 @@ export function CardStep() {
     }
   }, [tray]);
 
-  // From 1024px a part's panel goes with its tab. A field in it that had
+  // In two columns a part's panel goes with its tab. A field in it that had
   // focus (Enter in the name goes on) hands it to the tab now shown, never
   // to the page.
   const tabsBox = useRef<HTMLDivElement>(null);
@@ -351,7 +352,7 @@ export function CardStep() {
     tabsBox.current?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.focus();
   }, [wide, showing]);
 
-  // Crossing below 1024px keeps the part that is open. The others have
+  // Crossing to one column keeps the part that is open. The others have
   // addresses, which open their trays; the reward's tab has none, so its
   // tray is opened in place, on the map's own entry.
   const wasWide = useRef(wide);
@@ -363,7 +364,7 @@ export function CardStep() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wide]);
 
-  /** A tab from 1024px: its address in place of the last, never a new
+  /** A tab in two columns: its address in place of the last, never a new
    * entry. False when the tab asked for isn't the one shown after: the
    * business held, or a lost picture kept the owner at the stamp. */
   const showTab = useCallback(

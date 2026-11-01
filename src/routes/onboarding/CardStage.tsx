@@ -18,6 +18,7 @@ import {
   type PreviewPlatform,
 } from "../../components/card-studio/CardPreviews";
 import { SegmentedControl, useReducedMotion, WallpaperStage } from "../../components/kit";
+import { useWide } from "../../components/onboarding/useWide";
 import { cn } from "../../lib/cn";
 import { MAX_STAMPS, type MapPart, type Niche } from "./draft";
 import { useStageWallet } from "./stageWallet";
@@ -58,9 +59,10 @@ export interface StageHandle {
  * `WallpaperStage`), the pass in its 300px slot, never redrawn. Above it, the
  * Apple/Google switch, which opens on the phone's own wallet.
  *
- * `top` shows the top of the pass on a phone: its name and, on Apple's, its
- * stamps, cut where the pass has nothing to say. From 1024px, where the card
- * has a column of its own, it is always whole, with the switch over it.
+ * `top` shows the top of the pass in one column: its name and, on Apple's,
+ * its stamps, cut where the pass has nothing to say. In two columns
+ * (`useWide`), where the card has a column of its own, it is always whole,
+ * with the switch over it.
  *
  * On the map the card is the map: its name, its stamps and its count open
  * what they show (`onPart`), and the open part is outlined (`lit`). Both are
@@ -93,6 +95,8 @@ export const CardStage = forwardRef<
   const { draft, preview: drafted } = useOnboardingDraft();
   const [wallet, setWallet] = useStageWallet();
   const reduced = useReducedMotion();
+  const wide = useWide();
+  const cut = crop === "top" && !wide;
   const slot = useRef<HTMLDivElement>(null);
   const preview = given ?? drafted;
   const [boxes, setBoxes] = useState<Partial<Record<MapPart, Box>>>({});
@@ -216,7 +220,7 @@ export const CardStage = forwardRef<
         options={WALLETS.map((key) => ({ value: key, label: t(`studio.preview.${key}`) }))}
         value={wallet}
         onChange={setWallet}
-        className={crop === "top" ? "max-lg:hidden" : undefined}
+        className={cut ? "hidden" : undefined}
       />
       <div
         className={cn(
@@ -224,7 +228,7 @@ export const CardStage = forwardRef<
           // 176px: just under Apple's strip, in the gap before its fields,
           // and just under Google's fields, before its barcode. A phone seen
           // past the edge of the page, not content clipped by accident.
-          crop === "top" && "max-lg:h-44 max-lg:overflow-hidden max-lg:rounded-t-glass",
+          cut && "h-44 overflow-hidden rounded-t-glass",
         )}
       >
         <WallpaperStage

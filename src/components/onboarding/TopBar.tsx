@@ -5,6 +5,7 @@ import { cn } from "../../lib/cn";
 import { LanguageSwitch } from "../../routes/public/LanguageSwitch";
 import logo from "../../assets/logo.png";
 import { column } from "./column";
+import { useWide } from "./useWide";
 
 /**
  * The thin bar over the wizard: the mark home at the start; at the end, a
@@ -15,8 +16,9 @@ import { column } from "./column";
  */
 export function TopBar({ showSignIn = false }: { showSignIn?: boolean }) {
   const { t } = useTranslation();
+  const wide = useWide();
   return (
-    <header className={cn(column, "flex min-h-16 flex-wrap items-center justify-between gap-x-2")}>
+    <header className={cn(column(wide), "flex min-h-16 flex-wrap items-center justify-between gap-x-2")}>
       {/* The mark dims under a finger, on the kit's press timing: the tap's
           own flash is off in the wizard. */}
       <Link

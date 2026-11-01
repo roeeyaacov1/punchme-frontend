@@ -12,6 +12,8 @@ import { Badge, Button, Figure, LitPanel, Skeleton } from "../../../components/k
 import { PUNCHME_MONTHLY_PRICE } from "../../../components/marketing/calculator";
 import { panelSides } from "../../../components/onboarding/largeText";
 import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
+import { useWide } from "../../../components/onboarding/useWide";
+import { cn } from "../../../lib/cn";
 import { CardStage } from "../CardStage";
 import { checkoutProblemKey } from "../problems";
 import { Unreadable } from "../Unreadable";
@@ -57,6 +59,7 @@ export function BillingStep() {
   const navigate = useNavigate();
   const { business, status, role, refetch, isFetching } = useBusiness();
   const { draft, clear, artUrl } = useOnboardingDraft();
+  const wide = useWide();
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
 
@@ -123,7 +126,7 @@ export function BillingStep() {
         tag={<Badge className="bg-surface">{t("dashboard.plan.notLive")}</Badge>}
       />
     ) : (
-      <Skeleton className="mx-auto h-44 w-[340px] max-w-full !rounded-glass lg:h-[27rem]" />
+      <Skeleton className={cn("mx-auto w-[340px] max-w-full !rounded-glass", wide ? "h-[27rem]" : "h-44")} />
     );
 
   // The business couldn't be read: nothing here works without it, so the
