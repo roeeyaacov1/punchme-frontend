@@ -94,13 +94,18 @@ export function ReadyLink({
         value={url}
         onFocus={(event) => selectAll(event.currentTarget)}
       />
+      {/* Both buttons' sides hold at 20px as the text grows, and the icon
+          goes above the words where they can't stand beside it, with large
+          text in a phone's or a laptop's narrow column, as "Make the link"
+          does: at 200% on a 320px screen it left "העתקת" 36px, and in the
+          laptop's 45% column at 1280 "העתקת קישור" crossed its outline. */}
       <div className="flex flex-wrap gap-3">
         {canShare && (
           <Button
             ref={actionRef}
             icon={<Share2 aria-hidden />}
             onClick={() => void share()}
-            className="max-w-full !whitespace-normal text-center"
+            className="max-w-full flex-wrap !whitespace-normal !px-[min(1.25rem,20px)] text-center"
           >
             {t("team.ready.share")}
           </Button>
@@ -110,7 +115,7 @@ export function ReadyLink({
           variant={canShare ? "secondary" : "primary"}
           icon={<Copy aria-hidden />}
           onClick={() => void copy()}
-          className="max-w-full !whitespace-normal text-center"
+          className="max-w-full flex-wrap !whitespace-normal !px-[min(1.25rem,20px)] text-center"
         >
           {t("common.copyLink")}
         </Button>

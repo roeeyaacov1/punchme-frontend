@@ -30,7 +30,10 @@ export function JoinQr({ templateId, className }: { templateId: string; classNam
           {t("dashboard.qr.title")}
         </h2>
         <QrCode url={url} size={168} />
-        <Button variant="secondary" icon={<Copy aria-hidden />} onClick={copy} className="max-w-full">
+        {/* On a phone its sides hold at 20px as the text grows, and the icon
+            goes above the words where they can't stand beside it: at 200% on
+            a 320px screen it left "העתקת" 52px. */}
+        <Button variant="secondary" icon={<Copy aria-hidden />} onClick={copy} className="max-w-full text-center max-sm:flex-wrap max-sm:px-[min(1.25rem,20px)]">
           <span className="whitespace-normal">{t("common.copyLink")}</span>
         </Button>
       </div>
