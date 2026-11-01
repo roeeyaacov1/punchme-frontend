@@ -58,6 +58,18 @@ adds no stops. A line under the top bar says where the owner is and what
 comes next ("Step 1 of 4 · Next: Saving") over a four-part rule. It is not
 a control: Back is each screen's own.
 
+Every screen stands in one column or two (`StepShell`). One on a phone and
+a tablet: the card under the heading, or above it, and the action docked at
+the screen's foot. Two from 1024px: the card in a sticky column of its own
+at the end, the action at the foot of the step's column. Two only while the
+screen is at least 58rem (`useWide.ts`): the step's 30rem, the card's 22rem,
+the gap and the page's sides, so two columns never leave the step less room
+than one gives it. At the default text size that is always from 1024px.
+Larger text keeps the tablet's one column until the screen is as much
+wider: 1160px at 125%, 1856px at 200%. The top bar, the page's column, the
+cropped card on the saving and going-live steps and the map's tabs or trays
+all follow that one decision.
+
 | # | Route | Stop | Public | What it collects | Limits | Pressed on with it missing |
 |---|---|---|---|---|---|---|
 | 1 | `/onboarding/business` | 1, the map, its business tray | yes | Business name (Google Places suggestions when `VITE_GOOGLE_MAPS_API_KEY` is set, which also fills the phone) and trade: barber, café, personal trainer, therapist, other | Name at most 120 (the field holds it; a longer one from a draft made before is held like a missing name, saying how many characters are too many). Trades without a preset are hidden once presets load, unless the catalog lists none; the trade chosen always shows | Every way out of it holds, Save included: says which is missing, there, and takes focus to it |
@@ -74,10 +86,10 @@ a control: Back is each screen's own.
   button. Its four parts, in the walk's order, are the business, the
   colours, the stamp and the reward. They open as trays over the card on a
   phone (Card Studio's `StudioTray`), each saying which part it is ("Part 2
-  of 4"), and as tabs beside it from 1024px. The card's own rows open what
+  of 4"), and as tabs beside it in two columns. The card's own rows open what
   they show (the name the business, the stamps the stamp, the count the
-  reward), and the open part is outlined on the card (`CardStage`). From
-  1024px the walk's one button stands at the foot of the working column,
+  reward), and the open part is outlined on the card (`CardStage`). In two
+  columns the walk's one button stands at the foot of the working column,
   held at the screen's foot while a long part scrolls under it, as Card
   Studio's Save bar is (Roee, 31 Oct 2026).
 - **The walk** (`walk.ts`), guided and free to jump:
@@ -100,7 +112,7 @@ a control: Back is each screen's own.
     with `state.tray = "reward"`.
   - Arriving at `business`, `color`, `accent` or `stamp` directly (a first
     visit, a reload, the forward guard) opens the map with that tray open.
-  - From 1024px a tab replaces its address and never adds one.
+  - In two columns a tab replaces its address and never adds one.
   - All five addresses render the same `CardStep`, so the screen stays
     mounted across them.
 - **The business** can't be left unfinished, by any way out (its Next, a
@@ -294,9 +306,9 @@ which clears the draft and goes to `billing`, and "Continue" once it is.
   own name.
 - A tray's heading takes focus as it opens, however it was opened, and
   however it closes (a mouse drag included), focus goes back to what opened
-  it. Its name is the part, then "Part 2 of 4", after a pause. From 1024px,
-  a field that goes with its panel (Enter in the name) hands focus to the
-  tab now shown.
+  it. Its name is the part, then "Part 2 of 4", after a pause. In two
+  columns, a field that goes with its panel (Enter in the name) hands focus
+  to the tab now shown.
 - The places on the card are pointer shortcuts, out of the Tab order and
   hidden from screen readers: the chips, the tabs, the reward sentence and
   each tray's Next are the controls. A tick is said after its part's name
@@ -373,3 +385,9 @@ Fixed, except where it says otherwise.
   box at 200%: where its longest word can't stand between the gift and the
   pencil (or the tick), that mark goes under it, at the end, as in Card
   Studio.
+- **Two columns left the step no room at 200% text** (found checking the
+  buttons' words, 1 Nov). From 1024px the card's 22rem column grew with the
+  text and took 704px, leaving the step 160px at 1024 and 236px at 1100;
+  the billing step's words ran out of their boxes and its buttons crossed
+  their outlines. Two columns now wait until the step has 30rem beside the
+  card (above), and nothing moves at 100%.
