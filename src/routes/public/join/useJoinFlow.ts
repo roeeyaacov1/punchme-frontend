@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { CardPublic } from "../../../api/loyalty";
-import { birthdayProblem, joinAnswer, localDay, phoneProblem, type JoinAnswer } from "./joinRules";
+import { birthdayProblem, joinAnswer, localDay, optInProblem, phoneProblem, type JoinAnswer } from "./joinRules";
 
 const RESEND_SECONDS = 60;
 
@@ -45,6 +45,7 @@ export type JoinStep =
 export interface JoinErrors {
   phone?: string;
   birthday?: string;
+  optIn?: string;
   code?: string;
   form?: string;
 }
@@ -83,8 +84,11 @@ export function useJoinFlow(calls: JoinCalls) {
     if (answer.kind === "dead" || answer.kind === "notTaking") {
       setErrors((e) => ({ seq: e.seq }));
       setStep({ kind: "held", answer: answer.kind });
-    } else if (answer.kind === "field" && (answer.field === "phone" || answer.field === "birthday")) {
-      // Both are the form's: from the code step, the join goes back to it.
+    } else if (
+      answer.kind === "field" &&
+      (answer.field === "phone" || answer.field === "birthday" || answer.field === "optIn")
+    ) {
+      // All three are the form's: from the code step, the join goes back to it.
       setStep({ kind: "form" });
       refuse({ [answer.field]: answer.key });
     } else if (answer.kind === "field") {
@@ -143,17 +147,18 @@ export function useJoinFlow(calls: JoinCalls) {
     otpRequired: calls.otpRequired,
     /** The sign's "Join": the form takes its place. */
     open: () => setStep({ kind: "form" }),
-    /** The form's submit: the phone and the birthday checked here first,
-     * then a code, or straight to the join when there is no code step
-     * (asking for a code anyway would spend the number's allowance for
-     * nothing). */
+    /** The form's submit: the phone, the birthday and the marketing box
+     * checked here first, then a code, or straight to the join when there is
+     * no code step (asking for a code anyway would spend the number's
+     * allowance for nothing). */
     submitDetails: async () => {
       if (busy) return;
       const problems = {
         phone: phoneProblem(phone) ?? undefined,
         birthday: birthdayProblem(birthday, localDay(new Date())) ?? undefined,
+        optIn: optInProblem(optIn) ?? undefined,
       };
-      if (problems.phone || problems.birthday) {
+      if (problems.phone || problems.birthday || problems.optIn) {
         refuse(problems);
         return;
       }
