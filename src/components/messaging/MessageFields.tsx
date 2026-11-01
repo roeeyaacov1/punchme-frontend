@@ -50,7 +50,6 @@ export function MessageFields({
   language,
   rewardText,
   templates,
-  optInAvailable,
   disabled,
   before,
   titleInputRef,
@@ -63,9 +62,6 @@ export function MessageFields({
   rewardText: string;
   /** More than one card design: a scope picker appears. */
   templates?: { id: string; name: string }[];
-  /** False while more than one customer holds the card design: a send is
-   * published to the whole design, so it can't keep to those who opted in. */
-  optInAvailable: boolean;
   disabled?: boolean;
   /** A section of the page's own to stand first, such as a rule's "When". */
   before?: ReactNode;
@@ -243,13 +239,10 @@ export function MessageFields({
       )}
 
       <FieldSection title={t("messaging.fields.who")}>
-        <Switch
-          checked={value.opt_in_only}
-          disabled={disabled || !optInAvailable}
-          label={t("messaging.editor.optInOnly")}
-          description={optInAvailable ? undefined : t("messaging.editor.optInUnavailable")}
-          onChange={(on) => onChange({ opt_in_only: on })}
-        />
+        {/* Said, not chosen: every rule and broadcast reaches only the
+            customers who agreed to messages (2026-11-01), so there is no
+            switch to offer. */}
+        <p className="type-body text-ink-muted">{t("messaging.fields.whoConsent")}</p>
         {templates && templates.length > 1 && (
           <Select
             label={t("messaging.editor.scopeLabel")}

@@ -140,13 +140,12 @@ export function BroadcastComposerPage() {
     titleInput.current?.focus();
   }
 
-  const audienceOptions = useDebounce({ opt_in_only: draft.opt_in_only, template_id: draft.template_id }, 350);
+  const audienceOptions = useDebounce({ template_id: draft.template_id }, 350);
   const audience = useQuery({
-    queryKey: ["messaging", "audience", businessId, "broadcast", audienceOptions.opt_in_only, audienceOptions.template_id],
+    queryKey: ["messaging", "audience", businessId, "broadcast", audienceOptions.template_id],
     queryFn: () =>
       getAudienceCount(businessId!, {
         kind: "broadcast",
-        opt_in_only: audienceOptions.opt_in_only,
         template_id: audienceOptions.template_id ?? undefined,
       }),
     enabled: !!businessId,
@@ -161,7 +160,6 @@ export function BroadcastComposerPage() {
         body: draft.body.trim(),
         gift_stamps: draft.gift_stamps,
         gift_complete_card: draft.gift_complete_card,
-        opt_in_only: draft.opt_in_only,
         template_id: draft.template_id,
       }),
     onSuccess: (created) => {
@@ -259,7 +257,9 @@ export function BroadcastComposerPage() {
   let sentence = null;
   if (count === null) sentence = <Skeleton className="h-5 w-4/5" />;
   else if (nobody) {
-    sentence = t(draft.opt_in_only ? "messaging.broadcast.nobodyOptedIn" : "messaging.broadcast.nobody");
+    // The audience is the customers who agreed to messages, so "nobody" is
+    // nobody who agreed, whoever else holds the card.
+    sentence = t("messaging.broadcast.nobodyOptedIn");
   } else {
     const gift = !hasGift(draft)
       ? null
@@ -277,7 +277,7 @@ export function BroadcastComposerPage() {
           values={{ value: formatCount(count, lang) }}
           components={{ n: figure }}
         />
-        {draft.opt_in_only && <> {t("messaging.sentence.optIn")}</>}
+        <> {t("messaging.sentence.optIn")}</>
         {gift && <> {gift}</>}
       </>
     );
@@ -350,7 +350,6 @@ export function BroadcastComposerPage() {
             language={language}
             rewardText={template?.reward_description ?? ""}
             templates={templates.data?.map((tpl) => ({ id: tpl.id!, name: tpl.name }))}
-            optInAvailable={facts?.can_reach_one_customer ?? true}
             disabled={send.isPending}
             titleInputRef={titleInput}
           />

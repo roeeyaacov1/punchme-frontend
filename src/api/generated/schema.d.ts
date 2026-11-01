@@ -508,6 +508,12 @@ export interface paths {
          *     function of its bytes and can be cached hard; `v` is the design version
          *     and is only ever compared by caches, never by us. Both are produced by
          *     CardPublicOut, which is the one thing that builds these URLs.
+         *
+         *     Under passbox-api the pass's own image on the pass host is the card
+         *     (GUIDE §11.7): a 302 to it, when the server holds the state asked for.
+         *     Otherwise (no pass host yet, the server a stamp behind, an outage) the
+         *     local render stands in, briefly cached, since the URL no longer names
+         *     its bytes; an owner's own logo is never stood in for by a drawn one.
          */
         get: operations["apps_loyalty_api_get_card_art"];
         put?: never;
@@ -723,7 +729,7 @@ export interface paths {
         /**
          * Messaging Audience
          * @description The live "will reach ~N customers" number while the owner edits a
-         *     rule.
+         *     rule: the customers who agreed to messages.
          */
         get: operations["apps_messaging_api_messaging_audience"];
         put?: never;
@@ -913,7 +919,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Deliveries */
+        /**
+         * List Deliveries
+         * @description Newest first. `exclude_kind=broadcast` leaves the rules' sends and the
+         *     messages to one customer.
+         */
         get: operations["apps_messaging_api_list_deliveries"];
         put?: never;
         post?: never;
@@ -2207,11 +2217,6 @@ export interface components {
              * @default 10
              */
             send_hour_local: number;
-            /**
-             * Opt In Only
-             * @default false
-             */
-            opt_in_only: boolean;
             /** Template Id */
             template_id?: string | null;
             /**
@@ -2245,8 +2250,6 @@ export interface components {
             reward_waiting_days?: number | null;
             /** Send Hour Local */
             send_hour_local?: number | null;
-            /** Opt In Only */
-            opt_in_only?: boolean | null;
             /** Template Id */
             template_id?: string | null;
             /** Is Active */
@@ -2351,11 +2354,6 @@ export interface components {
              * @default false
              */
             gift_complete_card: boolean;
-            /**
-             * Opt In Only
-             * @default false
-             */
-            opt_in_only: boolean;
             /** Template Id */
             template_id?: string | null;
         };
@@ -2368,10 +2366,10 @@ export interface components {
         };
         /**
          * DirectMessageIn
-         * @description One message to one customer. No `template_id` — the card names its
-         *     own design — and no `opt_in_only`, which is a way of narrowing a crowd
-         *     and there is no crowd here. Consent is not sidestepped: this is the
-         *     owner answering one customer, not marketing to a list.
+         * @description One message to one customer. No `template_id`: the card names its
+         *     own design. Not narrowed to consent either, unlike every rule and
+         *     broadcast: this is the owner answering one customer, not marketing to a
+         *     list.
          */
         DirectMessageIn: {
             /**
@@ -4098,7 +4096,6 @@ export interface operations {
                 inactive_days?: number | null;
                 reward_waiting_days?: number | null;
                 birthday_days_before?: number;
-                opt_in_only?: boolean;
                 template_id?: string | null;
             };
             header?: never;
@@ -4439,6 +4436,7 @@ export interface operations {
         parameters: {
             query?: {
                 automation_id?: string | null;
+                exclude_kind?: string | null;
                 page?: number;
                 page_size?: number | null;
             };

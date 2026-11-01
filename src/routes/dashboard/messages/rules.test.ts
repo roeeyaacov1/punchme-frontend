@@ -144,9 +144,12 @@ describe("ruleReach", () => {
     expect(ruleReach(rule({ kind: "birthday", inactive_days: null }), summary())).toEqual({ when: "month", count: 9 });
   });
 
+  it("counts a rule kept to the customers who agreed, as every rule is: so is the summary", () => {
+    expect(ruleReach(rule({ opt_in_only: true }), summary())).toEqual({ when: "now", count: 86 });
+  });
+
   it("says nothing it can't count exactly", () => {
     expect(ruleReach(rule({ inactive_days: 45 }), summary())).toBeNull();
-    expect(ruleReach(rule({ opt_in_only: true }), summary())).toBeNull();
     expect(ruleReach(rule({ kind: "reward_waiting", inactive_days: null, reward_waiting_days: 7 }), summary())).toBeNull();
     expect(ruleReach(rule(), undefined)).toBeNull();
   });

@@ -28,29 +28,32 @@ describe("ruleSentence", () => {
   });
 
   it("speaks while the count is on its way, and says nobody matches in words", () => {
-    expect(keys(ruleSentence(rule(), null, phrase))).toEqual(["inactiveCounting"]);
-    expect(keys(ruleSentence(rule(), 0, phrase))).toEqual(["inactiveNone"]);
+    expect(keys(ruleSentence(rule(), null, phrase))).toEqual(["inactiveCounting", "optIn"]);
+    expect(keys(ruleSentence(rule(), 0, phrase))).toEqual(["inactiveNone", "optIn"]);
   });
 
-  it("adds the repeat, the gift and the opt-in, in that order", () => {
-    const pieces = ruleSentence(rule({ repeat_days: 30, gift_stamps: 2, opt_in_only: true }), 5, phrase);
+  it("adds the repeat, the gift and who agreed, in that order", () => {
+    const pieces = ruleSentence(rule({ repeat_days: 30, gift_stamps: 2 }), 5, phrase);
     expect(keys(pieces)).toEqual(["inactive", "repeat", "giftStamps", "optIn"]);
     expect(pieces[2].count).toBe(2);
-    expect(keys(ruleSentence(rule({ gift_complete_card: true }), 5, phrase))).toEqual(["inactive", "giftFull"]);
+    expect(keys(ruleSentence(rule({ gift_complete_card: true }), 5, phrase))).toEqual(["inactive", "giftFull", "optIn"]);
   });
 
   it("says a birthday rule's day, and a reward reminder's wait and count", () => {
-    expect(keys(ruleSentence(rule({ kind: "birthday" }), 3, phrase))).toEqual(["birthday"]);
+    expect(keys(ruleSentence(rule({ kind: "birthday" }), 3, phrase))).toEqual(["birthday", "optIn"]);
     expect(ruleSentence(rule({ kind: "birthday", birthday_days_before: 3 }), 3, phrase)[0].values).toEqual({
       hour: "10:00",
       days: "3d",
     });
-    expect(keys(ruleSentence(rule({ kind: "reward_waiting" }), 22, phrase))).toEqual(["rewardWaiting", "matchNow"]);
-    expect(keys(ruleSentence(rule({ kind: "reward_waiting" }), 0, phrase))).toEqual(["rewardWaiting", "matchNone"]);
+    expect(keys(ruleSentence(rule({ kind: "reward_waiting" }), 22, phrase))).toEqual(["rewardWaiting", "matchNow", "optIn"]);
+    expect(keys(ruleSentence(rule({ kind: "reward_waiting" }), 0, phrase))).toEqual(["rewardWaiting", "matchNone", "optIn"]);
   });
 
   it("never promises a gift on a reward reminder", () => {
-    expect(keys(ruleSentence(rule({ kind: "reward_waiting", gift_stamps: 1 }), null, phrase))).toEqual(["rewardWaiting"]);
+    expect(keys(ruleSentence(rule({ kind: "reward_waiting", gift_stamps: 1 }), null, phrase))).toEqual([
+      "rewardWaiting",
+      "optIn",
+    ]);
   });
 });
 

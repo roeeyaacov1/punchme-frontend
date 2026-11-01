@@ -30,7 +30,6 @@ export interface AudienceQuery {
   inactive_days?: number;
   reward_waiting_days?: number;
   birthday_days_before?: number;
-  opt_in_only?: boolean;
   template_id?: string;
 }
 
@@ -87,7 +86,6 @@ export function getAudienceCount(businessId: string, query: AudienceQuery) {
       inactive_days: query.inactive_days,
       reward_waiting_days: query.reward_waiting_days,
       birthday_days_before: query.birthday_days_before,
-      opt_in_only: query.opt_in_only ? "true" : "false",
       template_id: query.template_id,
     },
   });
