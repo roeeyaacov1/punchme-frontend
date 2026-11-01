@@ -6,12 +6,13 @@ export type ButtonSize = "md" | "lg" | "icon";
 /**
  * Every button-shaped thing in the kit, a link styled as one included.
  *
- * A full pill in Rubik 500. The border is transparent unless a variant draws
- * it, so a button keeps an edge in Windows' high-contrast mode. Hover only
- * where a pointer hovers, and never on a disabled button: the hover variant
- * sorts after `disabled:`, so it is held back with `:not(:disabled)`.
+ * A full pill in Rubik 500, up to two lines (its corners are in SIZES). The
+ * border is transparent unless a variant draws it, so a button keeps an edge
+ * in Windows' high-contrast mode. Hover only where a pointer hovers, and
+ * never on a disabled button: the hover variant sorts after `disabled:`, so
+ * it is held back with `:not(:disabled)`.
  */
-const BASE = `relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-full border font-heading font-medium leading-tight transition-[transform,background-color,border-color,color,box-shadow] duration-press ease-out-strong disabled:cursor-not-allowed disabled:opacity-50 aria-busy:cursor-wait [&_svg]:size-5 [&_svg]:shrink-0 ${noTapFlash} ${focusRing}`;
+const BASE = `relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap border font-heading font-medium leading-tight transition-[transform,background-color,border-color,color,box-shadow] duration-press ease-out-strong disabled:cursor-not-allowed disabled:opacity-50 aria-busy:cursor-wait [&_svg]:size-5 [&_svg]:shrink-0 ${noTapFlash} ${focusRing}`;
 
 /** A press sinks the button a little, unless motion is reduced. */
 const PRESS = "active:scale-[0.97]";
@@ -57,10 +58,16 @@ const SIZES: Record<ButtonSize, string> = {
   // One line stands on the minimum height, which is the taller. The padding
   // is for a label a page lets wrap (`!whitespace-normal`): it keeps air
   // above and below the words rather than filling the pill edge to edge.
-  md: "min-h-11 px-5 py-2 text-base",
-  lg: "min-h-[3.25rem] px-7 py-2.5 text-[1.0625rem]",
+  // The corners are half a two-line button's height (its two lines, padding
+  // and border), in rem so they grow with the text: one line or two is a
+  // full pill at any text size. A label that wraps further, which only large
+  // text does, keeps those ends with straight sides between them, where a
+  // full pill turns into an oval and its first and last lines cross the
+  // curve.
+  md: "min-h-11 rounded-[calc(1.75rem+1px)] px-5 py-2 text-base",
+  lg: "min-h-[3.25rem] rounded-[calc(1.953125rem+1px)] px-7 py-2.5 text-[1.0625rem]",
   // Square and 44px: an icon button must carry an aria-label.
-  icon: "h-11 w-11 shrink-0 p-0 text-base",
+  icon: "h-11 w-11 shrink-0 rounded-full p-0 text-base",
 };
 
 export function buttonClasses(variant: ButtonVariant, size: ButtonSize, reduced: boolean) {
