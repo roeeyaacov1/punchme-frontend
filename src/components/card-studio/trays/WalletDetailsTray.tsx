@@ -203,7 +203,9 @@ export function WalletDetailsTray({
 
 function ArtTile({ use, aspect, art, ground }: { use: ArtTileUse; aspect: string; art: WalletArt; ground: string }) {
   const { t } = useTranslation();
-  const [error, setError] = useState<string | null>(null);
+  // The error's key and its values, not its sentence, so that it follows a
+  // switch of language.
+  const [error, setError] = useState<{ key: string; values?: { width: number; height: number } } | null>(null);
   const src = art.held[use] ?? art.images[use as keyof CardStudioImages];
   return (
     <UploadTile
@@ -213,7 +215,7 @@ function ArtTile({ use, aspect, art, ground }: { use: ArtTileUse; aspect: string
       onCard={art.assets.includes(use)}
       aspect={aspect}
       ground={ground}
-      error={error}
+      error={error ? t(error.key, error.values) : null}
       note={art.notKept.includes(use) ? t("studio.picture.notKept") : undefined}
       onFile={async (file) => {
         setError(null);
@@ -222,17 +224,18 @@ function ArtTile({ use, aspect, art, ground }: { use: ArtTileUse; aspect: string
           if (use === "strip_base") {
             const size = await pictureSize(dataUrl);
             if (size.width < STRIP_MIN.width || size.height < STRIP_MIN.height) {
-              setError(t("studio.problem.small", size));
+              setError({ key: "studio.problem.small", values: size });
               return;
             }
           }
           art.onPick(use, await fitPicture(dataUrl, use));
         } catch (err) {
-          setError(
-            err instanceof Error && err.message === "too large"
-              ? t("onboarding.stamp.uploadTooLarge")
-              : t("onboarding.stamp.uploadUnreadable"),
-          );
+          setError({
+            key:
+              err instanceof Error && err.message === "too large"
+                ? "onboarding.stamp.uploadTooLarge"
+                : "onboarding.stamp.uploadUnreadable",
+          });
         }
       }}
     />

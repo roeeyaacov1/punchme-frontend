@@ -51,7 +51,10 @@ export function StampPicker({
   const inputId = useId();
   const errorId = useId();
   const lockedId = useId();
-  const [error, setError] = useState<string | null>(null);
+  // The error's key, not its sentence: worded as the picker renders, it
+  // follows a switch of language, where a sentence kept here stayed in the
+  // language it was made in.
+  const [errorKey, setErrorKey] = useState<string | null>(null);
   const [reading, setReading] = useState(false);
 
   const tiles: Tile<string>[] = glyphsForTrade(niche).map((name) => {
@@ -74,15 +77,15 @@ export function StampPicker({
   });
 
   async function choose(file: File) {
-    setError(null);
+    setErrorKey(null);
     setReading(true);
     try {
       onPicture?.(await fileToStampDataUrl(file));
     } catch (err) {
-      setError(
+      setErrorKey(
         err instanceof Error && err.message === "too large"
-          ? t("onboarding.stamp.uploadTooLarge")
-          : t("onboarding.stamp.uploadUnreadable"),
+          ? "onboarding.stamp.uploadTooLarge"
+          : "onboarding.stamp.uploadUnreadable",
       );
     } finally {
       setReading(false);
@@ -146,7 +149,7 @@ export function StampPicker({
               type="file"
               accept="image/*"
               className="sr-only"
-              aria-describedby={error ? errorId : undefined}
+              aria-describedby={errorKey ? errorId : undefined}
               onChange={(event) => {
                 const file = event.target.files?.[0];
                 // Cleared, so choosing the same file again still counts.
@@ -163,10 +166,10 @@ export function StampPicker({
             </p>
           )
         )}
-        {error && (
+        {errorKey && (
           <p id={errorId} role="alert" className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-danger">
             <CircleAlert aria-hidden className="mt-px size-4 shrink-0" />
-            <span>{error}</span>
+            <span>{t(errorKey)}</span>
           </p>
         )}
       </div>
