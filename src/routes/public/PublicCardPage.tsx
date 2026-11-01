@@ -122,7 +122,9 @@ function YourCard({ page, serial }: { page: PublicCardPageData; serial: string }
         </h1>
         <CardChip shop={page} />
         {page.view === "join" && <p className="type-body text-pretty text-ink-muted">{t("publicCard.yours.hint")}</p>}
-        <LinkButton to={`/c/${serial}`} size="lg" className="w-full !whitespace-normal text-center">
+        {/* Its sides hold at 28px on a phone as the text grows: at 200% they
+            left "לפתיחת הכרטיסייה" 142px at 320. */}
+        <LinkButton to={`/c/${serial}`} size="lg" className="w-full !whitespace-normal text-center max-sm:px-[min(1.75rem,28px)]">
           {t("publicCard.yours.open")}
         </LinkButton>
       </div>
@@ -157,7 +159,7 @@ function CardFace({
             components={{ n: <bdi dir="ltr" className="type-figure" />, reward: <bdi /> }}
           />
         </p>
-        <LinkButton to={page.join_path} size="lg" className="w-full !whitespace-normal text-center">
+        <LinkButton to={page.join_path} size="lg" className="w-full !whitespace-normal text-center max-sm:px-[min(1.75rem,28px)]">
           {t("publicCard.card.join")}
         </LinkButton>
         <StaffDoor token={token} business={page.business_name} signedIn={signedIn} className="mt-2" />

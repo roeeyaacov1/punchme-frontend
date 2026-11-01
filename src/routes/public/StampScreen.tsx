@@ -14,6 +14,11 @@ import { CAUSE_KEYS, CHIMES, failureCause, type Answer, type AnswerState } from 
 import { buzz, chime, primeAudio } from "../dashboard/scan/feedback";
 import { PublicPage } from "./PublicPage";
 
+/** On a narrow phone with large text the count stops growing at 20vw, which
+ * 100% text never reaches at 320 and up (64px there either way): at 200%
+ * "10/10" was wider than its panel, which cut it to "0/1". */
+const COUNT = "[&>span]:text-[length:min(4rem,20vw)]";
+
 /**
  * The team's stamp screen, on `/p/:token` when the server knows the visitor
  * as a member of the card's shop (any role): Scan's answer without the
@@ -148,10 +153,13 @@ export function StampScreen({
                 onDismiss={dismiss}
               />
             ) : full ? (
-              <div className="flex flex-col items-center gap-3 p-5 text-center">
+              // The panel's sides and the button's hold at their 100% widths
+              // on a phone as the text grows (and in the stamp's panel
+              // below): at 200% they left "Give the reward" 62px at 320.
+              <div className="flex flex-col items-center gap-3 p-5 text-center max-sm:px-[min(1.25rem,20px)]">
                 <Gift aria-hidden strokeWidth={2.5} className="size-12" />
                 <p className="type-answer">{t("dashboard.scan.result.rewardReady")}</p>
-                <Figure size="count" value={count} />
+                <Figure size="count" value={count} className={COUNT} />
                 <StampRow total={stamp.stamps_required} filled={stamp.stamp_count} className="w-full max-w-[18rem]" />
                 {/* Whole, not clamped: it is what the staff member is about
                     to hand over, conditions included, and the page has the
@@ -159,15 +167,26 @@ export function StampScreen({
                 <p dir="auto" className="font-body text-lg font-semibold text-pretty [overflow-wrap:anywhere]">
                   {page.reward_description}
                 </p>
-                <Button variant="ink" size="lg" busy={redeeming} onClick={() => void redeem(token)} className="w-full !whitespace-normal text-center">
+                <Button
+                  variant="ink"
+                  size="lg"
+                  busy={redeeming}
+                  onClick={() => void redeem(token)}
+                  className="w-full !whitespace-normal text-center max-sm:px-[min(1.75rem,28px)]"
+                >
                   {t("dashboard.scan.result.redeem")}
                 </Button>
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-4 p-5 text-center">
-                <Figure size="count" value={count} />
+              <div className="flex flex-col items-center gap-4 p-5 text-center max-sm:px-[min(1.25rem,20px)]">
+                <Figure size="count" value={count} className={COUNT} />
                 <StampRow total={stamp.stamps_required} filled={stamp.stamp_count} className="w-full max-w-[18rem]" />
-                <Button size="lg" busy={busy} onClick={() => void addStamp()} className="w-full !whitespace-normal text-center">
+                <Button
+                  size="lg"
+                  busy={busy}
+                  onClick={() => void addStamp()}
+                  className="w-full !whitespace-normal text-center max-sm:px-[min(1.75rem,28px)]"
+                >
                   {t("publicCard.stamp.add")}
                 </Button>
               </div>
