@@ -1380,13 +1380,12 @@ as it is.
 - [x] Phase 9, landing page: A (27 Oct) · B (30 Oct) · C (30 Oct) · D (30 Oct) · merged (30 Oct)
 - [x] The dashboard at 200% text, found by Phase 4's step D: the shell, the pages and the kit, the studio, the tour (PRs #27–#30, merged 1 Nov)
 - [x] A stacked segment's sides close in for a word too wide beside them, and its one column never grows past the track, so in English at 320 the account sheet's and the landing page's trade picker keep inside it at 200% text (1 Nov)
-- [x] The public pages at 200% text: `/login`, `/join` and `/invite` in every state, the wizard's saving step, and the top bars `/c` and `/p` share (1 Nov)
+- [x] The public pages at 200% text: `/login`, `/join` and `/invite` in every state, `/p`'s buttons and its stamp screen's count (cut to "0/1" before), the wizard's saving step and its wallet step's "Continue", and the top bars `/c` and `/p` share (1 Nov)
 - [ ] 200% text, still open:
   - `/style-guide`;
   - on a desk an open studio tray covers the rail;
   - the admin header's email runs past a 375px screen;
-  - at 320, `/p`'s "לפתיחת הכרטיסייה" runs 4px into its button's sides, and the wizard's wallet step's "Continue" 32px (5px at 375, both in English);
-  - a label that wraps to three lines or more is still in a full pill, so its first and last lines cross the curve: on `/login` "New here? Design your card first" by 10–12px at 320, on `/invite` the wrong account's "Use another account" by 1–4px, on the saving step "Replace with my new design" by 1px
+  - a label that wraps to three lines or more is still in a full pill, so its first and last lines cross the curve: on `/login` "New here? Design your card first" by 10–12px at 320, on `/invite` the wrong account's "Use another account" by 1–4px, on the saving step "Replace with my new design" by 1px, and the wallpaper stage's tag "Roughly how it looks on the lock screen", five lines at 320 on the wallet step
 - [ ] Phase 10, cleanup
 
 ---
