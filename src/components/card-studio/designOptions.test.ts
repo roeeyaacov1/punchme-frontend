@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { DesignField } from "../../api/designs";
 import {
+  alreadyAsked,
   COUNT_BINDING,
   countSection,
   designOptions,
@@ -163,6 +164,18 @@ describe("drawKey", () => {
     expect(drawKey({ ...BAKERY, background_color: "#000000" }, 6)).not.toBe(drawKey(BAKERY, 6));
   });
 
+  it.each([
+    ["the sticker", withStamp(BAKERY, { sticker: "bagel" })],
+    ["the wallpaper", withOption(BAKERY, { wallpaper: "sparkles" })],
+    ["the check", withStamp(BAKERY, { mark: "none" })],
+    ["the style", withStamp(BAKERY, { style: "badge" })],
+    ["the glyph", withStamp(BAKERY, { glyph: "star" })],
+    ["the texture", withOption(BAKERY, { pattern: "dots" })],
+    ["the stamp colour", withStamp(BAKERY, { color: "#000000" })],
+  ])("changes with %s, so the old picture never stands for the new strip", (_, edited) => {
+    expect(drawKey(edited, 6)).not.toBe(drawKey(BAKERY, 6));
+  });
+
   it("is the same through an edit the strip doesn't show, so it asks for no new picture", () => {
     const relabelled: CardStudioValue = {
       ...BAKERY,
@@ -295,6 +308,32 @@ describe("stagePictures", () => {
     expect(stagePictures({ styled: true, unsaved: true, sample: 6, pictures: [null, fresh], key })).toEqual(expected);
   });
 
+  it("takes the first picture that matches: the read's, drawn with the pictures the card has now", () => {
+    const read: DrawnCard = { key, strip: "read-strip", hero: "read-hero" };
+    const before: DrawnCard = { key, strip: "before-save-strip", hero: "before-save-hero" };
+    expect(stagePictures({ styled: true, unsaved: false, sample: 6, pictures: [read, before], key }).stripStates).toEqual({
+      "6": "read-strip",
+    });
+  });
+
+  it("says a picture that hasn't loaded yet is on its way, never that it failed", () => {
+    const shown = stagePictures({
+      styled: true,
+      unsaved: true,
+      sample: 6,
+      pictures: [fresh, stale],
+      key,
+      loaded: (url) => url !== "drawn-strip" && url !== "drawn-hero",
+    });
+    expect(shown).toEqual({
+      stripStates: { "6": "old-strip" },
+      heroStates: { "6": "old-hero" },
+      unsaved: false,
+      drawing: true,
+      failed: false,
+    });
+  });
+
   it("never shows a styled card's published pictures for another strip", () => {
     const shown = stagePictures({ styled: true, unsaved: false, sample: 6, ...published, pictures: [], key });
     expect(shown.stripStates).toBeUndefined();
@@ -333,6 +372,27 @@ describe("stagePictures", () => {
   });
 });
 
+describe("alreadyAsked", () => {
+  const check = { value: BAKERY, images: false };
+  const picture = { value: BAKERY, state: 6, images: true };
+
+  it("is the same draft asked the same", () => {
+    expect(alreadyAsked(picture, picture)).toBe(true);
+    expect(alreadyAsked(check, { ...check })).toBe(true);
+  });
+
+  it("takes a picture's answer for the check of that draft, not the other way round", () => {
+    expect(alreadyAsked(picture, check)).toBe(true);
+    expect(alreadyAsked(check, picture)).toBe(false);
+  });
+
+  it("asks again for another count, another draft, or after nothing", () => {
+    expect(alreadyAsked(picture, { ...picture, state: 5 })).toBe(false);
+    expect(alreadyAsked(picture, { ...picture, value: { ...BAKERY } })).toBe(false);
+    expect(alreadyAsked(null, picture)).toBe(false);
+  });
+});
+
 describe("the count's place", () => {
   const withCount = (section: DesignField["section"]): CardStudioValue => ({
     ...PLAIN,
@@ -346,6 +406,12 @@ describe("the count's place", () => {
     const back = withStampsPlace(top, "secondary");
     expect(back.design.stamps_place).toBe("secondary");
     expect(countSection(back.design.fields)).toBe("SECONDARY_FIELDS");
+  });
+
+  it("goes back where the saved card had it, so there and back is no change", () => {
+    const saved = withCount("AUXILIARY_FIELDS");
+    const back = withStampsPlace(withStampsPlace(saved, "header"), "secondary", saved.design.fields);
+    expect(countSection(back.design.fields)).toBe("AUXILIARY_FIELDS");
   });
 
   it("leaves a count already on the face where it is when it stays under the strip", () => {

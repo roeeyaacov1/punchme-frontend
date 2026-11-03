@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { DesignField } from "../../api/designs";
+import { COUNT_BINDING, countSection, withStampsPlace } from "./designOptions";
 import {
   addableKinds,
   backState,
@@ -302,6 +303,48 @@ describe("rewardForRow", () => {
 describe("changesBetween", () => {
   it("is empty for the card as saved", () => {
     expect(changesBetween(SAVED, SAVED)).toEqual([]);
+  });
+
+  it("counts the stamp's design options as the stamp, and what's behind it as the texture", () => {
+    const stamp = { ...SAVED, design: { ...SAVED.design, stamp: { ...SAVED.design.stamp, sticker: "croissant" } } };
+    expect(changesBetween(SAVED, stamp)).toEqual(["stamp"]);
+    const styled = { ...SAVED, design: { ...SAVED.design, stamp: { ...SAVED.design.stamp, style: "icon" as const } } };
+    expect(changesBetween(SAVED, styled)).toEqual(["stamp"]);
+    expect(changesBetween(SAVED, { ...SAVED, design: { ...SAVED.design, panel_color: "#FFFFFF" } })).toEqual(["texture"]);
+    expect(changesBetween(SAVED, { ...SAVED, design: { ...SAVED.design, wallpaper: "sparkles" } })).toEqual(["texture"]);
+    expect(changesBetween(SAVED, { ...SAVED, design: { ...SAVED.design, logo_text: true } })).toEqual(["logo"]);
+  });
+
+  it("counts an option set back to its default as no change", () => {
+    const defaults = {
+      ...SAVED,
+      design: {
+        ...SAVED.design,
+        stamp: { ...SAVED.design.stamp, style: "badge" as const, mark: "none" as const, sticker: "", tint: false },
+        panel_color: "",
+        wallpaper: "",
+        stamps_place: "secondary" as const,
+        stamps_format: "count" as const,
+        logo_text: false,
+      },
+    };
+    expect(changesBetween(SAVED, defaults)).toEqual([]);
+  });
+
+  it("counts the count at the top once, though its field moves with it", () => {
+    const top = withStampsPlace(SAVED, "header", SAVED.design.fields);
+    expect(countSection(top.design.fields)).toBe("HEADER_FIELDS");
+    expect(changesBetween(SAVED, top)).toEqual(["count"]);
+    expect(changesBetween(SAVED, { ...SAVED, design: { ...SAVED.design, stamps_format: "fraction" } })).toEqual([
+      "count",
+    ]);
+  });
+
+  it("counts the count's field moved in Wallet details as its place, not as a field", () => {
+    const fields = (SAVED.design.fields ?? []).map((field) =>
+      field.binding === COUNT_BINDING ? { ...field, section: "SECONDARY_FIELDS" as const } : field,
+    );
+    expect(changesBetween(SAVED, { ...SAVED, design: { ...SAVED.design, fields } })).toEqual(["count"]);
   });
 
   it("counts a reward, a colour and a glyph as three changes", () => {

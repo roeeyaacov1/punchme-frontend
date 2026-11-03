@@ -113,7 +113,7 @@ export function NamesTray({
               { value: "header", label: t("studio.count.places.header") },
             ]}
             value={chosen.stampsPlace}
-            onChange={(place) => onChange(withStampsPlace(value, place))}
+            onChange={(place) => onChange(withStampsPlace(value, place, savedFields))}
           />
           <SegmentedControl<StampsFormat>
             label={t("studio.count.format")}
