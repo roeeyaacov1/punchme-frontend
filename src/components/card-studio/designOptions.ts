@@ -98,14 +98,21 @@ export function countSection(fields: readonly DesignField[] | undefined): string
 /**
  * The count at the top or under the strip. passbox-api reads `stamps_place`;
  * the count's field moves with it, so Wallet details, which places every
- * field, says the same. Under the strip it goes back to the face's own row,
- * unless it already stands on the face elsewhere.
+ * field, says the same. Under the strip it goes back where the saved card
+ * has it (`savedFields`), so a move there and back is no change, or else to
+ * the face's own row; a count already on the face elsewhere stays.
  */
-export function withStampsPlace(value: CardStudioValue, place: StampsPlace): CardStudioValue {
+export function withStampsPlace(
+  value: CardStudioValue,
+  place: StampsPlace,
+  savedFields?: readonly DesignField[],
+): CardStudioValue {
+  const saved = countSection(savedFields);
+  const below = (saved && saved !== "HEADER_FIELDS" ? saved : "SECONDARY_FIELDS") as DesignField["section"];
   const fields = value.design.fields?.map((field) => {
     if (field.binding !== COUNT_BINDING) return field;
     if (place === "header") return { ...field, section: "HEADER_FIELDS" as const };
-    return field.section === "HEADER_FIELDS" ? { ...field, section: "SECONDARY_FIELDS" as const } : field;
+    return field.section === "HEADER_FIELDS" ? { ...field, section: below } : field;
   });
   return { ...value, design: { ...value.design, stamps_place: place, ...(fields ? { fields } : {}) } };
 }
@@ -253,6 +260,15 @@ export function serverAsk({
   return changed ? { value, images: false } : null;
 }
 
+/** Whether an ask is one already sent: the same draft (by identity: an
+ * edit makes a new one), and if it wants a picture, a picture at the same
+ * count. A picture's answer carries the check too, so the check alone of
+ * that draft is never asked again. */
+export function alreadyAsked(was: ServerAsk | null, ask: ServerAsk): boolean {
+  if (!was || was.value !== ask.value) return false;
+  return !ask.images || (was.images && was.state === ask.state);
+}
+
 /** What the stage hands the frozen previews for the count shown: the
  * pictures to treat as published, whether they stand for the draft (so the
  * stand-in steps aside), whether a fresher one is on its way, and whether
@@ -262,7 +278,7 @@ export interface StagePictures {
   heroStates?: Record<string, string>;
   /** The stand-in shows: nothing the server drew stands for this draft. */
   unsaved: boolean;
-  /** A picture of this draft at this count is still to come. */
+  /** A picture of this draft at this count is still to come (or loading). */
   drawing: boolean;
   failed: boolean;
 }
@@ -275,6 +291,7 @@ export function stagePictures({
   heroStates,
   pictures,
   key,
+  loaded = () => true,
 }: {
   styled: boolean;
   unsaved: boolean;
@@ -282,23 +299,29 @@ export function stagePictures({
   /** The published pictures that have loaded (a plain card's). */
   stripStates?: Record<string, string>;
   heroStates?: Record<string, string>;
-  /** The server's pictures of a card it draws itself, loaded: its latest
-   * first, then the design read's. */
+  /** The server's pictures of a card it draws itself, first found first:
+   * the design read's, then its latest of the draft. */
   pictures: readonly (DrawnCard | null)[];
   /** `drawKey` of the draft and the count shown. */
   key: string;
+  /** Whether a picture's image has loaded on this page: one that hasn't is
+   * on its way, not missing. */
+  loaded?: (url: string) => boolean;
 }): StagePictures {
   if (!styled) return { stripStates, heroStates, unsaved, drawing: false, failed: false };
-  const at = (url: string | undefined) => (url ? { [String(sample)]: url } : undefined);
-  const drawn = (picture: DrawnCard | null): picture is DrawnCard => !!picture && !!(picture.strip || picture.hero);
-  const fresh = pictures.find((picture) => drawn(picture) && picture.key === key);
+  const at = (url: string | undefined) => (url && loaded(url) ? { [String(sample)]: url } : undefined);
+  const shows = (picture: DrawnCard | null): picture is DrawnCard =>
+    !!picture && !!((picture.strip && loaded(picture.strip)) || (picture.hero && loaded(picture.hero)));
+  const fresh = pictures.find((picture) => shows(picture) && picture.key === key);
   if (fresh) {
     return { stripStates: at(fresh.strip), heroStates: at(fresh.hero), unsaved: false, drawing: false, failed: false };
   }
-  const failed = pictures.some((picture) => picture?.key === key);
+  // The server answered for this strip at this count and drew nothing. One
+  // it drew that hasn't loaded yet is on its way, not a failure.
+  const failed = pictures.some((picture) => picture?.key === key && !picture.strip && !picture.hero);
   // The last picture the server drew, of an earlier draft or count, stands in
   // until the fresh one comes: closer to the card than the badge grid.
-  const stale = pictures.find(drawn);
+  const stale = pictures.find(shows);
   if (stale) {
     return { stripStates: at(stale.strip), heroStates: at(stale.hero), unsaved: false, drawing: !failed, failed };
   }

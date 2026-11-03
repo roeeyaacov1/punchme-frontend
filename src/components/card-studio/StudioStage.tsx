@@ -170,8 +170,9 @@ export const StudioStage = forwardRef<
     sample,
     stripStates: onlyLoaded(images.strip_states, loaded),
     heroStates: onlyLoaded(images.hero_states, loaded),
-    pictures: serverPictures.map((picture) => picture && { ...picture, strip: shown(picture.strip), hero: shown(picture.hero) }),
+    pictures: serverPictures,
     key,
+    loaded: (url) => loaded.has(url),
   });
   const { stripStates, heroStates } = pictures;
   const publishedShowing =

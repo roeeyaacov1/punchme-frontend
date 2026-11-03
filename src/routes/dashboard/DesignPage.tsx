@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Wallet } from "lucide-react";
 import { CardStudio } from "../../components/card-studio/CardStudio";
 import {
+  alreadyAsked,
   drawKey,
   picturesAt,
   readPicture,
@@ -286,9 +287,9 @@ export function DesignPage() {
   // draw itself (`isStyled`) gets its picture too, at the count the stage
   // shows, asked for as the sample moves as well, and only when its strip is
   // one the server hasn't drawn yet: the design read's own picture counts.
-  // A failure keeps the last. An answer for a draft no longer on the page
-  // (one a discard or a save has replaced, while the debounce still held it)
-  // is let go.
+  // A failure keeps the last lint and says the picture couldn't be drawn. An
+  // answer for a draft no longer on the page (one a discard or a save has
+  // replaced, while the debounce still held it) is let go.
   const [sample, setSample] = useState<number | null>(null);
   const [drawn, setDrawn] = useState<DrawnCard | null>(null);
   const readDrawn = useMemo(
@@ -298,10 +299,13 @@ export function DesignPage() {
         : null,
     [template, designQuery.data],
   );
+  // The read's own picture first: it's drawn with the pictures the card has
+  // now, where the latest of the draft may be from before one was saved.
+  const pictures = useMemo(() => [readDrawn, drawn], [readDrawn, drawn]);
   const shownSample = sample ?? (draft ? sampleStart(draft.stamps_required) : 0);
   const ask = useMemo(
-    () => (draft ? serverAsk({ value: draft, sample: shownSample, changed, pictures: [drawn, readDrawn] }) : null),
-    [draft, shownSample, changed, drawn, readDrawn],
+    () => (draft ? serverAsk({ value: draft, sample: shownSample, changed, pictures }) : null),
+    [draft, shownSample, changed, pictures],
   );
   const debouncedAsk = useDebounce(ask, 400);
   const onPage = useRef(draft);
@@ -313,12 +317,10 @@ export function DesignPage() {
   const asked = useRef<ServerAsk | null>(null);
   useEffect(() => {
     if (!debouncedAsk || !businessId || !templateId) return;
-    const was = asked.current;
-    const answered =
-      !!was && was.value === debouncedAsk.value && (!debouncedAsk.images || (was.images && was.state === debouncedAsk.state));
-    if (answered) return;
+    if (alreadyAsked(asked.current, debouncedAsk)) return;
     asked.current = debouncedAsk;
     let cancelled = false;
+    let settled = false;
     const { value, state, images } = debouncedAsk;
     previewTemplateDesign(businessId, templateId, { ...value, stamp_state: state ?? null, images })
       .then((result) => {
@@ -327,11 +329,20 @@ export function DesignPage() {
         if (images && state !== undefined) setDrawn({ key: drawKey(value, state), ...picturesAt(result.images, state) });
       })
       .catch(() => {
-        // Asked again as soon as anything changes.
         if (asked.current === debouncedAsk) asked.current = null;
+        // Said at the stage, and asked again as soon as anything changes.
+        if (!cancelled && images && state !== undefined && onPage.current === value) {
+          setDrawn({ key: drawKey(value, state) });
+        }
+      })
+      .finally(() => {
+        settled = true;
       });
     return () => {
       cancelled = true;
+      // An answer let go before it came is asked for again by the next ask,
+      // even one for the same draft.
+      if (!settled && asked.current === debouncedAsk) asked.current = null;
     };
   }, [debouncedAsk, businessId, templateId]);
 
@@ -380,6 +391,8 @@ export function DesignPage() {
     setSaved(fresh);
     setDraft(fresh);
     setHeld({});
+    // A picture drawn before a save may lack one the save sent.
+    setDrawn(null);
     setKept(false);
     setLint(freshLint);
     setEditingField(null);
@@ -699,9 +712,10 @@ export function DesignPage() {
         onEditingField={setEditingField}
         focusName={nameFocus}
         stickers={studioStickers(stickersQuery)}
-        pictures={[drawn, readDrawn]}
+        pictures={pictures}
         onSample={setSample}
-        hasLogo={!!held.logo || design.pictures.includes("logo")}
+        // A backend from before `pictures` sends none.
+        hasLogo={!!held.logo || (design.pictures ?? []).includes("logo")}
       />
     </div>
   );

@@ -457,8 +457,10 @@ function plainFields(fields: readonly DesignField[] | undefined): DesignField[] 
     .filter((field) => {
       const face = FACE_FIELDS.find((candidate) => candidate.binding === field.binding);
       if (!face) return true;
+      // Where the count sits is the count's place, a change of its own.
+      const placed = field.binding === COUNT_BINDING || field.section === face.section;
       const plain =
-        field.section === face.section &&
+        placed &&
         !field.change_message &&
         !field.default_value &&
         (field.alignment === "NATURAL" || field.alignment === undefined);
@@ -468,7 +470,6 @@ function plainFields(fields: readonly DesignField[] | undefined): DesignField[] 
       ...field,
       label: FACE_FIELDS.some((face) => face.binding === field.binding) ? "" : (field.label ?? ""),
       default_value: field.binding === BACK_BINDING ? "" : (field.default_value ?? ""),
-      // Where the count sits is the count's place, a change of its own.
       section: field.binding === COUNT_BINDING ? undefined : field.section,
     }));
 }

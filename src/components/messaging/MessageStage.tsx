@@ -65,7 +65,7 @@ export function MessageStage({
         appleLogoUrl={images.apple_logo}
         stripBaseUrl={images.strip_base}
         stripStates={state !== null && drawn?.strip ? { [state]: drawn.strip } : undefined}
-        logoText={designOptions(doc).logoText && design.pictures.includes("logo")}
+        logoText={designOptions(doc).logoText && !!design.pictures?.includes("logo")}
       />
     </WallpaperStage>
   );

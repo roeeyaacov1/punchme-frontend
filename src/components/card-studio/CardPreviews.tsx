@@ -254,7 +254,9 @@ export function AppleCardPreview(value: CardPreviewValue) {
             {value.businessName}
           </span>
         )}
-        {countOnTop && <div className="ms-auto min-w-0 shrink-0 text-end">{count}</div>}
+        {/* At most half the row, so a long label truncates rather than
+            running off the card beside the logo. */}
+        {countOnTop && <div className="ms-auto min-w-0 max-w-[50%] text-end">{count}</div>}
       </div>
 
       {/* Apple renders the strip full-bleed at 2.604:1 — no insets, no

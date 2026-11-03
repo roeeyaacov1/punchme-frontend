@@ -55,13 +55,15 @@ export function OwnPass({
   const templateId = template.id ?? "";
   const doc = (design?.design ?? {}) as DesignDoc;
   const styled = !!design && isStyled(doc);
+  // A card past full draws as a full one: the server clamps the count.
+  const drawnCount = Math.min(filled, template.stamps_required);
   const drawnRead = useQuery({
-    queryKey: ["design", templateId, "state", filled],
-    queryFn: () => getTemplateDesign(businessId, templateId, filled),
+    queryKey: ["design", templateId, "state", drawnCount],
+    queryFn: () => getTemplateDesign(businessId, templateId, drawnCount),
     enabled: styled && !!businessId && !!templateId,
     staleTime: 60_000,
   });
-  const drawn = styled && drawnRead.data ? picturesAt(drawnRead.data.images, filled) : undefined;
+  const drawn = styled && drawnRead.data ? picturesAt(drawnRead.data.images, drawnCount) : undefined;
 
   return (
     <LitPanel as="section" aria-labelledby="own-pass-title" className={className}>
@@ -110,7 +112,7 @@ export function OwnPass({
                 serial={preview?.card_serial}
                 stripStates={drawn?.strip ? { [filled]: drawn.strip } : undefined}
                 heroStates={drawn?.hero ? { [filled]: drawn.hero } : undefined}
-                logoText={designOptions(doc).logoText && !!design?.pictures.includes("logo")}
+                logoText={designOptions(doc).logoText && !!design?.pictures?.includes("logo")}
               />
             </WallpaperStage>
           ) : (

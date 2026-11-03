@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Info } from "lucide-react";
 import { CardStudio, type ExtraTray } from "../../components/card-studio/CardStudio";
 import {
+  alreadyAsked,
   drawKey,
   isStyled,
   picturesAt,
@@ -164,10 +165,11 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
   // pictures, and an answer for a draft no longer on the page is let go.
   const [sample, setSample] = useState<number | null>(null);
   const [drawn, setDrawn] = useState<DrawnCard | null>(null);
+  const pictures = useMemo(() => [drawn], [drawn]);
   const shownSample = sample ?? (draft ? sampleStart(draft.stamps_required) : 0);
   const ask = useMemo(
-    () => (draft ? serverAsk({ value: draft, sample: shownSample, changed: true, pictures: [drawn] }) : null),
-    [draft, shownSample, drawn],
+    () => (draft ? serverAsk({ value: draft, sample: shownSample, changed: true, pictures }) : null),
+    [draft, shownSample, pictures],
   );
   const debouncedAsk = useDebounce(ask, 400);
   const onPage = useRef(draft);
@@ -177,12 +179,10 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
   const asked = useRef<ServerAsk | null>(null);
   useEffect(() => {
     if (!debouncedAsk) return;
-    const was = asked.current;
-    const answered =
-      !!was && was.value === debouncedAsk.value && (!debouncedAsk.images || (was.images && was.state === debouncedAsk.state));
-    if (answered) return;
+    if (alreadyAsked(asked.current, debouncedAsk)) return;
     asked.current = debouncedAsk;
     let cancelled = false;
+    let settled = false;
     const { value, state, images } = debouncedAsk;
     previewCatalogDesign({ ...value, name: value.name || "Preview", stamp_state: state ?? null, images })
       .then((result) => {
@@ -192,9 +192,16 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
       })
       .catch(() => {
         if (asked.current === debouncedAsk) asked.current = null;
+        if (!cancelled && images && state !== undefined && onPage.current === value) {
+          setDrawn({ key: drawKey(value, state) });
+        }
+      })
+      .finally(() => {
+        settled = true;
       });
     return () => {
       cancelled = true;
+      if (!settled && asked.current === debouncedAsk) asked.current = null;
     };
   }, [debouncedAsk]);
 
@@ -444,7 +451,7 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
           sayNameMissing={!isNew || saveTried}
           focusName={nameFocus}
           stickers={studioStickers(stickersQuery)}
-          pictures={[drawn]}
+          pictures={pictures}
           onSample={setSample}
           notices={
             isStyled(draft.design) && Object.keys(art).length > 0 ? (
