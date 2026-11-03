@@ -1,4 +1,5 @@
 import { AppleCardPreview } from "../card-studio/CardPreviews";
+import { designOptions, drawnState, isStyled, picturesAt } from "../card-studio/designOptions";
 import { WallpaperStage, type LockNotification } from "../kit";
 import type { CardTemplate } from "../../api/businesses";
 import { designImageUrls, type DesignDoc, type DesignOut } from "../../api/designs";
@@ -36,6 +37,10 @@ export function MessageStage({
 }) {
   const images = designImageUrls(design);
   const doc = design.design as DesignDoc;
+  // A card built from the wallet's design options (`isStyled`) is the
+  // wallet's own drawing: the one the design read holds, at its count.
+  const state = isStyled(doc) ? drawnState(design.images) : null;
+  const drawn = state === null ? undefined : picturesAt(design.images, state);
   return (
     <WallpaperStage
       cardColor={template.background_color}
@@ -50,7 +55,7 @@ export function MessageStage({
         cardName={template.name}
         holderName={holderName}
         stampsRequired={template.stamps_required}
-        currentStamps={0}
+        currentStamps={state ?? 0}
         rewardDescription={template.reward_description}
         backgroundColor={template.background_color}
         foregroundColor={template.foreground_color}
@@ -59,6 +64,8 @@ export function MessageStage({
         logoUrl={images.logo ?? template.logo_url ?? undefined}
         appleLogoUrl={images.apple_logo}
         stripBaseUrl={images.strip_base}
+        stripStates={state !== null && drawn?.strip ? { [state]: drawn.strip } : undefined}
+        logoText={designOptions(doc).logoText && design.pictures.includes("logo")}
       />
     </WallpaperStage>
   );
