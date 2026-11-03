@@ -283,9 +283,32 @@ export interface paths {
          * Preview Template Design
          * @description Stateless: applies the candidate changes in memory only and returns
          *     the same payload as GET .../design — the editor's debounced live-edit
-         *     loop. Nothing is saved and no provider call is made.
+         *     loop. Nothing is saved; under passbox-api the server checks the card,
+         *     and with `images` draws its strip and hero too.
          */
         post: operations["apps_businesses_api_preview_template_design"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/businesses/{business_id}/stickers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Stickers
+         * @description The wallet's built-in stickers for the card studio's pickers, and
+         *     whether it draws the card design options at all. The same for every
+         *     business; manager and up, as the studio is.
+         */
+        get: operations["apps_businesses_api_list_stickers"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -513,7 +536,11 @@ export interface paths {
          *     (GUIDE §11.7): a 302 to it, when the server holds the state asked for.
          *     Otherwise (no pass host yet, the server a stamp behind, an outage) the
          *     local render stands in, briefly cached, since the URL no longer names
-         *     its bytes; an owner's own logo is never stood in for by a drawn one.
+         *     its bytes; an owner's own logo is never stood in for by a drawn one. A
+         *     design only passbox-api can draw (a sticker, a panel, stamps on their
+         *     own: wallet.design.is_styled) is drawn by its preview instead, and the
+         *     local render, right in its count and wrong in its look, is the last
+         *     resort.
          */
         get: operations["apps_loyalty_api_get_card_art"];
         put?: never;
@@ -1239,9 +1266,30 @@ export interface paths {
          * Preview Catalog Entry
          * @description Stateless designer preview for catalog authoring — the admin area
          *     reuses the Card Studio designer against this instead of an owned
-         *     template. Nothing is saved and no provider is called.
+         *     template. Nothing is saved; the provider is asked only to draw a look
+         *     with `images` that only it can draw (services.preview_catalog_design).
          */
         post: operations["apps_businesses_api_preview_catalog_entry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/catalog/stickers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Catalog Stickers
+         * @description The wallet's built-in stickers, for a look's stamps and wallpaper.
+         */
+        get: operations["apps_businesses_api_list_catalog_stickers"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1596,6 +1644,11 @@ export interface components {
             };
             /** Assets */
             assets: string[];
+            /**
+             * Pictures
+             * @default []
+             */
+            pictures: string[];
             /** Passkit Template */
             passkit_template: {
                 [key: string]: unknown;
@@ -1652,6 +1705,34 @@ export interface components {
             } | null;
             /** Stamp State */
             stamp_state?: number | null;
+            /**
+             * Images
+             * @default false
+             */
+            images: boolean;
+        };
+        /** StickerOut */
+        StickerOut: {
+            /** Name */
+            name: string;
+            /** Image */
+            image: string;
+        };
+        /**
+         * StickersOut
+         * @description The wallet's built-in stickers, which a design names as its stamps
+         *     (`stamp.sticker`) or its wallpaper (`wallpaper`), and whether the wallet
+         *     draws the card design options at all: only passbox-api from v0.1.1
+         *     does, and the studio offers them only while `available`.
+         */
+        StickersOut: {
+            /**
+             * Stickers
+             * @default []
+             */
+            stickers: components["schemas"]["StickerOut"][];
+            /** Available */
+            available: boolean;
         };
         /** TemplateImageOut */
         TemplateImageOut: {
@@ -2976,6 +3057,11 @@ export interface components {
             };
             /** Stamp State */
             stamp_state?: number | null;
+            /**
+             * Images
+             * @default false
+             */
+            images: boolean;
         };
         /**
          * CatalogTemplateDetailOut
@@ -3533,6 +3619,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DesignOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_list_stickers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StickersOut"];
                 };
             };
         };
@@ -4867,6 +4975,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DesignOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_list_catalog_stickers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StickersOut"];
                 };
             };
         };

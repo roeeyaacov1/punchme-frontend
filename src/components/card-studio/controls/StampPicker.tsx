@@ -24,11 +24,13 @@ export interface StampPicture {
  * The picture is cropped square in the browser (`fileToStampDataUrl`, at most
  * 512px) and handed up as a data URL; nothing is sent from here. While a
  * picture is the stamp, no glyph is chosen, because the renderer uses the
- * picture. Without `onPicture` (a catalog look, whose picture lives with its
- * art) the picture tile only shows that one is in use.
+ * picture; nor while a sticker is (`glyphHidden`). Without `onPicture` (a
+ * catalog look, whose picture lives with its art) the picture tile only shows
+ * that one is in use.
  */
 export function StampPicker({
   glyph,
+  glyphHidden = false,
   onGlyph,
   niche,
   picture,
@@ -37,6 +39,9 @@ export function StampPicker({
   locked,
 }: {
   glyph: string;
+  /** Something the renderer puts before the glyph is the stamp (a sticker):
+   * no glyph shows as chosen. */
+  glyphHidden?: boolean;
   onGlyph: (name: string) => void;
   /** The business's trade, whose glyph leads. */
   niche?: string | null;
@@ -111,7 +116,7 @@ export function StampPicker({
       <ChoiceTiles
         legend={t("cardControls.glyph")}
         tiles={tiles}
-        value={picture.inUse ? null : glyph}
+        value={picture.inUse || glyphHidden ? null : glyph}
         onChange={onGlyph}
         disabled={!!locked}
         describedBy={locked ? lockedId : undefined}

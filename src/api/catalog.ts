@@ -71,3 +71,9 @@ export function deleteCatalogImage(catalogId: string, use: CatalogArtUse) {
 export function previewCatalogDesign(input: CatalogPreviewIn) {
   return api.post<DesignOut>("/api/admin/catalog/preview", input);
 }
+
+/** The wallet's built-in stickers, for a look's stamps and wallpaper: the
+ * same list the owner's studio reads, through the staff route. */
+export function getCatalogStickers() {
+  return api.get<components["schemas"]["StickersOut"]>("/api/admin/catalog/stickers");
+}

@@ -1,6 +1,7 @@
 import type { TFunction } from "i18next";
 import type { DesignDoc, DesignField, ImageUse } from "../../api/designs";
 import { normalizeHex, readableInk } from "../../lib/color";
+import { COUNT_BINDING, countSection, designOptions } from "./designOptions";
 
 /**
  * The card studio's draft, and the rules it keeps, pure so they can be
@@ -345,6 +346,7 @@ export type ChangeKind =
   | "stamp"
   | "texture"
   | "names"
+  | "count"
   | "logo"
   | "fields"
   | "language"
@@ -466,6 +468,8 @@ function plainFields(fields: readonly DesignField[] | undefined): DesignField[] 
       ...field,
       label: FACE_FIELDS.some((face) => face.binding === field.binding) ? "" : (field.label ?? ""),
       default_value: field.binding === BACK_BINDING ? "" : (field.default_value ?? ""),
+      // Where the count sits is the count's place, a change of its own.
+      section: field.binding === COUNT_BINDING ? undefined : field.section,
     }));
 }
 
@@ -494,8 +498,27 @@ export function changesBetween(saved: CardStudioValue, draft: CardStudioValue, h
   ) {
     changes.push("colours");
   }
-  if ((sd.stamp?.glyph ?? "check") !== (dd.stamp?.glyph ?? "check") || held.stamp_art) changes.push("stamp");
-  if ((sd.pattern ?? "none") !== (dd.pattern ?? "none")) changes.push("texture");
+  // The design options, read with their defaults: a key the saved card leaves
+  // out and the draft sets back to its default is no change.
+  const so = designOptions(sd);
+  const dO = designOptions(dd);
+  if (
+    (sd.stamp?.glyph ?? "check") !== (dd.stamp?.glyph ?? "check") ||
+    held.stamp_art ||
+    so.style !== dO.style ||
+    so.mark !== dO.mark ||
+    so.sticker !== dO.sticker ||
+    so.tint !== dO.tint
+  ) {
+    changes.push("stamp");
+  }
+  if (
+    (sd.pattern ?? "none") !== (dd.pattern ?? "none") ||
+    !sameColour(so.panelColor, dO.panelColor) ||
+    so.wallpaper !== dO.wallpaper
+  ) {
+    changes.push("texture");
+  }
   if (
     saved.name !== draft.name ||
     (sd.organization_name ?? "") !== (dd.organization_name ?? "") ||
@@ -503,7 +526,14 @@ export function changesBetween(saved: CardStudioValue, draft: CardStudioValue, h
   ) {
     changes.push("names");
   }
-  if (held.logo) changes.push("logo");
+  if (
+    so.stampsPlace !== dO.stampsPlace ||
+    so.stampsFormat !== dO.stampsFormat ||
+    countSection(sd.fields) !== countSection(dd.fields)
+  ) {
+    changes.push("count");
+  }
+  if (held.logo || so.logoText !== dO.logoText) changes.push("logo");
   if (!same(plainFields(sd.fields), plainFields(dd.fields))) changes.push("fields");
   if ((sd.default_language ?? "HE") !== (dd.default_language ?? "HE")) changes.push("language");
   if ((sd.barcode?.format ?? "QR") !== (dd.barcode?.format ?? "QR")) changes.push("barcode");

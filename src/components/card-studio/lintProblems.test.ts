@@ -23,9 +23,26 @@ const OTHER = [
   "something a later version says",
 ];
 
+// passbox-api's warnings about the design options, as the backend's
+// `_lint_line` writes them (an engine path made a request path).
+const ADVICE = [
+  "design.art.panel_color: the panel contrasts 1.04:1 with the background, so it won't show",
+  "design.logo_text: the logo is 1980x660, a wordmark: the name beside it repeats it and gets little room; upload a square mark or turn logo_text off",
+  "design.fields: 2 header fields beside the logo text, the stamps included; the top of a store card fits 1, and more crowd the logo",
+];
+
 describe("readLint", () => {
   it("sets the pictures a save makes aside, saying nothing about them", () => {
-    expect(readLint(PENDING)).toEqual({ pending: PENDING, fields: [], other: [] });
+    expect(readLint(PENDING)).toEqual({ pending: PENDING, fields: [], advice: [], other: [] });
+  });
+
+  it("reads the wallet's warnings about the design options as advice, not a problem", () => {
+    expect(readLint(ADVICE)).toEqual({ pending: [], fields: [], advice: ADVICE, other: [] });
+  });
+
+  it("keeps a design option's other words a problem: only the warnings it knows are advice", () => {
+    const refusal = "design.art.sticker: unknown sticker 'unicorn'";
+    expect(readLint([refusal]).other).toEqual([refusal]);
   });
 
   it("names a field by its binding, or by its place", () => {
@@ -39,7 +56,7 @@ describe("readLint", () => {
   });
 
   it("reads nothing as nothing", () => {
-    expect(readLint(undefined)).toEqual({ pending: [], fields: [], other: [] });
+    expect(readLint(undefined)).toEqual({ pending: [], fields: [], advice: [], other: [] });
   });
 });
 

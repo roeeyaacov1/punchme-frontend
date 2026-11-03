@@ -45,6 +45,18 @@ changed.
   by its own first letter. Apple's name row, Google's issuer line and its
   program line ("{business} - {card}") now carry `dir="auto"`.
 
+A fourth, awaiting Roee's yes (Nov 2026, passbox-api v0.1.1's card design
+options): `AppleCardPreview` shows the stamp count where the pass puts it
+with `design.stamps_place` "header" (Apple's header field, at the logo
+row's end), writes it "6/8" with `design.stamps_format` "fraction", and
+prints the business name beside a logo of the owner's own with
+`design.logo_text` (the `logoText` prop). Google's card is unchanged: its
+count stays a number. `StampGrid` and `StripArt` are untouched. A card
+built from the options the stand-in can't draw (`designOptions.isStyled`:
+stamps on their own, a sticker, a panel, a wallpaper) is the server's
+picture, handed to the previews as their published one by `StudioStage`
+(`stagePictures`), and outside the studio by `OwnPass` and `MessageStage`.
+
 Staging around the card is ours to change: the frame, the well, the shadow
 and the motion. One constraint applies. The previews are built for a 300px
 slot, because Apple's type is scaled by 300/343. At other widths the px-sized
@@ -56,7 +68,7 @@ type drifts, while the barcode plates hold at any width.
 |---|---|
 | `card-studio/CardStudio.tsx` | The studio (Phase 3). The card is the map: on a phone the stage, the sample, the reward as a sentence and a row of chips, each opening a tray over the lower half; from 1024px the trays are tabs beside a sticky card. That line is 64rem (`useStudioWide.ts`, which the loading skeleton follows too), so a larger text size keeps the phone's layout until the screen is as much wider: 2048px at 200%, where the card's 22rem column would otherwise be wider than the page's |
 | `card-studio/StudioStage.tsx` | The kit's `WallpaperStage` with the pass in its 300px slot, the Apple/Google switch, and the tap regions over the pass (pointer shortcuts, measured from the pass's own rows) |
-| `card-studio/StudioTray.tsx`, `StudioBar.tsx`, `UploadTile.tsx`, `trays/` | The non-modal tray, the save bar, the picture tile, and the six trays: colours, the stamp, the reward, the names, the logo, Wallet details. A tray stops at half the screen, or at 18rem where half would hold little past its heading and foot (large text, a short screen, a phone on its side), never past 85% (onboarding's step D, 31 Oct 2026) |
+| `card-studio/StudioTray.tsx`, `StudioBar.tsx`, `UploadTile.tsx`, `trays/` | The non-modal tray, the save bar, the picture tile, and the seven trays: colours, the stamp, the background (texture, panel, wallpaper), the reward, the names, the logo, Wallet details. A tray stops at half the screen, or at 18rem where half would hold little past its heading and foot (large text, a short screen, a phone on its side), never past 85% (onboarding's step D, 31 Oct 2026) |
 | `card-studio/controls/` | The card controls the studio and (from Phase 4) onboarding share: card, stamp and text colour, the stamp, the texture, the stamp count, the reward, and a colour of one's own. The reward is a paragraph of two lines that grows to three (Phase 4): Enter does the screen's own action, if it passes one, and a pasted line break becomes a space. With large text on a phone, the glyphs and the textures take as many to a row as fit, and four at 100% (Phase 4) |
 | `card-studio/studioDraft.ts`, `lintProblems.ts`, `studioProblems.ts`, `studioSession.ts` | The draft's rules (tested), the server's check read by kind (tested), a failed save or upload as a sentence (tested), and the draft kept in the tab |
 | `wallet-card/WalletCardPreview.tsx` | A legacy mock that nothing uses since `/style-guide` was rebuilt on the kit (Phase 1, step 1.4). Its English strings are hard-coded; Phase 10 deletes it |
@@ -94,9 +106,17 @@ These come from the wallet renderer, not from taste:
 
 - **Stamps:** 2–12. The limit is defined twice, in `draft.ts` and
   `controls/controlRules.ts`.
-- **Stamp art:** one of the 16 glyphs in `src/lib/stampGlyphs.ts`, or an
-  uploaded picture. An uploaded picture wins over the glyph.
-- **Textures:** none, waves, dots, stripes.
+- **Stamp art:** one of the 16 glyphs in `src/lib/stampGlyphs.ts`, one of
+  the wallet's built-in stickers (`GET .../stickers`, passbox-api), or an
+  uploaded picture. The renderer's order: a picture, then a sticker, then
+  the glyph.
+- **Textures:** none, waves, dots, stripes. A sticker wallpaper takes the
+  texture's place; a panel holds either.
+- **Design options** (passbox-api v0.1.1): stamps in a circle or on their
+  own, a check and a tint on stamps on their own, a panel, a wallpaper, the
+  count at the top and as "6/8", the name beside the logo. Offered only
+  while the sticker list says the wallet draws them (`available`); a server
+  before v0.1.1 refuses any of them.
 - **Barcode formats:** the four that `PassBarcode` draws.
 - **Fields:** 1 to 10, using PassKit's 5 sections and 4 alignments and five
   kinds of binding (`studioDraft.ts`). Each free-text field has a binding of

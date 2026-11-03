@@ -2,6 +2,8 @@ import type { Ref } from "react";
 import { useTranslation } from "react-i18next";
 import type { DesignField } from "../../../api/designs";
 import { Input } from "../../kit/Input";
+import { SegmentedControl } from "../../kit/SegmentedControl";
+import { designOptions, withOption, withStampsPlace, type StampsFormat, type StampsPlace } from "../designOptions";
 import {
   FACE_FIELDS,
   TEXT_LIMITS,
@@ -9,6 +11,7 @@ import {
   faceLabelFull,
   nameMissing,
   ownWordsDir,
+  sampleStart,
   withFaceLabel,
   type CardStudioValue,
 } from "../studioDraft";
@@ -32,6 +35,7 @@ export function NamesTray({
   businessName,
   sayNameMissing,
   nameRef,
+  options = false,
 }: {
   value: CardStudioValue;
   onChange: (next: CardStudioValue) => void;
@@ -44,10 +48,15 @@ export function NamesTray({
   sayNameMissing: boolean;
   /** The card's name field, where focus goes when Save finds no name. */
   nameRef?: Ref<HTMLInputElement>;
+  /** The wallet draws the design options: where the count shows, and how. */
+  options?: boolean;
 }) {
   const { t } = useTranslation();
   const fields = value.design.fields ?? [];
   const issuer = value.design.organization_name?.trim() || businessName;
+  const chosen = designOptions(value.design);
+  // The count as the card would say it, at the studio's opening sample.
+  const example = sampleStart(value.stamps_required);
   return (
     <div className="flex flex-col gap-5">
       <Input
@@ -95,6 +104,29 @@ export function NamesTray({
           />
         );
       })}
+      {options && (
+        <div className="flex flex-col gap-4">
+          <SegmentedControl<StampsPlace>
+            label={t("studio.count.place")}
+            options={[
+              { value: "secondary", label: t("studio.count.places.secondary") },
+              { value: "header", label: t("studio.count.places.header") },
+            ]}
+            value={chosen.stampsPlace}
+            onChange={(place) => onChange(withStampsPlace(value, place))}
+          />
+          <SegmentedControl<StampsFormat>
+            label={t("studio.count.format")}
+            options={[
+              { value: "count", label: <bdi dir="ltr">{example}</bdi> },
+              { value: "fraction", label: <bdi dir="ltr">{`${example}/${value.stamps_required}`}</bdi> },
+            ]}
+            value={chosen.stampsFormat}
+            onChange={(stamps_format) => onChange(withOption(value, { stamps_format }))}
+          />
+          <p className="-mt-2 text-sm leading-snug text-ink-muted">{t("studio.count.google")}</p>
+        </div>
+      )}
       <Input
         label={t("studio.names.organization")}
         hint={t("studio.names.organizationHint")}

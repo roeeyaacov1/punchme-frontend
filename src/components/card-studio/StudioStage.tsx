@@ -16,6 +16,7 @@ import { useReducedMotion } from "../kit/motion";
 import { SegmentedControl } from "../kit/SegmentedControl";
 import { WallpaperStage } from "../kit/WallpaperStage";
 import { AppleCardPreview, GoogleCardPreview, type CardPreviewValue } from "./CardPreviews";
+import { designOptions, drawKey, isStyled, stagePictures, type DrawnCard } from "./designOptions";
 import { stampColourOf, type CardStudioImages, type CardStudioValue, type HeldPictures } from "./studioDraft";
 
 export type Wallet = "apple" | "google";
@@ -59,6 +60,8 @@ function onlyLoaded(states: Record<string, string> | undefined, loaded: Set<stri
 }
 
 type Box = { top: number; left: number; width: number; height: number };
+
+const NO_PICTURES: readonly (DrawnCard | null)[] = [];
 
 /** The pass's own rows, by wallet: its children, in the order the frozen
  * previews draw them. Read, never changed. */
@@ -113,6 +116,11 @@ export const StudioStage = forwardRef<
     busy?: boolean;
     /** Under the stage: the owner's own pass, to add to their wallet. */
     foot?: ReactNode;
+    /** The server's pictures of a card it draws itself (`isStyled`): its
+     * latest of the draft, then the design read's. */
+    pictures?: readonly (DrawnCard | null)[];
+    /** The card has a logo of the owner's own, held or saved. */
+    hasLogo?: boolean;
   }
 >(function StudioStage(
   {
@@ -130,6 +138,8 @@ export const StudioStage = forwardRef<
     onPart,
     busy = false,
     foot,
+    pictures: serverPictures = NO_PICTURES,
+    hasLogo = false,
   },
   ref,
 ) {
@@ -139,16 +149,37 @@ export const StudioStage = forwardRef<
   const [boxes, setBoxes] = useState<Partial<Record<CardPart, Box>>>({});
   const [lit, setLit] = useState<CardPart | null>(null);
 
+  const styled = isStyled(value.design);
   const states = wallet === "apple" ? images.strip_states : images.hero_states;
+  const drawnUrls = serverPictures.map((picture) => (wallet === "apple" ? picture?.strip : picture?.hero)).join("\n");
   const published = useMemo(
-    () => [images.apple_logo, images.logo, ...Object.values(states ?? {})].filter((url): url is string => !!url),
-    [images.apple_logo, images.logo, states],
+    () =>
+      [images.apple_logo, images.logo, ...Object.values(states ?? {}), ...drawnUrls.split("\n")].filter(
+        (url): url is string => !!url,
+      ),
+    [images.apple_logo, images.logo, states, drawnUrls],
   );
   const loaded = useLoaded(published);
   const shown = (url: string | undefined) => (url && loaded.has(url) ? url : undefined);
-  const stripStates = onlyLoaded(images.strip_states, loaded);
-  const heroStates = onlyLoaded(images.hero_states, loaded);
-  const publishedShowing = !unsaved && !!(wallet === "apple" ? stripStates : heroStates)?.[String(sample)];
+  // The server's pictures of the card, once they have loaded, as the
+  // published ones are: staging, not redrawing.
+  const key = drawKey(value, sample);
+  const pictures = stagePictures({
+    styled,
+    unsaved,
+    sample,
+    stripStates: onlyLoaded(images.strip_states, loaded),
+    heroStates: onlyLoaded(images.hero_states, loaded),
+    pictures: serverPictures.map((picture) => picture && { ...picture, strip: shown(picture.strip), hero: shown(picture.hero) }),
+    key,
+  });
+  const { stripStates, heroStates } = pictures;
+  const publishedShowing =
+    !pictures.unsaved && !!(wallet === "apple" ? stripStates : heroStates)?.[String(sample)];
+  // The server answered for this draft and count, and drew nothing.
+  const drawFailed = styled && pictures.failed;
+  // A picture held for Save that the strip shows: the server hasn't had it.
+  const heldOut = styled && !!(held.stamp_art || held.strip_base || held.stamped_art || held.unstamped_art);
 
   const preview: CardPreviewValue = {
     businessName,
@@ -168,8 +199,9 @@ export const StudioStage = forwardRef<
     stripBaseUrl: held.strip_base ?? images.strip_base,
     stripStates,
     heroStates,
-    unsaved,
+    unsaved: pictures.unsaved,
     holderName: t("studio.sampleName"),
+    logoText: hasLogo && designOptions(value.design).logoText,
   };
   const Preview = wallet === "apple" ? AppleCardPreview : GoogleCardPreview;
 
@@ -310,6 +342,18 @@ export const StudioStage = forwardRef<
         <p className="flex max-w-[340px] items-start gap-1.5 text-sm leading-snug text-ink-muted">
           <Info aria-hidden className="mt-px size-4 shrink-0" />
           <span>{t("studio.picture.notHere")}</span>
+        </p>
+      )}
+      {/* The server draws a styled card: said while it does, and when it
+          couldn't. Polite, and only the words change, so a screen reader
+          hears each once. */}
+      <p aria-live="polite" className="max-w-[340px] text-center text-sm leading-snug text-ink-muted empty:hidden">
+        {styled && (drawFailed ? t("studio.drawn.failed") : pictures.drawing ? t("studio.drawn.drawing") : "")}
+      </p>
+      {heldOut && (
+        <p className="flex max-w-[340px] items-start gap-1.5 text-sm leading-snug text-ink-muted">
+          <Info aria-hidden className="mt-px size-4 shrink-0" />
+          <span>{t("studio.drawn.held")}</span>
         </p>
       )}
       {foot}

@@ -4,6 +4,7 @@ import type { CardPattern } from "../../lib/cardPatterns";
 import { cn } from "../../lib/cn";
 import { barcodeFormat, resolveBarcodePayload } from "../../lib/passBarcode";
 import { PassBarcode } from "../wallet-card/PassBarcode";
+import { designOptions, stampsText } from "./designOptions";
 import { StampGrid } from "./StampGrid";
 
 export interface CardPreviewValue {
@@ -53,6 +54,10 @@ export interface CardPreviewValue {
    * "{business} - {card}", so without this the header can only repeat the
    * business name twice — which is what the installed pass never does. */
   cardName?: string;
+  /** Apple's logoText: the business's name beside a logo of the owner's
+   * own (`design.logo_text`, which the server sends only with an uploaded
+   * logo). Without an upload the drawn logo already says the name. */
+  logoText?: boolean;
 }
 
 /** The published artwork for a stamp state, when it is safe to trust it. */
@@ -195,14 +200,34 @@ function StripArt({
  * card 248, so its type reads a touch large. The plate is a fraction of the
  * card, so it is right at either.
  *
- * `logoText` is empty on our passes: the wide logo PNG the server generates
- * carries the business name, which is why the fallback here prints it rather
- * than inventing a second line.
+ * `logoText` is empty on our passes unless the owner asks for it beside a
+ * logo of their own: the wide logo PNG the server generates carries the
+ * business name, which is why the fallback here prints it rather than
+ * inventing a second line.
+ *
+ * The stamp count is the secondary row's end field, or with
+ * `design.stamps_place` "header" Apple's header field, at the logo row's end
+ * (the one place a stacked pass still shows). It reads "6", or "6/8" with
+ * `design.stamps_format` "fraction" (passbox-api v0.1.1's stamp card).
  */
 export function AppleCardPreview(value: CardPreviewValue) {
   const { t } = useTranslation();
   const format = barcodeFormat(value.design);
   const square = squareBarcode(format);
+  const countOnTop = designOptions(value.design).stampsPlace === "header";
+  const count = (
+    <>
+      <p
+        className="truncate text-[11px] font-medium uppercase leading-tight tracking-[0.06em]"
+        style={{ color: value.labelColor }}
+      >
+        {fieldLabel(value, "members.member.points", t("studio.preview.pointsLabel"))}
+      </p>
+      <p className="truncate text-[18px] leading-tight">
+        <bdi dir="ltr">{stampsText(value.design, value.currentStamps, value.stampsRequired)}</bdi>
+      </p>
+    </>
+  );
   return (
     <div
       className="flex flex-col rounded-[18px] overflow-hidden shadow-[0_16px_40px_rgba(14,17,32,0.28)]"
@@ -212,18 +237,24 @@ export function AppleCardPreview(value: CardPreviewValue) {
         fontFamily: APPLE_WALLET_FONT,
       }}
     >
-      <div className="flex h-[57px] shrink-0 items-start px-[14px] pt-[11px]">
+      <div className="flex h-[57px] shrink-0 items-start gap-[10px] px-[14px] pt-[11px]">
         {value.appleLogoUrl ? (
           <img
             src={value.appleLogoUrl}
             alt=""
-            className="max-h-[26px] max-w-[140px] object-contain"
+            className="max-h-[26px] max-w-[140px] shrink-0 object-contain"
           />
         ) : (
           <span dir="auto" className="truncate text-[15px] font-semibold">
             {value.businessName || "—"}
           </span>
         )}
+        {value.appleLogoUrl && value.logoText && (
+          <span dir="auto" className="min-w-0 truncate text-[15px] font-semibold leading-[26px]">
+            {value.businessName}
+          </span>
+        )}
+        {countOnTop && <div className="ms-auto min-w-0 shrink-0 text-end">{count}</div>}
       </div>
 
       {/* Apple renders the strip full-bleed at 2.604:1 — no insets, no
@@ -242,15 +273,7 @@ export function AppleCardPreview(value: CardPreviewValue) {
             {value.holderName || SAMPLE_NAME}
           </p>
         </div>
-        <div className="min-w-0 text-end">
-          <p
-            className="truncate text-[11px] font-medium uppercase leading-tight tracking-[0.06em]"
-            style={{ color: value.labelColor }}
-          >
-            {fieldLabel(value, "members.member.points", t("studio.preview.pointsLabel"))}
-          </p>
-          <p className="truncate text-[18px] leading-tight">{value.currentStamps}</p>
-        </div>
+        {!countOnTop && <div className="min-w-0 text-end">{count}</div>}
       </div>
 
       {/* Straight under the fields, the way a real card ends. The plate is a

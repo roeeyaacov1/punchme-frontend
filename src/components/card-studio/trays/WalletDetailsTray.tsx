@@ -10,6 +10,7 @@ import { Select } from "../../kit/Select";
 import { Textarea } from "../../kit/Textarea";
 import { isolate } from "../../../routes/dashboard/problem";
 import { ChoiceTiles, type Tile } from "../controls/ChoiceTiles";
+import { withFields } from "../designOptions";
 import { problemsFor, type LintReading } from "../lintProblems";
 import { fitPicture, pictureSize, readPicture, STRIP_MIN, type FittedUse } from "../pictureFiles";
 import {
@@ -98,7 +99,7 @@ export function WalletDetailsTray({
         lint={lint}
         nameOf={nameOf}
         onBack={() => onEditing(null)}
-        onField={(next) => setFields(fields.map((field, i) => (i === editing ? next : field)))}
+        onField={(next) => onChange(withFields(value, fields.map((field, i) => (i === editing ? next : field))))}
         onRemove={() => {
           setFields(fields.filter((_, i) => i !== editing));
           onEditing(null);

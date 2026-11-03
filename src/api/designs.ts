@@ -15,9 +15,38 @@ export interface DesignDoc {
   default_language?: "HE" | "EN";
   fields?: DesignField[];
   barcode?: DesignBarcode;
-  stamp?: { glyph?: string; color?: string };
+  stamp?: DesignStamp;
   pattern?: "none" | "waves" | "dots" | "stripes";
+  /** A rounded panel inside the strip, with the stamps on it; "" is none
+   * (passbox-api v0.1.1, like everything below). */
+  panel_color?: string;
+  /** A built-in sticker scattered faintly behind the stamps, in place of the
+   * pattern; "" is none. */
+  wallpaper?: string;
+  /** Where Apple Wallet shows the stamp count: under the strip, or at the top
+   * beside the logo. */
+  stamps_place?: "secondary" | "header";
+  /** "6", or "6/8". */
+  stamps_format?: "count" | "fraction";
+  /** The business's name beside an uploaded logo, on Apple Wallet. */
+  logo_text?: boolean;
   [key: string]: unknown;
+}
+
+/** How each stamp is drawn. Absent keys are at their defaults: a glyph in a
+ * filled circle, as every card was before the options. */
+export interface DesignStamp {
+  glyph?: string;
+  color?: string;
+  /** In a filled circle, or the art on its own. */
+  style?: "badge" | "icon";
+  /** A check on each stamp, on a stamp on its own. */
+  mark?: "none" | "check";
+  /** A built-in sticker in place of the glyph; "" is none. */
+  sticker?: string;
+  /** The sticker or picture in shades of the stamp colour, on a stamp on its
+   * own. */
+  tint?: boolean;
 }
 
 export interface DesignField {
@@ -64,6 +93,15 @@ export function designImageUrls(design: DesignOut | undefined) {
     strip_states: stateMap("strip_states"),
     hero_states: stateMap("hero_states"),
   };
+}
+
+/** The wallet's built-in stickers (passbox-api), each with a small picture
+ * as a data URL: about 750 KB in all and the same for every card, so it is
+ * read once a session. Empty when the wallet can't say. */
+export type StickersOut = components["schemas"]["StickersOut"];
+
+export function getStickers(businessId: string) {
+  return api.get<StickersOut>(`/api/businesses/${businessId}/stickers`);
 }
 
 /** Image upload uses the backend accepts (POST .../images). */
