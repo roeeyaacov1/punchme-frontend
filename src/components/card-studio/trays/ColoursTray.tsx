@@ -12,6 +12,7 @@ import {
   TextColourPicker,
   type ReadyLook,
 } from "../controls";
+import { designOptions } from "../designOptions";
 import { stampColourOf, textColourChoice, withBackground, type CardStudioValue } from "../studioDraft";
 
 /**
@@ -50,7 +51,13 @@ export function ColoursTray({
         }
         onBackground={(hex) => onChange(withBackground(value, hex))}
       />
-      <StampColourPicker background={value.background_color} value={stamp} onChange={setStamp} />
+      {/* The stamps stand on the panel when there is one, as the renderer
+          judges them (passbox lint: the stamp colour against the panel). */}
+      <StampColourPicker
+        background={designOptions(value.design).panelColor || value.background_color}
+        value={stamp}
+        onChange={setStamp}
+      />
 
       <div className="flex flex-col gap-4">
         <button

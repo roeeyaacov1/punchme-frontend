@@ -11,6 +11,9 @@ export { TexturePicker } from "./TexturePicker";
 export { StampCountControl } from "./StampCountControl";
 export { RewardField } from "./RewardField";
 export { ColourPickerPanel } from "./ColourPickerPanel";
+export { StickerPicker, type StickersStatus } from "./StickerPicker";
+export { StampStylePicker } from "./StampStylePicker";
+export { PanelColourPicker } from "./PanelColourPicker";
 export {
   MAX_STAMPS,
   MIN_STAMPS,
@@ -18,6 +21,9 @@ export {
   automaticText,
   isFaint,
   matchingLook,
+  stickerLabel,
   type CardColours,
   type ReadyLook,
+  type StampStyle,
+  type Sticker,
 } from "./controlRules";

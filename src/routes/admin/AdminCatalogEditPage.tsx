@@ -1,9 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, Info } from "lucide-react";
 import { CardStudio, type ExtraTray } from "../../components/card-studio/CardStudio";
+import {
+  drawKey,
+  isStyled,
+  picturesAt,
+  serverAsk,
+  studioStickers,
+  type DrawnCard,
+  type ServerAsk,
+} from "../../components/card-studio/designOptions";
 import { readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
@@ -11,6 +20,7 @@ import {
   nameMissing,
   ownWordsDir,
   readDesign,
+  sampleStart,
   TEXT_LIMITS,
   type CardStudioImages,
   type CardStudioValue,
@@ -23,6 +33,7 @@ import {
   createCatalogEntry,
   deleteCatalogImage,
   getCatalogEntry,
+  getCatalogStickers,
   patchCatalogEntry,
   previewCatalogDesign,
   uploadCatalogImage,
@@ -148,24 +159,51 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
   }, [created, loaded]);
 
   // The same 400ms check as the owner's studio, against the staff preview,
-  // and the same rule: an answer for a draft no longer on the page is let go.
-  const debouncedDraft = useDebounce(draft, 400);
+  // and the same rules: a look the studio can't draw itself (`isStyled`)
+  // gets the server's picture at the count shown, without the look's own
+  // pictures, and an answer for a draft no longer on the page is let go.
+  const [sample, setSample] = useState<number | null>(null);
+  const [drawn, setDrawn] = useState<DrawnCard | null>(null);
+  const shownSample = sample ?? (draft ? sampleStart(draft.stamps_required) : 0);
+  const ask = useMemo(
+    () => (draft ? serverAsk({ value: draft, sample: shownSample, changed: true, pictures: [drawn] }) : null),
+    [draft, shownSample, drawn],
+  );
+  const debouncedAsk = useDebounce(ask, 400);
   const onPage = useRef(draft);
   useEffect(() => {
     onPage.current = draft;
   }, [draft]);
+  const asked = useRef<ServerAsk | null>(null);
   useEffect(() => {
-    if (!debouncedDraft) return;
+    if (!debouncedAsk) return;
+    const was = asked.current;
+    const answered =
+      !!was && was.value === debouncedAsk.value && (!debouncedAsk.images || (was.images && was.state === debouncedAsk.state));
+    if (answered) return;
+    asked.current = debouncedAsk;
     let cancelled = false;
-    previewCatalogDesign({ ...debouncedDraft, name: debouncedDraft.name || "Preview" })
+    const { value, state, images } = debouncedAsk;
+    previewCatalogDesign({ ...value, name: value.name || "Preview", stamp_state: state ?? null, images })
       .then((result) => {
-        if (!cancelled && onPage.current === debouncedDraft) setLint(result.lint);
+        if (cancelled || onPage.current !== value) return;
+        setLint(result.lint);
+        if (images && state !== undefined) setDrawn({ key: drawKey(value, state), ...picturesAt(result.images, state) });
       })
-      .catch(() => {});
+      .catch(() => {
+        if (asked.current === debouncedAsk) asked.current = null;
+      });
     return () => {
       cancelled = true;
     };
-  }, [debouncedDraft]);
+  }, [debouncedAsk]);
+
+  const stickersQuery = useQuery({
+    queryKey: ["stickers"],
+    queryFn: getCatalogStickers,
+    staleTime: Infinity,
+    retry: 1,
+  });
 
   const shelfChanged =
     shelf.niche !== savedShelf.niche ||
@@ -405,6 +443,17 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
           extraTrays={extraTrays}
           sayNameMissing={!isNew || saveTried}
           focusName={nameFocus}
+          stickers={studioStickers(stickersQuery)}
+          pictures={[drawn]}
+          onSample={setSample}
+          notices={
+            isStyled(draft.design) && Object.keys(art).length > 0 ? (
+              <p className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
+                <Info aria-hidden className="mt-px size-4 shrink-0" />
+                <span>{t("admin.catalog.drawnWithoutArt")}</span>
+              </p>
+            ) : undefined
+          }
         />
       </div>
     </div>

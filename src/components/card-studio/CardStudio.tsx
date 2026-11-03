@@ -7,6 +7,7 @@ import { focusRingInset, noTapFlash } from "../kit/classes";
 import { useReducedMotion } from "../kit/motion";
 import { Tab, TabList, TabPanel, Tabs } from "../kit/Tabs";
 import type { StampPicture } from "./controls";
+import { designOptions, withOption, type DrawnCard, type StudioStickers } from "./designOptions";
 import type { LintReading } from "./lintProblems";
 import { StudioBar, type StudioBarProps } from "./StudioBar";
 import { StudioStage, type CardPart, type StageHandle, type Wallet } from "./StudioStage";
@@ -22,6 +23,7 @@ import {
   type HeldPictures,
   type HeldUse,
 } from "./studioDraft";
+import { BackgroundTray } from "./trays/BackgroundTray";
 import { ColoursTray } from "./trays/ColoursTray";
 import { LogoTray } from "./trays/LogoTray";
 import { NamesTray } from "./trays/NamesTray";
@@ -43,10 +45,13 @@ export interface ExtraTray {
 const PART_OF: Record<string, CardPart | undefined> = {
   colours: "stamps",
   stamp: "stamps",
+  background: "stamps",
   reward: "stamps",
   names: "names",
   logo: "logo",
 };
+
+const NO_STICKERS: StudioStickers = { list: [], status: "loading", available: false };
 
 /** The device's own wallet first, as the Overview's own pass opens. */
 function deviceWallet(): Wallet {
@@ -243,6 +248,15 @@ export interface CardStudioProps {
   focusName?: number;
   /** Where Save is, so a page can put focus back on it. */
   saveRef?: React.Ref<HTMLButtonElement>;
+  /** The wallet's stickers, and whether it draws the design options. */
+  stickers?: StudioStickers;
+  /** The server's pictures of a card it draws itself (`isStyled`): its
+   * latest of the draft, then the design read's. */
+  pictures?: readonly (DrawnCard | null)[];
+  /** Told the stamp count the stage shows, for the server's picture of it. */
+  onSample?: (count: number) => void;
+  /** The card has a logo of the owner's own, held or saved. */
+  hasLogo?: boolean;
 }
 
 /**
@@ -285,6 +299,10 @@ export function CardStudio({
   sayNameMissing = true,
   focusName = 0,
   saveRef,
+  stickers = NO_STICKERS,
+  pictures,
+  onSample,
+  hasLogo = false,
 }: CardStudioProps) {
   const { t } = useTranslation();
   const [wide, studioBox] = useStudioWide();
@@ -319,6 +337,10 @@ export function CardStudio({
   // change in the draft, and Wallet details shows them.
   const onFollow = () => onChange(withRewardOnBack(value));
   const shownSample = Math.min(sample, value.stamps_required);
+  useEffect(() => {
+    onSample?.(shownSample);
+  }, [onSample, shownSample]);
+  const options = stickers.available;
   // While Save runs, nothing that changes the draft can be reached: Save
   // sends the card as it was pressed, and starts again from what it read.
   const busy = bar.saving;
@@ -330,6 +352,7 @@ export function CardStudio({
   const trays: { id: string; label: string }[] = [
     { id: "colours", label: t("studio.chips.colours") },
     { id: "stamp", label: t("studio.chips.stamp") },
+    { id: "background", label: t("studio.chips.background") },
     { id: "reward", label: t("studio.chips.reward") },
     { id: "names", label: t("studio.chips.names") },
     ...(owner ? [{ id: "logo", label: t("studio.chips.logo") }] : []),
@@ -428,6 +451,19 @@ export function CardStudio({
             onPicture={onHold ? (dataUrl) => onHold("stamp_art", dataUrl) : undefined}
             note={stampPicture.inUse ? undefined : pictureNote}
             locked={pictureLocked}
+            options={options}
+            stickers={stickers.list}
+            stickersStatus={stickers.status}
+          />
+        );
+      case "background":
+        return (
+          <BackgroundTray
+            value={value}
+            onChange={onChange}
+            options={options}
+            stickers={stickers.list}
+            stickersStatus={stickers.status}
           />
         );
       case "reward":
@@ -443,6 +479,7 @@ export function CardStudio({
             businessName={businessName}
             sayNameMissing={sayNameMissing}
             nameRef={nameField}
+            options={options}
           />
         );
       case "logo":
@@ -452,6 +489,9 @@ export function CardStudio({
             ground={value.background_color}
             onPick={(dataUrl) => onHold("logo", dataUrl)}
             notKept={notKept.includes("logo")}
+            logoText={designOptions(value.design).logoText}
+            onLogoText={options ? (logo_text) => onChange(withOption(value, { logo_text })) : undefined}
+            hasLogo={hasLogo}
           />
         ) : null;
       case "wallet":
@@ -555,6 +595,8 @@ export function CardStudio({
       onWallet={setWallet}
       onPart={onPart}
       busy={busy}
+      pictures={pictures}
+      hasLogo={hasLogo}
     />
   );
 

@@ -75,6 +75,7 @@
       },
       "saved": "Saved. Owners who pick this look from now on get it as it is.",
       "savedHidden": "Saved. Owners won't see this look until it's published.",
+      "drawnWithoutArt": "The wallet draws this look here without its own pictures. Owners who take it get them on their cards.",
       "changes_one": "1 change not saved yet",
       "changes_other": "{{count}} changes not saved yet"
     },
@@ -232,6 +233,7 @@
       "label": "What to change",
       "colours": "Colours",
       "stamp": "Stamp",
+      "background": "Background",
       "reward": "Reward",
       "names": "Names",
       "logo": "Logo",
@@ -282,6 +284,7 @@
       "fieldsBar_one": "1 problem in Wallet details",
       "fieldsBar_other": "{{count}} problems in Wallet details",
       "other": "The server found a problem with the design, and passes won't update until it's fixed.",
+      "advice": "The wallet has advice about this card's look. Passes update all the same.",
       "details": "The details",
       "row": "Won't show on Google Wallet"
     },
@@ -312,7 +315,26 @@
       "CODE128": "Code 128"
     },
     "artTitle": "Custom art",
-    "artHint": "Sent with everything else when you save."
+    "artHint": "Sent with everything else when you save.",
+    "count": {
+      "place": "Where the stamp count shows on Apple Wallet",
+      "places": {
+        "secondary": "Under the strip",
+        "header": "At the top"
+      },
+      "format": "How it's written",
+      "google": "Google Wallet shows the number under the card's name either way."
+    },
+    "logoText": {
+      "label": "Your business's name beside the logo",
+      "hint": "Apple Wallet writes it next to your logo. Best with a square mark: a wide logo that already says the name doesn't need it.",
+      "noLogo": "It shows once the card has a logo of your own. Until then, the logo the card draws already says the name."
+    },
+    "drawn": {
+      "drawing": "Drawing the card…",
+      "held": "Your new picture joins this card when you save.",
+      "failed": "The card's picture couldn't be drawn just now. What you see may not be the card yet."
+    }
   },
   "cardControls": {
     "looks": "Ready-made looks",
@@ -333,7 +355,109 @@
       "shade": "{{label}}: shade and brightness",
       "hue": "{{label}}: hue",
       "hex": "{{label}}: hex code"
+    },
+    "style": {
+      "legend": "How each stamp looks",
+      "badge": "In a circle",
+      "icon": "On its own"
+    },
+    "sticker": {
+      "legend": "A sticker",
+      "none": "No sticker",
+      "hint": "A sticker takes the symbol's place on the card.",
+      "pictureFirst": "The picture is the stamp, so a sticker wouldn't show."
+    },
+    "stickers": {
+      "unavailable": "The stickers didn't load. Try again in a moment."
+    },
+    "mark": {
+      "label": "A check on each stamp",
+      "hint": "A small check over every stamp a customer has."
+    },
+    "tint": {
+      "label": "In the stamp colour",
+      "hint": "The sticker or picture in shades of the stamp colour."
+    },
+    "iconOnly": "The check and the colour are for stamps on their own.",
+    "panel": {
+      "legend": "A panel behind the stamps",
+      "none": "No panel",
+      "swatch": "Panel colour {{n}}: {{hex}}",
+      "hint": "A rounded panel inside the strip, with the stamps on it.",
+      "faint": "The panel will barely show on this card."
+    },
+    "wallpaper": {
+      "legend": "A wallpaper",
+      "none": "No wallpaper",
+      "hint": "A sticker repeated faintly behind the stamps, in the stamp colour, in place of the pattern. A background picture covers it."
     }
+  },
+  "stickers": {
+    "hot-beverage": "Hot drink",
+    "teacup-without-handle": "Teacup",
+    "bubble-tea": "Bubble tea",
+    "cup-with-straw": "Cup with a straw",
+    "tropical-drink": "Tropical drink",
+    "glass-of-milk": "Glass of milk",
+    "wine-glass": "Wine glass",
+    "beer-mug": "Beer mug",
+    "croissant": "Croissant",
+    "bread": "Bread",
+    "baguette-bread": "Baguette",
+    "pretzel": "Pretzel",
+    "bagel": "Bagel",
+    "cupcake": "Cupcake",
+    "shortcake": "Slice of cake",
+    "birthday-cake": "Birthday cake",
+    "doughnut": "Doughnut",
+    "cookie": "Cookie",
+    "pancakes": "Pancakes",
+    "pizza": "Pizza",
+    "hamburger": "Hamburger",
+    "taco": "Taco",
+    "sushi": "Sushi",
+    "steaming-bowl": "Steaming bowl",
+    "green-salad": "Salad",
+    "sandwich": "Sandwich",
+    "falafel": "Falafel",
+    "stuffed-flatbread": "Stuffed pita",
+    "ice-cream": "Ice cream",
+    "soft-ice-cream": "Soft serve",
+    "barber-pole": "Barber pole",
+    "scissors": "Scissors",
+    "nail-polish": "Nail polish",
+    "lipstick": "Lipstick",
+    "lotion-bottle": "Lotion bottle",
+    "soap": "Soap",
+    "lotus": "Lotus",
+    "herb": "Herb",
+    "candle": "Candle",
+    "potted-plant": "Potted plant",
+    "seedling": "Seedling",
+    "running-shoe": "Running shoe",
+    "boxing-glove": "Boxing glove",
+    "soccer-ball": "Football",
+    "trophy": "Trophy",
+    "flexed-biceps": "Flexed arm",
+    "paw-prints": "Paw prints",
+    "dog-face": "Dog",
+    "bone": "Bone",
+    "tulip": "Tulip",
+    "rose": "Rose",
+    "sunflower": "Sunflower",
+    "bouquet": "Bouquet",
+    "wrapped-gift": "Gift",
+    "party-popper": "Party popper",
+    "star": "Star",
+    "glowing-star": "Glowing star",
+    "red-heart": "Heart",
+    "gem-stone": "Gem",
+    "crown": "Crown",
+    "shopping-bags": "Shopping bags",
+    "sparkles": "Sparkles",
+    "sheaf-of-rice": "Wheat",
+    "beans": "Beans",
+    "leaf-fluttering-in-wind": "Leaves"
   },
   "onboarding": {
     "steps": {

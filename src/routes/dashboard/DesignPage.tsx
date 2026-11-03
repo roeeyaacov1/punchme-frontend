@@ -1,8 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Wallet } from "lucide-react";
+import { Info, Wallet } from "lucide-react";
 import { CardStudio } from "../../components/card-studio/CardStudio";
+import {
+  drawKey,
+  picturesAt,
+  readPicture,
+  serverAsk,
+  studioStickers,
+  type DrawnCard,
+  type ServerAsk,
+} from "../../components/card-studio/designOptions";
 import { useStudioWide } from "../../components/card-studio/useStudioWide";
 import { readLint } from "../../components/card-studio/lintProblems";
 import {
@@ -16,6 +25,7 @@ import {
   readDesign,
   rebaseEdits,
   sameCard,
+  sampleStart,
   withoutSent,
   type CardStudioValue,
   type HeldPictures,
@@ -57,6 +67,7 @@ import { useBusiness } from "../../business/useBusiness";
 import { listTemplates, patchTemplate, type CardTemplate } from "../../api/businesses";
 import {
   designImageUrls,
+  getStickers,
   getTemplateDesign,
   previewTemplateDesign,
   uploadTemplateImage,
@@ -271,26 +282,68 @@ export function DesignPage() {
   }, [changed]);
 
   // The server's check, 400ms after each edit: the stateless preview applies
-  // the draft in memory and answers with its lint. A failure keeps the last.
-  // An answer for a draft no longer on the page (one a discard or a save has
-  // replaced, while the debounce still held it) is let go.
-  const debouncedDraft = useDebounce(changed ? draft : null, 400);
+  // the draft in memory and answers with its lint. A card the studio can't
+  // draw itself (`isStyled`) gets its picture too, at the count the stage
+  // shows, asked for as the sample moves as well, and only when its strip is
+  // one the server hasn't drawn yet: the design read's own picture counts.
+  // A failure keeps the last. An answer for a draft no longer on the page
+  // (one a discard or a save has replaced, while the debounce still held it)
+  // is let go.
+  const [sample, setSample] = useState<number | null>(null);
+  const [drawn, setDrawn] = useState<DrawnCard | null>(null);
+  const readDrawn = useMemo(
+    () =>
+      template && designQuery.data
+        ? readPicture(toStudioValue(template, designQuery.data), designQuery.data.images)
+        : null,
+    [template, designQuery.data],
+  );
+  const shownSample = sample ?? (draft ? sampleStart(draft.stamps_required) : 0);
+  const ask = useMemo(
+    () => (draft ? serverAsk({ value: draft, sample: shownSample, changed, pictures: [drawn, readDrawn] }) : null),
+    [draft, shownSample, changed, drawn, readDrawn],
+  );
+  const debouncedAsk = useDebounce(ask, 400);
   const onPage = useRef(draft);
   useEffect(() => {
     onPage.current = draft;
   }, [draft]);
+  // What was last asked: a picture's answer carries its lint, so the check
+  // alone isn't asked again of the same draft.
+  const asked = useRef<ServerAsk | null>(null);
   useEffect(() => {
-    if (!debouncedDraft || !businessId || !templateId) return;
+    if (!debouncedAsk || !businessId || !templateId) return;
+    const was = asked.current;
+    const answered =
+      !!was && was.value === debouncedAsk.value && (!debouncedAsk.images || (was.images && was.state === debouncedAsk.state));
+    if (answered) return;
+    asked.current = debouncedAsk;
     let cancelled = false;
-    previewTemplateDesign(businessId, templateId, debouncedDraft)
+    const { value, state, images } = debouncedAsk;
+    previewTemplateDesign(businessId, templateId, { ...value, stamp_state: state ?? null, images })
       .then((result) => {
-        if (!cancelled && onPage.current === debouncedDraft) setLint(result.lint);
+        if (cancelled || onPage.current !== value) return;
+        setLint(result.lint);
+        if (images && state !== undefined) setDrawn({ key: drawKey(value, state), ...picturesAt(result.images, state) });
       })
-      .catch(() => {});
+      .catch(() => {
+        // Asked again as soon as anything changes.
+        if (asked.current === debouncedAsk) asked.current = null;
+      });
     return () => {
       cancelled = true;
     };
-  }, [debouncedDraft, businessId, templateId]);
+  }, [debouncedAsk, businessId, templateId]);
+
+  // The wallet's stickers, and whether it draws the design options at all:
+  // the same for every card, so read once a session.
+  const stickersQuery = useQuery({
+    queryKey: ["stickers"],
+    queryFn: () => getStickers(businessId!),
+    enabled: !!businessId,
+    staleTime: Infinity,
+    retry: 1,
+  });
   // Its latest answer, for a save that starts again from what it sent: one
   // can land while the save runs.
   const latestLint = useRef(lint);
@@ -547,9 +600,27 @@ export function DesignPage() {
     </>
   );
 
-  const notices = (sync.error || reading.other.length > 0) && (
+  const notices = (sync.error || reading.other.length > 0 || reading.advice.length > 0) && (
     <div className="flex flex-col gap-3">
       {sync.error && <Notice tone="warn">{t("studio.sync.failed")}</Notice>}
+      {reading.advice.length > 0 && (
+        <div className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
+          <Info aria-hidden className="mt-px size-4 shrink-0" />
+          <div>
+            <p>{t("studio.check.advice")}</p>
+            <details className="mt-1">
+              <summary className="w-fit cursor-pointer underline underline-offset-[3px]">
+                {t("studio.check.details")}
+              </summary>
+              <ul lang="en" dir="ltr" className="mt-2 list-disc ps-5 text-start">
+                {reading.advice.map((text) => (
+                  <li key={text}>{text}</li>
+                ))}
+              </ul>
+            </details>
+          </div>
+        </div>
+      )}
       {reading.other.length > 0 && (
         <Notice tone="warn">
           <p>{t("studio.check.other")}</p>
@@ -627,6 +698,10 @@ export function DesignPage() {
         editingField={editingField}
         onEditingField={setEditingField}
         focusName={nameFocus}
+        stickers={studioStickers(stickersQuery)}
+        pictures={[drawn, readDrawn]}
+        onSample={setSample}
+        hasLogo={!!held.logo || design.pictures.includes("logo")}
       />
     </div>
   );

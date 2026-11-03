@@ -27,6 +27,9 @@ export interface FieldProblem {
 export interface LintReading {
   pending: string[];
   fields: FieldProblem[];
+  /** The wallet's advice on the design options' look (passbox-api's
+   * warnings): the card saves and its passes update all the same. */
+  advice: string[];
   other: string[];
 }
 
@@ -35,16 +38,25 @@ const PENDING = [
   /^missing (Apple strip|Google hero) images for states:/,
 ];
 
+/** passbox-api's warnings about the design options, which are only ever
+ * warnings: a panel too close to the card's colour, the name beside a wide
+ * logo, and more header fields than the top of the card holds. */
+const ADVICE = [/^design\.art\.panel_color: /, /^design\.logo_text: /, /^design\.fields: \d+ header fields\b/];
+
 /** "field meta.custom: missing usage flags", "field X: classTemplateInfo never references …" */
 const NAMED_FIELD = /^field ([^:\s]+): /;
 /** "design.fields.3 has no binding" */
 const INDEXED_FIELD = /^design\.fields\.(\d+)\b/;
 
 export function readLint(lint: readonly string[] | undefined): LintReading {
-  const reading: LintReading = { pending: [], fields: [], other: [] };
+  const reading: LintReading = { pending: [], fields: [], advice: [], other: [] };
   for (const text of lint ?? []) {
     if (PENDING.some((pattern) => pattern.test(text))) {
       reading.pending.push(text);
+      continue;
+    }
+    if (ADVICE.some((pattern) => pattern.test(text))) {
+      reading.advice.push(text);
       continue;
     }
     const named = NAMED_FIELD.exec(text);

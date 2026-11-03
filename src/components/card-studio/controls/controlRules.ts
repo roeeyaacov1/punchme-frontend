@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import { contrastRatio, normalizeHex, readableInk } from "../../../lib/color";
 import { STAMP_GLYPH_NAMES } from "../../../lib/stampGlyphs";
 import { NICHE_GLYPH } from "../../../routes/onboarding/draft";
@@ -98,4 +99,35 @@ export function charactersLeft(value: string, max: number, from: number): number
  * space. The pass sets the reward as one run of words. */
 export function oneParagraph(text: string): string {
   return text.replace(/[ \t]*[\r\n]+[ \t]*/g, " ");
+}
+
+/** How a stamp is drawn: in a filled circle, or the art on its own. */
+export type StampStyle = "badge" | "icon";
+
+/** One of the wallet's built-in stickers, as the server lists it: its name
+ * and a small picture of it. */
+export interface Sticker {
+  name: string;
+  image: string;
+}
+
+/** A sticker as a person reads it: its own words where the app has them, and
+ * otherwise its name with spaces ("glowing-star" is "glowing star"), for one
+ * a newer server added. */
+export function stickerLabel(name: string, t: TFunction): string {
+  return t(`stickers.${name}`, { defaultValue: name.replace(/-/g, " ") });
+}
+
+/** Grounds offered for the panel: light ones for dark stamps and the reverse,
+ * as the reference cards use them (white, cream, sand, mint, blush, navy). */
+export const PANEL_SWATCHES = ["#FFFFFF", "#F6E7CB", "#F5EFE6", "#E3F4EC", "#FFF1F2", "#1A1F38"] as const;
+
+/** Below this a panel's colour is too close to the card's to show: the
+ * renderer's own check (passbox lint, MIN_PANEL_CONTRAST). */
+export const MIN_PANEL_CONTRAST = 1.1;
+
+/** True when the panel will barely show on the card. Allowed, and said. */
+export function panelFaint(panel: string, background: string): boolean {
+  if (!normalizeHex(panel) || !normalizeHex(background)) return false;
+  return contrastRatio(panel, background) < MIN_PANEL_CONTRAST;
 }
