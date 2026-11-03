@@ -2,6 +2,7 @@ import type { TFunction } from "i18next";
 import type { DesignDoc } from "../../api/designs";
 import type { Preset } from "../../api/presets";
 import type { ReadyLook } from "../../components/card-studio/controls/controlRules";
+import { isStyled } from "../../components/card-studio/designOptions";
 import { SUPPORTED_LANGS } from "../../i18n/languages";
 import { derivedLabelColor, relatedAccents } from "../../lib/accentPalette";
 import { CARD_PATTERNS, type CardPattern } from "../../lib/cardPatterns";
@@ -129,12 +130,21 @@ export function presetLook(preset: LookSource, niche: Niche): CardLook | null {
   };
 }
 
+/** A catalog look the wizard can offer: one drawn with what a look carries
+ * here (colours, glyph, texture). A look built from the wallet's design
+ * options (a sticker, a panel, stamps on their own: `isStyled`) would arrive
+ * as only its colours, the bakery's croissants an orange card with a
+ * coffee cup, so the wizard leaves it out. */
+export function wizardOffers(preset: Pick<Preset, "design">): boolean {
+  return !isStyled((preset.design ?? {}) as DesignDoc);
+}
+
 /** The looks to offer for a trade: the catalog first, in the order `/admin`
  * put them, then built-ins to fill the row. Deduplicated by background —
  * a built-in that repeats a published card's colour is the same look twice. */
 export function looksFor(niche: Niche, presets: Preset[] | undefined): CardLook[] {
   const published = (presets ?? [])
-    .filter((p) => p.niche === niche)
+    .filter((p) => p.niche === niche && wizardOffers(p))
     .map((p) => presetLook(p, niche))
     .filter((look): look is CardLook => look !== null);
   const taken = new Set(published.map((l) => l.background.toLowerCase()));
