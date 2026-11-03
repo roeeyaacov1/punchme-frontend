@@ -21,6 +21,21 @@ describe("withTradeLook", () => {
     expect(patch).toEqual(lookPatch(barberFirst));
   });
 
+  it("passes over a catalog look built from the wallet's design options, which it can't draw", () => {
+    const styled = [
+      {
+        id: "cafe-bakery-croissants",
+        niche: "cafe",
+        name: "Bakery Card",
+        background_color: "#C65D3B",
+        stamps_required: 8,
+        design: { stamp: { glyph: "check", color: "#C65D3B", style: "icon", sticker: "croissant" } },
+      },
+    ] as unknown as Preset[];
+    expect(looksFor("cafe", styled)).toEqual(looksFor("cafe", []));
+    expect(withTradeLook(draftOf({ niche: "cafe" }), styled, DEFAULTS)).toEqual(lookPatch(cafeFirst));
+  });
+
   it("starts from the catalog's first look when the catalog has one", () => {
     const presets = [
       {

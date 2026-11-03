@@ -186,6 +186,18 @@ describe("resolveDraft", () => {
     expect(r.stampsRequired).toBe(10);
     expect(r.stamp).toEqual({ kind: "glyph", glyph: "dumbbell" });
   });
+  it("takes no default from a look built from the wallet's design options, even one put first", () => {
+    const styled = {
+      ...PRESETS.find((p) => p.niche === "cafe")!,
+      id: "cafe-bakery-croissants",
+      background_color: "#C65D3B",
+      stamps_required: 12,
+      design: { stamp: { style: "icon", sticker: "croissant" } },
+    };
+    const d = emptyDraft();
+    d.niche = "cafe";
+    expect(resolveDraft(d, [styled, ...PRESETS], t)).toEqual(resolveDraft(d, PRESETS, t));
+  });
 });
 
 describe("buildTemplateInput", () => {

@@ -19,6 +19,7 @@ import type { CardTemplateIn } from "../../api/businesses";
 import type { DesignDoc } from "../../api/designs";
 import type { Preset } from "../../api/presets";
 import type { CardPreviewValue } from "../../components/card-studio/CardPreviews";
+import { isStyled } from "../../components/card-studio/designOptions";
 import { derivedLabelColor, relatedAccents } from "../../lib/accentPalette";
 import { CARD_PATTERNS, type CardPattern } from "../../lib/cardPatterns";
 import { HEX_RE, normalizeHex, readableInk } from "../../lib/color";
@@ -263,7 +264,8 @@ export function resolveDraft(
   t: TFunction,
 ): ResolvedDraft {
   const niche: Niche = draft.niche ?? "other";
-  const preset = presets?.find((p) => p.niche === niche);
+  // A look the wizard can't draw (`wizardOffers`) sets none of its defaults.
+  const preset = presets?.find((p) => p.niche === niche && !isStyled((p.design ?? {}) as DesignDoc));
   const background =
     draft.background ?? normalizeHex(preset?.background_color ?? "") ?? FALLBACK.background;
   // A chosen accent is honoured as chosen (the colour step drops one that
@@ -337,7 +339,7 @@ export function buildTemplateInput(
   lang: string,
   t: TFunction,
 ): CardTemplateIn {
-  const preset = presets?.find((p) => p.niche === resolved.niche);
+  const preset = presets?.find((p) => p.niche === resolved.niche && !isStyled((p.design ?? {}) as DesignDoc));
   return {
     name: t(`onboarding.card.templateName.${resolved.niche}`, {
       defaultValue: preset?.name ?? "Loyalty Card",
