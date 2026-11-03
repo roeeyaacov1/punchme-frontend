@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { Wallet } from "lucide-react";
 import { AppleCardPreview, GoogleCardPreview } from "../../../components/card-studio/CardPreviews";
+import { designOptions, isStyled, picturesAt } from "../../../components/card-studio/designOptions";
 import { Button, LinkButton, LitPanel, SegmentedControl, Skeleton, WallpaperStage } from "../../../components/kit";
 import type { CardTemplate } from "../../../api/businesses";
-import { designImageUrls, type DesignDoc, type DesignOut } from "../../../api/designs";
+import { designImageUrls, getTemplateDesign, type DesignDoc, type DesignOut } from "../../../api/designs";
 import type { EnrollOut } from "../../../api/loyalty";
+import { useBusiness } from "../../../business/useBusiness";
 import { useWalletPass } from "../../../hooks/useWalletPass";
 
 type WalletKind = "apple" | "google";
@@ -44,6 +47,21 @@ export function OwnPass({
   const images = designImageUrls(design);
   const Preview = wallet === "apple" ? AppleCardPreview : GoogleCardPreview;
   const filled = preview?.stamp_count ?? 0;
+  // A card built from the wallet's design options (`isStyled`) is drawn by the
+  // wallet's own renderer, which the previews' stand-in grid can't mirror: its
+  // strip at the pass's own count, read once more for that count.
+  const { business } = useBusiness();
+  const businessId = business?.id ?? "";
+  const templateId = template.id ?? "";
+  const doc = (design?.design ?? {}) as DesignDoc;
+  const styled = !!design && isStyled(doc);
+  const drawnRead = useQuery({
+    queryKey: ["design", templateId, "state", filled],
+    queryFn: () => getTemplateDesign(businessId, templateId, filled),
+    enabled: styled && !!businessId && !!templateId,
+    staleTime: 60_000,
+  });
+  const drawn = styled && drawnRead.data ? picturesAt(drawnRead.data.images, filled) : undefined;
 
   return (
     <LitPanel as="section" aria-labelledby="own-pass-title" className={className}>
@@ -90,6 +108,9 @@ export function OwnPass({
                 appleLogoUrl={images.apple_logo}
                 stripBaseUrl={images.strip_base}
                 serial={preview?.card_serial}
+                stripStates={drawn?.strip ? { [filled]: drawn.strip } : undefined}
+                heroStates={drawn?.hero ? { [filled]: drawn.hero } : undefined}
+                logoText={designOptions(doc).logoText && !!design?.pictures.includes("logo")}
               />
             </WallpaperStage>
           ) : (
