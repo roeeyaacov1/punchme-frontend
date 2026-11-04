@@ -718,11 +718,12 @@ html.theme-lightbox {
    mounted under it, in the exit.
 
    The stamps are StampRow's: an empty one a ring of ink at 30%, a full one
-   ink, never coral. The row comes on by light. In a 2.8 s cycle from then,
+   ink, never coral. The row comes on by light. In a 4 s cycle from then,
    stamp i fills at i × 400 ms over the 240 ms lights-on, from the start of
-   the line (the right in Hebrew); all five hold until 2.4 s, go out
-   together over 240 ms and rest 160 ms, and the row fills again. At most
-   one change every 400 ms, on 22px dots, far under three a second. With
+   the line (the right in Hebrew), and from 2 s goes out in the same order
+   at the same pace, so the light moves along the row and never leaves it
+   all at once; after a 160 ms rest the row fills again. At most one change
+   every 400 ms, on 22px dots, far under three a second. With
    reduced motion the row and each stamp arrive in the 150 ms gentle fade,
    once, and the row then stays full. Opacity and transform only. */
 .opening {
@@ -773,7 +774,7 @@ html.theme-lightbox {
   border-radius: inherit;
   background-color: rgb(var(--c-ink));
   opacity: 0;
-  animation: 2800ms linear infinite both;
+  animation: 4000ms linear infinite both;
 }
 
 .opening-stamp:nth-child(1)::after {
@@ -801,20 +802,20 @@ html.theme-lightbox {
   animation-delay: calc(var(--opening-i) * 400ms);
 }
 
-/* The fill's keyframes, one per stamp, each starting on the ease-out. */
+/* The fill's keyframes, one per stamp, each change starting on the ease-out. */
 @keyframes opening-fill-1 {
   0% {
     opacity: 0;
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
-  8.571% {
+  6% {
     opacity: 1;
   }
-  85.714% {
+  50% {
     opacity: 1;
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
-  94.286%,
+  56%,
   100% {
     opacity: 0;
   }
@@ -822,18 +823,18 @@ html.theme-lightbox {
 
 @keyframes opening-fill-2 {
   0%,
-  14.286% {
+  10% {
     opacity: 0;
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
-  22.857% {
+  16% {
     opacity: 1;
   }
-  85.714% {
+  60% {
     opacity: 1;
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
-  94.286%,
+  66%,
   100% {
     opacity: 0;
   }
@@ -841,18 +842,18 @@ html.theme-lightbox {
 
 @keyframes opening-fill-3 {
   0%,
-  28.571% {
+  20% {
     opacity: 0;
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
-  37.143% {
+  26% {
     opacity: 1;
   }
-  85.714% {
+  70% {
     opacity: 1;
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
-  94.286%,
+  76%,
   100% {
     opacity: 0;
   }
@@ -860,18 +861,18 @@ html.theme-lightbox {
 
 @keyframes opening-fill-4 {
   0%,
-  42.857% {
+  30% {
     opacity: 0;
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
-  51.429% {
+  36% {
     opacity: 1;
   }
-  85.714% {
+  80% {
     opacity: 1;
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
-  94.286%,
+  86%,
   100% {
     opacity: 0;
   }
@@ -879,18 +880,18 @@ html.theme-lightbox {
 
 @keyframes opening-fill-5 {
   0%,
-  57.143% {
+  40% {
     opacity: 0;
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
-  65.714% {
+  46% {
     opacity: 1;
   }
-  85.714% {
+  90% {
     opacity: 1;
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
-  94.286%,
+  96%,
   100% {
     opacity: 0;
   }
