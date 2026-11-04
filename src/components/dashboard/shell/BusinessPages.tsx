@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../auth/useAuth";
 import { useBusiness } from "../../../business/useBusiness";
-import { Button, LitPanel, Loading, Skeleton } from "../../kit";
+import { Button, LitPanel } from "../../kit";
 import { useDashboardTheme } from "../../../theme/useDashboardTheme";
 
 /** Leaves for the sign-in page with nothing remembered: the next person to
@@ -17,19 +17,6 @@ function useSignOut() {
     logout();
     navigate("/login", { replace: true });
   };
-}
-
-/** While the business is on its way: the kit's status, with the sign's and
- * the name's places held. */
-export function BusinessLoading() {
-  return (
-    <Loading className="flex min-h-dvh items-center justify-center p-6">
-      <span className="flex items-center gap-3">
-        <Skeleton className="h-6 w-9 rounded-md" />
-        <Skeleton className="h-4 w-40" />
-      </span>
-    </Loading>
-  );
 }
 
 /**

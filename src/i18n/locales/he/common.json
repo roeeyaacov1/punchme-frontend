@@ -92,7 +92,6 @@
   "auth": {
     "error": "משהו השתבש בכניסה. נסו שוב.",
     "missingClientId": "חסר מזהה Google Client (VITE_GOOGLE_CLIENT_ID)",
-    "loadingSession": "טוען...",
     "emailLabel": "אימייל",
     "passwordLabel": "סיסמה",
     "signInCta": "כניסה",

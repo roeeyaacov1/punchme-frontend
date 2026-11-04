@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { Loading, Skeleton } from "../components/kit";
-import { BusinessLoading } from "../components/dashboard/shell/BusinessPages";
 import { column } from "../components/onboarding/column";
+import { Opening } from "../components/opening/Opening";
 import { TopBar } from "../components/onboarding/TopBar";
 import { useWideFrame, WideProvider } from "../components/onboarding/useWide";
 import { cn } from "../lib/cn";
@@ -11,15 +11,16 @@ import { cn } from "../lib/cn";
  * code: the router's `fallbackElement`, so a slow phone sees the frame it is
  * about to get rather than a blank page.
  *
- * - The dashboard: the same stand-in it shows while the business loads, on
- *   the ground `index.html`'s pre-paint script has already set.
+ * - The dashboard: the opening, the first of the waits before the shell, on
+ *   the ground `index.html`'s pre-paint script has already set. The router
+ *   shows this only as the page loads, so the wait began at the tap.
  * - The wizard: its own top bar on the wall, and the road, the card and the
  *   question still on their way.
  * - Admin and the checkout returns: the kit's loading line on the page.
  */
 export function RouteLoading() {
   const { pathname } = useLocation();
-  if (/^\/dashboard(\/|$)/.test(pathname)) return <BusinessLoading />;
+  if (/^\/dashboard(\/|$)/.test(pathname)) return <Opening fromLoad />;
   if (/^\/onboarding(\/|$)/.test(pathname)) return <WizardLoading />;
   return (
     <Loading className="flex min-h-dvh items-center justify-center bg-background p-6">
