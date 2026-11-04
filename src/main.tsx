@@ -13,6 +13,7 @@ import { RequireStaff } from "./auth/RequireStaff";
 import { BusinessProvider } from "./business/BusinessProvider";
 import { RequireBusiness } from "./business/RequireBusiness";
 import { BusinessLoading } from "./components/dashboard/shell/BusinessPages";
+import { OpeningLayer } from "./components/opening/Opening";
 import { RootLayout } from "./routes/root";
 import { RouteLoading } from "./routes/RouteLoading";
 import { DebugPresetsPage } from "./routes/debug-presets";
@@ -244,6 +245,9 @@ createRoot(document.getElementById("root")!).render(
       <AuthProvider>
         <RouterProvider router={router} fallbackElement={<RouteLoading />} />
       </AuthProvider>
+      {/* Beside the router rather than in it, so it outlives every wait
+          between the tap and the shell: the waits only hold it. */}
+      <OpeningLayer />
     </QueryClientProvider>
   </StrictMode>,
 );
