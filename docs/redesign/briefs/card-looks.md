@@ -485,7 +485,7 @@ passbox's work.
    - A message without `%@` gets " %@" added.
    - `program_in` always sends `stamps_change_message`.
    - A test covers an old design with an empty message.
-5. **The name on the pass under passbox** (needs Roee's yes, §10 question 2).
+5. **The name on the pass under passbox** (Roee's yes, 4 Nov, §10 question 2).
    `merchant_in` takes `design.organization_name` when the card's design sets
    one, else `business.name`. Then the Names tray's "שם העסק על הכרטיס" draws
    what it says.
@@ -495,8 +495,12 @@ passbox's work.
    - "כוסות לאטה" takes labels `#FFFFFF` (4.54:1 on `#9C6B4E`) or a darker
      card.
    - Their stamp alert messages already exist.
-7. **Not asked here:** a preview of a picture held for Save (§10 question 1).
-   It would change the design preview call.
+7. **A picture held for Save, drawn** (Roee's yes, 4 Nov, §10 question 1).
+   - The design preview takes the held picture as a data URL, at most
+     512px. The backend sends it to passbox as an asset no program uses yet,
+     draws with it, and keeps it nowhere.
+   - It changes the studio's preview call, so step B records the change in
+     `docs/dashboard-routes.md` when it wires it.
 
 Write a test for each, then run `ruff check`, `ruff format --check` and
 `makemigrations --check`. Open a PR and stop: Roee merges backend PRs
@@ -742,7 +746,8 @@ Google, the control stays, and its Google line says what Google does instead.
   The stage never shows a picture of a card that is neither the draft nor the
   saved one. Save stays available: the check and the save don't depend on the
   drawing.
-- **A held picture** keeps today's line until §10 question 1 is answered.
+- **A held picture** is drawn with the card once the backend's part lands
+  (§4.2, item 7). Until then it keeps today's line.
 - **Step C** owns how one picture replaces the last: no blank, no flash, no
   jump in height.
 
@@ -1052,7 +1057,8 @@ the catalog (`name_he`, `name`). Hebrew speaks in the plural, as everywhere.
 
 ### The backend's part (punchme-backend)
 
-Builds §4.2's items 1–4 and 6, and item 5 if Roee says yes. Tests for each:
+Builds §4.2's items 1–7. Tests for each, including a held picture drawn and
+kept nowhere:
 - a public endpoint's throttle and cache;
 - a drawing request with a text field refused;
 - an old design with an empty change message;
@@ -1094,13 +1100,12 @@ Builds §4.2's items 1–4 and 6, and item 5 if Roee says yes. Tests for each:
    reaches every customer (§3.3, case 4). The fix is a changed call: the
    design preview takes the held picture (a data URL, at most 512px). The
    backend sends it to passbox as an asset no program uses yet, and draws
-   with it. Recommendation: yes, in the backend's part, once Roee approves
-   the call. Until then the stage says what it says today.
+   with it. **Decided on 4 Nov: yes,** in the backend's part (§4.2, item
+   7). Until it lands, the stage says what it says today.
 2. **The name on the pass.** Under passbox "שם העסק על הכרטיס" draws
    nothing, and the business's name can't be changed after onboarding.
-   Recommendation: the backend sends `organization_name` when set (§4.2,
-   item 5). The other way is to hide the field and add a rename to a
-   business settings page later.
+   **Decided on 4 Nov:** the backend sends `organization_name` when it is
+   set (§4.2, item 5).
 3. **The business's phone.** passbox advises a contact on the back of every
    pass, and Apple asks for one (passbox GUIDE §5.1). The wizard fills a
    phone from Google Places when it can, but nothing lets an owner set or
@@ -1130,6 +1135,12 @@ to its prompt:
   entry is gone.
 
 These notes win where they differ from §4 to §9.
+
+Roee's answers to the review, also on 4 Nov:
+- he kept the six calls step A made itself (§5, "Decided in this brief");
+- he said yes to §10's questions 1 and 2, now §4.2's items 7 and 5;
+- PR #17 and PR #40 merge before step B, and `looks/studio` then moves onto
+  `main`.
 
 - **The text's ink** (§6.2). White or `#202024` can't always reach 4.5:1:
   - Mid-tones top out near 4.05:1. That includes `#7f7f7f`, a violet like

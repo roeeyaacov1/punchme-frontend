@@ -46,7 +46,7 @@ Taste stays on the landing page.
 | # | Question | Recommendation | Your answer |
 |---|---|---|---|
 | L1 | May `AppleCardPreview` show the count at the top as "6/8", and the name beside the logo (PR #40)? | Yes. The file is a spec match, and the iPhone showed both on 4 Nov (the input's §4). Step A asks it, with that evidence | **Yes (4 Nov), and the logo row left to right in Hebrew, as the iPhone draws it** (`briefs/card-looks.md` §5) |
-| L2 | Merge #17 and #40 before the looks are built, or with them? | Before step B, once L1 is yes and #40 passes the check on today's `main`. Neither shows anything until passbox production runs v0.1.1, and the looks then stand on `main`, to be reviewed on their own | |
+| L2 | Merge #17 and #40 before the looks are built, or with them? | Before step B, once L1 is yes and #40 passes the check on today's `main`. Neither shows anything until passbox production runs v0.1.1, and the looks then stand on `main`, to be reviewed on their own | **Before step B (4 Nov).** Roee merges #17, #40 is checked on today's `main` and merged on his word, then `looks/studio` moves onto `main` |
 | L3 | When does passbox production go to v0.1.1? | After `looks/studio` merges, so owners meet the looks and never #40's trays | |
 | L4 | Does Phase 10 wait? | Yes. Both would edit both locale files, and `/admin`'s `LookTile` | |
 
@@ -291,9 +291,9 @@ and at 200% text. Commit per part.
 
 ## Progress
 
-- [ ] L1–L4 answered (L1 yes, 4 Nov)
+- [ ] L1–L4 answered (L1 yes and L2 before step B, 4 Nov)
 - [x] Step A: the brief (4 Nov, `briefs/card-looks.md`; review notes in its §11)
-- [ ] The decisions step A made itself (its §5, "Decided in this brief") and its open questions 1 and 2
+- [x] The decisions step A made itself, kept, and its open questions 1 and 2, yes (4 Nov)
 - [ ] #17 and #40 merged
 - [ ] The studio: B · C · D · merged
 - [ ] The backend's part (if needed): PR · merged
