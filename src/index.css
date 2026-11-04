@@ -710,6 +710,191 @@ html.theme-lightbox {
   }
 }
 
+/* ── The opening ────────────────────────────────────────────────────────
+   Between the tap and the shell (src/components/opening): one layer over
+   everything on the ground <html> wears, and after 0.9 s a row of five
+   stamps at its centre. The layer gives way by fading off the shell that is
+   already mounted under it, in the exit.
+
+   The stamps are StampRow's: an empty one a ring of ink at 30%, a full one
+   ink, never coral. The row comes on by light. In a 2.8 s cycle from then,
+   stamp i fills at i × 400 ms over the 240 ms lights-on, from the start of
+   the line (the right in Hebrew); all five hold until 2.4 s, go out
+   together over 240 ms and rest 160 ms, and the row fills again. At most
+   one change every 400 ms, on 22px dots, far under three a second. With
+   reduced motion the row and each stamp arrive in the 150 ms gentle fade,
+   once, and the row then stays full. Opacity and transform only. */
+.opening {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background-color: rgb(var(--c-background));
+  pointer-events: none;
+}
+
+.opening[data-leaving] {
+  animation: gentle-out var(--duration-exit) var(--ease-out-strong) both;
+}
+
+.opening[data-leaving][data-reduced] {
+  animation: gentle-out var(--duration-gentle) ease-out both;
+}
+
+.opening-centre {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.opening-stamps {
+  display: flex;
+  gap: 0.75rem;
+  animation: lights-on var(--duration-lights) var(--ease-out-strong) both;
+}
+
+.opening[data-reduced] .opening-stamps {
+  animation: gentle-in var(--duration-gentle) ease-out both;
+}
+
+.opening-stamp {
+  position: relative;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 2px rgb(var(--c-ink) / 0.3);
+}
+
+.opening-stamp::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: rgb(var(--c-ink));
+  opacity: 0;
+  animation: 2800ms linear infinite both;
+}
+
+.opening-stamp:nth-child(1)::after {
+  animation-name: opening-fill-1;
+}
+
+.opening-stamp:nth-child(2)::after {
+  animation-name: opening-fill-2;
+}
+
+.opening-stamp:nth-child(3)::after {
+  animation-name: opening-fill-3;
+}
+
+.opening-stamp:nth-child(4)::after {
+  animation-name: opening-fill-4;
+}
+
+.opening-stamp:nth-child(5)::after {
+  animation-name: opening-fill-5;
+}
+
+.opening[data-reduced] .opening-stamp::after {
+  animation: gentle-in var(--duration-gentle) ease-out both;
+  animation-delay: calc(var(--opening-i) * 400ms);
+}
+
+/* The fill's keyframes, one per stamp, each starting on the ease-out. */
+@keyframes opening-fill-1 {
+  0% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  8.571% {
+    opacity: 1;
+  }
+  85.714% {
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  94.286%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes opening-fill-2 {
+  0%,
+  14.286% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  22.857% {
+    opacity: 1;
+  }
+  85.714% {
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  94.286%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes opening-fill-3 {
+  0%,
+  28.571% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  37.143% {
+    opacity: 1;
+  }
+  85.714% {
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  94.286%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes opening-fill-4 {
+  0%,
+  42.857% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  51.429% {
+    opacity: 1;
+  }
+  85.714% {
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  94.286%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes opening-fill-5 {
+  0%,
+  57.143% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  65.714% {
+    opacity: 1;
+  }
+  85.714% {
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  94.286%,
+  100% {
+    opacity: 0;
+  }
+}
+
 /* ── Lightbox type ──────────────────────────────────────────────────────
    Rubik 500 for display and the interface, Assistant for running text. The
    old `.t-*` classes stay for the pages still wearing them. Every class sets
