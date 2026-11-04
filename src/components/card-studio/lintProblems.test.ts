@@ -31,6 +31,22 @@ const ADVICE = [
   "design.fields: 2 header fields beside the logo text, the stamps included; the top of a store card fits 1, and more crowd the logo",
 ];
 
+// The rest of its warnings, in the words its lint.py writes them. They are
+// read by their words, so the paths here are only examples.
+const WARNINGS = [
+  "design.colors.foreground: text contrasts 2.4:1 with the background; below 3:1 it's hard to read",
+  "design.colors.label: labels contrast 2.1:1 with the background; below 3:1 they're hard to read",
+  "design.art.stamp_color: filled stamps contrast 1.9:1 with the panel; below 3:1 they blend in",
+  "name: Google Wallet shows about 20 characters of the program's name; this one has 26, so the phone may cut it off",
+  "merchant.name: the name is too long for the generated logo: it would be 9 pt tall; upload a logo or shorten the name",
+  "design.images.logo: logo is 600x200; Google Wallet shows the logo in a circle, so one that isn't square is drawn small inside it: upload a square logo",
+  "design.fields: 4 secondary and auxiliary fields besides the stamp card's own 1; an Apple store card shows 4 and hides the rest",
+  "design.art.wallpaper: the strip base covers the wallpaper",
+  "state.stamps: 9 stamps on a 8-stamp card; it shows as a full card",
+];
+const CONTACT =
+  "merchant.contact: the merchant has no contact details for the back of the pass; add a phone, WhatsApp, email, website or address";
+
 describe("readLint", () => {
   it("sets the pictures a save makes aside, saying nothing about them", () => {
     expect(readLint(PENDING)).toEqual({ pending: PENDING, fields: [], advice: [], other: [] });
@@ -38,6 +54,20 @@ describe("readLint", () => {
 
   it("reads the wallet's warnings about the design options as advice, not a problem", () => {
     expect(readLint(ADVICE)).toEqual({ pending: [], fields: [], advice: ADVICE, other: [] });
+  });
+
+  it("reads the wallet's other warnings as advice too: a colour, a name, the logo, the fields", () => {
+    expect(readLint(WARNINGS)).toEqual({ pending: [], fields: [], advice: WARNINGS, other: [] });
+  });
+
+  it("leaves the wallet's missing-contact warning unsaid: there is nowhere to add one", () => {
+    expect(readLint([CONTACT, ...ADVICE])).toEqual({ pending: [], fields: [], advice: ADVICE, other: [] });
+  });
+
+  it("keeps a wallet error a problem: a change message without its %@", () => {
+    const error =
+      "kind.stamps_change_message: a change message must contain %@, where Wallet shows the new value; a translation without it counts too";
+    expect(readLint([error]).other).toEqual([error]);
   });
 
   it("keeps a design option's other words a problem: only the warnings it knows are advice", () => {
