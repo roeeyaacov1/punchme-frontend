@@ -16,13 +16,14 @@ decided once. The build is two branches, one per page group.
 
 | What | Now |
 |---|---|
-| passbox | v0.1.1 runs on staging, checked on an iPhone and a Galaxy S25 on 4 Nov. Production is still v0.1.0, which refuses every option. Releasing it is your call |
-| Backend PR #17 (`wallet/design-options`) | Open. The design doc's new keys, the sticker list (for managers and up, and for staff), styled cards drawn by passbox, and twelve styled catalog looks seeded as drafts |
-| Frontend PR #40 (`studio/design-options`) | Open, on today's `main`. Every option is a control in the studio's trays and the catalog editor, hidden until the sticker list says passbox draws them. A styled card on the stage is passbox's picture |
-| The wizard | Leaves styled looks out: it can offer a look only as its colours |
-| Waiting on you | PR #40's change to `AppleCardPreview`, a spec-match file: the count at the top, "6/8", and the name beside the logo |
+| passbox | PunchMe production moved onto passbox on 4 Nov (backend PR #18). passbox's own log says PunchMe adopted v0.1.1 that day, so the options are probably live |
+| Backend PR #17 (`wallet/design-options`) | Merged and deployed, 4 Nov. The design doc's new keys, the sticker list (for managers and up, and for staff), styled cards drawn by passbox, and twelve styled catalog looks seeded as drafts |
+| Frontend PR #40 (`studio/design-options`) | Merged 4 Nov, on top of the opening (#42). Every option is a control in the studio's trays and the catalog editor, shown wherever the sticker list says passbox draws them |
+| The false "cards won't update" notice | Fixed on its own by PR #44, merged 4 Nov |
+| The wizard | Still leaves styled looks out: it can offer a look only as its colours |
 
-The input's §5 lists what #40 and #17 left open.
+Brought up to date on the evening of 4 Nov. The input's §5 lists what #40
+and #17 left open.
 
 ## How the skills fit
 
@@ -54,16 +55,14 @@ Step A asks the design decisions itself, with the options on a canvas.
 
 ## Order
 
-1. Step A: the brief, for the studio and the wizard together.
-2. Step B for the studio, on `looks/studio`, then C and D on it. If #40
-   has merged by then, `looks/studio` first moves onto `main`: until step
-   B its only commits are docs.
-3. The backend's part, in a punchme-backend session, if the brief needs
-   one for the wizard.
-4. Step B for the wizard, on `looks/onboarding`, then C and D on it.
-5. Merge #17, #40, `looks/studio`, the backend's part and
-   `looks/onboarding`, each checked on today's `main` first. Then passbox
-   production, then Phase 10.
+1. Step A: the brief, for the studio and the wizard together. Done 4 Nov.
+2. Side by side, in two sessions:
+   - step B for the studio, on `looks/studio`, then C and D on it;
+   - the backend's part, in a punchme-backend session.
+3. Step B for the wizard, on `looks/onboarding`, once the backend's PR runs
+   locally, then C and D on it.
+4. Publish the styled looks in `/admin` (the brief's §10, question 6).
+5. Merge each, checked on today's `main` first. Then Phase 10.
 
 Steps C and D use the guide's templates C and D (§7), with the notes at
 the end of this file.
@@ -187,30 +186,51 @@ Commit it on this branch and stop for my review.
 Run it in Plan mode.
 
 ```text
-Card looks, step B: the studio. Branch: looks/studio.
+Card looks, step B: the studio. Branch: looks/studio, which is today's main
+plus the plan's docs. Work in a worktree of your own outside the repo.
+Other sessions use the main checkout, so never switch its branch.
 
 Plan first. Before changing any file, show me the plan: the files you'll
 create or change, in what order, and anything in the brief you would do
 differently. Then wait for my go-ahead.
 
-Build the studio's part of docs/redesign/briefs/card-looks.md on PR #40's
-code, with the kit and DESIGN.md.
+Build the studio's part of docs/redesign/briefs/card-looks.md, with the kit
+and DESIGN.md: its §6, the copy in §8 and the list in §9. Its §11 review
+notes, and my answers there, win where they differ. PR #40's options and
+PR #44's reading of the server's check are already on main: build on them,
+and don't redo them.
 
 What you may change:
 - the editor files docs/card-studio.md marks open, DesignPage.tsx and the
   /admin catalog pages;
-- AppleCardPreview only as far as I agreed in the brief. Never change
-  GoogleCardPreview, StampGrid or PassBarcode;
-- src/api only as the brief agreed with me, and nothing in src/lib. Rules
-  of your own (what draws what, the colours one colour sets, the stickers'
-  groups) go in tested modules beside designOptions.ts.
+- AppleCardPreview, only as far as the brief records my yes (§5, row 8).
+  Never change GoogleCardPreview, StampGrid or PassBarcode;
+- src/api, only as the brief agreed with me. Nothing in src/lib: rules of
+  your own go in tested modules beside designOptions.ts. That covers what
+  draws what, the colours one colour sets, and the stickers' groups.
 
 What to keep:
-- every call /dashboard/design makes, PR #40's included;
+- every call /dashboard/design makes;
 - the 400 ms lint check, Save on its button, and data-tour="design-studio";
 - today's studio, exactly, while the sticker list says the options aren't
   there;
 - /admin/catalog/:id, checked after each change.
+
+Three parts wait for the backend's part, which another session builds:
+- the picture held for Save, drawn on the stage (§4.2, item 7);
+- the card's own name on the pass (item 5);
+- a published look's pictures in the catalog editor (item 1).
+Keep today's behaviour for these until that PR runs locally. Then wire each
+in a commit of its own.
+
+To see styled cards, stand up the stack in the brief's appendix, beside
+everything that is already running:
+- passbox at v0.1.1 (passbox-api f7eb03a), on 8002;
+- punchme-backend's origin/main, which has PR #17, on 8001. Build it from
+  git archive, not from its checkout, which the backend session uses;
+- copies of the databases.
+Never touch punchme-web or the shared databases. Keep Chrome's debug ports
+out of 9400–9999.
 
 Every string goes through t(), in en and he together, the stickers' names
 included. Bring docs/card-studio.md up to date as you go. Check in the
@@ -220,20 +240,46 @@ preview as a manager, in Hebrew and English, at 375px and 1280px and at
 
 ## The backend's part
 
-Only if the brief asks for one. Start the session in `../punchme-backend`.
+Start the session in `../punchme-backend`. It runs beside the studio's step B.
 
 ```text
-Card looks: the backend's part. Branch: from wallet/design-options
-(PR #17), or from main if it has merged.
+Card looks: the backend's part. Branch: wallet/card-looks, from main. PR
+#17 is merged and deployed.
 
-Build what docs/redesign/briefs/card-looks.md (in punchme-frontend, on
-branch looks/studio) lists under what the backend must add, and nothing
-else. A public endpoint gets the care /api/presets has: passbox's key
-never reaches the browser, its answers are cached, and it is throttled so
-one visitor can't run up passbox's work.
+Read the brief first: docs/redesign/briefs/card-looks.md in
+punchme-frontend. It is on the branch looks/studio, not on main:
+git -C ../punchme-frontend show looks/studio:docs/redesign/briefs/card-looks.md
+Its §4.2 is the list. Its §11 review notes, and my answers there, win where
+they differ.
 
-Write tests for each, then run ruff check, ruff format --check and
-makemigrations --check. Open a PR and stop: I merge backend PRs myself.
+Build §4.2's items 1–7, and nothing else:
+1. pictures of each published look, drawn once when it is published or
+   saved, and served with GET /api/presets;
+2. the sticker list, public;
+3. a public drawing of the wizard's draft, from enumerated values only: no
+   text and no pictures;
+4. every design keeps a stamp alert message;
+5. the card's own name on the pass (organization_name), my yes;
+6. the seeded looks. PR #17 is merged and deployed, so this is a data
+   migration that touches only looks still as seeded (unpublished and
+   unedited). It drops the check mark and fixes the latte look's labels;
+7. the picture held for Save, drawn by the design preview, my yes.
+
+A public endpoint gets the care /api/presets has:
+- passbox's key never reaches the browser;
+- its answers are cached;
+- it is throttled by the client's address, as the host's proxy passes it,
+  with a ceiling for all visitors together over that.
+Keep the OpenAPI schema exact: the frontend's types are generated from it.
+
+Open PRs #10 and #11 each add a businesses/0014 migration, as #17 did.
+Number yours after main's latest, and say in the PR what they will need.
+
+Write tests for each item. Then run the full suite, ruff check,
+ruff format --check and makemigrations --check. Never run two pytest
+sessions at once, since they share Redis, and never restart punchme-web.
+Say in the PR what deploying needs, and in what order. Open the PR and
+stop: I merge backend PRs myself.
 ```
 
 ## Step B: the wizard
