@@ -64,6 +64,11 @@ describe("readLint", () => {
     expect(readLint([CONTACT, ...ADVICE])).toEqual({ pending: [], fields: [], advice: ADVICE, other: [] });
   });
 
+  it("says a line once, however many times the server sends it", () => {
+    const twice = [...ADVICE, ADVICE[0], OTHER[4], OTHER[4]];
+    expect(readLint(twice)).toEqual({ pending: [], fields: [], advice: ADVICE, other: [OTHER[4]] });
+  });
+
   it("keeps a wallet error a problem: a change message without its %@", () => {
     const error =
       "kind.stamps_change_message: a change message must contain %@, where Wallet shows the new value; a translation without it counts too";

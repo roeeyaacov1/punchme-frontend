@@ -83,7 +83,9 @@ const INDEXED_FIELD = /^design\.fields\.(\d+)\b/;
 
 export function readLint(lint: readonly string[] | undefined): LintReading {
   const reading: LintReading = { pending: [], fields: [], advice: [], other: [] };
-  for (const text of lint ?? []) {
+  // A line the server sends twice says one thing once: the notices list
+  // their lines by their words.
+  for (const text of new Set(lint ?? [])) {
     if (PENDING.some((pattern) => pattern.test(text))) {
       reading.pending.push(text);
       continue;
