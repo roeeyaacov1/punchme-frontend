@@ -46,7 +46,7 @@ Taste stays on the landing page.
 | # | Question | Recommendation | Your answer |
 |---|---|---|---|
 | L1 | May `AppleCardPreview` show the count at the top as "6/8", and the name beside the logo (PR #40)? | Yes. The file is a spec match, and the iPhone showed both on 4 Nov (the input's §4). Step A asks it, with that evidence | **Yes (4 Nov), and the logo row left to right in Hebrew, as the iPhone draws it** (`briefs/card-looks.md` §5) |
-| L2 | Merge #17 and #40 before the looks are built, or with them? | Before step B, once L1 is yes and #40 passes the check on today's `main`. Neither shows anything until passbox production runs v0.1.1, and the looks then stand on `main`, to be reviewed on their own | **Before step B (4 Nov).** Roee merges #17, #40 is checked on today's `main` and merged on his word, then `looks/studio` moves onto `main` |
+| L2 | Merge #17 and #40 before the looks are built, or with them? | Before step B, once L1 is yes and #40 passes the check on today's `main`. The looks then stand on `main`, to be reviewed on their own. #40 changes one thing at once: the texture moves into a new "הרקע" panel. The rest waits until passbox production runs v0.1.1 (corrected after the check, 4 Nov) | **Before step B (4 Nov).** Roee merges #17. #40 was checked on today's `main` and merges as it is, "הרקע" included. Then `looks/studio` moves onto `main` |
 | L3 | When does passbox production go to v0.1.1? | After `looks/studio` merges, so owners meet the looks and never #40's trays | |
 | L4 | Does Phase 10 wait? | Yes. Both would edit both locale files, and `/admin`'s `LookTile` | |
 
