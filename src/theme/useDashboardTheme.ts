@@ -52,6 +52,18 @@ function systemPrefersDark(): boolean {
 }
 
 /**
+ * The frame's classes as the stored choice and the device stand right now,
+ * for what shows before the shell has mounted: the opening, which after a
+ * sign-in stands between the sign-in page and the shell while <html> wears
+ * neither's ground.
+ */
+export function frameNow(): string {
+  const mode = storedMode();
+  const dark = mode === "system" ? systemPrefersDark() : mode === "dark";
+  return dark ? `${FRAME_CLASS} ${NIGHT_CLASS}` : FRAME_CLASS;
+}
+
+/**
  * The frame's ground as a hex colour, read off the scope itself rather than
  * restated here, so the status bar can't drift from the palette: the wall
  * (#f6f2eb) by day and the street (#1f1916) at night.
