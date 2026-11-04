@@ -27,10 +27,29 @@
          the files then land one by one. Rubik, Assistant and Plex Mono each
          fall back first to stand-ins sized to match them
          (src/font-fallbacks.css), so the lines break in the same places
-         before and after and nothing below them moves. -->
+         before and after and nothing below them moves.
+
+         Nor does the stylesheet itself hold the page. As a plain stylesheet
+         it held the first paint, and the two scripts below, until Google
+         answered: on a first visit the page showed 0.17 s later, 2.2 s later
+         when the lookup was slow, and only after 21 s when Google couldn't
+         be reached (measured 4 Nov 2026). So it is
+         fetched at once, at a stylesheet's priority (the preload), and
+         applied only when it lands (media="print" until onload). Until then
+         the page is set in the stand-ins, as it is while the files are on
+         their way, so its landing moves nothing. The files are asked for when
+         text first lays out, and the stylesheet had landed by then on every
+         connection measured, so they arrive no later than before. -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Assistant:wght@400..700&family=IBM+Plex+Mono:wght@400;500&family=Roboto:wght@400;500&family=Rubik:wght@400..700&display=swap"
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Assistant:wght@400..700&family=IBM+Plex+Mono:wght@400;500&family=Roboto:wght@400;500&family=Rubik:wght@400..700&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.onload=null;this.media='all'"
     />
     <title>PunchMe — Digital Loyalty Cards</title>
 
