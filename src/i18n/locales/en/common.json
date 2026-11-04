@@ -1493,7 +1493,6 @@
       "message": "The message",
       "gift": "Gift",
       "who": "Who gets it",
-      "whoConsent": "The customers who agreed to messages when they joined.",
       "insert": "Add to the text",
       "giftStamps_one": "One stamp",
       "giftStamps_other": "{{count}} stamps",
