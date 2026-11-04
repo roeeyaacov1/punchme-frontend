@@ -1,4 +1,6 @@
 import { useEffect, useLayoutEffect, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { cn } from "../../lib/cn";
+import { frameNow } from "../../theme/useDashboardTheme";
 import { Loading, useReducedMotion } from "../kit";
 import { appearAt, createOpeningStore, leaveAt } from "./waits";
 
@@ -30,10 +32,12 @@ export function Opening({ fromLoad = false }: { fromLoad?: boolean }) {
 }
 
 /**
- * The opening: one layer over everything, mounted once beside the router,
- * on the ground <html> wears (Lightbox for the dashboard from the first
- * paint, by index.html's pre-paint script). Nothing until a wait holds it,
- * so the public pages never see it.
+ * The opening: one layer over everything, mounted once beside the router.
+ * It wears the dashboard's frame itself, Lightbox by day or at night, the
+ * ground <html> has from the first paint of a cold open (index.html's
+ * pre-paint script); after a sign-in <html> wears no ground until the shell
+ * mounts, so the layer can't lean on it. Nothing until a wait holds it, so
+ * the public pages never see it.
  *
  * For the first 0.9 s it is the ground alone; then a row of five stamps
  * comes on and fills one by one while the waits last (`waits.ts` has the
@@ -51,6 +55,7 @@ export function OpeningLayer() {
 
 function OpeningRun({ run, origin, overAt }: { run: number; origin: number; overAt: number | null }) {
   const reduced = useReducedMotion();
+  const [frame] = useState(frameNow);
   const [shownAt, setShownAt] = useState<number | null>(null);
   const [leaving, setLeaving] = useState(false);
 
@@ -77,7 +82,7 @@ function OpeningRun({ run, origin, overAt }: { run: number; origin: number; over
 
   return (
     <div
-      className="opening"
+      className={cn("opening", frame)}
       data-leaving={leaving || undefined}
       data-reduced={reduced || undefined}
       onAnimationEnd={(event) => {

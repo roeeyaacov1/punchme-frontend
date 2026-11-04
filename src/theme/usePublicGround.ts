@@ -12,11 +12,17 @@ const WALL = "#f6f2eb";
  * script has done the same before React mounts; this keeps it, and takes
  * both away again when the page goes, as `useDashboardTheme` does without
  * its night.
+ *
+ * A cold open of the dashboard at night can end on one of these pages (no
+ * session sends it to /login, no business to the wizard), with the
+ * pre-paint script's night still on <html>: it comes off here, or the
+ * overscroll and the scrollbars would be the street's.
  */
 export function usePublicGround() {
   useLayoutEffect(() => {
     const root = document.documentElement;
     root.classList.add("theme-lightbox");
+    root.classList.remove("theme-night");
     let meta = document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"][data-public]');
     if (!meta) {
       meta = document.createElement("meta");
