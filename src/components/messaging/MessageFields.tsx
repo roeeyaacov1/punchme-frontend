@@ -238,12 +238,11 @@ export function MessageFields({
         </FieldSection>
       )}
 
-      <FieldSection title={t("messaging.fields.who")}>
-        {/* Said, not chosen: every rule and broadcast reaches only the
-            customers who agreed to messages (2026-11-01), so there is no
-            switch to offer. */}
-        <p className="type-body text-ink-muted">{t("messaging.fields.whoConsent")}</p>
-        {templates && templates.length > 1 && (
+      {/* Joining needs the messages box ticked, so every customer agreed and
+          there is no audience to say or choose: the section is only the
+          card, when there is more than one. */}
+      {templates && templates.length > 1 && (
+        <FieldSection title={t("messaging.fields.who")}>
           <Select
             label={t("messaging.editor.scopeLabel")}
             value={value.template_id ?? ""}
@@ -258,8 +257,8 @@ export function MessageFields({
               </option>
             ))}
           </Select>
-        )}
-      </FieldSection>
+        </FieldSection>
+      )}
     </>
   );
 }
