@@ -1,5 +1,6 @@
 import { Link, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Opening } from "../components/opening/Opening";
 import { buttonClasses } from "../components/ui/Button";
 import { useAuth } from "./useAuth";
 
@@ -13,13 +14,7 @@ export function RequireStaff() {
   const { t } = useTranslation();
   const { user, isLoading } = useAuth();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-slate font-mono text-sm">
-        {t("auth.loadingSession")}
-      </div>
-    );
-  }
+  if (isLoading) return <Opening fromLoad />;
 
   if (!user?.is_staff) {
     return (

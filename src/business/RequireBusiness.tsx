@@ -1,9 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
-import {
-  BusinessLoadFailed,
-  BusinessLoading,
-  SessionEnded,
-} from "../components/dashboard/shell/BusinessPages";
+import { BusinessLoadFailed, SessionEnded } from "../components/dashboard/shell/BusinessPages";
+import { Opening } from "../components/opening/Opening";
 import { useBusiness } from "./useBusiness";
 
 /**
@@ -14,14 +11,14 @@ import { useBusiness } from "./useBusiness";
 export function RequireBusiness() {
   const { status } = useBusiness();
 
-  if (status === "loading") return <BusinessLoading />;
-  // The wizard loads on demand: its stand-in holds the screen while its code
+  if (status === "loading") return <Opening />;
+  // The wizard loads on demand: the opening holds the screen while its code
   // arrives, where the redirect alone would leave a blank page.
   if (status === "none") {
     return (
       <>
         <Navigate to="/onboarding" replace />
-        <BusinessLoading />
+        <Opening />
       </>
     );
   }

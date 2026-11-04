@@ -90,7 +90,6 @@
   "auth": {
     "error": "Something went wrong signing in. Please try again.",
     "missingClientId": "Missing Google Client ID (VITE_GOOGLE_CLIENT_ID)",
-    "loadingSession": "Loading...",
     "emailLabel": "Email",
     "passwordLabel": "Password",
     "signInCta": "Sign in",
