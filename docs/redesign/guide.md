@@ -1302,6 +1302,24 @@ It runs on `redesign/opening`, in one session, as three messages:
 3. Once it is in: `/review-animations the opening's motion on this
    branch`. Then ask the session to fix what it flagged, and commit.
 
+Messages 1 and 2 ran on 4 Nov. The measured opens, from the tap to the
+shell on the production build:
+
+| Open | First paint | Shell |
+|---|---|---|
+| Desk, local API, warm | 0.08 s | 0.25 s |
+| Desk, API 150 ms away, warm / cold | 0.08 s / 0.13–0.24 s | 0.75 s / 1.3 s |
+| Phone, Fast 4G, CPU ×4, warm / cold | 0.45 s / 0.59 s | 1.6 s / 2.1 s |
+| Phone, Slow 4G, CPU ×4, warm / cold | 1.26 s / 1.52 s | 3.9 s / 5.5 s |
+
+Of the three versions (the wordmark on a lit panel, a row of stamps, the
+shell's own frame) Roee picked the stamps. What was built is in DESIGN.md,
+"The opening", and the timings and why in `src/components/opening/waits.ts`.
+Still to come: message 3, the motion review. Left as they were: `/admin`'s
+old ground until Phase 10, the manifest's wall-coloured splash before a
+night open, and a cold first paint that waits on Google Fonts' stylesheet
+(a session of its own, from the same day).
+
 ```text
 /prototype the opening: what a signed-in owner sees between tapping
 PunchMe's icon and the dashboard. Three variants. Change no production
@@ -1487,7 +1505,7 @@ as it is.
 - [x] A label that wraps past two lines keeps a two-line pill's ends, where a full pill turned into an oval whose curve cut its first and last lines: the kit's buttons, chips, segments and badges, and the wallpaper stage's caption, whose lines are now centred (PRs #33 and #34, merged 1 Nov)
 - [x] Buttons whose words were wider than the room inside them at 200% text, which no corner could fix, keep their words clear of their sides: their sides, and their panel's, hold at their 100% widths on a phone (the team page's ready link's at any width, for the laptop's narrow column), an icon goes above words that can't stand beside it, and the billing step's labels stop growing at 9vw. That covers the referral settings' placeholder chips (by up to 90px; the row's indent goes where large text leaves it under 10rem), "Write a message", "Write a sample to yourself", the wizard billing step's "Not now, to the dashboard", "Copy link" and "Share", and the composer's send and its "Yes, send" (1 Nov)
 - [x] The wizard's two columns wait for room: from 1024px only while the screen is at least 58rem, so the step keeps the 30rem the one column gives it beside the card's 22rem, and until then every screen keeps the tablet's one column, its action docked and the map's parts in trays (`useWide.ts`). At 100% they start at 1024px as before; at 200% from 1856px, where the step had been left 160px at 1024 and 236px at 1100 and the billing step's words ran out of their boxes (1 Nov)
-- [ ] The opening: the screens a signed-in owner waits on while the app opens (§7, "After the phases")
+- [ ] The opening: the screens a signed-in owner waits on while the app opens (§7, "After the phases"): three versions (4 Nov) · the stamps built (4 Nov) · the motion review · merged
 - [ ] 200% text, still open:
   - `/style-guide`;
   - on a desk an open studio tray covers the rail;
