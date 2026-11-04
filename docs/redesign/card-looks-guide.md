@@ -291,8 +291,9 @@ and at 200% text. Commit per part.
 
 ## Progress
 
-- [ ] L1–L4 answered
-- [ ] Step A: the brief
+- [ ] L1–L4 answered (L1 yes, 4 Nov)
+- [x] Step A: the brief (4 Nov, `briefs/card-looks.md`; review notes in its §11)
+- [ ] The decisions step A made itself (its §5, "Decided in this brief") and its open questions 1 and 2
 - [ ] #17 and #40 merged
 - [ ] The studio: B · C · D · merged
 - [ ] The backend's part (if needed): PR · merged
