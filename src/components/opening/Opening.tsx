@@ -42,7 +42,8 @@ export function Opening({ fromLoad = false }: { fromLoad?: boolean }) {
  * For the first 0.9 s it is the ground alone; then a row of five stamps
  * comes on and fills one by one while the waits last (`waits.ts` has the
  * timings and why). When the last wait lets go, the shell is mounted under
- * it and the whole layer fades off it in the kit's exit. The stamps sit
+ * it: the layer goes at once if the stamps never showed, and otherwise the
+ * whole of it fades off the shell in the kit's exit. The stamps sit
  * inside the kit's `Loading`, mounted once and only when they appear, so a
  * screen reader hears "Loading" once, and only on an open slow enough to
  * show them.
@@ -66,12 +67,18 @@ function OpeningRun({ run, origin, overAt }: { run: number; origin: number; over
     return () => clearTimeout(id);
   }, [origin, overAt, shownAt]);
 
-  // Once the waits are over, the layer gives way: at once, or after its hold.
+  // Once the waits are over, the layer gives way. With nothing shown it is
+  // the ground alone over the same ground, so it goes at once: a fade there
+  // would only hold the commonest open's shell back. Stamps fade off the
+  // shell, after their hold.
   useEffect(() => {
     if (overAt === null || leaving) return;
-    const id = setTimeout(() => setLeaving(true), Math.max(0, leaveAt(overAt, shownAt) - performance.now()));
+    const id = setTimeout(
+      () => (shownAt === null ? opening.end(run) : setLeaving(true)),
+      Math.max(0, leaveAt(overAt, shownAt) - performance.now()),
+    );
     return () => clearTimeout(id);
-  }, [overAt, shownAt, leaving]);
+  }, [overAt, shownAt, leaving, run]);
 
   // Ends with its exit; the timer covers a tab whose animations are paused.
   useEffect(() => {
