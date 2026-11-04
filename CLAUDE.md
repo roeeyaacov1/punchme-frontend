@@ -220,7 +220,7 @@ Already in place and must survive any redesign: skip link, visible focus rings
 
 ## Verification
 
-There are **no component or render tests** — the 59 test files cover pure logic
+There are **no component or render tests** — the 61 test files cover pure logic
 only: the API client, the calculator, the onboarding draft and its road, the
 walk over the card's parts and the history its trays keep, the trades' looks,
 onboarding's failures said by cause, whether the device kept the draft, what
@@ -237,7 +237,8 @@ kind, a failed save or upload as a sentence, the kit's wallpaper and arrow
 keys, the kit's copy in both languages, the price the copy writes out, a
 refused sign-in in the page's language, the join's answers and which way its
 steps move, when the wallet wait stops, the name a public pass prints, which
-failures end a session and how the start-up check tries again, the tokens
+failures end a session and how the start-up check tries again, when the
+opening shows its stamps and when it is over, the tokens
 when storage can't be read, the theme's classes on `<html>`, the language a
 switch saves, and ten helpers in `src/lib`.
 The browser is the safety net, so use it.
