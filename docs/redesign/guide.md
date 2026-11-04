@@ -1514,6 +1514,7 @@ as it is.
   - on a desk an open studio tray covers the rail;
   - the admin header's email runs past a 375px screen;
   - the landing page's sample answer draws its own "Give the reward" pill, which crosses its outline by 2.3px in English at 320 and 375
+- [ ] The card's looks: passbox's design options, native in the studio and the wizard (`card-looks-guide.md`)
 - [ ] Phase 10, cleanup
 
 ---
