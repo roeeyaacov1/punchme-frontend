@@ -45,8 +45,8 @@ critique's two reviewers ran apart, each in its own Chrome:
 The worst cases came in through a fetch wrapper in the reviewer's own tab, so
 no code was changed for them.
 
-Read "In short" first. Sections 6 and 7 are what step B builds, and §10 holds
-what is still open.
+Read "In short" first. Sections 6 and 7 are what step B builds, §10 holds
+what is still open, and §11's review notes win where they differ.
 
 1. In short
 2. Today
@@ -58,6 +58,7 @@ what is still open.
 8. Copy
 9. What each step B keeps, touches and checks
 10. Open questions
+11. Review notes for step B
 - Appendix: the stack step A ran
 
 ---
@@ -1118,6 +1119,67 @@ Builds §4.2's items 1–4 and 6, and item 5 if Roee says yes. Tests for each:
 7. **Which picture a look's tile shows on a desktop.** Apple's strip unless
    the device is an Android, as `OwnPass` decides the wallet. Recommendation:
    the same rule; no switch on the looks screen.
+
+## 11. Review notes for step B
+
+Checked against the code, the contracts and the input on 4 Nov. Step A kept
+to its prompt:
+- no code changed;
+- every decision in §5 is Roee's, made on the canvas;
+- its stack is down: no container, image or database is left, and its launch
+  entry is gone.
+
+These notes win where they differ from §4 to §9.
+
+- **The text's ink** (§6.2). White or `#202024` can't always reach 4.5:1:
+  - Mid-tones top out near 4.05:1. That includes `#7f7f7f`, a violet like
+    `#7a6ff0` (4.14) and an orange like `#d35400` (4.17), all colours an
+    owner can type as their own.
+  - Between white and pure black, the better one never falls under 4.61:1.
+  - So the text takes `#202024` where it clears 4.5:1, then `#000000`, then
+    white. `brandColours.test.ts` covers the mid-tones.
+- **The ground and the stamps** (§6.2). Settle them in one order, not each
+  against the other:
+  - the ground first, from the card;
+  - then the stamps, against the ground when there is one.
+
+  Name the luminance that makes a card "dark", and test pale yellow, mid
+  grey, black and white. The stamp-on-ground warning (§6.4) judges only
+  stamps drawn in a colour: a glyph, or a tinted sticker or picture. An
+  untinted sticker or photo keeps its own colours (the input's §2).
+- **"Only a new stamp alerts"** (§6.9, `studio.saved`). The alert message is
+  the iPhone's (the input's §3). The phones showed design changes arriving
+  quietly on both, then "the next stamp alerted as usual" (§4). Confirm that
+  a stamp alerts on the S25 before the toast says it of every phone. Until
+  then, it says the update is quiet and stops there.
+- **The contact advice** (§6.8). It asks for a phone that nothing lets an
+  owner add (§10, question 3). Leave `merchant.contact` out of what the
+  studio shows until there is a place to add one. Read it as advice, never
+  as "cards won't update".
+- **That false notice isn't PR #40's alone.** `readLint` on `main` reads
+  every passbox warning it doesn't know as blocking, so any backend on
+  passbox shows it. Fix it in step B's first commit.
+- **The look screen's lead** (§7.3, §8). "מראות ל{{trade}}" over
+  `onboarding.business.niches.*` gives "מראות לאחר" and "Looks for a Other",
+  and the trainer's and the therapist's names are slash forms. It takes a
+  phrase of its own per trade, as `cardControls.sticker.trade.*` does:
+  "לכל עסק", "for any business".
+- **The draft's fields** (§7.5):
+  - There is no `colours` object. `background`, `accent` and `foreground`
+    are top-level, so the ground is a new top-level `panel`.
+  - `punchme.onboardingDraft.art` holds one `StoredArt` (`{hash,
+    dataUrl}`), so the logo takes a key of its own,
+    `punchme.onboardingDraft.logo`, cleared at the same four points.
+  - The logo is scaled down before it is kept, as the stamp's picture is,
+    and a logo that can't be kept is said like a lost picture.
+- **The public drawing** (§4.2, item 3). Free hex colours make most bodies
+  a cache miss, so the throttle is the real guard:
+  - it reads the client's address as the host's proxy passes it, not the
+    proxy's own;
+  - a ceiling for all visitors together sits over the per-address one.
+- **The seeded looks' check marks** (§4.2, item 6). While PR #17 is
+  unmerged, edit its `preset_data/styled/*.json` instead of adding a data
+  migration.
 
 ## Appendix: the stack step A ran
 
