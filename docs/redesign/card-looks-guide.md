@@ -240,11 +240,16 @@ preview as a manager, in Hebrew and English, at 375px and 1280px and at
 
 ## The backend's part
 
-Start the session in `../punchme-backend`. It runs beside the studio's step B.
+Start the session in `../punchme-backend`, in Plan mode. It runs beside the
+studio's step B.
 
 ```text
 Card looks: the backend's part. Branch: wallet/card-looks, from main. PR
 #17 is merged and deployed.
+
+Plan first. Before changing any file, show me the plan: the endpoints, the
+models and migrations, the throttles and caches, in what order, and
+anything in the brief you would do differently. Then wait for my go-ahead.
 
 Read the brief first: docs/redesign/briefs/card-looks.md in
 punchme-frontend. It is on the branch looks/studio, not on main:
