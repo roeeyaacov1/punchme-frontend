@@ -54,8 +54,9 @@
       `display` from the manifest and are unaffected either way.
     -->
     <!-- The colour of the phone's status bar behind the app. The dashboard
-         is a user choice, not just a system one, so useDashboardTheme
-         overrides this with a meta of its own while it is mounted. -->
+         is a user choice, not just a system one, so it has a meta of its own
+         ahead of these two: put in by the pre-paint script below, and kept
+         by useDashboardTheme while it is mounted. -->
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f0f23" />
     <script>
@@ -78,11 +79,15 @@
          a white page flashing first on a hard load. So the ground is decided
          here, before the first paint, from the same key and the same class
          names src/theme/useDashboardTheme.ts uses — keep the two in step.
-         /billing counts as the dashboard, since it only forwards there (it
-         is where Stripe's portal sends the owner back). The two pages
-         Stripe's checkout returns to stand outside the shell, on Lightbox,
-         at night when the dashboard is. The public pages, the reading pages
-         (/contact, /privacy and /terms) and the wizard stand on Lightbox by
+         The dashboard stands on Lightbox from its first paint, at night when
+         it is dark, so the waits before the shell and then the shell come up
+         on the ground they keep, with the status bar in it too: the meta
+         marked data-dashboard, which useDashboardTheme takes over once it
+         mounts. /billing counts as the dashboard, since it only
+         forwards there (it is where Stripe's portal sends the owner back),
+         and so do the two pages Stripe's checkout returns to, which stand
+         outside the shell on the same ground. The public pages, the reading
+         pages (/contact, /privacy and /terms) and the wizard stand on Lightbox by
          day only, with the wall as the status bar's colour, which
          src/theme/usePublicGround.ts keeps once they mount (it reuses the
          meta marked data-public). Every other route is light and gets
@@ -121,9 +126,14 @@
           (mode !== "light" &&
             window.matchMedia("(prefers-color-scheme: dark)").matches);
         var root = document.documentElement;
-        if (shell) root.classList.add("theme-purple", "theme-raised");
-        else root.classList.add("theme-lightbox");
+        root.classList.add("theme-lightbox");
         if (dark) root.classList.add("theme-night");
+        // The wall or the street, as --c-background has them.
+        var bar = document.createElement("meta");
+        bar.name = "theme-color";
+        bar.content = dark ? "#1f1916" : "#f6f2eb";
+        bar.setAttribute("data-dashboard", "");
+        document.head.insertBefore(bar, document.querySelector('meta[name="theme-color"]'));
       })();
     </script>
   </head>

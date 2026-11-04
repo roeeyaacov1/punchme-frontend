@@ -10,14 +10,15 @@ import { useCallback, useEffect, useLayoutEffect, useState } from "react";
  *
  * Two scopes, while the redesign moves the dashboard over a phase at a time:
  *
- * - **`<html>` keeps the old one**, `theme-purple theme-raised`, plus
- *   `theme-night` after dark. `color-scheme` has to be there for the native
- *   selects, scrollbars and the caret to agree with the page, and the ground
- *   has to be there or a short page shows white under the iOS bounce. Every
- *   page still waiting for its phase renders exactly as it did; a page that
- *   has moved claims Lightbox for <html> instead (`lightboxPage.ts`). The
- *   classes are removed on unmount, which is what keeps the landing page
- *   light after the owner signs out.
+ * - **`<html>` wears Lightbox** for the shell and the pages in front of it
+ *   (`lightbox: true`), plus `theme-night` after dark, as index.html's
+ *   pre-paint script has it before React mounts. `color-scheme` has to be
+ *   there for the native selects, scrollbars and the caret to agree with the
+ *   page, and the ground has to be there or a short page shows white under
+ *   the iOS bounce. Without `lightbox` it keeps the old pair,
+ *   `theme-purple theme-raised`, which nothing asks for now; Phase 10
+ *   deletes it. The classes are removed on unmount, which is what keeps the
+ *   landing page light after the owner signs out.
  * - **The frame wears Lightbox on its own elements**: the masthead, the bar,
  *   the rails, the sheets, the toasts and the tour each carry `frame`. The
  *   night rule is a compound class, so `theme-night` goes on the same element
@@ -78,11 +79,8 @@ export interface DashboardTheme {
 
 /**
  * What <html> wears, each class on or off: one scope, Lightbox or the old
- * pair, with night beside it after dark. Off matters as much as on. On a
- * cold load of the dashboard the pre-paint script in index.html has already
- * put the old pair there, and a page that claims Lightbox from its first
- * render (the failure pages in front of the shell) has to take it off, or
- * the two scopes stack and the old one's ground wins.
+ * pair, with night beside it after dark. Off matters as much as on: the two
+ * scopes must never stack, or the old one's ground wins.
  */
 export function rootClasses({ lightbox, isDark }: { lightbox: boolean; isDark: boolean }): Record<string, boolean> {
   return {
@@ -93,9 +91,9 @@ export function rootClasses({ lightbox, isDark }: { lightbox: boolean; isDark: b
 }
 
 /**
- * `lightbox`: a page that has moved to Lightbox is on screen (see
- * `lightboxPage.ts`), so <html> wears `theme-lightbox` in place of the old
- * pair, with `theme-night` beside it after dark as before.
+ * `lightbox`: <html> wears `theme-lightbox` in place of the old pair, with
+ * `theme-night` beside it after dark as before. The shell and every page in
+ * front of it ask for it.
  */
 export function useDashboardTheme({ lightbox = false }: { lightbox?: boolean } = {}): DashboardTheme {
   const [mode, setModeState] = useState<ThemeMode>(storedMode);
@@ -125,14 +123,14 @@ export function useDashboardTheme({ lightbox = false }: { lightbox?: boolean } =
     // Installed on a phone, the dashboard owns the status bar behind it, and
     // index.html's `theme-color` metas can only answer to the *system*
     // scheme — they cannot see an explicit choice stored here. So a meta of
-    // our own goes in while this is mounted, and is taken away again on
-    // unmount so the landing page goes back to following the device.
+    // our own is kept while this is mounted (on a cold load the pre-paint
+    // script has put it in already), and is taken away again on unmount so
+    // the landing page goes back to following the device.
     //
     // It goes in ahead of index.html's two, not after them: a page's theme
     // colour is the first matching meta, and one of those two always
     // matches. And it follows the frame — the masthead and the bar the
-    // status bar sits against — rather than <html>, which keeps the old
-    // ground until the pages move.
+    // status bar sits against — the ground <html> wears too.
     let meta = document.querySelector<HTMLMetaElement>(
       'meta[name="theme-color"][data-dashboard]',
     );

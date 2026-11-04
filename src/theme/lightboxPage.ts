@@ -14,6 +14,10 @@ import { createContext, useContext, useLayoutEffect } from "react";
  * with no page behind it, and the page that failed. Phases 3 to 7 add their
  * pages one by one; Phase 10 makes Lightbox the default and deletes this
  * with the old scopes.
+ *
+ * Every page has moved now, and the shell puts Lightbox on <html> itself,
+ * from its first render, so nothing provides a claim any more
+ * and the pages' calls change nothing. Phase 10 deletes them with this.
  */
 export const LightboxClaim = createContext<(() => () => void) | null>(null);
 
