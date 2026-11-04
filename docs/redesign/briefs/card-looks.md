@@ -1186,8 +1186,15 @@ Roee's answers to the review, also on 4 Nov:
 - **That false notice isn't PR #40's alone.** `readLint` on `main` reads
   every passbox warning it doesn't know as blocking, so any backend on
   passbox shows it. Production has run on passbox since 4 Nov (backend PR
-  #18), so owners can meet it now. Fix it on its own, ahead of step B,
-  unless step B's first commit lands first.
+  #18), so owners could meet it. **Fixed on its own by PR #44** (merged 4
+  Nov):
+  - every warning in passbox's `lint.py` reads as advice, by its words;
+  - the missing contact goes unsaid;
+  - a repeated line is said once;
+  - passbox's errors and unknown lines stay a problem.
+
+  Two things are still open. The backend could send each line's level
+  (§4.2), and "preview unavailable" still reads as a problem (§6.6).
 - **The look screen's lead** (§7.3, §8). "מראות ל{{trade}}" over
   `onboarding.business.niches.*` gives "מראות לאחר" and "Looks for a Other",
   and the trainer's and the therapist's names are slash forms. It takes a

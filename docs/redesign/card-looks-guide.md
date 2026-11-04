@@ -295,6 +295,7 @@ and at 200% text. Commit per part.
 - [x] Step A: the brief (4 Nov, `briefs/card-looks.md`; review notes in its §11)
 - [x] The decisions step A made itself, kept, and its open questions 1 and 2, yes (4 Nov)
 - [x] #17 and #40 merged (4 Nov). #40 went in on top of the opening (#42). Today's `main` builds, lints and passes its 792 tests, and every key resolves
+- [x] The false "cards won't update" notice, fixed on its own: PR #44, merged 4 Nov
 - [ ] The studio: B · C · D · merged
 - [ ] The backend's part (if needed): PR · merged
 - [ ] The wizard: B · C · D · merged
