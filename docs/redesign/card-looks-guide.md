@@ -294,7 +294,7 @@ and at 200% text. Commit per part.
 - [ ] L1–L4 answered (L1 yes and L2 before step B, 4 Nov)
 - [x] Step A: the brief (4 Nov, `briefs/card-looks.md`; review notes in its §11)
 - [x] The decisions step A made itself, kept, and its open questions 1 and 2, yes (4 Nov)
-- [ ] #17 and #40 merged
+- [x] #17 and #40 merged (4 Nov). #40 went in on top of the opening (#42). Today's `main` builds, lints and passes its 792 tests, and every key resolves
 - [ ] The studio: B · C · D · merged
 - [ ] The backend's part (if needed): PR · merged
 - [ ] The wizard: B · C · D · merged
