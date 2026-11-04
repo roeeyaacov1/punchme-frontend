@@ -1185,7 +1185,9 @@ Roee's answers to the review, also on 4 Nov:
   as "cards won't update".
 - **That false notice isn't PR #40's alone.** `readLint` on `main` reads
   every passbox warning it doesn't know as blocking, so any backend on
-  passbox shows it. Fix it in step B's first commit.
+  passbox shows it. Production has run on passbox since 4 Nov (backend PR
+  #18), so owners can meet it now. Fix it on its own, ahead of step B,
+  unless step B's first commit lands first.
 - **The look screen's lead** (§7.3, §8). "מראות ל{{trade}}" over
   `onboarding.business.niches.*` gives "מראות לאחר" and "Looks for a Other",
   and the trainer's and the therapist's names are slash forms. It takes a
