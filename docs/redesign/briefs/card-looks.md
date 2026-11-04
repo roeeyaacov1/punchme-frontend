@@ -1142,6 +1142,22 @@ Roee's answers to the review, also on 4 Nov:
 - PR #17 and PR #40 merge before step B, and `looks/studio` then moves onto
   `main`.
 
+**PR #40, checked on `main` the same day.** It sits directly on `main`
+`a9115aa`.
+- Build, lint (the same 8 warnings) and its 778 tests pass, and every key
+  resolves in both locales.
+- With the options off, beside `main` in one Chrome (he/en; 320, 375, 768
+  and 1280; 100% and 200% text):
+  - the Overview and Messages are the same box for box;
+  - at 200% no page is wider and nothing spills;
+  - every studio state differs by one thing only: the "הרקע" chip, or tab,
+    whose panel holds the texture, which leaves the stamp tray.
+
+  That is §6.1's studio while the options are off, so Roee merges it as it
+  is. In English the chips wrap one line more on a phone.
+- The studio reads the sticker list on every visit. Until the backend has
+  PR #17, that read is a 404 in the console, so the backend goes live first.
+
 - **The text's ink** (§6.2). White or `#202024` can't always reach 4.5:1:
   - Mid-tones top out near 4.05:1. That includes `#7f7f7f`, a violet like
     `#7a6ff0` (4.14) and an orange like `#d35400` (4.17), all colours an
