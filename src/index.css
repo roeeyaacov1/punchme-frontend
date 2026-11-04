@@ -712,9 +712,10 @@ html.theme-lightbox {
 
 /* ── The opening ────────────────────────────────────────────────────────
    Between the tap and the shell (src/components/opening): one layer over
-   everything on the ground <html> wears, and after 0.9 s a row of five
-   stamps at its centre. The layer gives way by fading off the shell that is
-   already mounted under it, in the exit.
+   everything on the dashboard's ground, and after 0.9 s a row of five
+   stamps at its centre. If nothing showed, the layer goes at once; once the
+   stamps have shown, it gives way by fading off the shell that is already
+   mounted under it, in the exit.
 
    The stamps are StampRow's: an empty one a ring of ink at 30%, a full one
    ink, never coral. The row comes on by light. In a 2.8 s cycle from then,
