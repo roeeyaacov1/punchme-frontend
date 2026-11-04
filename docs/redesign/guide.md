@@ -1275,6 +1275,109 @@ Build one section at a time, check each in Hebrew and English at 375px and
   - a negative calculator result;
   - Lighthouse on a phone profile.
 
+### After the phases: the opening
+
+What a signed-in owner sees while the app opens never moved to Lightbox.
+Its middle sits in `src/auth`, which CLAUDE.md froze for the redesign, and
+its first paint still wears the old scope. Found 4 Nov 2026. A cold open of
+`/dashboard` with a stored session can pass through four waits, each drawn
+differently:
+
+| Wait | What shows | Where |
+|---|---|---|
+| The first paint | The old scope's ground: a cool white (`#f5f6fe`) by day, `#0f0f23` at night. The manifest's splash before it is the wall (`#f6f2eb`), and the shell after it is the wall or the street (`#1f1916`) | `index.html`'s pre-paint script |
+| The dashboard's code arriving | Two skeleton bars | `RouteLoading`, which shows `BusinessLoading` |
+| The start-up check, up to 4 s | "Loading..." in IBM Plex Mono, which has no Hebrew | `src/auth/ProtectedRoute.tsx`, and `RequireStaff.tsx` for `/admin` |
+| The business being read | The two skeleton bars again | `RequireBusiness`, which shows `BusinessLoading` |
+
+It takes one slice of Phase 10: the shell's first paint moves to Lightbox.
+
+It runs on `redesign/opening`, in one session, as three messages:
+
+1. The prompt below. It builds three versions on a temporary route and
+   stops. Motion can't be judged on a still canvas, so this uses Emil's
+   `/prototype`, which only runs when a message starts with it.
+2. After flipping through them: `/prototype keep [the one you picked]`, or
+   `/prototype riff [the closest]` for another round.
+3. Once it is in: `/review-animations the opening's motion on this
+   branch`. Then ask the session to fix what it flagged, and commit.
+
+```text
+/prototype the opening: what a signed-in owner sees between tapping
+PunchMe's icon and the dashboard. Three variants. Change no production
+code until I pick one.
+
+Branch: redesign/opening, made for this from main.
+
+Why: every page moved to Lightbox, but the opening didn't. Its middle sits
+in src/auth, which the redesign left alone, and its first paint still
+wears the old scope. A cold open of /dashboard with a stored session can
+pass through four waits, each drawn differently:
+- The first paint: index.html's pre-paint script still puts the old scope
+  on <html> for the shell, a cool white by day and #0f0f23 at night. The
+  manifest's splash is the wall (#f6f2eb), and the shell is the wall or
+  the street (#1f1916).
+- The dashboard's code arriving: RouteLoading, which shows BusinessLoading.
+- The start-up check, up to 4 s: ProtectedRoute's "Loading..." in IBM Plex
+  Mono, which has no Hebrew.
+- The business being read: BusinessLoading again.
+Measure it first: a cold open of /dashboard in Hebrew and English, by day
+and at night, on a desk and on a throttled phone (Slow 4G, CPU ×4), frame
+by frame. Note how long each wait really takes.
+
+The aim: one calm moment, like the shop's sign coming on, from the first
+paint to the shell.
+- A fast open shows no loader, only the right ground. Choose how long to
+  wait before anything appears, and how long it stays once it has, from
+  what you measured.
+- It never restarts or jumps between the waits, and gives way to the
+  shell without a flash.
+- Every frame, from the first paint on, stands on the ground the shell
+  will have.
+
+Make each variant a different answer, with an axis of its own: for
+example, the wordmark on a lit panel that comes on; a row of stamps
+lighting one by one; the ground alone, with one slow light. The harness at
+/prototypes/opening plays each one from the first paint to the shell, with
+waits of 0.3 s, 1 s and 3.5 s, and switches between day and night, Hebrew
+and English, and reduced motion.
+
+Lightbox's rules (DESIGN.md):
+- Light comes from lit panels: no glows, halos, neon or gradient text.
+  Coral is a fill, never text.
+- Use the curves and timings in its Motion section. Under reduced motion,
+  gentler, not none: a 150 ms fade, no travel.
+- Nothing flashes more than three times a second.
+- A sequence that moves across runs from the right in Hebrew.
+- Don't reuse ShopSign's sign-catch: that moment means a card went live.
+- The logo isn't decided yet (DesktopRail.tsx): use today's wordmark, and
+  don't redraw it.
+- CSS only, transform and opacity, no new dependency. Nothing it shows
+  arrives late: no font or picture popping in.
+
+Then show me the table, and tell me which you would pick and why, judged
+by how often an owner opens the app.
+
+When I pick one, show me the plan before you integrate it, and wait for my
+go-ahead:
+- One component for every wait: RouteLoading's dashboard branch,
+  ProtectedRoute's check, RequireBusiness, and RequireStaff for /admin.
+  You may change what ProtectedRoute and RequireStaff render while the
+  session is checked, and nothing else in src/auth: not the check, its
+  4 s or its states.
+- The ground: index.html's pre-paint script and useDashboardTheme put
+  Lightbox on <html> for the shell, and the status bar's colour matches.
+- It is the kit's Loading: a screen reader hears "Loading" once, and only
+  if the loader appears.
+- Any words go through t(), in en and he together, and never in Plex Mono.
+Then verify per CLAUDE.md:
+- build, lint and tests;
+- Hebrew and English, at 375px and 1280px, by day and at night;
+- a clean console, the keyboard path, and reduced motion;
+- a cold open, frame by frame, once more.
+Commit in scoped steps, and don't merge.
+```
+
 ---
 
 ## 8. Phase 10: cleanup
@@ -1384,6 +1487,7 @@ as it is.
 - [x] A label that wraps past two lines keeps a two-line pill's ends, where a full pill turned into an oval whose curve cut its first and last lines: the kit's buttons, chips, segments and badges, and the wallpaper stage's caption, whose lines are now centred (PRs #33 and #34, merged 1 Nov)
 - [x] Buttons whose words were wider than the room inside them at 200% text, which no corner could fix, keep their words clear of their sides: their sides, and their panel's, hold at their 100% widths on a phone (the team page's ready link's at any width, for the laptop's narrow column), an icon goes above words that can't stand beside it, and the billing step's labels stop growing at 9vw. That covers the referral settings' placeholder chips (by up to 90px; the row's indent goes where large text leaves it under 10rem), "Write a message", "Write a sample to yourself", the wizard billing step's "Not now, to the dashboard", "Copy link" and "Share", and the composer's send and its "Yes, send" (1 Nov)
 - [x] The wizard's two columns wait for room: from 1024px only while the screen is at least 58rem, so the step keeps the 30rem the one column gives it beside the card's 22rem, and until then every screen keeps the tablet's one column, its action docked and the map's parts in trays (`useWide.ts`). At 100% they start at 1024px as before; at 200% from 1856px, where the step had been left 160px at 1024 and 236px at 1100 and the billing step's words ran out of their boxes (1 Nov)
+- [ ] The opening: the screens a signed-in owner waits on while the app opens (§7, "After the phases")
 - [ ] 200% text, still open:
   - `/style-guide`;
   - on a desk an open studio tray covers the rail;
