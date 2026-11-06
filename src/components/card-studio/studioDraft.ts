@@ -63,6 +63,29 @@ export const TEXT_LIMITS = {
   catalogDescription: 200,
 } as const;
 
+/** The stamps field's message on a change in each card language: an iPhone
+ * alerts on a new stamp only for a field with one, so every design keeps one
+ * (Roee, 4 Nov). `%@` is the new count. The backend's own
+ * (`apps/wallet/design.py`, `STAMPS_CHANGE_MESSAGES`). */
+export const STAMPS_CHANGE_MESSAGES = {
+  HE: "עודכנו החותמות שלך: %@",
+  EN: "Your stamps were updated: %@",
+} as const;
+
+export const VALUE_PLACEHOLDER = "%@";
+
+/** The stamps field's message as the pass will carry it, as the backend reads
+ * it (`stamps_change_message`): the card language's default for an empty one,
+ * and " %@" added to one without it, cut to fit. */
+export function stampsChangeMessage(message: string | undefined, language: string | undefined): string {
+  if (!(message ?? "").trim()) {
+    return STAMPS_CHANGE_MESSAGES[language === "EN" ? "EN" : "HE"];
+  }
+  if (message!.includes(VALUE_PLACEHOLDER)) return message!;
+  const room = TEXT_LIMITS.changeMessage - VALUE_PLACEHOLDER.length - 1;
+  return `${message!.slice(0, room).trimEnd()} ${VALUE_PLACEHOLDER}`;
+}
+
 /** The API refuses a card without a name, and one of spaces is none. */
 export function nameMissing(value: CardStudioValue): boolean {
   return !value.name.trim();

@@ -207,6 +207,116 @@ export function studioStickers(read: {
   return { list: [], status: read.isError ? "unavailable" : "loading", available: false };
 }
 
+/**
+ * How the studio stands toward the options (brief §6.1, §6.7):
+ * - `options`: the list says the wallet draws them, and the trays offer them;
+ * - `outage`: the list can't be read, and the card already uses them, so the
+ *   trays say what it has and offer nothing that would drop it unasked;
+ * - `plain`: today's studio, exactly.
+ */
+export type StudioMode = "options" | "outage" | "plain";
+
+export function studioMode(stickers: StudioStickers, design: DesignDoc): StudioMode {
+  if (stickers.available) return "options";
+  if (stickers.status === "unavailable" && isStyled(design)) return "outage";
+  return "plain";
+}
+
+/**
+ * What draws nothing gets out of the way (§6.7), one rule each.
+ *
+ * The tint ("בצבע הכרטיס") shades a sticker or a picture; the glyph is drawn
+ * in the stamp colour already.
+ */
+export function tintShows(design: DesignDoc, pictureInUse: boolean): boolean {
+  return !!designOptions(design).sticker || pictureInUse;
+}
+
+/** The tint as its switch shows it: the wallet draws it only on a stamp on
+ * its own, so on a stamp in a circle it is off, though the doc keeps it for a
+ * switch back. */
+export function tintDrawn(design: DesignDoc): boolean {
+  const options = designOptions(design);
+  return options.tint && options.style === "icon";
+}
+
+/** The check isn't offered to owners (§5): a card that has it, on a stamp on
+ * its own, shows the switch so it can be turned off, and keeps showing it
+ * until a save leaves neither the card nor the draft with one, so it never
+ * goes from under the finger. The catalog editor offers it always. */
+export function markShows(design: DesignDoc, saved: DesignDoc, always = false): boolean {
+  if (designOptions(design).style !== "icon") return false;
+  return always || designOptions(design).mark === "check" || designOptions(saved).mark === "check";
+}
+
+/** A strip picture covers any pattern: the choice gives way to one line. */
+export function patternShows(stripPictureInUse: boolean): boolean {
+  return !stripPictureInUse;
+}
+
+/** A logo wider than this is a wordmark that already says the name
+ * (passbox lint, `branding.logo_text`). */
+export const WIDE_LOGO = 2;
+
+export type LogoShape = "none" | "mark" | "wide";
+
+/** The business's own logo, held or saved, as the name beside it needs it:
+ * none, a mark (where the name can stand beside it), or a wide one. Its size
+ * is the picture's own, once it has loaded; until then it counts as a mark. */
+export function logoShape(ownLogo: boolean, size?: { width: number; height: number } | null): LogoShape {
+  if (!ownLogo) return "none";
+  if (size && size.height > 0 && size.width / size.height >= WIDE_LOGO) return "wide";
+  return "mark";
+}
+
+/** Google Wallet shows about this many characters of a name (passbox lint). */
+export const GOOGLE_NAME_CHARS = 20;
+
+/** The first 20 characters of a name past Google's 20, as Google would show
+ * them, or null for a name that fits. Counted by character, not UTF-16 unit. */
+export function googleCut(text: string, limit = GOOGLE_NAME_CHARS): string | null {
+  const chars = Array.from(text.trim());
+  return chars.length > limit ? chars.slice(0, limit).join("") : null;
+}
+
+/** A pattern behind the stamps as one choice (§6.4): one of the textures, or a
+ * sticker repeated faintly (`sticker:<name>`, the wallpaper). */
+export type PatternChoice = "none" | "waves" | "dots" | "stripes" | `sticker:${string}`;
+
+const TEXTURES = ["none", "waves", "dots", "stripes"] as const;
+
+export function patternChoice(design: DesignDoc): PatternChoice {
+  const wallpaper = designOptions(design).wallpaper;
+  if (wallpaper) return `sticker:${wallpaper}`;
+  const pattern = design.pattern;
+  return pattern && (TEXTURES as readonly string[]).includes(pattern) ? pattern : "none";
+}
+
+/** The design with a pattern chosen. A sticker takes the texture's place, so
+ * the texture is stored as none beside it: one choice, one stored value. */
+export function withPatternChoice(value: CardStudioValue, choice: PatternChoice): CardStudioValue {
+  if (choice.startsWith("sticker:")) {
+    return withOption(value, { wallpaper: choice.slice("sticker:".length), pattern: "none" });
+  }
+  return withOption(value, { wallpaper: "", pattern: choice as DesignDoc["pattern"] });
+}
+
+/** What a styled card's stamps have, said in words while its options can't be
+ * changed (§6.7): "קרואסון, בצבע הכרטיס, לבד". `names` holds the words. */
+export function stampSummary(
+  design: DesignDoc,
+  names: { sticker: (name: string) => string; tinted: string; badge: string; icon: string },
+): string {
+  const options = designOptions(design);
+  return [
+    options.sticker ? names.sticker(options.sticker) : "",
+    tintDrawn(design) ? names.tinted : "",
+    options.style === "icon" ? names.icon : names.badge,
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
 /** A design read's own picture, keyed by the card it read: the server drew
  * the stored card at one count (the studio's sample, or the one asked for),
  * so it stands for any draft whose strip is that card's at that count. */
