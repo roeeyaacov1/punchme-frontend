@@ -56,8 +56,9 @@ export const RewardTray = forwardRef<
 });
 
 /** "המספר על הכרטיס": under the stamps or at the top by the logo, and "6" or
- * "6/8", both Apple's alone, with Google's line saying what it does instead. */
-function CountOnCard({
+ * "6/8", both Apple's alone, with Google's line saying what it does instead.
+ * The onboarding wizard's reward part shows it too. */
+export function CountOnCard({
   value,
   onChange,
   sample,

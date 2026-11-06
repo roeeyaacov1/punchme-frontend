@@ -220,3 +220,50 @@ describe("the tint", () => {
     expect(off.design.stamp?.color).toBe("#B23A1E");
   });
 });
+
+describe("a look's own colours, as a base", () => {
+  // The barber's gold scissors: a navy ground, gold stamps and a gold label
+  // that aren't the rule's for its card.
+  const look = { card: "#0E1120", text: "#FFFFFF", label: "#C88A11", stamps: "#C88A11", ground: "#1A1F38" };
+  const fromLook = () =>
+    card("#0E1120", {
+      foreground_color: "#FFFFFF",
+      label_color: "#C88A11",
+      design: { panel_color: "#1A1F38", stamp: { glyph: "scissors", color: "#C88A11" } },
+    });
+
+  it("reads a look just picked as following, where the rule alone reads it as changed by hand", () => {
+    expect(following(fromLook())).toMatchObject({ label: false, stamps: false, ground: false });
+    expect(following(fromLook(), look)).toEqual({ text: true, label: true, stamps: true, ground: true });
+  });
+
+  it("still reads a colour the owner changed as theirs", () => {
+    const changed = { ...fromLook(), design: { ...fromLook().design, stamp: { glyph: "scissors", color: "#E8C1A0" } } };
+    expect(following(changed, look).stamps).toBe(false);
+  });
+
+  it("moves the look's colours to the rule's with a new business colour", () => {
+    const next = withBusinessColour(fromLook(), "#B23A1E", look);
+    const rule = brandColours("#B23A1E", { ground: true, tinted: false });
+    expect(next.design.panel_color).toBe(rule.ground);
+    expect(next.design.stamp?.color).toBe(rule.stamps);
+    expect(next.label_color).toBe(rule.label);
+    // And from there the rule alone is what follows.
+    expect(following(next, look)).toEqual({ text: true, label: true, stamps: true, ground: true });
+  });
+
+  it("goes back to the look's own colour while the card is still the look's", () => {
+    const changed = { ...fromLook(), design: { ...fromLook().design, stamp: { glyph: "scissors", color: "#E8C1A0" } } };
+    expect(withRuleColour(changed, "stamps", look).design.stamp?.color).toBe("#C88A11");
+    const moved = withBusinessColour(changed, "#B23A1E", look);
+    expect(withRuleColour(moved, "stamps", look).design.stamp?.color).toBe(
+      stampsFor("#B23A1E", moved.design.panel_color as string, false),
+    );
+  });
+
+  it("changes nothing without one, as in the studio", () => {
+    const value = fromLook();
+    expect(following(value, undefined)).toEqual(following(value));
+    expect(withBusinessColour(value, "#B23A1E", undefined)).toEqual(withBusinessColour(value, "#B23A1E"));
+  });
+});
