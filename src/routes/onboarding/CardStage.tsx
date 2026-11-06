@@ -23,7 +23,7 @@ import { useWide } from "../../components/onboarding/useWide";
 import { cn } from "../../lib/cn";
 import { MAX_STAMPS, type MapPart, type Niche } from "./draft";
 import { drawBody } from "./drawing";
-import { lookPreview } from "./looks";
+import { lookPreview, stillItself } from "./looks";
 import { useLookOff } from "./useLookOff";
 import { useStageWallet } from "./stageWallet";
 import { useLookDrawing } from "./useLookDrawing";
@@ -44,6 +44,13 @@ const ROWS: Record<PreviewPlatform, Record<Placed, [number, number]>> = {
   apple: { business: [0, 0], stamp: [1, 1], reward: [2, 2] },
   google: { business: [0, 2], stamp: [5, 5], reward: [3, 3] },
 };
+
+/** The cards going at once, at most, as a new drawing crosses over them. */
+const GHOSTS = 3;
+
+/** A picture for the unseen copy that keeps the drawn card's height: the
+ * pass sizes its strip by its ratio, so any picture holds the room. */
+const UNSEEN = { 0: "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" };
 
 type Box = Pick<CSSProperties, "borderRadius"> & { top: number; left: number; width: number; height: number };
 
@@ -81,7 +88,9 @@ export interface StageHandle {
  * §7.4): the strip, or Google's hero, is that drawing, staged as the pass's
  * published picture, and the rows are the frozen preview's own, so the name
  * lands as typed. While the next is drawn the last stays, and from 500ms a
- * tag under the stage says so. When it can't be drawn, the stage shows the
+ * tag under the stage says so; the new one crosses over it, as the studio's
+ * does. Before the first, a card still the look's own stands as the look's
+ * picture, never as circles for a beat. When it can't be drawn, the stage shows the
  * look as itself, in its own colours, and says so; the save goes on, since
  * it sends the draft, not the picture. A stamp that is a picture, which the
  * drawing can't take, stands in the circles, as the stamp's part says.
@@ -124,17 +133,32 @@ export const CardStage = forwardRef<
   );
   const drawing = useLookDrawing(body);
   const lang = i18n.resolvedLanguage ?? "en";
-  const itself = useMemo(() => {
-    const look = drawing.failure || off ? presets?.find((preset) => preset.id === draft.look) : undefined;
-    return look ? lookPreview(look, draft, presets, lang, t, templateInput.name) : null;
-  }, [drawing.failure, off, presets, draft, lang, t, templateInput.name]);
+  // Before the first drawing for this wallet, a card that is still the
+  // look's own stands as the look's published picture, the card the looks
+  // screen showed, rather than as circles for a beat; the drawing then
+  // crosses over it. A card the owner has changed shows the circles in its
+  // own colours, which is what it is until drawn.
+  const look = useMemo(
+    () => (draft.look ? presets?.find((preset) => preset.id === draft.look) : undefined),
+    [draft.look, presets],
+  );
+  const waiting = !!body && (!drawing.picture || drawing.picture.role !== body.role);
+  const ownPicture = useMemo(
+    () => !!look && waiting && !drawing.failure && stillItself(look, draft, presets, t, wallet),
+    [look, waiting, drawing.failure, draft, presets, t, wallet],
+  );
+  const itself = useMemo(
+    () =>
+      look && (drawing.failure || off || ownPicture) ? lookPreview(look, draft, presets, lang, t, templateInput.name) : null,
+    [look, drawing.failure, off, ownPicture, draft, presets, lang, t, templateInput.name],
+  );
   const preview = useMemo((): CardPreviewValue => {
     if (given) return given;
     if (off) return itself ?? drafted;
     if (!body) return drafted;
     if (drawing.failure) return itself ?? drafted;
     const picture = drawing.picture;
-    if (!picture || picture.role !== body.role) return drafted;
+    if (!picture || picture.role !== body.role) return itself ?? drafted;
     const states = { [String(drafted.currentStamps)]: picture.url };
     return { ...drafted, unsaved: false, ...(picture.role === "hero" ? { heroStates: states } : { stripStates: states }) };
   }, [given, off, body, drafted, drawing.failure, drawing.picture, itself]);
@@ -165,6 +189,69 @@ export const CardStage = forwardRef<
   );
 
   const Pass = wallet === "apple" ? AppleCardPreview : GoogleCardPreview;
+
+  // A new drawing, or a look picked on the looks screen, crosses over the
+  // card that was there, as in the studio: that card stays over the slot as
+  // a layer and goes out (`crossfade-out`, or the gentle fade), so the pass
+  // itself is never touched. Only a change of picture crosses; a swap that
+  // changes the card's height (the circles against a drawn strip) is left
+  // to cut, since two cards out of step would show every row twice. Set
+  // before paint, so the new picture never shows a frame on its own.
+  //
+  // A change that comes while a card is still going adds the card it
+  // replaces under the one going, which carries on from where it is. The
+  // newest is first, so lowest.
+  const picture = (wallet === "apple" ? shown.stripStates : shown.heroStates)?.[String(shown.currentStamps)];
+  const face = !shown.unsaved && picture ? picture : "circles";
+  const [ghosts, setGhosts] = useState<{ value: CardPreviewValue; wallet: PreviewPlatform; n: number }[]>([]);
+  const ghostCount = useRef(0);
+  const committed = useRef<{ face: string; wallet: PreviewPlatform; value: CardPreviewValue } | null>(null);
+  useLayoutEffect(() => {
+    const before = committed.current;
+    if (!before) return;
+    // Another wallet is another pass: nothing crosses over to it.
+    if (before.wallet !== wallet) {
+      setGhosts([]);
+      return;
+    }
+    if (before.face === face) return;
+    ghostCount.current += 1;
+    const n = ghostCount.current;
+    // Three at most: the one let go of is the oldest, all but gone by then.
+    setGhosts((was) => [{ value: before.value, wallet, n }, ...was].slice(0, GHOSTS));
+  }, [face, wallet]);
+  // After the one above, so it reads the card as the last commit left it.
+  useLayoutEffect(() => {
+    committed.current = { face, wallet, value: shown };
+  });
+  useLayoutEffect(() => {
+    const card = slot.current?.firstElementChild;
+    if (!ghosts.length || !card) return;
+    const height = card.getBoundingClientRect().height;
+    const layers = slot.current!.querySelectorAll<HTMLElement>("[data-ghost]");
+    if ([...layers].some((layer) => Math.abs(layer.getBoundingClientRect().height - height) > 0.5)) setGhosts([]);
+  }, [ghosts]);
+
+  // A logo the owner has just given the card comes on by light where the
+  // pass puts it (`lights-on`, or the gentle fade), found in the frozen
+  // pass's first row and never drawn here. Only a new one: not the logo
+  // the card opens with, nor the same one on the other wallet.
+  const logo = wallet === "apple" ? shown.appleLogoUrl : shown.logoUrl;
+  const lastLogo = useRef(logo);
+  useLayoutEffect(() => {
+    const was = lastLogo.current;
+    lastLogo.current = logo;
+    if (!logo || logo === was) return;
+    const image = slot.current?.firstElementChild?.children[0]?.querySelector("img");
+    if (!image) return;
+    const motion = reduced ? "animate-gentle-in" : "animate-lights-on";
+    const settle = () => {
+      image.removeEventListener("animationend", settle);
+      image.classList.remove(motion);
+    };
+    image.classList.add(motion);
+    image.addEventListener("animationend", settle);
+  }, [logo, reduced]);
 
   // The places and the outline, from where the pass's rows are now. Again
   // as the pass changes size (the count, a long name, the fonts arriving)
@@ -233,17 +320,28 @@ export const CardStage = forwardRef<
     observer.observe(pass);
     return () => observer.disconnect();
   }, [mapped, measure, Pass]);
-  // Its height is all it is for, and that changes only with the wallet and
-  // whether the pass draws the published strip or the stand-in.
-  const published = !!shown.stripStates;
+  // A card that is drawn, or can be, keeps room for both its faces: the
+  // circles and the drawn strip, which is taller. Going from one to the
+  // other (a picture of one's own for a stamp, a classic look picked after
+  // a drawn one) then moves nothing under the card. Once drawn, always.
+  const [drawable, setDrawable] = useState(false);
+  if (!drawable && (!!draft.look || face !== "circles")) setDrawable(true);
+  // Their height is all they are for, and that changes only with the wallet.
   const twin = useMemo(
     () => (
-      <div aria-hidden className="invisible">
-        <Pass {...shown} stampsRequired={MAX_STAMPS} currentStamps={0} />
-      </div>
+      <>
+        <div aria-hidden className="invisible">
+          <Pass {...shown} stampsRequired={MAX_STAMPS} currentStamps={0} unsaved />
+        </div>
+        {drawable && (
+          <div aria-hidden className="invisible">
+            <Pass {...shown} currentStamps={0} unsaved={false} stripStates={UNSEEN} heroStates={UNSEEN} />
+          </div>
+        )}
+      </>
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [Pass, published],
+    [Pass, drawable],
   );
   const summary = t("onboarding.preview.summary", {
     name: shown.businessName,
@@ -285,6 +383,26 @@ export const CardStage = forwardRef<
                 and raises no picture's callout. */}
             <div ref={slot} className={cn("relative", onPart && "select-none [-webkit-touch-callout:none]")}>
               <Pass {...shown} />
+              {ghosts.map(
+                (ghost) =>
+                  ghost.wallet === wallet && (
+                    <div
+                      key={ghost.n}
+                      data-ghost
+                      aria-hidden
+                      className={cn(
+                        "pointer-events-none absolute inset-x-0 top-0",
+                        reduced ? "animate-gentle-out" : "animate-crossfade-out",
+                      )}
+                      onAnimationEnd={(event) => {
+                        if (event.target === event.currentTarget)
+                          setGhosts((was) => was.filter((other) => other.n !== ghost.n));
+                      }}
+                    >
+                      <Pass {...ghost.value} />
+                    </div>
+                  ),
+              )}
               {onPart &&
                 PLACED.map((part) => {
                   const box = boxes[part];

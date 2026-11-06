@@ -12,6 +12,7 @@ import {
   lookName,
   looksOffered,
   pictureStamps,
+  stillItself,
   withoutLook,
 } from "./looks";
 
@@ -215,5 +216,31 @@ describe("taking the options off, where the wallet draws none", () => {
       stamp: { kind: "image", hash: "art" },
     });
     expect(resolveDraft(off, undefined, t).options).toBeNull();
+  });
+});
+
+describe("the look's own picture before the first drawing", () => {
+  const picked = (over: Partial<OnboardingDraft> = {}) => {
+    const draft = draftOf({ reward: "A pastry", logo: "logo-hash", ...over });
+    return { ...draft, ...lookChoicePatch(croissants, draft, [croissants], DEFAULTS) };
+  };
+
+  it("stands for a card just taken from the look, its name, reward and logo the owner's own", () => {
+    expect(stillItself(croissants, picked(), [croissants], t, "apple")).toBe(true);
+    expect(stillItself(croissants, picked(), [croissants], t, "google")).toBe(true);
+  });
+
+  it("never stands for a card changed in anything the drawing shows", () => {
+    const draft = picked();
+    expect(stillItself(croissants, { ...draft, background: "#0E1120" }, [croissants], t, "apple")).toBe(false);
+    expect(stillItself(croissants, { ...draft, stampsRequired: 10 }, [croissants], t, "apple")).toBe(false);
+    expect(
+      stillItself(croissants, { ...draft, options: { ...draft.options!, sticker: "cupcake" } }, [croissants], t, "apple"),
+    ).toBe(false);
+  });
+
+  it("never stands for a card the drawing can't take", () => {
+    expect(stillItself(croissants, picked({ stamp: { kind: "image", hash: "art" } }), [croissants], t, "apple")).toBe(false);
+    expect(stillItself(croissants, { ...picked(), ...withoutLook() }, [croissants], t, "apple")).toBe(false);
   });
 });
