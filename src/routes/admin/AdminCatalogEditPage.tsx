@@ -77,8 +77,8 @@ const NO_SHELF: Shelf = { niche: "cafe", description: "", isPublished: false };
  * id, which is why a brand-new look is saved once before its art opens.
  * Saving keeps you on the page: authoring a look is a loop of small changes.
  *
- * It sits under `AdminLayout`, which has no theme, so it wraps its own
- * content in Lightbox, by day only: the admin area has no night.
+ * It sits under `AdminLayout`, which wears Lightbox by day, so the page
+ * itself is only its column.
  *
  * Each look is its own editor: the route stays mounted from one id to the
  * next, so the page is keyed by it, and a new look reached from an existing
@@ -344,15 +344,11 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
     heading.current?.focus();
   }
 
-  const frame = "theme-lightbox -mx-6 -my-8 min-h-full bg-background px-4 pb-8 pt-6 text-ink sm:px-6";
-
   if (!draft || !saved) {
     return (
-      <div className={frame}>
-        <p role={loadFailed ? "alert" : undefined} className="type-body text-ink-muted">
-          {loadFailed ? t("dashboard.problem.other") : t("common.loading")}
-        </p>
-      </div>
+      <p role={loadFailed ? "alert" : undefined} className="type-body pt-4 text-ink-muted">
+        {loadFailed ? t("dashboard.problem.other") : t("common.loading")}
+      </p>
     );
   }
 
@@ -443,8 +439,7 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
   ];
 
   return (
-    <div className={frame}>
-      <div className="mx-auto flex max-w-5xl flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 pt-2">
         <div className="flex flex-col gap-1">
           <Link
             to="/admin/catalog"
@@ -520,7 +515,6 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
             ) : undefined
           }
         />
-      </div>
     </div>
   );
 }

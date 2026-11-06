@@ -89,8 +89,9 @@
          forwards there (it is where Stripe's portal sends the owner back),
          and so do the two pages Stripe's checkout returns to, which stand
          outside the shell on the same ground. The public pages, the reading
-         pages (/contact, /privacy and /terms) and the wizard stand on Lightbox by
-         day only, with the wall as the status bar's colour, which
+         pages (/contact, /privacy and /terms), the wizard and PunchMe's own
+         staff area (/admin) stand on Lightbox by day only, with the wall as
+         the status bar's colour, which
          src/theme/usePublicGround.ts keeps once they mount (it reuses the
          meta marked data-public). Every other route is light and gets
          nothing.
@@ -103,7 +104,7 @@
       (function () {
         var shell = /^\/(dashboard(\/|$)|billing\/?$)/.test(location.pathname);
         var returned = /^\/billing\/(success|cancel)\/?$/.test(location.pathname);
-        if (/^\/(login|contact|privacy|terms|onboarding(\/[^/]*)?|(invite|join|c|p)\/[^/]+)\/?$/.test(location.pathname)) {
+        if (/^\/(login|contact|privacy|terms|onboarding(\/[^/]*)?|admin(\/[^/]+)*|(invite|join|c|p)\/[^/]+)\/?$/.test(location.pathname)) {
           document.documentElement.classList.add("theme-lightbox");
           var wall = document.createElement("meta");
           wall.name = "theme-color";
