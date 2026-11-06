@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { TFunction } from "i18next";
 import type { Preset } from "../../api/presets";
-import { emptyDraft, type OnboardingDraft } from "./draft";
+import { emptyDraft, parseDraft, resolveDraft, type OnboardingDraft } from "./draft";
 import {
   BUILTIN_LOOKS,
   classicChoicePatch,
@@ -12,6 +12,7 @@ import {
   lookName,
   looksOffered,
   pictureStamps,
+  withoutLook,
 } from "./looks";
 
 /** The looks screen's rules (card looks, brief §7.3, with Roee's answers of
@@ -191,5 +192,28 @@ describe("what picking a look writes", () => {
       stamp: { kind: "glyph", glyph: look.glyph },
       stampsRequired: look.stamps,
     });
+  });
+});
+
+describe("taking the options off, where the wallet draws none", () => {
+  it("makes the card one from before the looks, and keeps everything that isn't an option", () => {
+    const look = { ...draftOf({}), ...lookChoicePatch(croissants, draftOf({}), [croissants], DEFAULTS) };
+    const draft: OnboardingDraft = { ...look, name: "Café", reward: "A pastry", logo: "logo-hash", stamp: { kind: "image", hash: "art" } };
+    // Stored and read back, as the draft is: the keys are gone.
+    const off = parseDraft(JSON.parse(JSON.stringify({ ...draft, ...withoutLook() })))!;
+    for (const key of ["look", "options", "panel", "label"]) expect(off).not.toHaveProperty(key);
+    expect(off).toMatchObject({
+      name: "Café",
+      niche: draft.niche,
+      background: draft.background,
+      accent: draft.accent,
+      foreground: draft.foreground,
+      pattern: draft.pattern,
+      stampsRequired: draft.stampsRequired,
+      reward: "A pastry",
+      logo: "logo-hash",
+      stamp: { kind: "image", hash: "art" },
+    });
+    expect(resolveDraft(off, undefined, t).options).toBeNull();
   });
 });

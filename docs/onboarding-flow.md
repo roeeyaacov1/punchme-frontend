@@ -68,7 +68,8 @@ them, exactly: `/onboarding/look` goes to `/onboarding/business`, where the
 business holds the trade, and the road is four stops. It is decided once
 per tab, as soon as the list has answered (and the catalog, where the list
 said yes), or after 4 s with what is known by then; until then no screen is
-shown. A draft that already has a look keeps the fifth stop.
+shown. A draft that already has a look keeps the fifth stop, until its
+options are taken off where the wallet draws none of them (below).
 
 Every screen stands in one column or two (`StepShell`). One on a phone and
 a tablet: the card under the heading, or above it, and the action docked at
@@ -122,15 +123,34 @@ all follow that one decision.
     colour (`lookBase`);
   - the stamp: `StampTray`, the trade's stickers first, more with a search, a
     plain symbol and a picture of one's own, the tint, and in a circle or on
-    its own, with "Ground and pattern" (`BehindTray`) folded at its foot.
-    With a picture, a line says the card shows it in circles here, and no
-    sticker reads as chosen under it: the picture is the stamp, and any
-    sticker tapped, the last one included, takes its place, a lost
-    picture's too;
-  - the reward: as before, and "The count on the card" (`CountOnCard`).
+    its own, with "Ground and pattern" (`BehindTray`) folded at its foot
+    where the studio has "Behind the stamps" (the options drawn, the list
+    unread on a card that has them, or a ground or a sticker pattern the
+    wallet won't draw), and the texture otherwise, as the studio's
+    "Background". With a picture, a line says the card shows it in circles
+    here, and no sticker reads as chosen under it: the picture is the
+    stamp, and any sticker tapped, the last one included, takes its place, a
+    lost picture's too;
+  - the reward: as before, its stamps standing on the card's ground where
+    it has one, and "The count on the card" (`CountOnCard`) where the wallet
+    draws the options, as in the studio.
 
   The trade's classic look is never written over a card from a look. A
   draft from before the looks walks the map as before.
+- **Where the wallet draws none of the options** a card from a look has
+  (`studioMode` "off": the list read and saying no, from a wallet before
+  v0.1.1), the wallet would refuse the card at its first sync. A notice over
+  the card says so on every part, with the studio's "Take them off the
+  card", and the stamp tray and "Ground and pattern" say it too, with the
+  same button, as the studio's do (`useLookOff`, step D's studio, 6 Nov
+  2026). Taking them off (`withoutLook`) makes the card one from before the
+  looks: the look, its options, its ground and its label colour go, and the
+  wizard is today's, four stops. The name, the colours, the stamp's symbol
+  (the one the look had under its sticker) or picture, the texture, the
+  count, the reward and the logo stay; the logo's field stays with the
+  logo, with the studio's words for a logo without the options. Focus goes
+  to the heading of where the button stood: the part's tray, its tab, or
+  the map.
 - **The map** is `/onboarding/reward`: the card at full size, the reward
   said as a sentence under it, chips for the other parts, and one coral
   button. Its four parts, in the walk's order, are the business, the
@@ -192,7 +212,10 @@ all follow that one decision.
   look as itself, in its own colours with the owner's name and reward, and
   says so ("too many in a short time" for a 429); the save goes on, since
   it sends the draft. A stamp that is a picture, which the drawing can't
-  take, stands in the circles. The motion is step C's.
+  take, stands in the circles. Where the wallet draws none of the options
+  the card has, no drawing is asked, since each would fail: the stage shows
+  the look as itself, with nothing under it, as the notice over it says
+  why. The motion is step C's.
 
 ## The draft
 
@@ -307,7 +330,7 @@ The save runs from a click only, never from an effect, and one at a time.
 | That create failed | `GET /api/businesses/me` again, to adopt a business that was created anyway | `getMyBusiness` |
 | Always | `GET {biz}/templates` | `listTemplates` |
 | No matching card | `POST {biz}/templates` (the full template) | `createTemplate` |
-| A card from a look with a logo on the device, after create | `POST {biz}/templates/{template_id}/images` multipart `use=logo` | `uploadTemplateImage` |
+| A logo on the device (a card from a look, or one whose options were taken off), after create | `POST {biz}/templates/{template_id}/images` multipart `use=logo` | `uploadTemplateImage` |
 | Picture stamp, after create (and after the logo) | `POST {biz}/templates/{template_id}/images` multipart `use=stamp_art` | `uploadTemplateImage` |
 | Card exists, name or trade changed | `PATCH {biz}` `{name, niche}` | `patchBusiness` |
 | Card exists, design changed | `PATCH {biz}/templates/{template_id}` | `patchTemplate` |

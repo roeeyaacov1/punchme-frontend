@@ -1,4 +1,4 @@
-import { useId, type FormEvent, type Ref } from "react";
+import { useId, useState, type FormEvent, type Ref } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { CircleAlert } from "lucide-react";
@@ -26,7 +26,9 @@ const NICHE_ORDER: Niche[] = ["barber", "cafe", "trainer", "therapist", "other"]
  *
  * On a card from a look, the trade was asked with the looks: here it is a
  * line, "Café · Change", which goes back to them, and under the name an
- * optional logo (card looks, brief §7.4).
+ * optional logo (card looks, brief §7.4). A logo isn't an option, so it
+ * stays when the options are taken off a card (`withoutLook`), and so does
+ * its field, where it can still be taken off.
  */
 export function BusinessPanel({
   asked,
@@ -48,6 +50,10 @@ export function BusinessPanel({
   const { draft, update, presets } = useOnboardingDraft();
   const tradeErrorId = useId();
   const fromLook = !!draft.look && !!draft.niche;
+  // Once the card has a logo, its field stays for this visit, even after
+  // the logo is taken off, which would otherwise take the field with it.
+  const [hadLogo, setHadLogo] = useState(!!draft.logo);
+  if (draft.logo && !hadLogo) setHadLogo(true);
 
   // Only trades the server has a preset for, once it has said; until then,
   // or if it lists none at all, all five (the API's closed set either way,
@@ -125,7 +131,7 @@ export function BusinessPanel({
           )}
         </div>
       )}
-      {fromLook && <LogoField />}
+      {(fromLook || hadLogo) && <LogoField />}
     </form>
   );
 }

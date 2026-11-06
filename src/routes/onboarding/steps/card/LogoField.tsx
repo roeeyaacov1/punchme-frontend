@@ -17,6 +17,10 @@ import { useOnboardingDraft } from "../../useOnboardingDraft";
  * A logo the draft has but the device doesn't (storage that let it go) is
  * said here. It holds nothing up: the logo is optional, and the card is
  * saved without it.
+ *
+ * A logo stays on a card the options were taken off (`withoutLook`), where
+ * nothing writes the name beside it: there the field says what the studio
+ * says of a logo without the options, and writes none of them.
  */
 export function LogoField() {
   const { t } = useTranslation();
@@ -33,7 +37,10 @@ export function LogoField() {
       const size = await pictureSize(dataUrl);
       const hash = hashDataUrl(dataUrl);
       setNotKept(!setLogo({ hash, dataUrl }));
-      update({ logo: hash, options: { ...draft.options, logo_text: logoShape(true, size) === "mark" } });
+      update({
+        logo: hash,
+        ...(!!draft.look && { options: { ...draft.options, logo_text: logoShape(true, size) === "mark" } }),
+      });
     } catch (err) {
       setErrorKey(
         err instanceof Error && err.message === "too large"
@@ -53,7 +60,7 @@ export function LogoField() {
       )}
       <UploadTile
         title={t("onboarding.logo.label")}
-        hint={t("onboarding.logo.hint")}
+        hint={t(draft.look ? "onboarding.logo.hint" : "studio.logoHint")}
         src={logoUrl}
         ground={resolved.background}
         error={errorKey ? t(errorKey) : null}
@@ -65,7 +72,7 @@ export function LogoField() {
                 setErrorKey(null);
                 setNotKept(false);
                 setLogo(null);
-                update({ logo: null, options: { ...draft.options, logo_text: false } });
+                update({ logo: null, ...(!!draft.look && { options: { ...draft.options, logo_text: false } }) });
               }
             : undefined
         }

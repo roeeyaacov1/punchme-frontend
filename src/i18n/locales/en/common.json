@@ -646,7 +646,8 @@
       "again": "{{name}} {{n}}",
       "pictureCircles": "On the card itself your picture appears in the look you chose. Here it's shown in circles.",
       "drawFailed": "We couldn't draw the look in your colour just now. Here it is in its own colours.",
-      "tooMany": "We've drawn a lot of versions in a short time. Try again in a minute."
+      "tooMany": "We've drawn a lot of versions in a short time. Try again in a minute.",
+      "off": "The wallet can't draw some of what this card's look has right now, such as stickers and stamps on their own, so it won't take the card while it has them. Without them, the card keeps its name, its colour and its reward."
     },
     "logo": {
       "label": "Logo (optional)",

@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import { RewardField, StampCountControl } from "../../../../components/card-studio/controls";
+import { studioMode } from "../../../../components/card-studio/designOptions";
 import { CountOnCard } from "../../../../components/card-studio/trays/RewardTray";
 import { sampleStamps } from "../../draft";
 import { draftPatchOf, studioValueOf } from "../../studioValue";
@@ -24,9 +25,11 @@ export const RewardPanel = forwardRef<
   }
 >(function RewardPanel({ asked, onEnter }, ref) {
   const { t, i18n } = useTranslation();
-  const { draft, resolved, update, artUrl, templateInput } = useOnboardingDraft();
+  const { draft, resolved, update, artUrl, stickers, templateInput } = useOnboardingDraft();
   const glyph = resolved.stamp.kind === "glyph" ? resolved.stamp.glyph : "check";
-  const shown = draft.look ? studioValueOf(resolved, i18n.resolvedLanguage ?? "en", t, templateInput.name) : null;
+  const card = draft.look ? studioValueOf(resolved, i18n.resolvedLanguage ?? "en", t, templateInput.name) : null;
+  // Offered, as in the studio, only where the wallet draws the options.
+  const shown = card && studioMode(stickers, card.design) === "options" ? card : null;
   return (
     <div className="flex flex-col gap-6">
       <RewardField
@@ -37,12 +40,14 @@ export const RewardPanel = forwardRef<
         error={asked && !resolved.reward.trim() ? t("onboarding.missing.reward") : undefined}
         onEnter={onEnter}
       />
+      {/* The stamps on what they stand on: their ground where the card has
+          one, since stamps in the card's own colour vanish on the card. */}
       <StampCountControl
         value={resolved.stampsRequired}
         onChange={(stampsRequired) => update({ stampsRequired })}
         glyph={glyph}
         stampColour={resolved.accent}
-        background={resolved.background}
+        background={resolved.panel || resolved.background}
         pictureUrl={artUrl ?? null}
       />
       {shown && (
