@@ -288,6 +288,43 @@ export const StudioStage = forwardRef<
   };
   const Preview = wallet === "apple" ? AppleCardPreview : GoogleCardPreview;
 
+  // A new drawing of a drawn card, or the saved card standing in for one
+  // that failed, crosses over the card that was there: that card stays over
+  // the slot as a layer and goes out (`crossfade-out`, or the gentle fade),
+  // so the pass itself is never touched. Only the drawing differs, so only
+  // the drawing is seen to cross. A swap that changes the card's height (the
+  // stand-in grid is shorter than a drawn strip) is left to cut, since two
+  // cards out of step would show every row twice. Set before paint, so the
+  // new drawing never shows a frame on its own.
+  const shownPicture = (wallet === "apple" ? stripStates : heroStates)?.[String(shownCount)];
+  const face = `${onFailure ? "saved" : "draft"}:${!shownUnsaved && shownPicture ? shownPicture : "stand-in"}`;
+  const [ghost, setGhost] = useState<{ value: CardPreviewValue; wallet: Wallet; n: number } | null>(null);
+  const ghostBox = useRef<HTMLDivElement>(null);
+  const committed = useRef<{ face: string; wallet: Wallet; styled: boolean; preview: CardPreviewValue } | null>(null);
+  useLayoutEffect(() => {
+    const before = committed.current;
+    if (!before) return;
+    // Another wallet is another pass: nothing crosses over to it.
+    if (before.wallet !== wallet) {
+      setGhost(null);
+      return;
+    }
+    if (before.face === face || !(before.styled || styled)) return;
+    setGhost((was) => ({ value: before.preview, wallet, n: (was?.n ?? 0) + 1 }));
+  }, [face, wallet, styled]);
+  // After the one above, so it reads the card as the last commit left it.
+  useLayoutEffect(() => {
+    committed.current = { face, wallet, styled, preview };
+  });
+  // The card going, measured against the one coming in the same layout: a
+  // different height goes at once, before it is painted.
+  useLayoutEffect(() => {
+    const card = slot.current?.firstElementChild;
+    const layer = ghostBox.current;
+    if (!ghost || !card || !layer) return;
+    if (Math.abs(layer.getBoundingClientRect().height - card.getBoundingClientRect().height) > 0.5) setGhost(null);
+  }, [ghost]);
+
   const measure = useCallback(() => {
     const frame = slot.current;
     const card = frame?.firstElementChild;
@@ -397,6 +434,22 @@ export const StudioStage = forwardRef<
               text to copy. */}
           <div ref={slot} className="relative select-none [-webkit-touch-callout:none]">
             <Preview {...preview} />
+            {ghost?.wallet === wallet && (
+              <div
+                key={ghost.n}
+                ref={ghostBox}
+                aria-hidden
+                className={cn(
+                  "pointer-events-none absolute inset-x-0 top-0",
+                  reduced ? "animate-gentle-out" : "animate-crossfade-out",
+                )}
+                onAnimationEnd={(event) => {
+                  if (event.target === event.currentTarget) setGhost(null);
+                }}
+              >
+                <Preview {...ghost.value} />
+              </div>
+            )}
             {(Object.keys(boxes) as CardPart[]).map((part) => {
               const box = boxes[part]!;
               return (
@@ -433,11 +486,18 @@ export const StudioStage = forwardRef<
           have, over a plain panel with the way to try again. Polite, and
           only when its words change, so a drawing is said once however many
           changes it takes in. Its place is kept while the card is drawn by
-          the server, so the tag coming and going moves nothing. */}
+          the server, so the tag coming and going moves nothing. The tag's
+          light comes up in the gentle fade, and with reduced motion it is
+          simply there; the panel lights on, or fades in, once a failure. */}
       {styled && (
         <div aria-live="polite" className="flex min-h-7 w-full max-w-[340px] flex-col items-center gap-3">
           {(slow || drawFailed) && (
-            <span className="theme-lit type-tag inline-flex items-center gap-1.5 rounded-[1.30625rem] border border-border bg-surface/95 px-3 py-1 text-center text-ink-muted">
+            <span
+              className={cn(
+                "theme-lit type-tag inline-flex items-center gap-1.5 rounded-[1.30625rem] border border-border bg-surface/95 px-3 py-1 text-center text-ink-muted",
+                !reduced && "animate-gentle-in",
+              )}
+            >
               {drawFailed && <CreditCard aria-hidden className="size-4 shrink-0" />}
               {drawFailed ? t("studio.drawn.current") : t("studio.drawn.drawing")}
             </span>
@@ -445,6 +505,7 @@ export const StudioStage = forwardRef<
           {drawFailed && (
             <Notice
               tone="warn"
+              arrive
               className="w-full"
               action={
                 onRedraw && (

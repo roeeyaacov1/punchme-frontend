@@ -337,6 +337,13 @@ export default {
         // landing's counter changing trade: the new one fades in over the
         // old, on the in-out, since what it replaces is on screen already.
         "crossfade-in": "gentle-in var(--duration-crossfade) var(--ease-in-out-strong) both",
+        // The same crossing, from the other side: the studio's new drawing
+        // of the card takes the last one's place while the last stays over
+        // it and goes out. The frozen pass can't be faded in, so the one
+        // going is the layer. In the lights' 240ms, since it comes with
+        // every change of a drawn card and interface motion stays under
+        // 300ms.
+        "crossfade-out": "gentle-out var(--duration-lights) var(--ease-in-out-strong) both",
         // The shop's sign, the day it switches on: unlit for a beat, then a
         // tube catching over the ceremony's 600ms, or the gentle fade.
         "sign-catch": "sign-catch var(--duration-ceremony) linear var(--delay-switch-on) both",
