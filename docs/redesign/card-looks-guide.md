@@ -347,7 +347,7 @@ and at 200% text. Commit per part.
 - [x] The decisions step A made itself, kept, and its open questions 1 and 2, yes (4 Nov)
 - [x] #17 and #40 merged (4 Nov). #40 went in on top of the opening (#42). Today's `main` builds, lints and passes its 792 tests, and every key resolves
 - [x] The false "cards won't update" notice, fixed on its own: PR #44, merged 4 Nov
-- [ ] The studio: B · C · D · merged
+- [ ] The studio: B (6 Nov, on `looks/studio`, rebuilt from `main` plus the plan's docs against backend `main` with PR #20, so the held picture, the card's own name and a published look's pictures are wired; the first B, of 5 Nov, is kept on `looks/studio-b1`) · C · D · merged
 - [ ] The backend's part (if needed): PR · merged
 - [ ] The wizard: B · C · D · merged
 - [ ] passbox production on v0.1.1
