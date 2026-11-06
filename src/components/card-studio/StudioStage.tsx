@@ -79,6 +79,9 @@ type Box = { top: number; left: number; width: number; height: number };
 
 const NO_PICTURES: readonly (DrawnCard | null)[] = [];
 
+/** The most cards going over the stage at once, as quick changes cross. */
+const GHOSTS = 3;
+
 /** The pass's own rows, by wallet: its children, in the order the frozen
  * previews draw them. Read, never changed. */
 const ROWS: Record<Wallet, Record<CardPart, [number, number]>> = {
@@ -315,34 +318,43 @@ export const StudioStage = forwardRef<
   // stand-in grid is shorter than a drawn strip) is left to cut, since two
   // cards out of step would show every row twice. Set before paint, so the
   // new drawing never shows a frame on its own.
+  //
+  // A change that comes while a card is still going adds the card it
+  // replaces under the one going, which carries on from where it is: what
+  // was on screen stays on screen, rather than the newest layer starting
+  // again at full and the card jumping. The newest is first, so lowest.
   const shownPicture = (wallet === "apple" ? stripStates : heroStates)?.[String(shownCount)];
   const face = `${onFailure ? "saved" : "draft"}:${!shownUnsaved && shownPicture ? shownPicture : "stand-in"}`;
-  const [ghost, setGhost] = useState<{ value: CardPreviewValue; wallet: Wallet; n: number } | null>(null);
-  const ghostBox = useRef<HTMLDivElement>(null);
+  const [ghosts, setGhosts] = useState<{ value: CardPreviewValue; wallet: Wallet; n: number }[]>([]);
+  const ghostCount = useRef(0);
   const committed = useRef<{ face: string; wallet: Wallet; styled: boolean; preview: CardPreviewValue } | null>(null);
   useLayoutEffect(() => {
     const before = committed.current;
     if (!before) return;
     // Another wallet is another pass: nothing crosses over to it.
     if (before.wallet !== wallet) {
-      setGhost(null);
+      setGhosts([]);
       return;
     }
     if (before.face === face || !(before.styled || styled)) return;
-    setGhost((was) => ({ value: before.preview, wallet, n: (was?.n ?? 0) + 1 }));
+    ghostCount.current += 1;
+    const n = ghostCount.current;
+    // Three at most: the one let go of is the oldest, all but gone by then.
+    setGhosts((was) => [{ value: before.preview, wallet, n }, ...was].slice(0, GHOSTS));
   }, [face, wallet, styled]);
   // After the one above, so it reads the card as the last commit left it.
   useLayoutEffect(() => {
     committed.current = { face, wallet, styled, preview };
   });
-  // The card going, measured against the one coming in the same layout: a
-  // different height goes at once, before it is painted.
+  // The cards going, measured against the one coming in the same layout: a
+  // different height cuts, before it is painted.
   useLayoutEffect(() => {
     const card = slot.current?.firstElementChild;
-    const layer = ghostBox.current;
-    if (!ghost || !card || !layer) return;
-    if (Math.abs(layer.getBoundingClientRect().height - card.getBoundingClientRect().height) > 0.5) setGhost(null);
-  }, [ghost]);
+    if (!ghosts.length || !card) return;
+    const height = card.getBoundingClientRect().height;
+    const layers = slot.current!.querySelectorAll<HTMLElement>("[data-ghost]");
+    if ([...layers].some((layer) => Math.abs(layer.getBoundingClientRect().height - height) > 0.5)) setGhosts([]);
+  }, [ghosts]);
 
   const measure = useCallback(() => {
     const frame = slot.current;
@@ -453,21 +465,25 @@ export const StudioStage = forwardRef<
               text to copy. */}
           <div ref={slot} className="relative select-none [-webkit-touch-callout:none]">
             <Preview {...preview} />
-            {ghost?.wallet === wallet && (
-              <div
-                key={ghost.n}
-                ref={ghostBox}
-                aria-hidden
-                className={cn(
-                  "pointer-events-none absolute inset-x-0 top-0",
-                  reduced ? "animate-gentle-out" : "animate-crossfade-out",
-                )}
-                onAnimationEnd={(event) => {
-                  if (event.target === event.currentTarget) setGhost(null);
-                }}
-              >
-                <Preview {...ghost.value} />
-              </div>
+            {ghosts.map(
+              (ghost) =>
+                ghost.wallet === wallet && (
+                  <div
+                    key={ghost.n}
+                    data-ghost
+                    aria-hidden
+                    className={cn(
+                      "pointer-events-none absolute inset-x-0 top-0",
+                      reduced ? "animate-gentle-out" : "animate-crossfade-out",
+                    )}
+                    onAnimationEnd={(event) => {
+                      if (event.target === event.currentTarget)
+                        setGhosts((was) => was.filter((other) => other.n !== ghost.n));
+                    }}
+                  >
+                    <Preview {...ghost.value} />
+                  </div>
+                ),
             )}
             {(Object.keys(boxes) as CardPart[]).map((part) => {
               const box = boxes[part]!;
@@ -506,16 +522,13 @@ export const StudioStage = forwardRef<
           only when its words change, so a drawing is said once however many
           changes it takes in. Its place is kept while the card is drawn by
           the server, so the tag coming and going moves nothing. The tag's
-          light comes up in the gentle fade, and with reduced motion it is
-          simply there; the panel lights on, or fades in, once a failure. */}
+          light comes up in the gentle fade, which reduced motion keeps; the
+          panel lights on, or fades in, once a failure. */}
       {styled && (
         <div aria-live="polite" className="flex min-h-7 w-full max-w-[340px] flex-col items-center gap-3">
           {(slow || drawFailed) && (
             <span
-              className={cn(
-                "theme-lit type-tag inline-flex items-center gap-1.5 rounded-[1.30625rem] border border-border bg-surface/95 px-3 py-1 text-center text-ink-muted",
-                !reduced && "animate-gentle-in",
-              )}
+              className="theme-lit type-tag inline-flex animate-gentle-in items-center gap-1.5 rounded-[1.30625rem] border border-border bg-surface/95 px-3 py-1 text-center text-ink-muted"
             >
               {drawFailed && <CreditCard aria-hidden className="size-4 shrink-0" />}
               {drawFailed ? t("studio.drawn.current") : t("studio.drawn.drawing")}
