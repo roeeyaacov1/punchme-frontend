@@ -28,8 +28,9 @@ import {
 } from "../../components/card-studio/studioDraft";
 import { lookAgainIn, lookPicturesState } from "../../components/card-studio/lookPictures";
 import { saveProblem } from "../../components/card-studio/studioProblems";
-import { isolate } from "../dashboard/problem";
-import { Checkbox, focusRing, Input, Notice, Select } from "../../components/kit";
+import { isolate, problemKey } from "../dashboard/problem";
+import { Button, Checkbox, focusRing, Input, Notice, Select } from "../../components/kit";
+import { ApiError } from "../../api/errors";
 import { CatalogArtPanel } from "./CatalogArtPanel";
 import {
   createCatalogEntry,
@@ -132,7 +133,9 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
     // Once, as the editor opens.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [loadFailed, setLoadFailed] = useState(false);
+  // Why the look couldn't be read, and how many times it has been asked for.
+  const [loadError, setLoadError] = useState<unknown>(null);
+  const [attempt, setAttempt] = useState(0);
   const [problem, setProblem] = useState<string | null>(null);
   // A look still being made says it has no name only once Save is pressed.
   const [saveTried, setSaveTried] = useState(false);
@@ -164,8 +167,8 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
         setShelf(loaded);
         setArt((entry.art ?? {}) as Art);
       })
-      .catch(() => setLoadFailed(true));
-  }, [catalogId, isNew]);
+      .catch((error: unknown) => setLoadError(error ?? new Error("load")));
+  }, [catalogId, isNew, attempt]);
 
   // A look just made lands on its title, where the saved notice is, never
   // on <body>.
@@ -378,11 +381,54 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
     heading.current?.focus();
   }
 
+  const backLink = (
+    <Link
+      to="/admin/catalog"
+      className={cn(
+        "inline-flex min-h-11 w-fit items-center gap-1.5 rounded-full text-sm text-ink-muted hover-fine:text-ink",
+        focusRing,
+      )}
+    >
+      {/* Flips with the page: a "back" arrow points back in Hebrew too. */}
+      <ArrowLeft size={15} aria-hidden="true" className="rtl:rotate-180" />
+      {t("admin.catalog.title")}
+    </Link>
+  );
+
   if (!draft || !saved) {
+    // A look that isn't in the catalog says so, with the way back to it;
+    // anything else says why it couldn't be read and offers to try again.
+    const notFound = loadError instanceof ApiError && loadError.status === 404;
     return (
-      <p role={loadFailed ? "alert" : undefined} className="type-body pt-4 text-ink-muted">
-        {loadFailed ? t("dashboard.problem.other") : t("common.loading")}
-      </p>
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 pt-2">
+        {backLink}
+        {loadError ? (
+          <Notice
+            tone="danger"
+            role="alert"
+            title={notFound ? undefined : t("admin.catalog.lookReadFailed")}
+            action={
+              notFound ? undefined : (
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setLoadError(null);
+                    setAttempt((count) => count + 1);
+                  }}
+                >
+                  {t("common.retry")}
+                </Button>
+              )
+            }
+          >
+            {notFound ? t("admin.catalog.notFound") : t(problemKey(loadError))}
+          </Notice>
+        ) : (
+          <p role="status" className="type-body text-ink-muted">
+            {t("common.loading")}
+          </p>
+        )}
+      </div>
     );
   }
 
@@ -475,17 +521,7 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 pt-2">
         <div className="flex flex-col gap-1">
-          <Link
-            to="/admin/catalog"
-            className={cn(
-              "inline-flex min-h-11 w-fit items-center gap-1.5 rounded-full text-sm text-ink-muted hover-fine:text-ink",
-              focusRing,
-            )}
-          >
-            {/* Flips with the page: a "back" arrow points back in Hebrew too. */}
-            <ArrowLeft size={15} aria-hidden="true" className="rtl:rotate-180" />
-            {t("admin.catalog.title")}
-          </Link>
+          {backLink}
           {/* Names are isolated, so an English one keeps its order inside a
               Hebrew page and the line stays on the page's side. */}
           <h1 ref={heading} tabIndex={-1} className="type-title text-ink outline-none [overflow-wrap:anywhere]">
