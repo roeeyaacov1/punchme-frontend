@@ -7,6 +7,7 @@ import {
   designOptions,
   drawKey,
   googleCut,
+  heldArt,
   iconOnlyOptionsShow,
   isStyled,
   logoShape,
@@ -552,6 +553,35 @@ describe("the stage when a drawing fails", () => {
 
   it("never counts past the saved card's stamps", () => {
     expect(stageOnFailure({ saved: PLAIN, savedPicture: null, sample: 12 }).currentStamps).toBe(8);
+  });
+});
+
+describe("the pictures held for Save", () => {
+  const held = { logo: "data:logo", stamp_art: "data:image/png;base64," + "A".repeat(40), strip_base: "data:strip" };
+
+  it("draws with the stamp art and the strip, never the logo", () => {
+    expect(heldArt(held)).toEqual({ stamp_art: held.stamp_art, strip_base: "data:strip" });
+    expect(heldArt(undefined)).toEqual({});
+  });
+
+  it("keys a drawing by the pictures it was drawn with", () => {
+    expect(drawKey(BAKERY, 4, heldArt(held))).not.toBe(drawKey(BAKERY, 4));
+    expect(drawKey(BAKERY, 4, heldArt({ logo: "data:other" }))).toBe(drawKey(BAKERY, 4));
+    expect(drawKey(BAKERY, 4, { stamp_art: "data:a" })).not.toBe(drawKey(BAKERY, 4, { stamp_art: "data:b" }));
+  });
+
+  it("asks again when another picture is held, though the draft is the same", () => {
+    const first = serverAsk({ value: BAKERY, sample: 4, changed: true, pictures: [], held: { stamp_art: "data:a" } })!;
+    expect(first).toMatchObject({ images: true, state: 4, held: { stamp_art: "data:a" } });
+    const next = serverAsk({ value: BAKERY, sample: 4, changed: true, pictures: [], held: { stamp_art: "data:b" } })!;
+    expect(alreadyAsked(first, next)).toBe(false);
+    expect(alreadyAsked(first, { ...first })).toBe(true);
+  });
+
+  it("counts a picture drawn with the held one as this draft's", () => {
+    const art = { stamp_art: "data:a" };
+    const drawn: DrawnCard = { key: drawKey(BAKERY, 4, art), strip: "data:strip" };
+    expect(serverAsk({ value: BAKERY, sample: 4, changed: true, pictures: [drawn], held: art })).toEqual({ value: BAKERY, images: false });
   });
 });
 

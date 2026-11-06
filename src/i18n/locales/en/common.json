@@ -341,7 +341,6 @@
     },
     "drawn": {
       "drawing": "Drawing the card…",
-      "held": "Your new picture joins this card when you save.",
       "current": "This is the card your customers have now",
       "failedSaved": "We couldn't draw your last change just now. It's kept in the draft, and Save sends it as it is.",
       "retry": "Draw it again",

@@ -6,6 +6,7 @@ import { CardStudio } from "../../components/card-studio/CardStudio";
 import {
   alreadyAsked,
   drawKey,
+  heldArt,
   picturesAt,
   readPicture,
   savedPictureOf,
@@ -304,9 +305,12 @@ export function DesignPage() {
   // now, where the latest of the draft may be from before one was saved.
   const pictures = useMemo(() => [readDrawn, drawn], [readDrawn, drawn]);
   const shownSample = sample ?? (draft ? sampleStart(draft.stamps_required) : 0);
+  // The pictures held for Save are drawn with the card too (backend PR #20),
+  // so the owner sees a new stamp picture before it reaches anyone.
+  const heldForDrawing = useMemo(() => heldArt(held), [held]);
   const ask = useMemo(
-    () => (draft ? serverAsk({ value: draft, sample: shownSample, changed, pictures }) : null),
-    [draft, shownSample, changed, pictures],
+    () => (draft ? serverAsk({ value: draft, sample: shownSample, changed, pictures, held: heldForDrawing }) : null),
+    [draft, shownSample, changed, pictures, heldForDrawing],
   );
   const debouncedAsk = useDebounce(ask, 400);
   const onPage = useRef(draft);
@@ -322,18 +326,26 @@ export function DesignPage() {
     asked.current = debouncedAsk;
     let cancelled = false;
     let settled = false;
-    const { value, state, images } = debouncedAsk;
-    previewTemplateDesign(businessId, templateId, { ...value, stamp_state: state ?? null, images })
+    const { value, state, images, held: drawnWith } = debouncedAsk;
+    const sendHeld = images && drawnWith && Object.keys(drawnWith).length > 0;
+    previewTemplateDesign(businessId, templateId, {
+      ...value,
+      stamp_state: state ?? null,
+      images,
+      ...(sendHeld ? { held: drawnWith } : {}),
+    })
       .then((result) => {
         if (cancelled || onPage.current !== value) return;
         setLint(result.lint);
-        if (images && state !== undefined) setDrawn({ key: drawKey(value, state), ...picturesAt(result.images, state) });
+        if (images && state !== undefined) {
+          setDrawn({ key: drawKey(value, state, drawnWith), ...picturesAt(result.images, state) });
+        }
       })
       .catch(() => {
         if (asked.current === debouncedAsk) asked.current = null;
         // Said at the stage, and asked again as soon as anything changes.
         if (!cancelled && images && state !== undefined && onPage.current === value) {
-          setDrawn({ key: drawKey(value, state) });
+          setDrawn({ key: drawKey(value, state, drawnWith) });
         }
       })
       .finally(() => {

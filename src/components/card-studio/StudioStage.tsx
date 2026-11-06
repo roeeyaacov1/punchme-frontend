@@ -21,6 +21,7 @@ import { AppleCardPreview, GoogleCardPreview, type CardPreviewValue } from "./Ca
 import {
   designOptions,
   drawKey,
+  heldArt,
   isStyled,
   stageOnFailure,
   stagePictures,
@@ -186,7 +187,7 @@ export const StudioStage = forwardRef<
   const shown = (url: string | undefined) => (url && loaded.has(url) ? url : undefined);
   // The server's pictures of the card, once they have loaded, as the
   // published ones are: staging, not redrawing.
-  const key = drawKey(value, sample);
+  const key = drawKey(value, sample, heldArt(held));
   const pictures = stagePictures({
     styled,
     unsaved,
@@ -227,8 +228,6 @@ export const StudioStage = forwardRef<
   useEffect(() => {
     onFailed?.(drawFailed);
   }, [onFailed, drawFailed]);
-  // A picture held for Save that the strip shows: the server hasn't had it.
-  const heldOut = styled && !!(held.stamp_art || held.strip_base || held.stamped_art || held.unstamped_art);
 
   // On a failure, the saved card as it is, with the pictures it has: none of
   // the held ones, which haven't reached it.
@@ -427,12 +426,6 @@ export const StudioStage = forwardRef<
             </Notice>
           )}
         </div>
-      )}
-      {heldOut && (
-        <p className="flex max-w-[340px] items-start gap-1.5 text-sm leading-snug text-ink-muted">
-          <Info aria-hidden className="mt-px size-4 shrink-0" />
-          <span>{t("studio.drawn.held")}</span>
-        </p>
       )}
       {foot}
     </div>

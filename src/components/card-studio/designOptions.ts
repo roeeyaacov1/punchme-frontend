@@ -1,6 +1,6 @@
 import type { DesignDoc, DesignField } from "../../api/designs";
 import type { Sticker, StickersStatus } from "./controls/controlRules";
-import type { CardStudioValue } from "./studioDraft";
+import type { CardStudioValue, HeldPictures } from "./studioDraft";
 
 /**
  * The card design options passbox-api added in v0.1.1 (its GUIDE §8.2), as
@@ -140,11 +140,35 @@ function stable(value: unknown): unknown {
   );
 }
 
+/** The pictures held for Save that the server draws a card with (backend
+ * PR #20, `held`): the stamp's, the before and after art, and the strip
+ * background. Never the logo, which the stage shows itself. */
+export const HELD_ART_USES = ["stamp_art", "stamped_art", "unstamped_art", "strip_base"] as const;
+
+export type HeldArt = Partial<Record<(typeof HELD_ART_USES)[number], string>>;
+
+export function heldArt(held: HeldPictures | undefined): HeldArt {
+  const art: HeldArt = {};
+  for (const use of HELD_ART_USES) if (held?.[use]) art[use] = held[use];
+  return art;
+}
+
+/** A held picture told apart from another without the whole data URL in
+ * every key: its length and its last characters. */
+function fingerprint(dataUrl: string): string {
+  return `${dataUrl.length}:${dataUrl.slice(-32)}`;
+}
+
+function heldKey(held: HeldArt | undefined): Record<string, string> {
+  return Object.fromEntries(HELD_ART_USES.flatMap((use) => (held?.[use] ? [[use, fingerprint(held[use]!)]] : [])));
+}
+
 /** What a picture of the server's was drawn from: everything the strip and
  * the hero are made of (the count, the colours, the stamp and what stands
- * behind it) and the sample, however its keys were ordered. A label, a field
- * or the reward changes none of it, so typing one asks for no new picture. */
-export function drawKey(value: CardStudioValue, state: number): string {
+ * behind it, and the pictures held for Save it was drawn with) and the
+ * sample, however its keys were ordered. A label, a field or the reward
+ * changes none of it, so typing one asks for no new picture. */
+export function drawKey(value: CardStudioValue, state: number, held?: HeldArt): string {
   const { design } = value;
   const options = designOptions(design);
   return JSON.stringify(
@@ -162,6 +186,7 @@ export function drawKey(value: CardStudioValue, state: number): string {
       pattern: design.pattern || "none",
       panel: options.panelColor.toUpperCase(),
       wallpaper: options.wallpaper,
+      held: heldKey(held),
     }),
   );
 }
@@ -355,6 +380,8 @@ export interface ServerAsk {
   /** The count to draw; none for the check alone. */
   state?: number;
   images: boolean;
+  /** The pictures held for Save it is drawn with. */
+  held?: HeldArt;
 }
 
 export function serverAsk({
@@ -362,20 +389,23 @@ export function serverAsk({
   sample,
   changed,
   pictures,
+  held,
 }: {
   value: CardStudioValue;
   sample: number;
+  /** The pictures held for Save, which the server draws the card with. */
+  held?: HeldArt;
   /** The draft differs from the saved card. */
   changed: boolean;
   /** The server's pictures in hand: its latest, the design read's. */
   pictures: readonly (DrawnCard | null)[];
 }): ServerAsk | null {
   if (isStyled(value.design)) {
-    const key = drawKey(value, sample);
+    const key = drawKey(value, sample, held);
     // One answered for this strip, drawn or not: a failure isn't asked again
     // until something changes.
     if (pictures.some((picture) => picture?.key === key)) return changed ? { value, images: false } : null;
-    return { value, state: sample, images: true };
+    return { value, state: sample, images: true, held };
   }
   return changed ? { value, images: false } : null;
 }
@@ -386,7 +416,8 @@ export function serverAsk({
  * that draft is never asked again. */
 export function alreadyAsked(was: ServerAsk | null, ask: ServerAsk): boolean {
   if (!was || was.value !== ask.value) return false;
-  return !ask.images || (was.images && was.state === ask.state);
+  if (!ask.images) return true;
+  return was.images && was.state === ask.state && JSON.stringify(heldKey(was.held)) === JSON.stringify(heldKey(ask.held));
 }
 
 /** The saved card's own picture, out of the design read: the server drew the
