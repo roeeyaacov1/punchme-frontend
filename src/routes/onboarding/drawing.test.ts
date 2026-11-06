@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { TFunction } from "i18next";
 import { ApiError } from "../../api/errors";
 import { emptyDraft, resolveDraft, type OnboardingDraft } from "./draft";
-import { drawBody, drawFailure, drawKey } from "./drawing";
+import { drawBody, drawFailure, drawKey, failureKey } from "./drawing";
 
 const t = ((key: string) => key) as unknown as TFunction;
 
@@ -103,5 +103,12 @@ describe("a drawing that didn't come", () => {
     expect(drawFailure(new ApiError(429, "Too many requests."))).toBe("tooMany");
     expect(drawFailure(new ApiError(503, "unavailable"))).toBe("failed");
     expect(drawFailure(new TypeError("Failed to fetch"))).toBe("failed");
+  });
+
+  it("says what stands in its place: the look's own picture, or the circles where the catalog has none", () => {
+    expect(failureKey("failed", true)).toBe("onboarding.look.drawFailed");
+    expect(failureKey("failed", false)).toBe("onboarding.look.drawFailedCircles");
+    expect(failureKey("tooMany", true)).toBe("onboarding.look.tooMany");
+    expect(failureKey("tooMany", false)).toBe("onboarding.look.tooManyCircles");
   });
 });

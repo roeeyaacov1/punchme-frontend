@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { drawLook, type LookDraw } from "../../api/presets";
 import { useDebounce } from "../../hooks/useDebounce";
@@ -24,6 +24,8 @@ export interface LookDrawing {
   slow: boolean;
   /** The drawing of the card as it is now didn't come, and why. */
   failure: DrawFailure | null;
+  /** Asks the failed drawing again. */
+  redraw: () => void;
 }
 
 function asDataUrl(blob: Blob): Promise<string> {
@@ -96,5 +98,8 @@ export function useLookDrawing(body: LookDraw | null): LookDrawing {
     return () => window.clearTimeout(timer);
   }, [waiting]);
 
-  return { picture: key === null ? null : shown, slow: waiting && slow, failure };
+  const { refetch } = read;
+  const redraw = useCallback(() => void refetch(), [refetch]);
+
+  return { picture: key === null ? null : shown, slow: waiting && slow, failure, redraw };
 }
