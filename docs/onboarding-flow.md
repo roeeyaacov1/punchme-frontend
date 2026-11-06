@@ -224,14 +224,15 @@ all follow that one decision.
   columns. A swap that changes the card's height, the circles against a
   drawn strip, cuts. Before its first drawing for a wallet, a card still
   the look's own (`stillItself`) stands as the look's published picture,
-  never as circles for a beat; a card the owner has changed shows its
+  the owner's logo on it, never as circles for a beat; a card the owner has changed shows its
   circles in its own colours. The stage keeps room for both faces, so
   going between them moves nothing under the card. A sticker, a colour or
   a ground gets nothing beyond its new drawing: on a card from a look only
   a picture of one's own lands (`stamp-land`), on the circles, the one
   stamp they draw. A logo the owner has just given the card comes on by
   light where the pass puts it (`lights-on`, or the gentle fade); not the
-  one the card opens with, nor the same one on the other wallet.
+  one the card opens with, nor the same one on the other wallet, nor one
+  shown again after a beat without it: new by the draft's logo hash.
 
 ## The draft
 
