@@ -21,6 +21,7 @@ import {
   designOptions,
   markShows,
   stampSummary,
+  stampUsesOptions,
   tintDrawn,
   tintShows,
   withStamp,
@@ -90,6 +91,7 @@ export function StampTray({
   savedDesign,
   markAlways = false,
   wide = false,
+  onTakeOff,
 }: {
   value: CardStudioValue;
   onChange: (next: CardStudioValue) => void;
@@ -107,6 +109,9 @@ export function StampTray({
   markAlways?: boolean;
   /** The studio's wide layout, where the page scrolls under its masthead. */
   wide?: boolean;
+  /** Takes every option off the card, where the wallet draws none of them
+   * (`studioMode` "off"). */
+  onTakeOff?: () => void;
 }) {
   const glyph = value.design.stamp?.glyph ?? "check";
   const glyphAt = (name: string) => {
@@ -119,6 +124,9 @@ export function StampTray({
 
   if (mode === "outage") {
     return <OutageStamp value={value} niche={niche} picture={picture} onGlyph={glyphAt} />;
+  }
+  if (mode === "off" && stampUsesOptions(value.design)) {
+    return <OptionsOff value={value} onTakeOff={onTakeOff} />;
   }
   if (mode !== "options") {
     return (
@@ -155,6 +163,20 @@ export function StampTray({
   );
 }
 
+/** What the stamps have, in words: "קרואסון, בצבע הכרטיס, לבד". English sets
+ * the names in the sentence's own case: "croissant, in the card's colour, on
+ * its own". */
+function useStampSummary(value: CardStudioValue): string {
+  const { t, i18n } = useTranslation();
+  const word = (text: string) => (i18n.language.startsWith("he") ? text : text.toLocaleLowerCase(i18n.language));
+  return stampSummary(value.design, {
+    sticker: (name) => word(stickerLabel(name, t)),
+    tinted: word(t("cardControls.tint.label")),
+    badge: word(t("cardControls.style.badge")),
+    icon: word(t("cardControls.style.icon")),
+  });
+}
+
 /**
  * A styled card while the sticker list can't be read (§6.7): it says so and
  * what the stamps have ("קרואסון, בצבע הכרטיס, לבד"), and offers nothing that
@@ -176,12 +198,7 @@ function OutageStamp({
   const symbolId = useId();
   const [open, setOpen] = useState(false);
   const chosen = designOptions(value.design);
-  const summary = stampSummary(value.design, {
-    sticker: (name) => stickerLabel(name, t),
-    tinted: t("cardControls.tint.label"),
-    badge: t("cardControls.style.badge"),
-    icon: t("cardControls.style.icon"),
-  });
+  const summary = useStampSummary(value);
   return (
     <div className="flex flex-col gap-4">
       <p className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
@@ -205,6 +222,33 @@ function OutageStamp({
           {chosen.sticker && <p className="text-sm leading-snug text-ink-muted">{t("studio.stickers.symbolDrops")}</p>}
           <GlyphPicker glyph={value.design.stamp?.glyph ?? "check"} glyphHidden={!!chosen.sticker} onGlyph={onGlyph} niche={niche} picture={picture} />
         </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * A card whose options the wallet draws none of (a server before v0.1.1,
+ * `studioMode` "off"): it refuses every save of the card as it is. Said, with
+ * what the stamps have, and the one way on: taking the options off, which
+ * stands the stamps in circles again, as "מאחורי החותמות" offers too.
+ */
+function OptionsOff({ value, onTakeOff }: { value: CardStudioValue; onTakeOff?: () => void }) {
+  const { t } = useTranslation();
+  const summary = useStampSummary(value);
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
+        <Info aria-hidden className="mt-px size-4 shrink-0" />
+        <span>{t("studio.stickers.off")}</span>
+      </p>
+      <p className="type-body text-ink">
+        <b className="font-semibold">{t("studio.stickers.has")}</b> {summary}
+      </p>
+      {onTakeOff && (
+        <Button variant="secondary" onClick={onTakeOff} className="w-fit max-w-full !whitespace-normal text-center">
+          {t("studio.options.takeOff")}
+        </Button>
       )}
     </div>
   );

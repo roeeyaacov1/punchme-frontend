@@ -146,6 +146,10 @@ export const StudioStage = forwardRef<
     onRedraw?: () => void;
     /** Told whether the stage shows the saved card for a drawing that failed. */
     onFailed?: (failed: boolean) => void;
+    /** The wallet draws none of the options the card has (`studioMode`
+     * "off"): every drawing fails, and the page says why, so the stage says
+     * only that it shows the saved card. */
+    optionsOff?: boolean;
   }
 >(function StudioStage(
   {
@@ -169,6 +173,7 @@ export const StudioStage = forwardRef<
     savedPicture = null,
     onRedraw,
     onFailed,
+    optionsOff = false,
   },
   ref,
 ) {
@@ -502,7 +507,7 @@ export const StudioStage = forwardRef<
               {drawFailed ? t("studio.drawn.current") : t("studio.drawn.drawing")}
             </span>
           )}
-          {drawFailed && (
+          {drawFailed && !optionsOff && (
             <Notice
               tone="warn"
               arrive

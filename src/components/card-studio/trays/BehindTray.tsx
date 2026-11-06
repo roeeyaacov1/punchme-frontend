@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Info } from "lucide-react";
+import { Button } from "../../kit/Button";
 import { groundFor } from "../brandColours";
 import { PanelColourPicker, PatternPicker, type Sticker } from "../controls";
 import { PANEL_SWATCHES, PANEL_SWATCH_NAMES, stickerLabel, swatchIndex } from "../controls/controlRules";
@@ -30,7 +31,8 @@ export function BehindTray({
   stickers,
   stripPicture,
   pictureInUse,
-  outage = false,
+  outage,
+  onTakeOff,
 }: {
   value: CardStudioValue;
   onChange: (next: CardStudioValue) => void;
@@ -39,43 +41,56 @@ export function BehindTray({
   stripPicture: boolean;
   /** The stamp is a picture, held or saved. */
   pictureInUse: boolean;
-  /** The sticker list can't be read on a card that has the options: say
-   * what is behind the stamps, and offer nothing that would drop it. */
-  outage?: boolean;
+  /** Say what is behind the stamps, and offer nothing that would drop it:
+   * the sticker list can't be read on a card that has the options
+   * (`unread`), or the wallet draws none of them (`off`), where the one way
+   * on is to take them off. */
+  outage?: "unread" | "off";
+  onTakeOff?: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const chosen = designOptions(value.design);
   const stamps = stampColourOf(value);
   if (outage) {
+    // English sets the names in the sentence's own case: "a cream ground".
+    const word = (text: string) => (i18n.language.startsWith("he") ? text : text.toLocaleLowerCase(i18n.language));
     const index = swatchIndex(chosen.panelColor, PANEL_SWATCHES);
     const ground = !chosen.panelColor
       ? t("studio.stickers.noGround")
       : t("studio.stickers.ground", {
-          name:
+          name: word(
             index >= 0
               ? t(`cardControls.panel.names.${PANEL_SWATCH_NAMES[index]}`)
               : chosen.panelColor.toUpperCase() === groundFor(value.background_color)
                 ? t("cardControls.panel.names.shade")
                 : t("cardControls.own"),
+          ),
         });
     const choice = patternChoice(value.design);
     const pattern =
       choice === "none"
         ? t("studio.stickers.noPattern")
         : t("studio.stickers.pattern", {
-            name: choice.startsWith("sticker:")
-              ? stickerLabel(choice.slice("sticker:".length), t)
-              : t(`studio.patterns.${choice}`),
+            name: word(
+              choice.startsWith("sticker:")
+                ? stickerLabel(choice.slice("sticker:".length), t)
+                : t(`studio.patterns.${choice}`),
+            ),
           });
     return (
       <div className="flex flex-col gap-4">
         <p className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
           <Info aria-hidden className="mt-px size-4 shrink-0" />
-          <span>{t("studio.stickers.outageBehind")}</span>
+          <span>{t(outage === "off" ? "studio.stickers.offBehind" : "studio.stickers.outageBehind")}</span>
         </p>
         <p className="type-body text-ink">
           <b className="font-semibold">{t("studio.stickers.has")}</b> {ground}, {pattern}
         </p>
+        {outage === "off" && onTakeOff && (
+          <Button variant="secondary" onClick={onTakeOff} className="w-fit max-w-full !whitespace-normal text-center">
+            {t("studio.options.takeOff")}
+          </Button>
+        )}
       </div>
     );
   }

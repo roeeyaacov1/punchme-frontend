@@ -8,9 +8,11 @@ import { useReducedMotion } from "../kit/motion";
 import { Tab, TabList, TabPanel, Tabs } from "../kit/Tabs";
 import type { StampPicture } from "./controls";
 import {
+  behindUsesOptions,
   designOptions,
   studioMode,
   withOption,
+  withoutOptions,
   type DrawnCard,
   type SavedPicture,
   type StudioStickers,
@@ -362,8 +364,14 @@ export function CardStudio({
     onSample?.(shownSample);
   }, [onSample, shownSample]);
   // The options offered (the list says the wallet draws them), said while
-  // the list can't be read on a card that has them, or today's studio.
+  // the list can't be read on a card that has them, said to be off where the
+  // wallet draws none, or today's studio.
   const mode = studioMode(stickers, value.design);
+  // Every option off the card at once: what a wallet that draws none takes.
+  const takeOff = () => onChange(withoutOptions(value, saved.design.fields));
+  // "מאחורי החותמות" where the wallet draws the options, or the card stands
+  // something behind its stamps that only they draw; "הרקע" as before.
+  const behind = mode === "options" || mode === "outage" || (mode === "off" && behindUsesOptions(value.design));
   // While Save runs, nothing that changes the draft can be reached: Save
   // sends the card as it was pressed, and starts again from what it read.
   const busy = bar.saving;
@@ -375,8 +383,7 @@ export function CardStudio({
   const trays: { id: string; label: string }[] = [
     { id: "colours", label: t("studio.chips.colours") },
     { id: "stamp", label: t("studio.chips.stamp") },
-    // "מאחורי החותמות" where the wallet draws the options; "הרקע" as before.
-    { id: "background", label: t(mode === "plain" ? "studio.chips.background" : "studio.chips.behind") },
+    { id: "background", label: t(behind ? "studio.chips.behind" : "studio.chips.background") },
     { id: "reward", label: t("studio.chips.reward") },
     { id: "names", label: t("studio.chips.names") },
     ...(owner ? [{ id: "logo", label: t("studio.chips.logo") }] : []),
@@ -485,17 +492,19 @@ export function CardStudio({
             savedDesign={saved.design}
             markAlways={markAlways}
             wide={wide}
+            onTakeOff={takeOff}
           />
         );
       case "background":
-        return mode !== "plain" ? (
+        return behind ? (
           <BehindTray
             value={value}
             onChange={onChange}
             stickers={stickers.list}
             stripPicture={!!(held.strip_base ?? images.strip_base)}
             pictureInUse={stampPicture.inUse}
-            outage={mode === "outage"}
+            outage={mode === "outage" ? "unread" : mode === "off" ? "off" : undefined}
+            onTakeOff={takeOff}
           />
         ) : (
           <BackgroundTray value={value} onChange={onChange} />
@@ -558,8 +567,10 @@ export function CardStudio({
 
   const { drawn: barDrawn, props: barProps, phase: barPhase } = useBarPresence(bar, reduced);
   // On a phone a tray covers what the stage says of a failed drawing, so the
-  // bar at its foot says it too.
-  const studioBar = <StudioBar ref={saveRef} {...barProps} onRedraw={!wide && !!tray && stageFailed ? onRedraw : undefined} />;
+  // bar at its foot says it too. Where the wallet draws none of the card's
+  // options every drawing fails, and the page says why.
+  const redrawInBar = !wide && !!tray && stageFailed && mode !== "off" ? onRedraw : undefined;
+  const studioBar = <StudioBar ref={saveRef} {...barProps} onRedraw={redrawInBar} />;
 
   const sampleRow = (
     // Quick taps on + land one stamp each, never a double-tap zoom.
@@ -649,6 +660,7 @@ export function CardStudio({
       savedPicture={savedPicture}
       onRedraw={onRedraw}
       onFailed={setStageFailed}
+      optionsOff={mode === "off"}
     />
   );
 
@@ -743,7 +755,11 @@ export function CardStudio({
         foot={
           barDrawn ? (
             <BarLight phase={barPhase} reduced={reduced}>
-              {mode === "options" ? <StudioBar ref={saveRef} {...barProps} onRedraw={stageFailed ? onRedraw : undefined} compact /> : studioBar}
+              {mode === "options" ? (
+                <StudioBar ref={saveRef} {...barProps} onRedraw={redrawInBar} compact />
+              ) : (
+                studioBar
+              )}
             </BarLight>
           ) : undefined
         }

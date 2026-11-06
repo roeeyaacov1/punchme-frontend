@@ -11,7 +11,9 @@ import {
   readPicture,
   savedPictureOf,
   serverAsk,
+  studioMode,
   studioStickers,
+  withoutOptions,
   type DrawnCard,
   type ServerAsk,
 } from "../../components/card-studio/designOptions";
@@ -49,7 +51,7 @@ import {
   type ArtUse,
   type ReadStamp,
 } from "../../components/card-studio/studioReads";
-import { saveProblem, uploadProblem, type StudioProblem } from "../../components/card-studio/studioProblems";
+import { saveProblem, syncProblem, uploadProblem, type StudioProblem } from "../../components/card-studio/studioProblems";
 import {
   dropKept,
   dropSyncWait,
@@ -616,6 +618,15 @@ export function DesignPage() {
   // Names says what Google shows of a long name, where the options are drawn.
   const advice = adviceShown(reading, { namesSayGoogle: optionsDrawn });
   const sync = design.sync;
+  // A wallet that draws none of the options the card has (a server before
+  // v0.1.1) refuses every drawing and every save of it: said once, with the
+  // way on, in place of the refusals it causes.
+  const optionsOff = studioMode(studioStickers(stickersQuery), draft.design) === "off";
+  // A sync the wallet refused isn't tried again, so where the options are
+  // drawn the page says so; without them, today's words.
+  const syncFailed = syncProblem(sync.error);
+  const syncRefused = syncFailed === "refused" && optionsDrawn;
+  const otherLint = optionsOff ? [] : reading.other;
   // Art just sent is on the card until a read says otherwise, even when the
   // re-read after the save failed.
   const assets = artOnCard(design.assets, designAt, artSent);
@@ -639,9 +650,36 @@ export function DesignPage() {
     </>
   );
 
-  const notices = (sync.error || reading.other.length > 0 || advice.length > 0) && (
+  const notices = (optionsOff || syncFailed || otherLint.length > 0 || advice.length > 0) && (
     <div className="flex flex-col gap-3">
-      {sync.error && <Notice tone="warn">{t("studio.sync.failed")}</Notice>}
+      {optionsOff && (
+        <Notice
+          tone="warn"
+          action={
+            <Button variant="secondary" disabled={saving} onClick={() => edit(withoutOptions(draft, saved.design.fields))}>
+              {t("studio.options.takeOff")}
+            </Button>
+          }
+        >
+          {t("studio.options.off")}
+        </Notice>
+      )}
+      {syncFailed && !syncRefused && !(optionsOff && syncFailed === "refused") && (
+        <Notice tone="warn">{t("studio.sync.failed")}</Notice>
+      )}
+      {syncRefused && (
+        <Notice tone="warn">
+          <p>{t("studio.sync.refused")}</p>
+          <details className="mt-2">
+            <summary className="w-fit cursor-pointer text-sm text-ink-muted underline underline-offset-[3px]">
+              {t("studio.check.details")}
+            </summary>
+            <p lang="en" dir="ltr" className="mt-2 text-start text-sm text-ink-muted">
+              {sync.error}
+            </p>
+          </details>
+        </Notice>
+      )}
       {advice.length > 0 && (
         <div className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
           <Info aria-hidden className="mt-px size-4 shrink-0" />
@@ -660,7 +698,7 @@ export function DesignPage() {
           </div>
         </div>
       )}
-      {reading.other.length > 0 && (
+      {otherLint.length > 0 && (
         <Notice tone="warn">
           <p>{t("studio.check.other")}</p>
           <details className="mt-2">
@@ -668,7 +706,7 @@ export function DesignPage() {
               {t("studio.check.details")}
             </summary>
             <ul lang="en" dir="ltr" className="mt-2 list-disc ps-5 text-start text-sm text-ink-muted">
-              {reading.other.map((text) => (
+              {otherLint.map((text) => (
                 <li key={text}>{text}</li>
               ))}
             </ul>

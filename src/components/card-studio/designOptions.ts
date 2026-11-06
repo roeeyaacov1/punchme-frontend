@@ -236,14 +236,62 @@ export function studioStickers(read: {
  * - `options`: the list says the wallet draws them, and the trays offer them;
  * - `outage`: the list can't be read, and the card already uses them, so the
  *   trays say what it has and offer nothing that would drop it unasked;
+ * - `off`: the list says the wallet draws none of them (a server before
+ *   v0.1.1), yet the card uses some: the wallet refuses every save of it,
+ *   so the studio says so, and offers to take them off (`withoutOptions`);
  * - `plain`: today's studio, exactly.
  */
-export type StudioMode = "options" | "outage" | "plain";
+export type StudioMode = "options" | "outage" | "off" | "plain";
 
 export function studioMode(stickers: StudioStickers, design: DesignDoc): StudioMode {
   if (stickers.available) return "options";
   if (stickers.status === "unavailable" && isStyled(design)) return "outage";
+  if (stickers.status === "ready" && usesOptions(design)) return "off";
   return "plain";
+}
+
+/** Whether the stamps use an option: on their own, a sticker, a check, a
+ * tint. */
+export function stampUsesOptions(design: DesignDoc): boolean {
+  const options = designOptions(design);
+  return options.style === "icon" || !!options.sticker || options.mark === "check" || options.tint;
+}
+
+/** Whether what stands behind the stamps does: a ground, or a sticker as the
+ * pattern. */
+export function behindUsesOptions(design: DesignDoc): boolean {
+  const options = designOptions(design);
+  return !!options.panelColor || !!options.wallpaper;
+}
+
+/** Whether a design sets any of the options away from its default: what a
+ * server before v0.1.1 refuses, the count's place as much as a sticker. */
+export function usesOptions(design: DesignDoc): boolean {
+  const options = designOptions(design);
+  return (
+    stampUsesOptions(design) ||
+    behindUsesOptions(design) ||
+    options.stampsPlace === "header" ||
+    options.stampsFormat === "fraction" ||
+    options.logoText
+  );
+}
+
+/** The card with every option taken off, as a card was before them: stamps
+ * in circles with the glyph they had, no ground or wallpaper (a texture
+ * stays), the count back under the stamps where the saved card had it, and
+ * no name beside the logo. The keys go, so a server that doesn't know them
+ * meets none. */
+export function withoutOptions(value: CardStudioValue, savedFields?: readonly DesignField[]): CardStudioValue {
+  const below = withStampsPlace(value, "secondary", savedFields);
+  const design: DesignDoc = { ...below.design };
+  for (const key of ["panel_color", "wallpaper", "stamps_place", "stamps_format", "logo_text"] as const) delete design[key];
+  if (design.stamp) {
+    const stamp = { ...design.stamp };
+    for (const key of ["style", "mark", "sticker", "tint"] as const) delete stamp[key];
+    design.stamp = stamp;
+  }
+  return { ...below, design };
 }
 
 /**

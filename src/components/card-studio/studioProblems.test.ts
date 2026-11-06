@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ApiError } from "../../api/errors";
-import { saveProblem, uploadProblem } from "./studioProblems";
+import { saveProblem, syncProblem, uploadProblem } from "./studioProblems";
 
 describe("saveProblem", () => {
   it("places a design refusal on its field", () => {
@@ -46,5 +46,25 @@ describe("uploadProblem", () => {
 
   it("falls back to the cause, still naming the picture", () => {
     expect(uploadProblem("logo", new ApiError(500, ""))).toEqual({ key: "dashboard.problem.server", picture: "logo" });
+  });
+});
+
+describe("syncProblem", () => {
+  it("is nothing for a sync that went through", () => {
+    expect(syncProblem("")).toBeNull();
+    expect(syncProblem(null)).toBeNull();
+    expect(syncProblem("  ")).toBeNull();
+  });
+
+  it("reads the wallet away as away: the backend tries again", () => {
+    expect(syncProblem("passbox-api: 503 unavailable: try again")).toBe("away");
+    expect(syncProblem("passbox-api: ReadTimeout('timed out')")).toBe("away");
+  });
+
+  it("reads a design the wallet refused as refused, a v0.1.0 server's 400 included", () => {
+    // provider._problems: the server's own message when it lists no problem.
+    expect(syncProblem("Invalid request")).toBe("refused");
+    expect(syncProblem("design.art.sticker: unknown sticker 'unicorn-face'")).toBe("refused");
+    expect(syncProblem("design.art.panel_color: invalid colour; design.stamps_place: unknown value")).toBe("refused");
   });
 });
