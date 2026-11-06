@@ -17,15 +17,19 @@ import { looksOffered } from "./looks";
 import {
   ART_KEY,
   DRAFT_KEY,
+  LOGO_KEY,
   buildTemplateInput,
   clearDraft,
+  clearLogo,
   draftPreviewValue,
   emptyDraft,
   loadArt,
   loadDraft,
+  loadLogo,
   resolveDraft,
   saveArt,
   saveDraft,
+  saveLogo,
   clearArt,
   type OnboardingDraft,
   type ResolvedDraft,
@@ -57,6 +61,14 @@ export interface DraftContextValue {
   setPreviewOverride: (value: CardPreviewValue | null) => void;
   /** The current picture's data URL, when the stamp is a picture. */
   artUrl: string | undefined;
+  /** The logo, kept like the picture under a key of its own. */
+  logo: StoredArt | null;
+  /** Store a new logo, or none. Returns false when it only fits in memory. */
+  setLogo: (logo: StoredArt | null) => boolean;
+  /** False after a quota failure: the logo is here until the tab closes. */
+  logoPersisted: boolean;
+  /** The logo's data URL, when the draft's logo is on this device. */
+  logoUrl: string | undefined;
   /** The wallet's stickers, as the public list gives them. */
   stickers: StudioStickers;
   /** The wizard opens on the card looks: the road's fifth stop, `/look`.
@@ -96,6 +108,8 @@ export function OnboardingDraftProvider({ children }: { children: ReactNode }) {
   const [draft, setDraft] = useState<OnboardingDraft>(() => loadDraft() ?? emptyDraft());
   const [art, setArtState] = useState<StoredArt | null>(() => loadArt());
   const [artPersisted, setArtPersisted] = useState(true);
+  const [logo, setLogoState] = useState<StoredArt | null>(() => loadLogo());
+  const [logoPersisted, setLogoPersisted] = useState(true);
   const [previewOverride, setPreviewOverride] = useState<CardPreviewValue | null>(null);
 
   const presetsRead = useQuery({
@@ -149,6 +163,7 @@ export function OnboardingDraftProvider({ children }: { children: ReactNode }) {
     function onStorage(e: StorageEvent) {
       if (e.key === DRAFT_KEY) setDraft(loadDraft() ?? emptyDraft());
       if (e.key === ART_KEY) setArtState(loadArt());
+      if (e.key === LOGO_KEY) setLogoState(loadLogo());
     }
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -162,7 +177,20 @@ export function OnboardingDraftProvider({ children }: { children: ReactNode }) {
     clearDraft();
     setDraft(emptyDraft());
     setArtState(null);
+    setLogoState(null);
     setPreviewOverride(null);
+  }, []);
+
+  const setLogo = useCallback((next: StoredArt | null) => {
+    setLogoState(next);
+    if (!next) {
+      clearLogo();
+      setLogoPersisted(true);
+      return true;
+    }
+    const ok = saveLogo(next);
+    setLogoPersisted(ok);
+    return ok;
   }, []);
 
   const setArt = useCallback((next: StoredArt | null) => {
@@ -186,9 +214,10 @@ export function OnboardingDraftProvider({ children }: { children: ReactNode }) {
   );
   const artUrl =
     resolved.stamp.kind !== "glyph" && art?.hash === resolved.stamp.hash ? art.dataUrl : undefined;
+  const logoUrl = resolved.logo && logo?.hash === resolved.logo ? logo.dataUrl : undefined;
   const preview = useMemo(
-    () => previewOverride ?? draftPreviewValue(resolved, lang, t, artUrl, templateInput.name),
-    [previewOverride, resolved, lang, t, artUrl, templateInput.name],
+    () => previewOverride ?? draftPreviewValue(resolved, lang, t, artUrl, templateInput.name, logoUrl),
+    [previewOverride, resolved, lang, t, artUrl, templateInput.name, logoUrl],
   );
 
   const value: DraftContextValue = {
@@ -205,6 +234,10 @@ export function OnboardingDraftProvider({ children }: { children: ReactNode }) {
     preview,
     setPreviewOverride,
     artUrl,
+    logo,
+    setLogo,
+    logoPersisted,
+    logoUrl,
     stickers,
     looks,
     looksSettled,

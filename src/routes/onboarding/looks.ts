@@ -1,6 +1,7 @@
 import type { TFunction } from "i18next";
 import type { DesignDoc } from "../../api/designs";
 import type { Preset } from "../../api/presets";
+import type { ColourBase } from "../../components/card-studio/brandColours";
 import type { CardPreviewValue } from "../../components/card-studio/CardPreviews";
 import { stickerLabel, type ReadyLook } from "../../components/card-studio/controls/controlRules";
 import { designOptions, isStyled } from "../../components/card-studio/designOptions";
@@ -9,7 +10,15 @@ import { derivedLabelColor, relatedAccents } from "../../lib/accentPalette";
 import { CARD_PATTERNS, type CardPattern } from "../../lib/cardPatterns";
 import { normalizeHex, readableInk } from "../../lib/color";
 import { STAMP_GLYPH_NAMES } from "../../lib/stampGlyphs";
-import { draftPreviewValue, NICHE_GLYPH, NICHES, resolveDraft, type Niche, type OnboardingDraft } from "./draft";
+import {
+  draftPreviewValue,
+  emptyDraft,
+  NICHE_GLYPH,
+  NICHES,
+  resolveDraft,
+  type Niche,
+  type OnboardingDraft,
+} from "./draft";
 
 /**
  * Ready-made looks — a finished card an owner can take whole.
@@ -449,6 +458,31 @@ function ownCount(draft: OnboardingDraft, presets: Preset[] | undefined): boolea
     .flat()
     .find((look) => look.key === draft.look);
   return draft.stampsRequired !== (last?.stamps_required ?? lastBuiltIn?.stamps);
+}
+
+/**
+ * The colours the card's look set, for the colours tray: they follow the
+ * business colour too while the card is still the look's colour, so a look
+ * just picked never reads as changed by hand (`ColourBase`). None for a card
+ * from before the looks.
+ */
+export function lookBase(draft: OnboardingDraft, presets: Preset[] | undefined): ColourBase | undefined {
+  if (!draft.look) return undefined;
+  const preset = presets?.find((look) => look.id === draft.look);
+  if (preset) {
+    const own = lookChoicePatch(preset, emptyDraft(), presets, []);
+    return {
+      card: own.background ?? preset.background_color,
+      text: own.foreground ?? undefined,
+      label: own.label ?? undefined,
+      stamps: own.accent ?? undefined,
+      ground: own.panel ?? null,
+    };
+  }
+  const builtIn = Object.values(BUILTIN_LOOKS)
+    .flat()
+    .find((look) => look.key === draft.look);
+  return builtIn ? { card: builtIn.background, stamps: builtIn.accent } : undefined;
 }
 
 /**

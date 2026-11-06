@@ -1,11 +1,14 @@
 import { useId, type FormEvent, type Ref } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { CircleAlert } from "lucide-react";
 import { ChoiceTiles, type Tile } from "../../../../components/card-studio/controls/ChoiceTiles";
+import { Button } from "../../../../components/kit";
 import type { PlaceResult } from "../../../../lib/googlePlaces";
 import { NAME_MAX, NICHES, type Niche } from "../../draft";
 import { useOnboardingDraft } from "../../useOnboardingDraft";
 import { BusinessNameField } from "../BusinessNameField";
+import { LogoField } from "./LogoField";
 
 /** The order the trades are offered in: the ones the product is built for
  * first, "other" last. */
@@ -20,6 +23,10 @@ const NICHE_ORDER: Niche[] = ["barber", "cafe", "trainer", "therapist", "other"]
  * missing says which (`asked`), under the field it's missing from, and the
  * screen takes focus there. Enter in the name goes on, as the tray's own
  * button does.
+ *
+ * On a card from a look, the trade was asked with the looks: here it is a
+ * line, "Café · Change", which goes back to them, and under the name an
+ * optional logo (card looks, brief §7.4).
  */
 export function BusinessPanel({
   asked,
@@ -37,8 +44,10 @@ export function BusinessPanel({
   onPick?: () => void;
 }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { draft, update, presets } = useOnboardingDraft();
   const tradeErrorId = useId();
+  const fromLook = !!draft.look && !!draft.niche;
 
   // Only trades the server has a preset for, once it has said; until then,
   // or if it lists none at all, all five (the API's closed set either way,
@@ -83,26 +92,40 @@ export function BusinessPanel({
               : undefined
         }
       />
-      <div ref={tradeRef} className="flex flex-col gap-2">
-        <ChoiceTiles
-          legend={t("onboarding.business.nicheLabel")}
-          tiles={tiles}
-          value={draft.niche}
-          onChange={(niche) => {
-            update({ niche });
-            onPick?.();
-          }}
-          shape="pill"
-          listClassName="gap-2"
-          describedBy={tradeMissing ? tradeErrorId : undefined}
-        />
-        {tradeMissing && (
-          <p id={tradeErrorId} className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-danger">
-            <CircleAlert aria-hidden className="mt-px size-4 shrink-0" />
-            <span>{t("onboarding.missing.trade")}</span>
-          </p>
-        )}
-      </div>
+      {fromLook ? (
+        <div ref={tradeRef} className="flex flex-col gap-1">
+          <p className="type-label text-ink">{t("onboarding.business.nicheLabel")}</p>
+          <Button
+            variant="quiet"
+            onClick={() => navigate("/onboarding/look")}
+            className="-ms-3 w-fit max-w-full !whitespace-normal text-start"
+          >
+            {t("onboarding.business.tradeLine", { trade: t(`onboarding.business.niches.${draft.niche}`) })}
+          </Button>
+        </div>
+      ) : (
+        <div ref={tradeRef} className="flex flex-col gap-2">
+          <ChoiceTiles
+            legend={t("onboarding.business.nicheLabel")}
+            tiles={tiles}
+            value={draft.niche}
+            onChange={(niche) => {
+              update({ niche });
+              onPick?.();
+            }}
+            shape="pill"
+            listClassName="gap-2"
+            describedBy={tradeMissing ? tradeErrorId : undefined}
+          />
+          {tradeMissing && (
+            <p id={tradeErrorId} className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-danger">
+              <CircleAlert aria-hidden className="mt-px size-4 shrink-0" />
+              <span>{t("onboarding.missing.trade")}</span>
+            </p>
+          )}
+        </div>
+      )}
+      {fromLook && <LogoField />}
     </form>
   );
 }

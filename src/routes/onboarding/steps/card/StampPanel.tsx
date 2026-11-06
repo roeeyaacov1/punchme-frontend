@@ -1,8 +1,15 @@
-import { useState, type RefObject } from "react";
+import { useId, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
-import { TriangleAlert } from "lucide-react";
+import { ChevronDown, Info, TriangleAlert } from "lucide-react";
 import { StampPicker, TexturePicker } from "../../../../components/card-studio/controls";
+import { studioMode } from "../../../../components/card-studio/designOptions";
+import { BehindTray } from "../../../../components/card-studio/trays/BehindTray";
+import { StampTray } from "../../../../components/card-studio/trays/StampTray";
+import { focusRing } from "../../../../components/kit";
+import { cn } from "../../../../lib/cn";
 import { hashDataUrl } from "../../../../lib/stampArt";
+import { NICHE_GLYPH } from "../../draft";
+import { draftPatchOf, studioValueOf } from "../../studioValue";
 import { useOnboardingDraft } from "../../useOnboardingDraft";
 
 /**
@@ -12,6 +19,11 @@ import { useOnboardingDraft } from "../../useOnboardingDraft";
  * it has but this device doesn't is said here, first, where it is chosen
  * again; when the cause is full storage, the notice over the card says so
  * too. Save and closing the tray come back to this line while it stands.
+ *
+ * On a card from a look, the studio's own stamp tray (brief §7.4): the
+ * trade's stickers first, more stickers with a search, a plain symbol and a
+ * picture of one's own, the tint, and in a circle or on its own; and folded
+ * at its foot, what stands behind the stamps.
  */
 export function StampPanel({
   storageFull,
@@ -25,10 +37,17 @@ export function StampPanel({
   onPick?: () => void;
 }) {
   const { t } = useTranslation();
-  const { resolved, update, setArt, artUrl } = useOnboardingDraft();
+  const { draft, resolved, update, setArt, artUrl } = useOnboardingDraft();
   const [notKept, setNotKept] = useState(false);
   const picture = resolved.stamp.kind === "image";
   const lost = picture && !artUrl;
+
+  const takePicture = (dataUrl: string) => {
+    const hash = hashDataUrl(dataUrl);
+    setNotKept(!setArt({ hash, dataUrl }));
+    update({ stamp: { kind: "image", hash } });
+    onPick?.();
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -44,23 +63,22 @@ export function StampPanel({
         </p>
       )}
       <div className="flex flex-col gap-3">
-        <StampPicker
-          glyph={resolved.stamp.kind === "glyph" ? resolved.stamp.glyph : "check"}
-          onGlyph={(glyph) => {
-            setNotKept(false);
-            update({ stamp: { kind: "glyph", glyph } });
-            onPick?.();
-          }}
-          niche={resolved.niche}
-          picture={{ url: artUrl ?? null, inUse: picture }}
-          onPicture={(dataUrl) => {
-            const hash = hashDataUrl(dataUrl);
-            setNotKept(!setArt({ hash, dataUrl }));
-            update({ stamp: { kind: "image", hash } });
-            onPick?.();
-          }}
-          note={picture ? undefined : t("studio.picture.stays")}
-        />
+        {draft.look ? (
+          <LookStamp picture={picture} onPicture={takePicture} onPick={onPick} />
+        ) : (
+          <StampPicker
+            glyph={resolved.stamp.kind === "glyph" ? resolved.stamp.glyph : "check"}
+            onGlyph={(glyph) => {
+              setNotKept(false);
+              update({ stamp: { kind: "glyph", glyph } });
+              onPick?.();
+            }}
+            niche={resolved.niche}
+            picture={{ url: artUrl ?? null, inUse: picture }}
+            onPicture={takePicture}
+            note={picture ? undefined : t("studio.picture.stays")}
+          />
+        )}
         {notKept && !lost && !storageFull && (
           <p role="status" className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-ink">
             <TriangleAlert aria-hidden className="mt-px size-4 shrink-0 text-warn" />
@@ -68,12 +86,104 @@ export function StampPanel({
           </p>
         )}
       </div>
-      <TexturePicker
-        value={resolved.pattern}
-        onChange={(pattern) => update({ pattern })}
-        background={resolved.background}
-        stampColour={resolved.accent}
+      {draft.look ? (
+        <BehindFold />
+      ) : (
+        <TexturePicker
+          value={resolved.pattern}
+          onChange={(pattern) => update({ pattern })}
+          background={resolved.background}
+          stampColour={resolved.accent}
+        />
+      )}
+    </div>
+  );
+}
+
+/** The studio's stamp tray over the draft. A picture of one's own can't be
+ * drawn by the public drawing, so with one the card shows its circles, and
+ * says so. */
+function LookStamp({
+  picture,
+  onPicture,
+  onPick,
+}: {
+  picture: boolean;
+  onPicture: (dataUrl: string) => void;
+  onPick?: () => void;
+}) {
+  const { t, i18n } = useTranslation();
+  const { resolved, update, artUrl, stickers, templateInput } = useOnboardingDraft();
+  const shown = studioValueOf(resolved, i18n.resolvedLanguage ?? "en", t, templateInput.name);
+  return (
+    <>
+      <StampTray
+        value={shown}
+        onChange={(next) => {
+          update(draftPatchOf(next, shown));
+          onPick?.();
+        }}
+        niche={resolved.niche}
+        picture={{ url: artUrl ?? null, inUse: picture }}
+        onPicture={(dataUrl) => {
+          if (dataUrl) onPicture(dataUrl);
+          // A sticker or a symbol in its place: the stamp is the symbol
+          // again, which the tray then sets.
+          else if (picture) update({ stamp: { kind: "glyph", glyph: shown.design.stamp?.glyph ?? NICHE_GLYPH[resolved.niche] } });
+        }}
+        note={picture ? undefined : t("studio.picture.stays")}
+        mode={studioMode(stickers, shown.design)}
+        stickers={stickers.list}
+        stickersStatus={stickers.status}
+        savedDesign={{}}
       />
+      {picture && artUrl && (
+        <p className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
+          <Info aria-hidden className="mt-px size-4 shrink-0" />
+          <span>{t("onboarding.look.pictureCircles")}</span>
+        </p>
+      )}
+    </>
+  );
+}
+
+/** "Ground and pattern", folded at the stamp's foot: the studio's "Behind
+ * the stamps", a ground by name and one faint pattern. */
+function BehindFold() {
+  const { t, i18n } = useTranslation();
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  const { resolved, update, stickers, templateInput } = useOnboardingDraft();
+  const shown = studioValueOf(resolved, i18n.resolvedLanguage ?? "en", t, templateInput.name);
+  const mode = studioMode(stickers, shown.design);
+  return (
+    <div className="flex flex-col gap-4">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={() => setOpen((was) => !was)}
+        className={cn(
+          "-ms-3 flex min-h-11 w-fit touch-manipulation select-none items-center gap-1.5 rounded-full px-3 type-label text-ink",
+          "transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5",
+          focusRing,
+        )}
+      >
+        {t("onboarding.stamp.behind")}
+        <ChevronDown aria-hidden className={cn("size-4 transition-transform duration-gentle", open && "rotate-180")} />
+      </button>
+      {open && (
+        <div id={id}>
+          <BehindTray
+            value={shown}
+            onChange={(next) => update(draftPatchOf(next, shown))}
+            stickers={stickers.list}
+            stripPicture={false}
+            pictureInUse={resolved.stamp.kind === "image"}
+            outage={mode === "outage" ? "unread" : mode === "off" ? "off" : undefined}
+          />
+        </div>
+      )}
     </div>
   );
 }

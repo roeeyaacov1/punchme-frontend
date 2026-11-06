@@ -593,6 +593,7 @@
       "nameLabel": "Business name",
       "namePlaceholder": "e.g. Danny's Barbershop",
       "nicheLabel": "What kind of business is it?",
+      "tradeLine": "{{trade}} · Change",
       "autofillTitle": "Details auto-filled from Google",
       "autofillBody": "We filled in what we could find. You can edit anything.",
       "autofillClear": "Clear",
@@ -642,7 +643,15 @@
       },
       "next": "Continue with {{look}}",
       "noTrade": "Pick a kind of business to see its looks.",
-      "again": "{{name}} {{n}}"
+      "again": "{{name}} {{n}}",
+      "pictureCircles": "On the card itself your picture appears in the look you chose. Here it's shown in circles."
+    },
+    "logo": {
+      "label": "Logo (optional)",
+      "hint": "A square logo shows on iPhones with your name beside it. A wide one with the name already in it shows on its own.",
+      "kept": "The logo stays on this device until you save the card.",
+      "notKept": "This device has no room to keep the logo, so it lasts only until you close the page. Save the card to keep it.",
+      "lost": "Your logo isn't saved on this device. Choose it again, or save the card without one."
     },
     "accent": {
       "title": "Now the stamp colour",
@@ -663,6 +672,7 @@
       "uploadTooLarge": "That picture is too big — keep it under 8 MB.",
       "uploadUnreadable": "Couldn't read that picture — try a JPG or PNG.",
       "artMemoryOnly": "This device has no room to keep the picture, so it lasts only until you close the page. Save the card to keep it.",
+      "behind": "Ground and pattern",
       "notOnDevice": "Your picture isn't saved on this device. Choose it again, or a symbol.",
       "glyphs": {
         "check": "Check",

@@ -107,6 +107,26 @@ all follow that one decision.
   takes what is the owner's: the name, the logo, a picture stamp, a reward
   they wrote (one still a trade's default goes, to read the new trade's) or
   a count they set. The same look again changes nothing.
+- **A card from a look** (the draft has `look`) walks the same map with the
+  same four parts, holding the studio's own trays over the draft
+  (`studioValue.ts`, brief §7.4):
+  - the business: the name; the trade as a line, "Café · Change", which goes
+    back to the looks; and "Logo (optional)", the studio's upload tile,
+    scaled down and kept on the device until the save. A mark narrower than
+    2:1 turns the name beside it on by itself, and a wide one doesn't. A
+    logo the draft has and the device doesn't is said there, and holds
+    nothing up: the card is saved without it;
+  - the colours: `BrandColoursTray`, the business colour and what follows
+    it, the look's own colours among them while the card is still its
+    colour (`lookBase`);
+  - the stamp: `StampTray`, the trade's stickers first, more with a search, a
+    plain symbol and a picture of one's own, the tint, and in a circle or on
+    its own, with "Ground and pattern" (`BehindTray`) folded at its foot.
+    With a picture, a line says the card shows it in circles here;
+  - the reward: as before, and "The count on the card" (`CountOnCard`).
+
+  The trade's classic look is never written over a card from a look. A
+  draft from before the looks walks the map as before.
 - **The map** is `/onboarding/reward`: the card at full size, the reward
   said as a sentence under it, chips for the other parts, and one coral
   button. Its four parts, in the walk's order, are the business, the
