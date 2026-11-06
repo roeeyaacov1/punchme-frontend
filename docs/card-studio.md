@@ -77,7 +77,7 @@ type drifts, while the barcode plates hold at any width.
 | File | What it is |
 |---|---|
 | `card-studio/CardStudio.tsx` | The studio (Phase 3). The card is the map: on a phone the stage, the sample, the reward as a sentence and a row of chips, each opening a tray over the lower half; from 1024px the trays are tabs beside a sticky card. That line is 64rem (`useStudioWide.ts`, which the loading skeleton follows too), so a larger text size keeps the phone's layout until the screen is as much wider: 2048px at 200%, where the card's 22rem column would otherwise be wider than the page's |
-| `card-studio/StudioStage.tsx` | The kit's `WallpaperStage` with the pass in its 300px slot, the Apple/Google switch, and the tap regions over the pass (pointer shortcuts, measured from the pass's own rows). A card the server draws (`isStyled`) keeps its last picture while the next is drawn, with a lit tag under the stage from 500ms; when a drawing fails it shows the saved card, which is what customers have, with "כך הכרטיס אצל הלקוחות עכשיו" and "לצייר שוב" (`stageOnFailure`), never a picture of a card that is neither the draft nor the saved one. On a phone, where an open tray covers that, the save bar says it too |
+| `card-studio/StudioStage.tsx` | The kit's `WallpaperStage` with the pass in its 300px slot, the Apple/Google switch, and the tap regions over the pass (pointer shortcuts, measured from the pass's own rows). A card the server draws (`isStyled`) keeps what the stage showed last, a picture or the stand-in, while the next is drawn (`stageShown`), never another picture in between, with a lit tag under the stage from 500ms; a picture counts once the wallet's own one, Apple's strip or Google's hero, has loaded and decoded. When a drawing fails it shows the saved card, which is what customers have, with "כך הכרטיס אצל הלקוחות עכשיו" and "לצייר שוב" (`stageOnFailure`), never a picture of a card that is neither the draft nor the saved one. On a phone, where an open tray covers that, the save bar says it too. The motion (card looks, step C): a new drawing, or the saved card standing in, crosses over the last, which stays over the slot as a layer and goes out in 240ms on the in-out (`crossfade-out`; the 150ms fade with reduced motion), so the pass itself is never touched; a swap that changes the card's height, between the stand-in grid and a drawn strip, cuts. The tag fades in, and the failure's panel and the bar's line light on |
 | `card-studio/StudioTray.tsx`, `StudioBar.tsx`, `UploadTile.tsx`, `trays/` | The non-modal tray, the save bar, the picture tile, and the seven trays: colours, the stamp, the background, the reward, the names, the logo, Wallet details. With the design options the colours are `BrandColoursTray` and the background is "מאחורי החותמות" (`BehindTray`: a ground by name, and one faint pattern, a texture or a sticker); without them, `ColoursTray` and "הרקע" with the texture, as before. A tray stops at half the screen, or at 18rem where half would hold little past its heading and foot (large text, a short screen, a phone on its side), never past 85% (onboarding's step D, 31 Oct 2026) |
 | `card-studio/controls/` | The card controls the studio and (from Phase 4) onboarding share: card, stamp and text colour, the stamp, the texture, the stamp count, the reward, and a colour of one's own. The reward is a paragraph of two lines that grows to three (Phase 4): Enter does the screen's own action, if it passes one, and a pasted line break becomes a space. With large text on a phone, the glyphs and the textures take as many to a row as fit, and four at 100% (Phase 4) |
 | `card-studio/studioDraft.ts`, `lintProblems.ts`, `studioProblems.ts`, `studioSession.ts` | The draft's rules (tested), the server's check read by kind (tested), a failed save or upload as a sentence (tested), and the draft kept in the tab |
@@ -219,3 +219,18 @@ Fixed in Phase 3, except where it says otherwise.
   string in code and shows in both languages. Fixed in the studio, which
   passes `holderName` from `t()`; the literal stays as the frozen previews'
   fallback.
+- **A redraw flashed the saved card** (card looks, step C, 6 Nov). While a
+  drawing of a styled card was on its way, the stage stood the first
+  picture it found in for it, and the design read's comes first: croissant
+  to cupcake showed the saved card for half a second, longer on a slow
+  passbox. Fixed: the stage keeps what it showed. In the same pass, a
+  picture whose hero had loaded under Google went to Apple's pass before its
+  strip had, and the grid showed for a frame. Fixed: the wallet's own.
+- **The stand-in grid and a drawn strip are different heights.** The grid
+  is 54px for six stamps or fewer and 92px for more; Apple's strip is 115px
+  and Google's hero 98px. So a card that goes from a sticker to a plain
+  symbol, or back, moves by 23px on Apple with eight stamps (6px on Google).
+  Not fixed in step C: the previews are frozen, and transform and opacity
+  can't ease a change of height, so the swap cuts. Asking the server to draw
+  a plain card too, while the wallet draws the options, would end it, at the
+  cost of a drawing for every change of a plain card. Roee's call.
