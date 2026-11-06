@@ -215,7 +215,23 @@ all follow that one decision.
   take, stands in the circles. Where the wallet draws none of the options
   the card has, no drawing is asked, since each would fail: the stage shows
   the look as itself, with nothing under it, as the notice over it says
-  why. The motion is step C's.
+  why.
+- **Its motion** (card looks, step C). A new drawing crosses over the last
+  as the studio's does: the last stays over the slot as a layer and goes
+  out (`crossfade-out`, 180 ms on the ease-out; the gentle fade under
+  reduced motion), and one that comes mid-fade goes under the layer
+  already going. So does a look picked on the looks screen, in two
+  columns. A swap that changes the card's height, the circles against a
+  drawn strip, cuts. Before its first drawing for a wallet, a card still
+  the look's own (`stillItself`) stands as the look's published picture,
+  never as circles for a beat; a card the owner has changed shows its
+  circles in its own colours. The stage keeps room for both faces, so
+  going between them moves nothing under the card. A sticker, a colour or
+  a ground gets nothing beyond its new drawing: on a card from a look only
+  a picture of one's own lands (`stamp-land`), on the circles, the one
+  stamp they draw. A logo the owner has just given the card comes on by
+  light where the pass puts it (`lights-on`, or the gentle fade); not the
+  one the card opens with, nor the same one on the other wallet.
 
 ## The draft
 
