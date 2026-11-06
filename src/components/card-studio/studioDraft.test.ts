@@ -18,6 +18,9 @@ import {
   rewardForRow,
   sameCard,
   sampleStart,
+  STAMPS_CHANGE_MESSAGES,
+  stampsChangeMessage,
+  TEXT_LIMITS,
   textColourChoice,
   withBackground,
   withFaceLabel,
@@ -535,5 +538,24 @@ describe("rebaseEdits", () => {
       "members.member.points",
       "universal.info",
     ]);
+  });
+});
+
+describe("stampsChangeMessage", () => {
+  it("puts back the card language's default for an empty message", () => {
+    expect(stampsChangeMessage("", "HE")).toBe(STAMPS_CHANGE_MESSAGES.HE);
+    expect(stampsChangeMessage("   ", "EN")).toBe(STAMPS_CHANGE_MESSAGES.EN);
+    expect(stampsChangeMessage(undefined, undefined)).toBe(STAMPS_CHANGE_MESSAGES.HE);
+  });
+
+  it("keeps a message with its count as it is", () => {
+    expect(stampsChangeMessage("  חותמת חדשה! יש לך %@  ", "HE")).toBe("  חותמת חדשה! יש לך %@  ");
+  });
+
+  it("adds the count to a message without it, cut to fit", () => {
+    expect(stampsChangeMessage("חותמת חדשה!", "HE")).toBe("חותמת חדשה! %@");
+    const long = stampsChangeMessage("א".repeat(TEXT_LIMITS.changeMessage), "HE");
+    expect(long.length).toBe(TEXT_LIMITS.changeMessage);
+    expect(long.endsWith(" %@")).toBe(true);
   });
 });

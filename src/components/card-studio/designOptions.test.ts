@@ -6,16 +6,26 @@ import {
   countSection,
   designOptions,
   drawKey,
+  googleCut,
   iconOnlyOptionsShow,
   isStyled,
+  logoShape,
+  markShows,
+  patternChoice,
+  patternShows,
   picturesAt,
   readPicture,
   serverAsk,
   stagePictures,
+  stampSummary,
   stampsText,
+  studioMode,
   studioStickers,
+  tintDrawn,
+  tintShows,
   withFields,
   withOption,
+  withPatternChoice,
   withStamp,
   withStampsPlace,
   type DrawnCard,
@@ -428,5 +438,110 @@ describe("the count's place", () => {
     expect(withFields(top, moved("BACK_FIELDS")).design.stamps_place).toBe("secondary");
     // A move that doesn't touch the top leaves the place alone.
     expect(withFields(card, moved("AUXILIARY_FIELDS")).design.stamps_place).toBeUndefined();
+  });
+});
+
+describe("the studio's mode", () => {
+  const ready = { list: [], status: "ready" as const, available: true };
+  const failed = { list: [], status: "unavailable" as const, available: false };
+  const off = { list: [], status: "ready" as const, available: false };
+
+  it("offers the options while the list says the wallet draws them", () => {
+    expect(studioMode(ready, PLAIN.design)).toBe("options");
+    expect(studioMode(ready, BAKERY.design)).toBe("options");
+  });
+
+  it("says what a styled card has while the list can't be read", () => {
+    expect(studioMode(failed, BAKERY.design)).toBe("outage");
+  });
+
+  it("is today's studio for a plain card, or a wallet that draws no options", () => {
+    expect(studioMode(failed, PLAIN.design)).toBe("plain");
+    expect(studioMode(off, PLAIN.design)).toBe("plain");
+    expect(studioMode(off, BAKERY.design)).toBe("plain");
+    expect(studioMode({ list: [], status: "loading", available: false }, BAKERY.design)).toBe("plain");
+  });
+});
+
+describe("what draws nothing gets out of the way", () => {
+  it("offers the tint for a sticker or a picture, never for the glyph", () => {
+    expect(tintShows(PLAIN.design, false)).toBe(false);
+    expect(tintShows(PLAIN.design, true)).toBe(true);
+    expect(tintShows(BAKERY.design, false)).toBe(true);
+  });
+
+  it("shows the tint on only where the wallet draws it, on stamps on their own", () => {
+    expect(tintDrawn(BAKERY.design)).toBe(true);
+    expect(tintDrawn({ ...BAKERY.design, stamp: { ...BAKERY.design.stamp, style: "badge" } })).toBe(false);
+  });
+
+  it("shows the check only to a card on its own that has it, until a save leaves none", () => {
+    const off = { ...BAKERY.design, stamp: { ...BAKERY.design.stamp, mark: "none" as const } };
+    expect(markShows(BAKERY.design, PLAIN.design)).toBe(true);
+    // Turned off in the draft: still there, so it can go back on.
+    expect(markShows(off, BAKERY.design)).toBe(true);
+    // Saved without it: gone.
+    expect(markShows(off, off)).toBe(false);
+    // Never on a stamp in a circle.
+    expect(markShows({ ...BAKERY.design, stamp: { ...BAKERY.design.stamp, style: "badge" } }, BAKERY.design)).toBe(false);
+  });
+
+  it("always offers the check in the catalog editor, on stamps on their own", () => {
+    const off = { ...BAKERY.design, stamp: { ...BAKERY.design.stamp, mark: "none" as const } };
+    expect(markShows(off, off, true)).toBe(true);
+    expect(markShows(PLAIN.design, PLAIN.design, true)).toBe(false);
+  });
+
+  it("gives a strip picture's card no pattern to choose", () => {
+    expect(patternShows(false)).toBe(true);
+    expect(patternShows(true)).toBe(false);
+  });
+
+  it("reads the logo's shape for the name beside it", () => {
+    expect(logoShape(false, { width: 100, height: 100 })).toBe("none");
+    expect(logoShape(true, { width: 100, height: 100 })).toBe("mark");
+    expect(logoShape(true, { width: 199, height: 100 })).toBe("mark");
+    expect(logoShape(true, { width: 200, height: 100 })).toBe("wide");
+    expect(logoShape(true, null)).toBe("mark");
+  });
+});
+
+describe("googleCut", () => {
+  it("says what Google shows of a name past 20 characters", () => {
+    expect(googleCut("Demo Coffee - כרטיסיית קפה")).toBe("Demo Coffee - כרטיסי");
+    expect(googleCut("מאפיית הבוקר")).toBeNull();
+    expect(googleCut("12345678901234567890")).toBeNull();
+  });
+
+  it("counts characters, not halves of an emoji", () => {
+    expect(googleCut("☕".repeat(21))).toBe("☕".repeat(20));
+  });
+});
+
+describe("the pattern as one choice", () => {
+  it("reads a wallpaper before the texture", () => {
+    expect(patternChoice(PLAIN.design)).toBe("dots");
+    expect(patternChoice({ ...PLAIN.design, wallpaper: "sheaf-of-rice" })).toBe("sticker:sheaf-of-rice");
+    expect(patternChoice({})).toBe("none");
+  });
+
+  it("stores a sticker with no texture beside it, and a texture with no sticker", () => {
+    const wheat = withPatternChoice(PLAIN, "sticker:sheaf-of-rice");
+    expect(wheat.design).toMatchObject({ wallpaper: "sheaf-of-rice", pattern: "none" });
+    const waves = withPatternChoice(wheat, "waves");
+    expect(waves.design).toMatchObject({ wallpaper: "", pattern: "waves" });
+    expect(patternChoice(waves.design)).toBe("waves");
+  });
+});
+
+describe("stampSummary", () => {
+  const names = { sticker: (name: string) => `[${name}]`, tinted: "tinted", badge: "in a circle", icon: "on its own" };
+
+  it("names the sticker, the tint and the frame", () => {
+    expect(stampSummary(BAKERY.design, names)).toBe("[croissant], tinted, on its own");
+  });
+
+  it("leaves out what the card doesn't have", () => {
+    expect(stampSummary({ stamp: { style: "badge", sticker: "bread", tint: true } }, names)).toBe("[bread], in a circle");
   });
 });
