@@ -38,6 +38,26 @@ export function saveProblem(error: unknown): StudioProblem {
   return { key: problemKey(error) };
 }
 
+/** passbox-api away, or answering with a fault of its own (the backend's
+ * `WalletUnavailable`): the sync is tried again by itself. */
+const WALLET_AWAY = /^passbox-api: |\b(?:timed out|timeout|unavailable|connection)\b/i;
+
+/**
+ * Why the last design sync failed (`DesignOut.sync.error`), by kind:
+ * - `away`: the wallet couldn't be reached; the backend tries again, and a
+ *   save tries at once;
+ * - `refused`: the wallet refused the design itself (the backend's
+ *   `DesignConstraintError`, such as a server before v0.1.1 answering 400 to
+ *   an option it doesn't know). It isn't tried again, and sending the same
+ *   card again changes nothing, so customers' cards stay as they were until
+ *   the card changes.
+ * Null when the last sync went through.
+ */
+export function syncProblem(error: string | null | undefined): "away" | "refused" | null {
+  if (!error?.trim()) return null;
+  return WALLET_AWAY.test(error) ? "away" : "refused";
+}
+
 /** An upload that failed, which stops the save before anything else is sent. */
 export function uploadProblem(picture: HeldUse, error: unknown): StudioProblem {
   if (error instanceof ApiError) {

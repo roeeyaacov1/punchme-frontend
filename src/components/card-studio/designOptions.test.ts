@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { DesignField } from "../../api/designs";
 import {
   alreadyAsked,
+  behindUsesOptions,
   COUNT_BINDING,
   countSection,
   designOptions,
@@ -22,13 +23,16 @@ import {
   stagePictures,
   stageShown,
   stampSummary,
+  stampUsesOptions,
   stampsDrawnInColour,
   stampsText,
   studioMode,
   studioStickers,
   tintDrawn,
   tintShows,
+  usesOptions,
   withFields,
+  withoutOptions,
   withOption,
   withPatternChoice,
   withStamp,
@@ -539,11 +543,82 @@ describe("the studio's mode", () => {
     expect(studioMode(failed, BAKERY.design)).toBe("outage");
   });
 
-  it("is today's studio for a plain card, or a wallet that draws no options", () => {
+  it("is today's studio for a plain card, or while the list is on its way", () => {
     expect(studioMode(failed, PLAIN.design)).toBe("plain");
     expect(studioMode(off, PLAIN.design)).toBe("plain");
-    expect(studioMode(off, BAKERY.design)).toBe("plain");
     expect(studioMode({ list: [], status: "loading", available: false }, BAKERY.design)).toBe("plain");
+  });
+
+  it("says a card's options are off where the wallet draws none, as it refuses any of them", () => {
+    expect(studioMode(off, BAKERY.design)).toBe("off");
+    // Not drawn by the server, and refused by one before v0.1.1 all the same.
+    expect(studioMode(off, { ...PLAIN.design, stamps_place: "header" })).toBe("off");
+    expect(studioMode(off, { ...PLAIN.design, logo_text: true })).toBe("off");
+    // A list that failed says nothing of the wallet: a card drawn by the
+    // studio itself is today's.
+    expect(studioMode(failed, { ...PLAIN.design, stamps_format: "fraction" })).toBe("plain");
+  });
+});
+
+describe("usesOptions", () => {
+  it("is any option set away from its default", () => {
+    expect(usesOptions(PLAIN.design)).toBe(false);
+    expect(usesOptions(BAKERY.design)).toBe(true);
+    expect(usesOptions({ ...PLAIN.design, stamp: { glyph: "coffee", mark: "check" } })).toBe(true);
+    expect(usesOptions({ ...PLAIN.design, stamps_format: "fraction" })).toBe(true);
+    // Written at their defaults, they are none.
+    expect(
+      usesOptions({
+        ...PLAIN.design,
+        stamp: { glyph: "coffee", style: "badge", mark: "none", sticker: "", tint: false },
+        panel_color: "",
+        wallpaper: "",
+        stamps_place: "secondary",
+        stamps_format: "count",
+        logo_text: false,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("which part uses the options", () => {
+  it("tells the stamps from what stands behind them", () => {
+    expect(stampUsesOptions(BAKERY.design)).toBe(true);
+    expect(behindUsesOptions(BAKERY.design)).toBe(true);
+    expect(stampUsesOptions({ ...PLAIN.design, panel_color: "#FFFFFF" })).toBe(false);
+    expect(behindUsesOptions({ ...PLAIN.design, panel_color: "#FFFFFF" })).toBe(true);
+    // A tint kept from a stamp on its own, now in a circle, is still sent.
+    expect(stampUsesOptions({ stamp: { glyph: "coffee", tint: true } })).toBe(true);
+    expect(stampUsesOptions({ ...PLAIN.design, stamps_place: "header" })).toBe(false);
+    expect(behindUsesOptions({ ...PLAIN.design, stamps_place: "header" })).toBe(false);
+  });
+});
+
+describe("withoutOptions", () => {
+  const fields: DesignField[] = [
+    { label: "שם", binding: "person.displayName", section: "SECONDARY_FIELDS", alignment: "LEFT", default_value: "" },
+    { label: "כוסות", binding: COUNT_BINDING, section: "HEADER_FIELDS", alignment: "RIGHT", default_value: "0" },
+  ];
+
+  it("takes every option off, keeping the glyph, its colour and the texture", () => {
+    const plain = withoutOptions({ ...BAKERY, design: { ...BAKERY.design, pattern: "waves", logo_text: true } });
+    expect(plain.design).toEqual({ stamp: { glyph: "check", color: "#C65D3B" }, pattern: "waves" });
+    expect(usesOptions(plain.design)).toBe(false);
+    expect(isStyled(plain.design)).toBe(false);
+  });
+
+  it("puts the count back under the stamps, where the saved card had it", () => {
+    const saved: DesignField[] = [fields[0], { ...fields[1], section: "AUXILIARY_FIELDS" }];
+    const plain = withoutOptions({ ...BAKERY, design: { ...BAKERY.design, fields } }, saved);
+    expect(countSection(plain.design.fields)).toBe("AUXILIARY_FIELDS");
+    expect(plain.design.stamps_place).toBeUndefined();
+  });
+
+  it("leaves the rest of the card as it is", () => {
+    const plain = withoutOptions(BAKERY);
+    expect(plain.name).toBe(BAKERY.name);
+    expect(plain.background_color).toBe(BAKERY.background_color);
+    expect(BAKERY.design.stamp?.sticker).toBe("croissant");
   });
 });
 

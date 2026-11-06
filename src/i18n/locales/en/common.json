@@ -302,8 +302,13 @@
     },
     "sync": {
       "failed": "The last update to passes in wallets didn't go through. We'll try again by ourselves, and Save tries right away.",
+      "refused": "The wallet didn't accept the design you saved, so customers' cards stayed as they were. Change the card and save to try again.",
       "stale": "Passes in wallets were built with an older version. One save brings them up to date.",
       "update": "Update the passes"
+    },
+    "options": {
+      "off": "The wallet can't draw some of what you chose for this card right now, such as stickers and stamps on their own. While the card has them, a save won't reach customers' cards.",
+      "takeOff": "Take them off the card"
     },
     "moreColours": "More colours",
     "labelColour": "Label colour",
@@ -382,6 +387,8 @@
     "stickers": {
       "outage": "The stickers didn't load just now, so they can't be changed. The stamps on the card stay as they are.",
       "outageBehind": "The stickers didn't load just now, so what's behind the stamps can't be changed. It stays as it is.",
+      "off": "The wallet doesn't draw stickers or stamps on their own right now. While the card has them, a save won't reach customers' cards.",
+      "offBehind": "The wallet doesn't draw a ground for the stamps or a sticker pattern right now. While the card has them, a save won't reach customers' cards.",
       "has": "On the card now:",
       "symbolDrops": "A symbol takes the sticker's place on the stamps.",
       "ground": "a {{name}} ground",
