@@ -70,11 +70,13 @@ const ADVICE = [
   /\bit shows as a full card\b/,
 ];
 
-/** passbox-api's warning that a pass has no contact details for its back.
- * A platform's contact stands in, so passes still go out, and the studio has
- * nowhere to add one yet. It would be advice an owner couldn't follow, so it
- * isn't said. */
-const UNSAID = [/\bno contact details for the back of the pass\b/];
+/** passbox-api's warnings that a pass has no contact details for its back:
+ * two lines on every card, one of them Apple's ("the back of the pass has no
+ * contact details, which Apple asks for"), both under `merchant.contact`. A
+ * platform's contact stands in, so passes still go out, and the studio has
+ * nowhere to add one yet. It would be advice an owner couldn't follow, so
+ * neither is said. */
+const UNSAID = [/\bno contact details for the back of the pass\b/, /^merchant\.contact: /];
 
 /** "field meta.custom: missing usage flags", "field X: classTemplateInfo never references …" */
 const NAMED_FIELD = /^field ([^:\s]+): /;
