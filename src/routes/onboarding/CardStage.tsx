@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
+import { CircleAlert } from "lucide-react";
 import {
   AppleCardPreview,
   GoogleCardPreview,
@@ -21,7 +22,10 @@ import { SegmentedControl, useReducedMotion, WallpaperStage } from "../../compon
 import { useWide } from "../../components/onboarding/useWide";
 import { cn } from "../../lib/cn";
 import { MAX_STAMPS, type MapPart, type Niche } from "./draft";
+import { drawBody } from "./drawing";
+import { lookPreview } from "./looks";
 import { useStageWallet } from "./stageWallet";
+import { useLookDrawing } from "./useLookDrawing";
 import { useOnboardingDraft } from "./useOnboardingDraft";
 
 const WALLETS: PreviewPlatform[] = ["apple", "google"];
@@ -71,6 +75,15 @@ export interface StageHandle {
  * screen readers and out of the Tab order: the chips are the controls. The
  * outline is two rings, surface then ink, so it shows on a dark card and a
  * light one.
+ *
+ * A card from a look is drawn by the wallet, through the backend (brief
+ * §7.4): the strip, or Google's hero, is that drawing, staged as the pass's
+ * published picture, and the rows are the frozen preview's own, so the name
+ * lands as typed. While the next is drawn the last stays, and from 500ms a
+ * tag under the stage says so. When it can't be drawn, the stage shows the
+ * look as itself, in its own colours, and says so; the save goes on, since
+ * it sends the draft, not the picture. A stamp that is a picture, which the
+ * drawing can't take, stands in the circles, as the stamp's part says.
  */
 export const CardStage = forwardRef<
   StageHandle,
@@ -91,14 +104,31 @@ export const CardStage = forwardRef<
     className?: string;
   }
 >(function CardStage({ preview: given, crop = "whole", tag, onPart, lit = null, land, className }, ref) {
-  const { t } = useTranslation();
-  const { draft, preview: drafted } = useOnboardingDraft();
+  const { t, i18n } = useTranslation();
+  const { draft, preview: drafted, resolved, presets, templateInput } = useOnboardingDraft();
   const [wallet, setWallet] = useStageWallet();
   const reduced = useReducedMotion();
   const wide = useWide();
   const cut = crop === "top" && !wide;
   const slot = useRef<HTMLDivElement>(null);
-  const preview = given ?? drafted;
+
+  // The draft's own card from a look is the wallet's drawing of it.
+  const body = useMemo(() => (given || !draft.look ? null : drawBody(resolved, wallet)), [given, draft.look, resolved, wallet]);
+  const drawing = useLookDrawing(body);
+  const lang = i18n.resolvedLanguage ?? "en";
+  const itself = useMemo(() => {
+    const look = drawing.failure ? presets?.find((preset) => preset.id === draft.look) : undefined;
+    return look ? lookPreview(look, draft, presets, lang, t, templateInput.name) : null;
+  }, [drawing.failure, presets, draft, lang, t, templateInput.name]);
+  const preview = useMemo((): CardPreviewValue => {
+    if (given) return given;
+    if (!body) return drafted;
+    if (drawing.failure) return itself ?? drafted;
+    const picture = drawing.picture;
+    if (!picture || picture.role !== body.role) return drafted;
+    const states = { [String(drafted.currentStamps)]: picture.url };
+    return { ...drafted, unsaved: false, ...(picture.role === "hero" ? { heroStates: states } : { stripStates: states }) };
+  }, [given, body, drafted, drawing.failure, drawing.picture, itself]);
   const [boxes, setBoxes] = useState<Partial<Record<MapPart, Box>>>({});
 
   const shown = useMemo<CardPreviewValue>(
@@ -279,6 +309,31 @@ export const CardStage = forwardRef<
         </WallpaperStage>
         {tag && <div className="absolute end-3 top-3">{tag}</div>}
       </div>
+      {/* Under the stage, never over the pass, as the studio's: a tag while
+          a drawing has been on its way 500ms, said once per drawing; the
+          reason when there is none. Its place is kept while the card is
+          drawn, so the tag coming and going moves nothing. */}
+      {body && (
+        <div aria-live="polite" className={cn("flex min-h-7 w-full max-w-[340px] flex-col items-center", cut && "hidden")}>
+          {drawing.failure ? (
+            <p className="flex items-start gap-1.5 text-sm leading-snug text-ink">
+              <CircleAlert aria-hidden className="mt-px size-4 shrink-0" />
+              <span>{t(drawing.failure === "tooMany" ? "onboarding.look.tooMany" : "onboarding.look.drawFailed")}</span>
+            </p>
+          ) : (
+            drawing.slow && (
+              <span
+                className={cn(
+                  "theme-lit type-tag inline-flex items-center rounded-[1.30625rem] border border-border bg-surface/95 px-3 py-1 text-center text-ink-muted",
+                  !reduced && "animate-gentle-in",
+                )}
+              >
+                {t("studio.drawn.drawing")}
+              </span>
+            )
+          )}
+        </div>
+      )}
     </div>
   );
 });

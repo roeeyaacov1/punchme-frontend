@@ -644,7 +644,9 @@
       "next": "Continue with {{look}}",
       "noTrade": "Pick a kind of business to see its looks.",
       "again": "{{name}} {{n}}",
-      "pictureCircles": "On the card itself your picture appears in the look you chose. Here it's shown in circles."
+      "pictureCircles": "On the card itself your picture appears in the look you chose. Here it's shown in circles.",
+      "drawFailed": "We couldn't draw the look in your colour just now. Here it is in its own colours.",
+      "tooMany": "We've drawn a lot of versions in a short time. Try again in a minute."
     },
     "logo": {
       "label": "Logo (optional)",

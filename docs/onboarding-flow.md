@@ -179,6 +179,16 @@ all follow that one decision.
   business on it.
 - **The card** shows the draft until it is saved, then the published pass
   (wallet, billing) once it has synced and its pictures load.
+- **A card from a look on the stage** (`CardStage`, brief §7.4) is the
+  wallet's drawing of the draft, through the backend (`drawing.ts`): the
+  strip, or Google's hero, staged as the pass's picture, with the frozen
+  preview's own rows, so the name lands as typed. The last picture stays
+  while the next is drawn, shown once decoded, and from 500 ms a tag under
+  the stage says one is coming. When it can't be drawn, the stage shows the
+  look as itself, in its own colours with the owner's name and reward, and
+  says so ("too many in a short time" for a 429); the save goes on, since
+  it sends the draft. A stamp that is a picture, which the drawing can't
+  take, stands in the circles. The motion is step C's.
 
 ## The draft
 
@@ -244,6 +254,7 @@ all follow that one decision.
 | Load, once per tab | `GET /api/presets` (public): the catalog's looks, a drawn one with its options and `pictures` | `getPresets` |
 | Load, once per tab, given up after 4 s | `GET /api/stickers` (public): `{available, stickers: [{name, url}]}` | `getPublicStickers` |
 | The look screen and the stage show a drawn look | `GET /api/presets/{id}/picture/{strip\|hero}?v=…`, as `<img>`, cached a day | – |
+| The card from a look stands on the stage, and 400 ms after a change that alters its strip | `POST /api/presets/draw` (public): enumerated values only, for the wallet shown; a PNG. Each drawing once per tab; a 429 is said, never tried again by itself | `drawLook`, via `useLookDrawing` |
 
 ## Account step
 
