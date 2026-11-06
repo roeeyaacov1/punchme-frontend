@@ -5,13 +5,14 @@ import { cn } from "../../../lib/cn";
 import { normalizeHex } from "../../../lib/color";
 import { Button } from "../../kit/Button";
 import { focusRing } from "../../kit/classes";
+import { readableInk } from "../../../lib/color";
 import {
   CREAM,
   following,
-  groundFor,
   textFor,
   withBusinessColour,
   withRuleColour,
+  type ColourBase,
   type Follower,
 } from "../brandColours";
 import {
@@ -94,23 +95,36 @@ function FollowRow({
  *
  * Today's tray, with its ready palettes, stays for a wallet that draws none
  * of the options (`ColoursTray`).
+ *
+ * The onboarding wizard passes the look the card started from as `base`:
+ * its own colours follow too while the card is still its colour, so a look
+ * just picked never says it was changed by hand.
  */
 export function BrandColoursTray({
   value,
   onChange,
+  base,
 }: {
   value: CardStudioValue;
   onChange: (next: CardStudioValue) => void;
+  base?: ColourBase;
 }) {
   const { t } = useTranslation();
   const moreId = useId();
   const [more, setMore] = useState(false);
   const card = value.background_color;
-  const follows = following(value);
+  const follows = following(value, base);
   const stamps = stampColourOf(value);
   const ground = designOptions(value.design).panelColor;
-  const back = (which: Exclude<Follower, "label">) => onChange(withRuleColour(value, which));
+  const back = (which: Exclude<Follower, "label">) => onChange(withRuleColour(value, which, base));
   const bold = { b: <b className="font-semibold" /> };
+  // A following colour is said by name: the rule's where it is the rule's,
+  // as it always was, and otherwise the base's own colour as it is.
+  const text = value.foreground_color;
+  const textWords =
+    normalizeHex(text) === normalizeHex(readableInk(card)) || normalizeHex(text) === normalizeHex(textFor(card))
+      ? textFor(card)
+      : text;
 
   const setStamps = (color: string) =>
     onChange({ ...value, design: { ...value.design, stamp: { ...value.design.stamp, color } } });
@@ -124,7 +138,7 @@ export function BrandColoursTray({
         colours={{ background: card, stamp: stamps, text: value.foreground_color, label: value.label_color }}
         glyph={value.design.stamp?.glyph ?? "check"}
         onLook={() => {}}
-        onBackground={(hex) => onChange(withBusinessColour(value, hex))}
+        onBackground={(hex) => onChange(withBusinessColour(value, hex, base))}
       />
 
       <div className="flex flex-col">
@@ -160,7 +174,7 @@ export function BrandColoursTray({
                 follows.ground ? (
                   <Trans
                     i18nKey="studio.colours.rows.ground"
-                    values={{ colour: t(groundName(groundFor(card))) }}
+                    values={{ colour: t(groundName(ground)) }}
                     components={bold}
                   />
                 ) : (
@@ -185,7 +199,7 @@ export function BrandColoursTray({
                   i18nKey="studio.colours.rows.text"
                   values={{
                     colour: t(
-                      textFor(card) === "#FFFFFF" ? "studio.colours.names.white" : "studio.colours.names.dark",
+                      normalizeHex(textWords) === "#FFFFFF" ? "studio.colours.names.white" : "studio.colours.names.dark",
                     ),
                   }}
                   components={bold}

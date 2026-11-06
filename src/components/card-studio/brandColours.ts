@@ -132,22 +132,44 @@ export function colourSetOf(value: CardStudioValue): CardColourSet {
 export type Follower = "text" | "label" | "stamps" | "ground";
 
 /**
+ * Colours that count as following the business colour beside the rule's: a
+ * look's own, as the onboarding wizard starts a card from one. They count
+ * only while the card is still the look's colour; a new business colour
+ * moves them to the rule's, and none was set by hand. Without one, only the
+ * rule's colours follow, as in the studio.
+ */
+export interface ColourBase {
+  card: string;
+  text?: string;
+  label?: string;
+  stamps?: string;
+  ground?: string | null;
+}
+
+/** The base, while the card is still its colour. */
+function baseOf(value: CardStudioValue, base: ColourBase | undefined): ColourBase | null {
+  return base && same(base.card, value.background_color) ? base : null;
+}
+
+/**
  * Which colours still follow the business colour. The text follows when it is
  * the rule's, or the black or white the studio picked automatically before the
  * rule; the label when it is what the text follows with; the stamps when they
  * are the rule's against the ground the card has; the ground when it is the
- * rule's. A card with no ground has no ground to follow.
+ * rule's. A card with no ground has no ground to follow. With a `base`, its
+ * own colours follow too.
  */
-export function following(value: CardStudioValue): Record<Follower, boolean> {
+export function following(value: CardStudioValue, base?: ColourBase): Record<Follower, boolean> {
   const card = value.background_color;
   const set = colourSetOf(value);
   const tinted = value.design.stamp?.tint === true;
-  const text = same(set.text, textFor(card)) || same(set.text, readableInk(card));
+  const own = baseOf(value, base);
+  const text = same(set.text, textFor(card)) || same(set.text, readableInk(card)) || same(set.text, own?.text);
   return {
     text,
-    label: same(set.label, textFor(card)) || same(set.label, set.text),
-    stamps: same(set.stamps, stampsFor(card, set.ground || null, tinted)),
-    ground: !!set.ground && same(set.ground, groundFor(card)),
+    label: same(set.label, textFor(card)) || same(set.label, set.text) || same(set.label, own?.label),
+    stamps: same(set.stamps, stampsFor(card, set.ground || null, tinted)) || same(set.stamps, own?.stamps),
+    ground: !!set.ground && (same(set.ground, groundFor(card)) || same(set.ground, own?.ground ?? undefined)),
   };
 }
 
@@ -156,8 +178,8 @@ export function following(value: CardStudioValue): Record<Follower, boolean> {
  * The ground moves first, and the stamps are then judged against the ground
  * the card will have, whether it moved or was set by hand.
  */
-export function withBusinessColour(value: CardStudioValue, hex: string): CardStudioValue {
-  const was = following(value);
+export function withBusinessColour(value: CardStudioValue, hex: string, base?: ColourBase): CardStudioValue {
+  const was = following(value, base);
   const set = colourSetOf(value);
   const tinted = value.design.stamp?.tint === true;
   const ground = set.ground ? (was.ground ? groundFor(hex) : set.ground) : "";
@@ -178,23 +200,27 @@ export function withBusinessColour(value: CardStudioValue, hex: string): CardStu
 }
 
 /** One colour back on the rule ("חזרה לצבע של העסק"). The label goes back with
- * the text. */
-export function withRuleColour(value: CardStudioValue, which: Exclude<Follower, "label">): CardStudioValue {
+ * the text. With a `base`, while the card is still its colour, back to the
+ * base's own. */
+export function withRuleColour(
+  value: CardStudioValue,
+  which: Exclude<Follower, "label">,
+  base?: ColourBase,
+): CardStudioValue {
   const card = value.background_color;
   const set = colourSetOf(value);
   const tinted = value.design.stamp?.tint === true;
+  const own = baseOf(value, base);
   if (which === "text") {
-    const text = textFor(card);
-    return { ...value, foreground_color: text, label_color: text };
+    const text = own?.text ?? textFor(card);
+    return { ...value, foreground_color: text, label_color: own?.label ?? text };
   }
   if (which === "ground") {
-    const ground = groundFor(card);
+    const ground = own?.ground || groundFor(card);
     return { ...value, design: { ...value.design, panel_color: ground } };
   }
-  return {
-    ...value,
-    design: { ...value.design, stamp: { ...value.design.stamp, color: stampsFor(card, set.ground || null, tinted) } },
-  };
+  const stamps = own?.stamps ?? stampsFor(card, set.ground || null, tinted);
+  return { ...value, design: { ...value.design, stamp: { ...value.design.stamp, color: stamps } } };
 }
 
 /**
