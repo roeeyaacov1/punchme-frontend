@@ -1613,7 +1613,7 @@ Verify per CLAUDE.md and commit.
   - the admin header's email runs past a 375px screen;
   - the landing page's sample answer draws its own "Give the reward" pill, which crosses its outline by 2.3px in English at 320 and 375
 - [ ] The card's looks: passbox's design options, native in the studio and the wizard (`card-looks-guide.md`)
-- [ ] /admin, PunchMe's staff area (§7, "After the phases"): contract · A · B (after the looks' wizard merges) · D · merged
+- [ ] /admin, PunchMe's staff area (§7, "After the phases"): contract (6 Nov, `docs/admin-pages.md`) · A (6 Nov: the list ranked by trade, as owners meet it; `briefs/admin.md`) · B · D · merged
 - [ ] Phase 10, cleanup
 
 ---
