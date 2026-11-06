@@ -6,9 +6,9 @@ import { DURATION, FINAL_STAMP, PUNCH, PUNCHES } from "../src/timeline.ts";
 const first = PUNCHES[0];
 
 test("the strip's first slot is the first in reading order", () => {
-  assert.deepEqual(slotCenter(0, false), { x: 153, y: 140 });
-  assert.deepEqual(slotCenter(0, true), { x: 927, y: 140 });
-  assert.deepEqual(slotCenter(9, false), { x: 927, y: 140 });
+  assert.deepEqual(slotCenter(0, false), { x: 153, y: 262 });
+  assert.deepEqual(slotCenter(0, true), { x: 927, y: 262 });
+  assert.deepEqual(slotCenter(9, false), { x: 927, y: 262 });
   assert.equal(slotCenter(1, false).x - slotCenter(0, false).x, SLOT.size + SLOT.gap);
 });
 
@@ -45,7 +45,7 @@ test("the disc flies from the punch to its slot, mirrored in Hebrew", () => {
   const start = discFlight(first.at, first, false);
   assert.deepEqual(start && { x: start.x, y: start.y, scale: start.scale }, { x: first.cx, y: first.cy, scale: 1 });
   const late = discFlight(first.at + PUNCH.flight - 0.001, first, true);
-  assert.ok(late && Math.abs(late.x - slotCenter(0, true).x) < 1 && Math.abs(late.y - 140) < 1);
+  assert.ok(late && Math.abs(late.x - slotCenter(0, true).x) < 1 && Math.abs(late.y - 262) < 1);
   assert.ok(late && late.rotate < 0);
   assert.equal(discFlight(first.at + PUNCH.flight, first, false), null);
 });

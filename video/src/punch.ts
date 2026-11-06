@@ -11,8 +11,11 @@ import { ALL_PUNCHES, PUNCH, type PunchAt } from "./timeline.ts";
 /** The die's radius: a 260px hole. */
 export const DIE_R = 130;
 
-/** The strip's ten slots across the top of the frame. */
-export const SLOT = { size: 64, gap: 22, y: 140 } as const;
+/**
+ * The strip's ten slots across the top of the frame, just under the 220px
+ * that WhatsApp's and Stories' own controls can cover.
+ */
+export const SLOT = { size: 64, gap: 22, y: 262 } as const;
 
 const SLOTS = 10;
 const SPAN = SLOTS * SLOT.size + (SLOTS - 1) * SLOT.gap;
