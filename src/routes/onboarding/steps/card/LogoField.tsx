@@ -28,10 +28,14 @@ export function LogoField() {
   // The error's key, not its sentence, so that it follows a switch of language.
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [notKept, setNotKept] = useState(false);
+  // A phone's photo takes a moment to read and scale down: the tile says so
+  // meanwhile, rather than looking as if the choice went nowhere.
+  const [reading, setReading] = useState(false);
   const lost = !!draft.logo && !logoUrl;
 
   async function take(file: File) {
     setErrorKey(null);
+    setReading(true);
     try {
       const dataUrl = await fitPicture(await readPicture(file), "logo");
       const size = await pictureSize(dataUrl);
@@ -47,6 +51,8 @@ export function LogoField() {
           ? "onboarding.stamp.uploadTooLarge"
           : "onboarding.stamp.uploadUnreadable",
       );
+    } finally {
+      setReading(false);
     }
   }
 
@@ -64,6 +70,9 @@ export function LogoField() {
         src={logoUrl}
         ground={resolved.background}
         error={errorKey ? t(errorKey) : null}
+        // Said, not `busy`: that disables the input, and focus would fall
+        // off it while the picture is read.
+        chooseLabel={reading ? t("common.loading") : undefined}
         note={logoUrl ? t(notKept ? "onboarding.logo.notKept" : "onboarding.logo.kept") : undefined}
         onFile={(file) => void take(file)}
         onRemove={

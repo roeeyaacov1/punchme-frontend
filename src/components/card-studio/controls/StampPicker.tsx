@@ -189,7 +189,7 @@ export function StampPictureField({
           htmlFor={inputId}
           aria-busy={reading || undefined}
           className={cn(
-            "flex min-h-14 w-fit max-w-full cursor-pointer items-center gap-3 rounded-full pe-5 ps-1.5 touch-manipulation select-none",
+            "flex min-h-14 w-fit max-w-full cursor-pointer items-center gap-3 rounded-full pe-5 ps-1.5 touch-manipulation select-none [-webkit-touch-callout:none]",
             "has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
             "active:bg-ink/[0.06] hover-fine:bg-ink/5 transition-colors duration-gentle ease-out",
             noTapFlash,
