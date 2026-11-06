@@ -69,7 +69,10 @@ export function ChoiceTiles<T extends string>({
             <label
               key={tile.value}
               className={cn(
-                "relative flex min-h-11 min-w-11 cursor-pointer touch-manipulation has-[:disabled]:cursor-not-allowed select-none items-center justify-center",
+                // A finger held on a tile raises no picture's callout: a face
+                // drawn from a sticker or a photo is the control, not an image
+                // to save.
+                "relative flex min-h-11 min-w-11 cursor-pointer touch-manipulation has-[:disabled]:cursor-not-allowed select-none items-center justify-center [-webkit-touch-callout:none]",
                 SHAPES[shape],
                 "ring-offset-surface transition-shadow duration-gentle ease-out",
                 chosen ? "ring-2 ring-ink ring-offset-2" : "ring-1 ring-field",

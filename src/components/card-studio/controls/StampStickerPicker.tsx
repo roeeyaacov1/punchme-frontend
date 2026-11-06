@@ -41,7 +41,8 @@ function StickerTiles({
           <label
             key={sticker.name}
             className={cn(
-              "flex min-h-11 cursor-pointer touch-manipulation select-none flex-col items-center gap-1 has-[:disabled]:cursor-not-allowed",
+              // Held, it raises no "save image" callout over the sticker.
+              "flex min-h-11 cursor-pointer touch-manipulation select-none flex-col items-center gap-1 has-[:disabled]:cursor-not-allowed [-webkit-touch-callout:none]",
               noTapFlash,
             )}
           >
@@ -150,7 +151,12 @@ export function StickerMore({
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           leading={<Search aria-hidden className="size-4" />}
+          // Half a name is not a misspelling: no autocorrect swapping "cupc"
+          // for a word on Search, no red underline, no capital to start.
           autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck={false}
           enterKeyHint="search"
           aria-describedby={searching && found.length === 0 ? noneId : undefined}
           dir="auto"
