@@ -24,6 +24,7 @@ import {
   type HeldUse,
 } from "./studioDraft";
 import { BackgroundTray } from "./trays/BackgroundTray";
+import { BehindTray } from "./trays/BehindTray";
 import { BrandColoursTray } from "./trays/BrandColoursTray";
 import { ColoursTray } from "./trays/ColoursTray";
 import { LogoTray } from "./trays/LogoTray";
@@ -360,7 +361,8 @@ export function CardStudio({
   const trays: { id: string; label: string }[] = [
     { id: "colours", label: t("studio.chips.colours") },
     { id: "stamp", label: t("studio.chips.stamp") },
-    { id: "background", label: t("studio.chips.background") },
+    // "מאחורי החותמות" where the wallet draws the options; "הרקע" as before.
+    { id: "background", label: t(mode === "options" ? "studio.chips.behind" : "studio.chips.background") },
     { id: "reward", label: t("studio.chips.reward") },
     { id: "names", label: t("studio.chips.names") },
     ...(owner ? [{ id: "logo", label: t("studio.chips.logo") }] : []),
@@ -472,14 +474,16 @@ export function CardStudio({
           />
         );
       case "background":
-        return (
-          <BackgroundTray
+        return mode === "options" ? (
+          <BehindTray
             value={value}
             onChange={onChange}
-            options={options}
             stickers={stickers.list}
-            stickersStatus={stickers.status}
+            stripPicture={!!(held.strip_base ?? images.strip_base)}
+            pictureInUse={stampPicture.inUse}
           />
+        ) : (
+          <BackgroundTray value={value} onChange={onChange} />
         );
       case "reward":
         return (

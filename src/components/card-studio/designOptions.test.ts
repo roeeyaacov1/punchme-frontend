@@ -18,6 +18,7 @@ import {
   serverAsk,
   stagePictures,
   stampSummary,
+  stampsDrawnInColour,
   stampsText,
   studioMode,
   studioStickers,
@@ -503,6 +504,20 @@ describe("what draws nothing gets out of the way", () => {
     expect(logoShape(true, { width: 199, height: 100 })).toBe("mark");
     expect(logoShape(true, { width: 200, height: 100 })).toBe("wide");
     expect(logoShape(true, null)).toBe("mark");
+  });
+});
+
+describe("stampsDrawnInColour", () => {
+  it("judges a circle, a glyph and a tinted sticker by their colour", () => {
+    expect(stampsDrawnInColour(PLAIN.design, false)).toBe(true);
+    expect(stampsDrawnInColour({ stamp: { style: "badge", sticker: "croissant" } }, false)).toBe(true);
+    expect(stampsDrawnInColour({ stamp: { style: "icon", glyph: "coffee" } }, false)).toBe(true);
+    expect(stampsDrawnInColour(BAKERY.design, false)).toBe(true);
+  });
+
+  it("leaves an untinted sticker or photo on its own to its own colours", () => {
+    expect(stampsDrawnInColour({ stamp: { style: "icon", sticker: "bubble-tea" } }, false)).toBe(false);
+    expect(stampsDrawnInColour({ stamp: { style: "icon" } }, true)).toBe(false);
   });
 });
 
