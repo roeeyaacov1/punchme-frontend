@@ -2,8 +2,11 @@ import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode }
 import { useTranslation } from "react-i18next";
 import { AbsoluteFill, Img, cancelRender, continueRender, delayRender } from "remotion";
 import logo from "../../src/assets/logo.png";
+import { AppleCardPreview, GoogleCardPreview } from "../../src/components/card-studio/CardPreviews";
+import { samplePass, tradeTemplate, type TradeKey } from "../../src/components/marketing/samples";
 import { cn } from "../../src/lib/cn";
 import { fontsReady } from "./fonts";
+import { light, useBeat, type At } from "./motion";
 
 /** The safe area: clear of WhatsApp's and Stories' own controls. */
 export const SAFE = { top: 220, side: 80, bottom: 320 } as const;
@@ -119,8 +122,7 @@ export function Tag({ children, foot = false, style }: { children: ReactNode; fo
  * too. Each part is balanced on its own.
  */
 export function Lines({ text, atComma = false }: { text: string; atComma?: boolean }) {
-  const sentences = text.split(/(?<=[.!?])\s+/);
-  const parts = atComma && sentences.length === 1 ? splitAtComma(text) : sentences;
+  const parts = lineParts(text, atComma);
   return (
     <>
       {parts.map((part, index) => (
@@ -130,6 +132,12 @@ export function Lines({ text, atComma = false }: { text: string; atComma?: boole
       ))}
     </>
   );
+}
+
+/** A line of copy's parts: its sentences, or with `atComma` a lone sentence split after its first comma. */
+export function lineParts(text: string, atComma = false): string[] {
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  return atComma && sentences.length === 1 ? splitAtComma(text) : sentences;
 }
 
 function splitAtComma(text: string): string[] {
@@ -152,6 +160,94 @@ export function Caption({ children, size = 68, className, style }: { children: R
     >
       {typeof children === "string" ? <Lines text={children} /> : children}
     </p>
+  );
+}
+
+/** Frames between one line of a caption lighting and the next. */
+const LINE_GAP = 3;
+
+/**
+ * A caption that lights on line by line, 100ms apart, and goes out whole:
+ * `Caption`'s Rubik 500 in ink (13.54:1), or with `lead` the sentence under
+ * a line in Assistant 600 and ink-muted (7.27:1). A negative `on` is lit
+ * from the beat's first frame.
+ */
+export function Say({
+  text,
+  on,
+  off,
+  size,
+  lead = false,
+  atComma = false,
+  className,
+  style,
+}: {
+  text: string;
+  on: number;
+  off?: number;
+  size?: number;
+  lead?: boolean;
+  atComma?: boolean;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const { t } = useBeat();
+  const hebrew = useHebrew();
+  const parts = lineParts(text, atComma);
+  return (
+    <p
+      className={cn(
+        "text-center",
+        lead ? "font-body font-semibold text-ink-muted" : "font-heading font-medium text-ink",
+        className,
+      )}
+      style={{
+        fontSize: size ?? (lead ? 54 : 68),
+        lineHeight: lead ? (hebrew ? 1.4 : 1.3) : hebrew ? 1.25 : 1.15,
+        letterSpacing: lead || hebrew ? 0 : "-0.01em",
+        ...style,
+      }}
+    >
+      {parts.map((part, index) => (
+        <span key={index} className="block text-balance" style={light(t, on < 0 ? on : on + index * LINE_GAP, off)}>
+          {part}
+        </span>
+      ))}
+    </p>
+  );
+}
+
+/**
+ * A sample pass, the real `AppleCardPreview` or `GoogleCardPreview`, standing
+ * at `at` on the frame: its centre, its top edge, its scale. It is scaled up
+ * evenly and moved as a whole; nothing inside it is touched. Its stamps
+ * change at once, as Wallet's do.
+ */
+export function Card({
+  at,
+  stamps,
+  platform = "apple",
+  trade = "barber",
+  overlay,
+  style,
+}: {
+  at: At;
+  stamps: number;
+  platform?: "apple" | "google";
+  trade?: TradeKey;
+  overlay?: ReactNode;
+  style?: CSSProperties;
+}) {
+  const { t } = useTranslation();
+  const Preview = platform === "apple" ? AppleCardPreview : GoogleCardPreview;
+  return (
+    <div className="absolute" style={{ left: at.cx - 150 * at.s, top: at.top, ...style }}>
+      <Scaled width={300} scale={at.s} overlay={overlay}>
+        <div className="font-normal not-italic leading-normal tracking-normal">
+          <Preview {...samplePass(tradeTemplate(trade), t, stamps)} />
+        </div>
+      </Scaled>
+    </div>
   );
 }
 

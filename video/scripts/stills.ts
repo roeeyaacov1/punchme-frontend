@@ -13,13 +13,13 @@ import { webpackOverride } from "../webpack-override.ts";
 
 /** Each beat's settled frames: when what it shows has arrived and holds still. */
 const SETTLED: Record<string, number[]> = {
-  promise: [0, 40],
-  join: [180, 240, 330],
-  scan: [380, 430, 520, 560],
-  after: [680, 760],
-  regulars: [880],
-  price: [1050, 1140],
-  end: [1250, 1304],
+  promise: [0, 40, 60],
+  join: [180, 230, 360],
+  scan: [430, 500, 540, 570],
+  after: [690, 790],
+  regulars: [900],
+  price: [1060, 1150],
+  end: [1260, 1304],
 };
 
 const args = process.argv.slice(2);
