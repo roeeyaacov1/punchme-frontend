@@ -7,6 +7,10 @@ import { I18N, type Lang } from "./i18n";
 import { FontGate } from "./pieces";
 import { shake } from "./punch.ts";
 import { Discs, HoleEdges, Punched } from "./stage/Punched";
+import { Hook } from "./scenes/Hook";
+import { Join } from "./scenes/Join";
+import { Looks } from "./scenes/Looks";
+import { PromiseScene } from "./scenes/Promise";
 import { Slam } from "./stage/Slam";
 import { Sounds } from "./stage/Sounds";
 import { Strip } from "./stage/Strip";
@@ -27,10 +31,10 @@ function stub(id: BeatId): ComponentType {
 
 /** Each beat's scene and the ground it stands on. */
 const SCENES: Record<BeatId, { Scene: ComponentType; ground: Ground }> = {
-  hook: { Scene: stub("hook"), ground: "wall" },
-  promise: { Scene: stub("promise"), ground: "coral" },
-  join: { Scene: stub("join"), ground: "wall" },
-  looks: { Scene: stub("looks"), ground: "panel" },
+  hook: { Scene: Hook, ground: "wall" },
+  promise: { Scene: PromiseScene, ground: "coral" },
+  join: { Scene: Join, ground: "wall" },
+  looks: { Scene: Looks, ground: "panel" },
   stamps: { Scene: stub("stamps"), ground: "wall" },
   reward: { Scene: stub("reward"), ground: "gold" },
   winback: { Scene: stub("winback"), ground: "wall" },

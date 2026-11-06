@@ -1,5 +1,21 @@
 {
+  "hook": {
+    "line1": "Your punch card,",
+    "line2": "in Wallet."
+  },
+  "promise": {
+    "app": "No app.",
+    "account": "No account.",
+    "password": "No password."
+  },
+  "join": {
+    "scan": "Scan the sign.",
+    "code": "A mobile number and a code from a text.",
+    "codeOff": "A mobile number."
+  },
   "looks": {
-    "yourBusiness": "Your business"
+    "yourBusiness": "Your business",
+    "line1": "Your card.",
+    "line2": "Your look."
   }
 }

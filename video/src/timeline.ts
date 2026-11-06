@@ -63,10 +63,10 @@ export interface PunchAt {
  * point the outgoing beat's action ends on.
  */
 export const PUNCH_POINTS: Record<Exclude<BeatId, "hook">, { cx: number; cy: number }> = {
-  promise: { cx: 540, cy: 1180 },
+  promise: { cx: 540, cy: 1042 },
   join: { cx: 540, cy: 1000 },
-  looks: { cx: 540, cy: 1250 },
-  stamps: { cx: 540, cy: 1200 },
+  looks: { cx: 540, cy: 1045 },
+  stamps: { cx: 540, cy: 1100 },
   reward: { cx: 540, cy: 1100 },
   winback: { cx: 540, cy: 1050 },
   proof: { cx: 540, cy: 1150 },
