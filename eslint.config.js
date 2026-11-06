@@ -6,8 +6,9 @@ import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
   // .claude holds the design skills' scripts and, under .claude/worktrees,
-  // whole copies of this repo made for Claude Code sessions.
-  { ignores: ['dist', '.claude'] },
+  // whole copies of this repo made for Claude Code sessions. video is the
+  // promo's own Remotion project, with its own package and its own checks.
+  { ignores: ['dist', '.claude', 'video'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
