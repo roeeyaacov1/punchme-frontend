@@ -2,11 +2,13 @@ import { forwardRef, useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown } from "lucide-react";
 import { CardColourPicker, StampColourPicker, TextColourPicker } from "../../../../components/card-studio/controls";
+import { BrandColoursTray } from "../../../../components/card-studio/trays/BrandColoursTray";
 import { focusRing } from "../../../../components/kit";
 import { accentFits, relatedAccents } from "../../../../lib/accentPalette";
 import { cn } from "../../../../lib/cn";
 import { readableInk } from "../../../../lib/color";
-import { looksFor, readyLooks } from "../../looks";
+import { lookBase, looksFor, readyLooks } from "../../looks";
+import { draftPatchOf, studioValueOf } from "../../studioValue";
 import { useOnboardingDraft } from "../../useOnboardingDraft";
 
 /**
@@ -15,6 +17,10 @@ import { useOnboardingDraft } from "../../useOnboardingDraft";
  * here paints the colours only: the stamp, the texture and the count stay as
  * the owner has them. The ref is the stamp colour's section, where
  * `/onboarding/accent` opens.
+ *
+ * On a card from a look, the studio's own tray (brief §7.4): the business
+ * colour, and the colours that follow it, the look's own among them while
+ * the card is still its colour.
  */
 export const ColoursPanel = forwardRef<
   HTMLDivElement,
@@ -23,6 +29,32 @@ export const ColoursPanel = forwardRef<
     onStampColour?: () => void;
   }
 >(function ColoursPanel({ onStampColour }, stampColour) {
+  const { draft } = useOnboardingDraft();
+  if (draft.look) return <LookColours ref={stampColour} />;
+  return <ClassicColours ref={stampColour} onStampColour={onStampColour} />;
+});
+
+const LookColours = forwardRef<HTMLDivElement>(function LookColours(_, box) {
+  const { t, i18n } = useTranslation();
+  const { draft, resolved, update, presets, templateInput } = useOnboardingDraft();
+  const shown = studioValueOf(resolved, i18n.resolvedLanguage ?? "en", t, templateInput.name);
+  return (
+    <div ref={box} tabIndex={-1} className="scroll-mt-4 outline-none">
+      <BrandColoursTray
+        value={shown}
+        onChange={(next) => update(draftPatchOf(next, shown))}
+        base={lookBase(draft, presets)}
+      />
+    </div>
+  );
+});
+
+const ClassicColours = forwardRef<
+  HTMLDivElement,
+  {
+    onStampColour?: () => void;
+  }
+>(function ClassicColours({ onStampColour }, stampColour) {
   const { t } = useTranslation();
   const moreId = useId();
   const { draft, resolved, update, presets } = useOnboardingDraft();

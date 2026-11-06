@@ -11,7 +11,15 @@ import { StepHeading, StepShell } from "../../../components/onboarding/StepShell
 import { useWide } from "../../../components/onboarding/useWide";
 import { cn } from "../../../lib/cn";
 import { CardStage, type StageHandle } from "../CardStage";
-import { buildTemplateInput, draftPreviewValue, MAP_PARTS, resolveDraft, sampleStamps, type MapPart } from "../draft";
+import {
+  buildTemplateInput,
+  draftPreviewValue,
+  MAP_PARTS,
+  resolveDraft,
+  sampleStamps,
+  type MapPart,
+  type OnboardingDraft,
+} from "../draft";
 import { defaultRewards, numberedDefault, withTradeLook } from "../looks";
 import { MAP, openMove, TRAY_ROUTE, type TrayState } from "../mapHistory";
 import { useStorageFull } from "../storageCheck";
@@ -81,8 +89,11 @@ export function CardStep() {
   const location = useLocation();
   const wide = useWide();
   const reduced = useReducedMotion();
-  const { draft, resolved, update, artUrl, artPersisted, presets } = useOnboardingDraft();
-  const storageFull = useStorageFull(draft, artPersisted);
+  const { draft, resolved, update, artUrl, artPersisted, logoPersisted, presets } = useOnboardingDraft();
+  const storageFull = useStorageFull(draft, artPersisted && logoPersisted);
+  // A card from a look took its look on the looks screen: the trade's
+  // classic look is never written over it.
+  const fromLook = !!draft.look;
   const lang = i18n.resolvedLanguage ?? "en";
   const stage = useRef<StageHandle>(null);
   const openers = useRef(new Map<Tray, HTMLButtonElement>());
@@ -129,7 +140,7 @@ export function CardStep() {
   // While the business is on screen the card wears what leaving it will
   // write: the trade's look, the moment one is picked. Everywhere else the
   // draft has it already.
-  const onBusiness = showing === "business";
+  const onBusiness = showing === "business" && !fromLook;
   const card = useMemo(
     () =>
       onBusiness && draft.niche
@@ -155,7 +166,7 @@ export function CardStep() {
   useEffect(() => {
     if (finished.current) return;
     finished.current = true;
-    if (businessMissing(draft)) return;
+    if (businessMissing(draft) || fromLook) return;
     const patch = withTradeLook(draft, presets, defaults);
     if (numberedDefault(draft.reward)) {
       update({ ...patch, reward: resolveDraft({ ...draft, ...patch, reward: null }, presets, t).reward });
@@ -267,7 +278,7 @@ export function CardStep() {
    * (`withTradeLook`), written as the business is left. Nothing when it is
    * written already. */
   const writeBusiness = useCallback(() => {
-    const patch = withTradeLook(draft, presets, defaults);
+    const patch: Partial<OnboardingDraft> = draft.look ? {} : withTradeLook(draft, presets, defaults);
     const name = draft.name.trim();
     if (name !== draft.name) patch.name = name;
     if (Object.keys(patch).length) update(patch);
