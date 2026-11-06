@@ -37,14 +37,22 @@ function WizardLoading() {
       <div className="theme-lightbox flex min-h-svh flex-col bg-background text-ink">
         <TopBar />
         <main ref={setColumn} className={cn(column(wide), "pt-2")}>
-          <Loading className="flex flex-col gap-6">
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="mx-auto h-[12.5rem] w-[340px] max-w-full !rounded-glass" />
-            <Skeleton className="h-8 w-2/3" />
-            <Skeleton className="h-12 w-full !rounded-field" />
-          </Loading>
+          <WizardSkeleton />
         </main>
       </div>
     </WideProvider>
+  );
+}
+
+/** The road, the card and the question, on their way. Also the wizard's
+ * own while it learns whether it opens on the card looks. */
+export function WizardSkeleton() {
+  return (
+    <Loading className="flex flex-col gap-6">
+      <Skeleton className="h-4 w-1/2" />
+      <Skeleton className="mx-auto h-[12.5rem] w-[340px] max-w-full !rounded-glass" />
+      <Skeleton className="h-8 w-2/3" />
+      <Skeleton className="h-12 w-full !rounded-field" />
+    </Loading>
   );
 }
