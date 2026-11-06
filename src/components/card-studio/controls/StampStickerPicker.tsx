@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Search } from "lucide-react";
 import { cn } from "../../../lib/cn";
@@ -111,7 +111,10 @@ export function StickerFirst({
 }
 
 /** "עוד מדבקות", opened: the search, and the other stickers by group. A search
- * that finds nothing says so over the groups, never a blank tray. */
+ * that finds nothing says so under the field, in the box that holds it in
+ * view, over the groups: never a blank tray, and never a line the field
+ * stands over. A search typed while the field holds at the top of a scrolled
+ * tray brings the panel's start back, so what it found starts in view. */
 export function StickerMore({
   id,
   name,
@@ -140,10 +143,22 @@ export function StickerMore({
   }, [i18n]);
   const found = useMemo(() => searchStickers(stickers, query, namesOf), [stickers, query, namesOf]);
   const searching = query.trim().length > 0;
+  const none = searching && found.length === 0;
+  const panel = useRef<HTMLDivElement>(null);
+  const bar = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const start = panel.current;
+    const held = bar.current;
+    if (!start || !held || !query) return;
+    // Held: the field has left its place at the panel's top.
+    if (held.getBoundingClientRect().top - start.getBoundingClientRect().top < 1) return;
+    start.style.scrollMarginTop = getComputedStyle(held).top;
+    start.scrollIntoView({ block: "start" });
+  }, [query]);
 
   return (
-    <div id={id} className="flex flex-col gap-4">
-      <div className={cn("z-[1] -mx-1 bg-surface px-1 pb-1 pt-1", stickySearch)}>
+    <div ref={panel} id={id} className="flex flex-col gap-4">
+      <div ref={bar} className={cn("z-[1] -mx-1 bg-surface px-1 pb-1 pt-1", stickySearch)}>
         <Input
           label={t("cardControls.sticker.search")}
           placeholder={t("cardControls.sticker.searchHint")}
@@ -158,9 +173,17 @@ export function StickerMore({
           autoCapitalize="none"
           spellCheck={false}
           enterKeyHint="search"
-          aria-describedby={searching && found.length === 0 ? noneId : undefined}
+          aria-describedby={none ? noneId : undefined}
           dir="auto"
         />
+        {/* There before it speaks, so the words are read when they come. */}
+        <div role="status">
+          {none && (
+            <p id={noneId} className="mt-2 text-sm leading-snug text-ink-muted">
+              {t("cardControls.sticker.noResults")}
+            </p>
+          )}
+        </div>
       </div>
       {searching && found.length > 0 ? (
         <fieldset className="min-w-0">
@@ -169,11 +192,6 @@ export function StickerMore({
         </fieldset>
       ) : (
         <>
-          {searching && (
-            <p id={noneId} role="status" className="text-sm leading-snug text-ink-muted">
-              {t("cardControls.sticker.noResults")}
-            </p>
-          )}
           {shelves.groups.map((group) => (
             <fieldset key={group.key} className="min-w-0">
               <legend className="type-label mb-3 text-ink-muted">{t(`cardControls.sticker.groups.${group.key}`)}</legend>

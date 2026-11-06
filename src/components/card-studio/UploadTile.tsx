@@ -5,6 +5,12 @@ import { cn } from "../../lib/cn";
 import { Button } from "../kit/Button";
 import { noTapFlash } from "../kit/classes";
 
+/** "1125 / 432" as a number: width over height. */
+function ratioOf(aspect: string): number {
+  const [width, height] = aspect.split("/").map(Number);
+  return width > 0 && height > 0 ? width / height : 1;
+}
+
 /**
  * A picture for the card: what it is, what it does, and the picture itself at
  * the shape the renderer will use, over the card colour so a transparent PNG
@@ -67,13 +73,15 @@ export function UploadTile({
             noTapFlash,
           )}
         >
+          {/* A wide picture is 3rem tall, at most 45% of the row, so with
+              large text on a phone its words keep room beside it. */}
           <span
             aria-hidden
             className={cn(
               "flex shrink-0 items-center justify-center overflow-hidden ring-1 ring-inset ring-field",
-              wide ? "h-12 rounded-md" : "size-12 rounded-field",
+              wide ? "max-w-[45%] rounded-md" : "size-12 rounded-field",
             )}
-            style={{ aspectRatio: aspect, backgroundColor: ground }}
+            style={{ aspectRatio: aspect, backgroundColor: ground, ...(wide ? { width: `${3 * ratioOf(aspect)}rem` } : {}) }}
           >
             {src ? (
               <img src={src} alt="" className="size-full object-cover" />
