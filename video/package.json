@@ -1,0 +1,22 @@
+{
+  "name": "punchme-promo-video",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "The PunchMe promo video, rendered with Remotion from the app's own components and copy.",
+  "scripts": {
+    "studio": "remotion studio",
+    "stills": "node scripts/stills.ts",
+    "render:he": "remotion render PromoHe out/punchme-promo-he.mp4",
+    "render:en": "remotion render PromoEn out/punchme-promo-en.mp4",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.538",
+    "@remotion/google-fonts": "4.0.538",
+    "@remotion/tailwind": "4.0.538",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.538"
+  }
+}
