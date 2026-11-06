@@ -497,6 +497,7 @@ export function stagePictures({
   key,
   loaded = () => true,
   last = null,
+  need,
 }: {
   styled: boolean;
   unsaved: boolean;
@@ -515,11 +516,17 @@ export function stagePictures({
   /** What the stage showed last (`stageShown`), kept up while the fresh
    * picture is on its way. */
   last?: StageShown | null;
+  /** The wallet's own picture, Apple's strip or Google's hero: a picture
+   * counts as shown only once that one has loaded. Left out, either. */
+  need?: "strip" | "hero";
 }): StagePictures {
   if (!styled) return { stripStates, heroStates, unsaved, drawing: false, failed: false };
   const at = (url: string | undefined) => (url && loaded(url) ? { [String(sample)]: url } : undefined);
-  const shows = (picture: { strip?: string; hero?: string } | null): picture is DrawnCard =>
-    !!picture && !!((picture.strip && loaded(picture.strip)) || (picture.hero && loaded(picture.hero)));
+  const shows = (picture: { strip?: string; hero?: string } | null): picture is DrawnCard => {
+    if (!picture) return false;
+    if (need) return !!picture[need] && loaded(picture[need]!);
+    return !!((picture.strip && loaded(picture.strip)) || (picture.hero && loaded(picture.hero)));
+  };
   const fresh = pictures.find((picture) => shows(picture) && picture.key === key);
   if (fresh) {
     return { stripStates: at(fresh.strip), heroStates: at(fresh.hero), unsaved: false, drawing: false, failed: false };

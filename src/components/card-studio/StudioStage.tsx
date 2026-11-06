@@ -43,10 +43,10 @@ export interface StageHandle {
 }
 
 /**
- * Which pictures have loaded. A published picture is handed to the pass only
- * once it has, so one still on its way (or failing, as the local fake
- * wallet's always do) leaves the stand-in in its place rather than a broken
- * image: staging, not redrawing.
+ * Which pictures have loaded and decoded. A published picture is handed to
+ * the pass only once it has, so one still on its way (or failing, as the
+ * local fake wallet's always do) leaves the stand-in in its place rather
+ * than a broken image: staging, not redrawing.
  */
 function useLoaded(urls: readonly string[]): Set<string> {
   const [loaded, setLoaded] = useState<Set<string>>(() => new Set());
@@ -55,10 +55,13 @@ function useLoaded(urls: readonly string[]): Set<string> {
     let live = true;
     for (const url of key ? key.split("\n") : []) {
       const image = new Image();
-      image.onload = () => {
+      const done = () => {
         if (live) setLoaded((current) => (current.has(url) ? current : new Set(current).add(url)));
       };
       image.src = url;
+      // Decoded, not only loaded, so the pass paints it the frame it gets it.
+      if (typeof image.decode === "function") image.decode().then(done, () => {});
+      else image.onload = done;
     }
     return () => {
       live = false;
@@ -177,7 +180,10 @@ export const StudioStage = forwardRef<
 
   const styled = isStyled(value.design);
   const states = wallet === "apple" ? images.strip_states : images.hero_states;
-  const drawnUrls = serverPictures.map((picture) => (wallet === "apple" ? picture?.strip : picture?.hero)).join("\n");
+  // Both wallets' pictures of a drawn card, so switching wallets finds the
+  // other one there already.
+  const drawnUrls = serverPictures.flatMap((picture) => [picture?.strip, picture?.hero]).join("\n");
+  const need = wallet === "apple" ? "strip" : "hero";
   const published = useMemo(
     () =>
       [images.apple_logo, images.logo, ...Object.values(states ?? {}), ...drawnUrls.split("\n")].filter(
@@ -202,6 +208,7 @@ export const StudioStage = forwardRef<
     key,
     loaded: (url) => loaded.has(url),
     last: lastShown.current,
+    need,
   });
   // The server answered for this draft and count, and drew nothing: the
   // stage shows the saved card, which is what customers have (§6.6).
@@ -209,7 +216,7 @@ export const StudioStage = forwardRef<
   const onFailure = drawFailed
     ? stageOnFailure({
         saved: saved!,
-        savedPicture: savedPicture && (shown(savedPicture.strip) || shown(savedPicture.hero)) ? savedPicture : null,
+        savedPicture: savedPicture && shown(savedPicture[need]) ? savedPicture : null,
         sample,
         stripStates: onlyLoaded(images.strip_states, loaded),
         heroStates: onlyLoaded(images.hero_states, loaded),

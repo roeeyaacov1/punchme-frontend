@@ -412,6 +412,21 @@ describe("stagePictures", () => {
     ).toEqual({ "6": "drawn-strip" });
   });
 
+  it("waits for the wallet's own picture: a fresh one whose strip is still loading keeps the last up", () => {
+    const shown = stagePictures({
+      styled: true,
+      unsaved: true,
+      sample: 6,
+      pictures: [fresh],
+      key,
+      last: { strip: "shown-strip", hero: "shown-hero" },
+      loaded: (url) => url !== "drawn-strip",
+      need: "strip",
+    });
+    expect(shown.stripStates).toEqual({ "6": "shown-strip" });
+    expect(shown.drawing).toBe(true);
+  });
+
   it("lets a kept picture go once it can't be shown, for the last one the server drew", () => {
     const shown = stagePictures({
       styled: true,
