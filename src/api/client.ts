@@ -17,6 +17,9 @@ interface RequestOptions {
   /** Set false for public endpoints — skips attaching the Authorization header and the 401-refresh-retry. */
   auth?: boolean;
   query?: Record<string, string | number | undefined>;
+  /** How the answer is read: JSON, or the bytes as they came (a picture). */
+  as?: "json" | "blob";
+  signal?: AbortSignal;
 }
 
 function buildUrl(path: string, query?: RequestOptions["query"]): string {
@@ -106,7 +109,7 @@ export async function apiFetch<T>(
   options: RequestOptions = {},
   isRetry = false,
 ): Promise<T> {
-  const { method = "GET", body, formData, auth = true, query } = options;
+  const { method = "GET", body, formData, auth = true, query, as = "json", signal } = options;
 
   const headers: Record<string, string> = {};
   if (body !== undefined) headers["Content-Type"] = "application/json";
@@ -119,6 +122,7 @@ export async function apiFetch<T>(
     method,
     headers,
     body: formData ?? (body !== undefined ? JSON.stringify(body) : undefined),
+    signal,
   });
 
   if (res.status === 401 && auth && !isRetry) {
@@ -136,6 +140,7 @@ export async function apiFetch<T>(
   }
 
   if (res.status === 204) return undefined as T;
+  if (as === "blob") return (await res.blob()) as T;
   return (await res.json()) as T;
 }
 
