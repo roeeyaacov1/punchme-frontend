@@ -75,17 +75,19 @@ function useNarrow(on: boolean, rem: number, tallRem: number) {
 }
 
 /** A drawing taking long: said quietly at the bar's top, since the stage's
- * own tag is the one read out. It lights on (the gentle fade with reduced
- * motion). */
-function DrawingLine() {
+ * own tag is the one read out. It comes back with every slow drawing, so it
+ * only fades up, without the rise (the gentle fade with reduced motion); a
+ * bar that opens with it says it at once. */
+function DrawingLine({ arrive }: { arrive: boolean }) {
   const { t } = useTranslation();
   const reduced = useReducedMotion();
+  const [lights] = useState(arrive);
   return (
     <p
       aria-hidden
       className={cn(
         "flex items-start gap-1.5 text-sm leading-snug text-ink-muted",
-        reduced ? "animate-gentle-in" : "animate-lights-on",
+        lights && (reduced ? "animate-gentle-in" : "animate-light-up"),
       )}
     >
       <Info aria-hidden className="mt-px size-4 shrink-0" />
@@ -150,10 +152,10 @@ export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function 
   const { t } = useTranslation();
   const updateOnly = changes === 0 && !!stale;
   const [box, narrow] = useNarrow(compact, ONE_ROW_REM, ONE_ROW_TALL_REM);
-  const drawingLine = drawing && !onRedraw && <DrawingLine />;
   // Up since its first frame: a line that comes after this is news.
   const [settled, setSettled] = useState(false);
   useEffect(() => setSettled(true), []);
+  const drawingLine = drawing && !onRedraw && <DrawingLine arrive={settled} />;
   const oneRow = narrow && changes > 0;
   if (oneRow) {
     return (

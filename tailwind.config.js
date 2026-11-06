@@ -340,10 +340,11 @@ export default {
         // The same crossing, from the other side: the studio's new drawing
         // of the card takes the last one's place while the last stays over
         // it and goes out. The frozen pass can't be faded in, so the one
-        // going is the layer. In the lights' 240ms, since it comes with
-        // every change of a drawn card and interface motion stays under
-        // 300ms.
-        "crossfade-out": "gentle-out var(--duration-lights) var(--ease-in-out-strong) both",
+        // going is the layer. It answers a choice the owner just made, after
+        // the server's round trip, so it goes as anything leaving does: in
+        // the exit's 180ms, on the strong ease-out, most of the new drawing
+        // there within the first 60ms.
+        "crossfade-out": "gentle-out var(--duration-exit) var(--ease-out-strong) both",
         // The shop's sign, the day it switches on: unlit for a beat, then a
         // tube catching over the ceremony's 600ms, or the gentle fade.
         "sign-catch": "sign-catch var(--duration-ceremony) linear var(--delay-switch-on) both",
