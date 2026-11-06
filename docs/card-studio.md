@@ -233,4 +233,5 @@ Fixed in Phase 3, except where it says otherwise.
   Not fixed in step C: the previews are frozen, and transform and opacity
   can't ease a change of height, so the swap cuts. Asking the server to draw
   a plain card too, while the wallet draws the options, would end it, at the
-  cost of a drawing for every change of a plain card. Roee's call.
+  cost of a drawing for every change of a plain card. Left as it is for now
+  (Roee, 6 Nov).
