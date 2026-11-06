@@ -146,6 +146,9 @@ export const StudioStage = forwardRef<
     onRedraw?: () => void;
     /** Told whether the stage shows the saved card for a drawing that failed. */
     onFailed?: (failed: boolean) => void;
+    /** Told whether a drawing has been on its way for 2s, long past the
+     * usual: on a phone a tray covers the tag that says so. */
+    onDrawing?: (slow: boolean) => void;
     /** The wallet draws none of the options the card has (`studioMode`
      * "off"): every drawing fails, and the page says why, so the stage says
      * only that it shows the saved card. */
@@ -173,6 +176,7 @@ export const StudioStage = forwardRef<
     savedPicture = null,
     onRedraw,
     onFailed,
+    onDrawing,
     optionsOff = false,
   },
   ref,
@@ -241,20 +245,30 @@ export const StudioStage = forwardRef<
   useLayoutEffect(() => {
     lastShown.current = shownNow;
   });
-  // A drawing on its way: said from 500ms, so a quick one says nothing.
+  // A drawing on its way: said from 500ms, so a quick one says nothing; and
+  // from 2s, a slow one, told to the page as well.
   const drawing = styled && pictures.drawing && !drawFailed;
   const [slow, setSlow] = useState(false);
+  const [slowLong, setSlowLong] = useState(false);
   useEffect(() => {
     if (!drawing) {
       setSlow(false);
+      setSlowLong(false);
       return;
     }
-    const id = window.setTimeout(() => setSlow(true), 500);
-    return () => window.clearTimeout(id);
+    const tag = window.setTimeout(() => setSlow(true), 500);
+    const long = window.setTimeout(() => setSlowLong(true), 2000);
+    return () => {
+      window.clearTimeout(tag);
+      window.clearTimeout(long);
+    };
   }, [drawing]);
   useEffect(() => {
     onFailed?.(drawFailed);
   }, [onFailed, drawFailed]);
+  useEffect(() => {
+    onDrawing?.(slowLong);
+  }, [onDrawing, slowLong]);
 
   // On a failure, the saved card as it is, with the pictures it has: none of
   // the held ones, which haven't reached it.

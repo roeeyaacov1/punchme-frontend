@@ -356,7 +356,8 @@
       "current": "This is the card your customers have now",
       "failedSaved": "We couldn't draw your last change just now. It's kept in the draft, and Save sends it as it is.",
       "retry": "Draw it again",
-      "failedBar": "We couldn't draw your last change, so the card shown is the saved one."
+      "failedBar": "We couldn't draw your last change, so the card shown is the saved one.",
+      "drawingBar": "Still drawing your last change. The card shows the drawing before it until then."
     },
     "colours": {
       "brand": "Your business colour",

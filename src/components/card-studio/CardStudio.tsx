@@ -339,6 +339,7 @@ export function CardStudio({
   const [barHeight, setBarHeight] = useState(0);
   const [shownTray, setShownTray] = useState(tray);
   const [stageFailed, setStageFailed] = useState(false);
+  const [stageDrawing, setStageDrawing] = useState(false);
   // The tray the card was last fitted above, and how tall it was then.
   const fitted = useRef<{ tray: string; height: number } | null>(null);
   // Save found no name: Names starts at the name field, until it closes or
@@ -566,11 +567,13 @@ export function CardStudio({
   };
 
   const { drawn: barDrawn, props: barProps, phase: barPhase } = useBarPresence(bar, reduced);
-  // On a phone a tray covers what the stage says of a failed drawing, so the
-  // bar at its foot says it too. Where the wallet draws none of the card's
-  // options every drawing fails, and the page says why.
-  const redrawInBar = !wide && !!tray && stageFailed && mode !== "off" ? onRedraw : undefined;
-  const studioBar = <StudioBar ref={saveRef} {...barProps} onRedraw={redrawInBar} />;
+  // On a phone a tray covers what the stage says of a failed drawing, or a
+  // slow one, so the bar at its foot says it too. Where the wallet draws none
+  // of the card's options every drawing fails, and the page says why.
+  const covered = !wide && !!tray;
+  const redrawInBar = covered && stageFailed && mode !== "off" ? onRedraw : undefined;
+  const drawingInBar = covered && stageDrawing;
+  const studioBar = <StudioBar ref={saveRef} {...barProps} onRedraw={redrawInBar} drawing={drawingInBar} />;
 
   const sampleRow = (
     // Quick taps on + land one stamp each, never a double-tap zoom.
@@ -660,6 +663,7 @@ export function CardStudio({
       savedPicture={savedPicture}
       onRedraw={onRedraw}
       onFailed={setStageFailed}
+      onDrawing={setStageDrawing}
       optionsOff={mode === "off"}
     />
   );
@@ -756,7 +760,7 @@ export function CardStudio({
           barDrawn ? (
             <BarLight phase={barPhase} reduced={reduced}>
               {mode === "options" ? (
-                <StudioBar ref={saveRef} {...barProps} onRedraw={redrawInBar} compact />
+                <StudioBar ref={saveRef} {...barProps} onRedraw={redrawInBar} drawing={drawingInBar} compact />
               ) : (
                 studioBar
               )}
