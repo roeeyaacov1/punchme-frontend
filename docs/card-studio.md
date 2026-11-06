@@ -270,3 +270,10 @@ Fixed in Phase 3, except where it says otherwise.
   a plain card too, while the wallet draws the options, would end it, at the
   cost of a drawing for every change of a plain card. Left as it is for now
   (Roee, 6 Nov).
+- **The colours' rows ran their words out of their box at 200% text on a
+  phone** (found in the card looks' wizard, step B, 6 Nov). Each row keeps
+  its dot, its words and "שינוי" on one line, and at 200% the button took
+  200px of 309, leaving the words 13px: "stamps" spilled 85px. Fixed in
+  `BrandColoursTray`: the words keep a floor of 8em, in their own size, and
+  "שינוי" goes under them when it can't stand beside them. At 100% it stays
+  on the row, a 320px phone's included, and the studio is as it was.

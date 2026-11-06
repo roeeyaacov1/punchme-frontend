@@ -56,15 +56,17 @@ function FollowRow({
   const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col border-b border-border">
-      {/* At large text the words wrap beside the dot, and "שינוי" stays at
-          the row's end. */}
-      <div className="flex min-h-[3.25rem] items-center gap-3 py-1">
+      {/* The words wrap beside the dot, and "שינוי" stays at the row's end
+          while the words keep room for a word: at large text on a phone it
+          goes under them (the words' own floor, in their own size, so at
+          100% it stays on the row, a 320px phone's included). */}
+      <div className="flex min-h-[3.25rem] flex-wrap items-center gap-x-3 gap-y-1 py-1">
         <span
           aria-hidden
           className="size-6 shrink-0 rounded-full ring-1 ring-inset ring-field"
           style={{ backgroundColor: dot }}
         />
-        <p className="type-body min-w-0 flex-1 text-ink">
+        <p className="type-body min-w-[8em] flex-1 text-ink">
           {words}
           {byHand && <span className="text-ink-muted"> · {t("studio.colours.changed")}</span>}
         </p>
