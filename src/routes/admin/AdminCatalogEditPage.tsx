@@ -42,9 +42,12 @@ import {
   type CatalogArtUse,
 } from "../../api/catalog";
 import { getPresets } from "../../api/presets";
-import { NICHES } from "../onboarding/draft";
+import { NICHES, type Niche } from "../onboarding/draft";
+import { drawnLooks, lookName } from "../onboarding/looks";
 import { useDebounce } from "../../hooks/useDebounce";
 import { cn } from "../../lib/cn";
+import { useDocumentTitle } from "../public/useDocumentTitle";
+import { liveWizard } from "./shelf";
 
 const EMPTY: CardStudioValue = {
   name: "",
@@ -89,9 +92,11 @@ export function AdminCatalogEditPage() {
   return <CatalogEditor key={catalogId} catalogId={catalogId} />;
 }
 
-/** What a look's first save hands to the editor of its own URL. */
-interface Created {
+/** What a look's first save hands to the editor of its own URL, and what a
+ * trade's "New look for this trade" hands to a new one. */
+interface Arrival {
   created?: boolean;
+  niche?: string;
 }
 
 function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
@@ -101,13 +106,21 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
   const location = useLocation();
   const queryClient = useQueryClient();
   const heading = useRef<HTMLHeadingElement>(null);
+  const arrival = location.state as Arrival | null;
   // Just made by the editor before this one: say it's saved, once.
-  const [created] = useState(() => !!(location.state as Created | null)?.created);
+  const [created] = useState(() => !!arrival?.created);
+  // A new look opened from a trade's panel starts in that trade, rather
+  // than as a café without saying so.
+  const [start] = useState<Shelf>(() =>
+    isNew && arrival?.niche && (NICHES as readonly string[]).includes(arrival.niche)
+      ? { ...NO_SHELF, niche: arrival.niche }
+      : NO_SHELF,
+  );
 
   const [saved, setSaved] = useState<CardStudioValue | null>(isNew ? EMPTY : null);
   const [draft, setDraft] = useState<CardStudioValue | null>(isNew ? EMPTY : null);
-  const [savedShelf, setSavedShelf] = useState<Shelf>(NO_SHELF);
-  const [shelf, setShelf] = useState<Shelf>(NO_SHELF);
+  const [savedShelf, setSavedShelf] = useState<Shelf>(start);
+  const [shelf, setShelf] = useState<Shelf>(start);
   const [art, setArt] = useState<Art>({});
   const [lint, setLint] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
@@ -235,6 +248,27 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
   });
   const lookPictures = shelfState(picturesQuery.data, picturesQuery.dataUpdatedAt || savedAt);
 
+  // The look as owners meet it, from the two reads above: the name they
+  // read and its place on the looks screen, where it is drawn and the
+  // wizard opens there. Anything else says its trade and whether it is
+  // published.
+  const savedNiche = ((NICHES as readonly string[]).includes(savedShelf.niche) ? savedShelf.niche : "other") as Niche;
+  const drawnInTrade = drawnLooks(savedNiche, picturesQuery.data);
+  const itself = drawnInTrade.find((preset) => preset.id === catalogId);
+  const ownersName = itself ? lookName(itself, drawnInTrade, t) : null;
+  const onLooksScreen =
+    !!itself &&
+    liveWizard(stickersQuery.isError ? null : (stickersQuery.data?.available ?? false), picturesQuery.data ?? []) ===
+      "looks";
+  const trade = t(`onboarding.business.niches.${savedNiche}`);
+  const standing = !savedShelf.isPublished
+    ? t("admin.catalog.head.draft", { trade })
+    : onLooksScreen && itself
+      ? t("admin.catalog.head.placed", { trade, n: drawnInTrade.indexOf(itself) + 1, total: drawnInTrade.length })
+      : t("admin.catalog.head.published", { trade });
+  const title = isNew ? t("admin.catalog.createTitle") : (ownersName ?? (draft?.name || t("admin.catalog.editTitle")));
+  useDocumentTitle(title);
+
   const shelfChanged =
     shelf.niche !== savedShelf.niche ||
     shelf.description !== savedShelf.description ||
@@ -306,7 +340,7 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
         await queryClient.invalidateQueries({ queryKey: ["admin-catalog"] });
         // Onto the look's own URL rather than back to the list: the id it
         // was just given is what its art needs. Its editor reads it afresh.
-        const state: Created = { created: true };
+        const state: Arrival = { created: true };
         navigate(`/admin/catalog/${made.id}`, { replace: true, state });
         return;
       }
@@ -452,15 +486,25 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
             <ArrowLeft size={15} aria-hidden="true" className="rtl:rotate-180" />
             {t("admin.catalog.title")}
           </Link>
-          <h1 ref={heading} tabIndex={-1} className="type-title text-ink outline-none">
-            {isNew ? t("admin.catalog.createTitle") : draft.name || t("admin.catalog.editTitle")}
+          {/* Names are isolated, so an English one keeps its order inside a
+              Hebrew page and the line stays on the page's side. */}
+          <h1 ref={heading} tabIndex={-1} className="type-title text-ink outline-none [overflow-wrap:anywhere]">
+            <bdi>{title}</bdi>
           </h1>
           {!isNew && (
-            // Under the title, on its side of the page; only the id itself runs
-            // left to right.
-            <p className="text-sm text-ink-muted">
-              <bdi dir="ltr">{catalogId}</bdi>
-            </p>
+            <div className="flex flex-col gap-0.5">
+              {/* The name staff typed, under the one owners read. */}
+              {ownersName && draft.name && (
+                <p className="type-body text-ink-muted [overflow-wrap:anywhere]">
+                  <bdi>{draft.name}</bdi>
+                </p>
+              )}
+              <p className="text-sm text-ink-muted">{standing}</p>
+              {/* On its side of the page; only the id itself runs left to right. */}
+              <p className="text-sm text-ink-muted [overflow-wrap:anywhere]">
+                <bdi dir="ltr">{catalogId}</bdi>
+              </p>
+            </div>
           )}
         </div>
 
