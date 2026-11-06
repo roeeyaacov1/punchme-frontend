@@ -2,10 +2,12 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <!-- Deliberately NOT the same file as src/assets/logo.png. That one is
-         transparent line art, which a tab strip in dark mode would render
-         invisible; the favicon keeps its opaque plate. -->
-    <link rel="icon" type="image/png" href="/logo.png" />
+    <!-- A square mark of its own, not the wordmark: logo.png is four times
+         wider than tall, so a tab squeezed it to a smudge. The options and
+         the script that draws every icon from one are in docs/brand/icon.
+         The PNG is for browsers without SVG icons. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
