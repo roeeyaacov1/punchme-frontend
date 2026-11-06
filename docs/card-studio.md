@@ -24,11 +24,12 @@ decision for the owner, and the redesign guide asks for it first.
 | `wallet-card/PassBarcode.tsx` | The barcode, drawn for real in all four formats |
 | `src/lib/passBarcode.ts`, `cardPatterns.ts`, `stampGlyphs.ts`; `designImageUrls` in `src/api/designs.ts` | The logic those files rely on (already protected as `src/lib` and `src/api`) |
 
-Three corrections have been made to this table's files, each with Roee's
+Five corrections have been made to this table's files, each with Roee's
 yes: the first two on 27 Oct 2026 (Phase 3, `docs/redesign/briefs/card-studio.md`
 §7 and §13, and step D), the third on 30 Oct 2026 (Phase 4,
-`docs/redesign/briefs/onboarding.md` §10). In each, nothing else in the file
-changed.
+`docs/redesign/briefs/onboarding.md` §10), the fourth and fifth on 4 Nov 2026
+(the card looks, `docs/redesign/briefs/card-looks.md` §5, row 8). In each,
+nothing else in the file changed.
 
 - `StampGrid` drew a filled stamp's glyph in white whatever the stamp's
   colour, so a white stamp was a blank disc. The server knocks the glyph out
@@ -45,17 +46,26 @@ changed.
   by its own first letter. Apple's name row, Google's issuer line and its
   program line ("{business} - {card}") now carry `dir="auto"`.
 
-A fourth, awaiting Roee's yes (Nov 2026, passbox-api v0.1.1's card design
-options): `AppleCardPreview` shows the stamp count where the pass puts it
-with `design.stamps_place` "header" (Apple's header field, at the logo
-row's end), writes it "6/8" with `design.stamps_format` "fraction", and
-prints the business name beside a logo of the owner's own with
-`design.logo_text` (the `logoText` prop). Google's card is unchanged: its
-count stays a number. `StampGrid` and `StripArt` are untouched. A card
-built from the options the stand-in can't draw (`designOptions.isStyled`:
-stamps on their own, a sticker, a panel, a wallpaper) is the server's
-picture, handed to the previews as their published one by `StudioStage`
-(`stagePictures`), and outside the studio by `OwnPass` and `MessageStage`.
+- The fourth (PR #40, passbox-api v0.1.1's card design options):
+  `AppleCardPreview` shows the stamp count where the pass puts it with
+  `design.stamps_place` "header" (Apple's header field, at the logo row's
+  end), writes it "6/8" with `design.stamps_format` "fraction", and prints
+  the business name beside a logo of the owner's own with `design.logo_text`
+  (the `logoText` prop). Google's card is unchanged: its count stays a
+  number. `StampGrid` and `StripArt` are untouched.
+- The fifth: `AppleCardPreview`'s logo row is laid out left to right
+  whatever the page's direction (`dir="ltr"` on the row), as iOS lays it.
+  On a Hebrew iPhone the logo is at the left and the header count at the
+  right, and only the name between them reads right to left, by its own
+  `dir="auto"` (the input's §4, `docs/redesign/card-design-options.md`). It
+  shows on every Hebrew page that draws Apple's pass: the studio, the
+  Overview, onboarding, the public pages and the landing page's hero.
+
+A card built from the options the stand-in can't draw
+(`designOptions.isStyled`: stamps on their own, a sticker, a panel, a
+wallpaper) is the server's picture, handed to the previews as their
+published one by `StudioStage` (`stagePictures`), and outside the studio by
+`OwnPass` and `MessageStage`.
 
 Staging around the card is ours to change: the frame, the well, the shadow
 and the motion. One constraint applies. The previews are built for a 300px

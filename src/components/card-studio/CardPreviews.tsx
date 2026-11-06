@@ -237,7 +237,11 @@ export function AppleCardPreview(value: CardPreviewValue) {
         fontFamily: APPLE_WALLET_FONT,
       }}
     >
-      <div className="flex h-[57px] shrink-0 items-start gap-[10px] px-[14px] pt-[11px]">
+      {/* Left to right whatever the page's direction, as iOS lays a pass's
+          logo row out: on a Hebrew iPhone the logo is at the left and the
+          header field at the right, and only the name between them reads
+          right to left (its own dir="auto"). */}
+      <div dir="ltr" className="flex h-[57px] shrink-0 items-start gap-[10px] px-[14px] pt-[11px]">
         {value.appleLogoUrl ? (
           <img
             src={value.appleLogoUrl}
