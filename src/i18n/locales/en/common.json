@@ -134,7 +134,9 @@
       }
     },
     "staffOnly": "Staff area",
-    "staffOnlyBody": "This area is for PunchMe staff. You're signed in as {{email}}, which doesn't have staff access.",
+    "staffOnlyBody": "This area is for PunchMe staff.",
+    "staffOnlySignedInAs": "You're signed in as <email>{{email}}</email>, which doesn't have staff access.",
+    "otherAccount": "Sign in with another account",
     "staffHere": "You're signed in as PunchMe staff.",
     "openAdmin": "Open the template catalog"
   },

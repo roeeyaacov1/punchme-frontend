@@ -138,7 +138,9 @@
       }
     },
     "staffOnly": "אזור צוות",
-    "staffOnlyBody": "האזור הזה מיועד לצוות PunchMe. אתם מחוברים כ-{{email}}, למשתמש הזה אין הרשאות צוות.",
+    "staffOnlyBody": "האזור הזה מיועד לצוות PunchMe.",
+    "staffOnlySignedInAs": "אתם מחוברים כ־<email>{{email}}</email>, ולמשתמש הזה אין הרשאות צוות.",
+    "otherAccount": "להתחבר עם חשבון אחר",
     "staffHere": "אתם מחוברים כצוות PunchMe.",
     "openAdmin": "פתיחת קטלוג התבניות"
   },
