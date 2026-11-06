@@ -147,11 +147,15 @@ export const CardStage = forwardRef<
     () => !!look && waiting && !drawing.failure && stillItself(look, draft, presets, t, wallet),
     [look, waiting, drawing.failure, draft, presets, t, wallet],
   );
-  const itself = useMemo(
-    () =>
-      look && (drawing.failure || off || ownPicture) ? lookPreview(look, draft, presets, lang, t, templateInput.name) : null,
-    [look, drawing.failure, off, ownPicture, draft, presets, lang, t, templateInput.name],
-  );
+  // The logo is the owner's, as the name and the reward are, so the look's
+  // picture carries it: it never goes out for a beat while the drawing comes.
+  const itself = useMemo(() => {
+    const its =
+      look && (drawing.failure || off || ownPicture) ? lookPreview(look, draft, presets, lang, t, templateInput.name) : null;
+    return (
+      its && { ...its, logoUrl: drafted.logoUrl, appleLogoUrl: drafted.appleLogoUrl, logoText: drafted.logoText }
+    );
+  }, [look, drawing.failure, off, ownPicture, draft, presets, lang, t, templateInput.name, drafted]);
   const preview = useMemo((): CardPreviewValue => {
     if (given) return given;
     if (off) return itself ?? drafted;
@@ -235,13 +239,16 @@ export const CardStage = forwardRef<
   // A logo the owner has just given the card comes on by light where the
   // pass puts it (`lights-on`, or the gentle fade), found in the frozen
   // pass's first row and never drawn here. Only a new one: not the logo
-  // the card opens with, nor the same one on the other wallet.
+  // the card opens with, nor the same one on the other wallet. New by the
+  // draft's own word, its hash, not by the picture the pass shows: the
+  // published card has a picture for each wallet, and one shown again after
+  // a beat without it is not one just given.
   const logo = wallet === "apple" ? shown.appleLogoUrl : shown.logoUrl;
-  const lastLogo = useRef(logo);
+  const lastLogo = useRef(draft.logo);
   useLayoutEffect(() => {
-    const was = lastLogo.current;
-    lastLogo.current = logo;
-    if (!logo || logo === was) return;
+    if (!draft.logo) lastLogo.current = undefined;
+    if (!logo || !draft.logo || draft.logo === lastLogo.current) return;
+    lastLogo.current = draft.logo;
     const image = slot.current?.firstElementChild?.children[0]?.querySelector("img");
     if (!image) return;
     const motion = reduced ? "animate-gentle-in" : "animate-lights-on";
@@ -251,7 +258,7 @@ export const CardStage = forwardRef<
     };
     image.classList.add(motion);
     image.addEventListener("animationend", settle);
-  }, [logo, reduced]);
+  }, [logo, draft.logo, reduced]);
 
   // The places and the outline, from where the pass's rows are now. Again
   // as the pass changes size (the count, a long name, the fonts arriving)
