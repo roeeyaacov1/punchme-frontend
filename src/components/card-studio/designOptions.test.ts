@@ -20,6 +20,7 @@ import {
   serverAsk,
   stageOnFailure,
   stagePictures,
+  stageShown,
   stampSummary,
   stampsDrawnInColour,
   stampsText,
@@ -383,6 +384,70 @@ describe("stagePictures", () => {
       drawing: false,
       failed: true,
     });
+  });
+
+  it("keeps what the stage shows while a drawing is on its way, never the saved card in between", () => {
+    const read: DrawnCard = { key: drawKey(BAKERY, 3), strip: "saved-strip", hero: "saved-hero" };
+    const last = { strip: "shown-strip", hero: "shown-hero" };
+    expect(stagePictures({ styled: true, unsaved: true, sample: 6, pictures: [read, stale], key, last })).toEqual({
+      stripStates: { "6": "shown-strip" },
+      heroStates: { "6": "shown-hero" },
+      unsaved: false,
+      drawing: true,
+      failed: false,
+    });
+  });
+
+  it("keeps a plain card's stand-in up until the styled card's own picture comes", () => {
+    const read: DrawnCard = { key: drawKey(BAKERY, 3), strip: "saved-strip", hero: "saved-hero" };
+    expect(stagePictures({ styled: true, unsaved: true, sample: 6, pictures: [read, stale], key, last: "stand-in" })).toEqual({
+      stripStates: undefined,
+      heroStates: undefined,
+      unsaved: true,
+      drawing: true,
+      failed: false,
+    });
+    expect(
+      stagePictures({ styled: true, unsaved: true, sample: 6, pictures: [read, fresh], key, last: "stand-in" }).stripStates,
+    ).toEqual({ "6": "drawn-strip" });
+  });
+
+  it("lets a kept picture go once it can't be shown, for the last one the server drew", () => {
+    const shown = stagePictures({
+      styled: true,
+      unsaved: true,
+      sample: 6,
+      pictures: [stale],
+      key,
+      last: { strip: "gone-strip", hero: "gone-hero" },
+      loaded: (url) => !url.startsWith("gone"),
+    });
+    expect(shown.stripStates).toEqual({ "6": "old-strip" });
+  });
+});
+
+describe("stageShown", () => {
+  const states = { stripStates: { "6": "strip-6" }, heroStates: { "6": "hero-6" } };
+
+  it("is the picture at the count shown", () => {
+    expect(stageShown(null, { ...states, count: 6, unsaved: false, waiting: false })).toEqual({
+      strip: "strip-6",
+      hero: "hero-6",
+    });
+  });
+
+  it("is the stand-in where the card is drawn on the page, a picture or not", () => {
+    expect(stageShown(null, { ...states, count: 5, unsaved: false, waiting: false })).toBe("stand-in");
+    expect(stageShown(null, { ...states, count: 6, unsaved: true, waiting: false })).toBe("stand-in");
+  });
+
+  it("keeps nothing of a styled card's stand-in shown only until a picture loads", () => {
+    expect(stageShown(null, { count: 6, unsaved: true, waiting: true })).toBeNull();
+    expect(stageShown({ strip: "strip-5" }, { count: 6, unsaved: true, waiting: true })).toBeNull();
+  });
+
+  it("goes on keeping a stand-in it was keeping", () => {
+    expect(stageShown("stand-in", { count: 6, unsaved: true, waiting: true })).toBe("stand-in");
   });
 });
 
