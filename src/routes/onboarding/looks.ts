@@ -19,6 +19,7 @@ import {
   type Niche,
   type OnboardingDraft,
 } from "./draft";
+import { drawBody, drawKey } from "./drawing";
 
 /**
  * Ready-made looks — a finished card an owner can take whole.
@@ -367,11 +368,38 @@ export function pictureStamps(stampsRequired: number): number {
   return Math.min(Math.max(1, Math.floor(stampsRequired / 2)), stampsRequired);
 }
 
+/** A look's own card: everything the look sets taken from the look, the
+ * owner's name and reward kept. */
+function lookItself(preset: Preset, draft: OnboardingDraft, presets: Preset[] | undefined, t: TFunction) {
+  const itself: OnboardingDraft = { ...draft, look: undefined, stamp: null, stampsRequired: null };
+  return resolveDraft({ ...itself, ...lookChoicePatch(preset, itself, presets, []) }, presets, t);
+}
+
+/**
+ * Whether the drawing would draw the draft's card as it draws the look
+ * itself, so that the look's published picture can stand on the stage until
+ * the draft's own drawing comes (on arriving from the looks screen, or on
+ * switching wallets). A card changed in anything the drawing shows is not:
+ * the look's own colours there would be a card the owner no longer has.
+ */
+export function stillItself(
+  preset: Preset,
+  draft: OnboardingDraft,
+  presets: Preset[] | undefined,
+  t: TFunction,
+  wallet: "apple" | "google",
+): boolean {
+  const mine = drawBody(resolveDraft(draft, presets, t), wallet);
+  const its = drawBody(lookItself(preset, draft, presets, t), wallet);
+  return !!mine && !!its && drawKey(mine) === drawKey(its);
+}
+
 /**
  * A drawn look as the pass shows it, as itself: its own colours and its own
  * pictures, at the count they were drawn at, with the owner's name and
  * reward where the draft has them. The look screen's card, and the map's
- * when the draft can't be drawn ("כך הוא נראה בצבעים שלו").
+ * when the draft can't be drawn ("כך הוא נראה בצבעים שלו"), or before its
+ * first drawing while it is still the look's own (`stillItself`).
  */
 export function lookPreview(
   preset: Preset,
@@ -382,8 +410,7 @@ export function lookPreview(
   cardName?: string,
 ): CardPreviewValue | null {
   if (!preset.pictures) return null;
-  const itself: OnboardingDraft = { ...draft, look: undefined, stamp: null, stampsRequired: null };
-  const resolved = resolveDraft({ ...itself, ...lookChoicePatch(preset, itself, presets, []) }, presets, t);
+  const resolved = lookItself(preset, draft, presets, t);
   const total = preset.stamps_required;
   const at = pictureStamps(total);
   return {

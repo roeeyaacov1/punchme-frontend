@@ -218,6 +218,8 @@ export function CardStep() {
   // picture, a trade that brings its own) or its colour: counted here,
   // played by `CardStage`, never on a change nobody made. A colour dragged
   // in its own picker lands once, as the change starts, not on every step.
+  // On a card from a look only a picture lands, the one stamp the circles
+  // draw: the rest is the wallet's drawing, which crosses over the last.
   const [landing, setLanding] = useState(0);
   const land = useCallback(() => setLanding((count) => count + 1), []);
   const colourChanged = useRef(-Infinity);

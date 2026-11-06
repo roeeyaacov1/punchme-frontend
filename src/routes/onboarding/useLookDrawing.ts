@@ -76,6 +76,13 @@ export function useLookDrawing(body: LookDraw | null): LookDrawing {
       live = false;
     };
   }, [data]);
+  // A card the drawing can't take (a picture for a stamp) lets go of the
+  // last picture, so that on going back to a drawn card the stage keeps
+  // what it shows until that card's own drawing comes, never a drawing of
+  // the card from before.
+  useEffect(() => {
+    if (key === null) setShown(null);
+  }, [key]);
 
   const failure = key !== null && key === asked && read.isError ? drawFailure(read.error) : null;
   const waiting = key !== null && !failure && (key !== asked || read.isFetching || (!!data && shown?.url !== data.url));

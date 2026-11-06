@@ -35,7 +35,8 @@ export function StampPanel({
   storageFull: boolean;
   /** The lost picture's line, for the screen to take focus to. */
   lostRef?: RefObject<HTMLParagraphElement>;
-  /** A symbol or a picture picked: it lands on the card. */
+  /** A symbol or a picture picked: it lands on the card. On a card from a
+   * look, a picture only. */
   onPick?: () => void;
 }) {
   const { t, i18n } = useTranslation();
@@ -74,7 +75,7 @@ export function StampPanel({
       )}
       <div className="flex flex-col gap-3">
         {draft.look ? (
-          <LookStamp picture={picture} onPicture={takePicture} onPick={onPick} />
+          <LookStamp picture={picture} onPicture={takePicture} />
         ) : (
           <StampPicker
             glyph={resolved.stamp.kind === "glyph" ? resolved.stamp.glyph : "check"}
@@ -112,15 +113,17 @@ export function StampPanel({
 
 /** The studio's stamp tray over the draft. A picture of one's own can't be
  * drawn by the public drawing, so with one the card shows its circles, and
- * says so. */
+ * says so.
+ *
+ * Only that picture lands on the card (`onPicture`): it is the one stamp
+ * the circles draw. A sticker, its tint or its circle is picked many times
+ * in a sitting, and its new drawing crossing over the last is all it gets. */
 function LookStamp({
   picture,
   onPicture,
-  onPick,
 }: {
   picture: boolean;
   onPicture: (dataUrl: string) => void;
-  onPick?: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const { resolved, update, artUrl, stickers, templateInput } = useOnboardingDraft();
@@ -135,10 +138,7 @@ function LookStamp({
     <>
       <StampTray
         value={shown}
-        onChange={(next) => {
-          update(draftPatchOf(next, shown));
-          onPick?.();
-        }}
+        onChange={(next) => update(draftPatchOf(next, shown))}
         niche={resolved.niche}
         picture={{ url: artUrl ?? null, inUse: picture }}
         onPicture={(dataUrl) => {
