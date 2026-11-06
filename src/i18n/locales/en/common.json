@@ -1565,7 +1565,7 @@
           "id": "harris",
           "value": "58%",
           "claim": "are less likely to join a loyalty program that makes them download an app.",
-          "context": "79% said they'd sooner join one with no physical card to carry, and a wallet pass is neither. The same survey found people wary of programs that collect personal data. Here, only the mobile number is required.",
+          "context": "79% said they'd sooner join one with no physical card to carry, and a wallet pass is neither. The same survey found people wary of programs that collect personal data. Here, the mobile number is the only personal detail required, and joining means agreeing to your messages.",
           "source": "Harris Poll for Wilbur, 2019"
         }
       ]
@@ -1579,7 +1579,7 @@
         },
         {
           "q": "What do my customers have to give?",
-          "a": "A mobile number and the code from a text. A name and a birthday only if they want, and agreeing to offers is a separate box, left unticked."
+          "a": "A mobile number, the code from a text, and their consent to your messages, without which they can't join. A name and a birthday only if they want. The consent box is never ticked for them, and if they withdraw the consent later, the card stays and your messages stop."
         },
         {
           "q": "Does it work on both iPhone and Android?",
@@ -1616,7 +1616,7 @@
       },
       "card": {
         "title": "The card",
-        "body": "Customers scan the sign, give a mobile number and the code from a text, and the card goes into Apple Wallet or Google Wallet. A name and a birthday only if they want, and agreeing to offers is a separate box."
+        "body": "Customers scan the sign, give a mobile number and the code from a text, and the card goes into Apple Wallet or Google Wallet. A name and a birthday only if they want, and to join, they tick a box agreeing to your messages."
       },
       "scan": {
         "title": "The scan",
