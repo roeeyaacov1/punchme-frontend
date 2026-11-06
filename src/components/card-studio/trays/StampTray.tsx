@@ -428,7 +428,8 @@ function OptionsStamp({
           checked={chosen.mark === "check"}
           onChange={(checked) => onChange(withStamp(value, { mark: checked ? "check" : "none" }))}
           label={t("cardControls.mark.label")}
-          description={markAlways ? t("cardControls.mark.hint") : t("cardControls.mark.offHint")}
+          // "This card ticks every stamp" is true only while it does.
+          description={markAlways || chosen.mark !== "check" ? t("cardControls.mark.hint") : t("cardControls.mark.offHint")}
         />
       )}
     </div>

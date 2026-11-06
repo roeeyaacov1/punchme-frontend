@@ -346,7 +346,7 @@
     },
     "logoText": {
       "label": "Your business's name beside the logo",
-      "hint": "Apple Wallet writes it next to your logo. Best with a square mark: a wide logo that already says the name doesn't need it.",
+      "hint": "Apple Wallet writes it next to your logo.",
       "wide": "This logo is wide and already carries the name.",
       "long": "On an iPhone a long name is cut short with an ellipsis.",
       "google": "Google Wallet always writes the name beside its round logo."
@@ -364,7 +364,7 @@
       "follow": "The other colours follow it",
       "rows": {
         "stamps": "<b>The stamps</b> in your colour",
-        "stampsAccent": "<b>The stamps</b> in a colour that stands out on it",
+        "stampsAccent": "<b>The stamps</b> in a colour that stands out on the card",
         "ground": "<b>Their ground</b> {{colour}}",
         "text": "<b>The text</b> {{colour}}, so it reads"
       },
