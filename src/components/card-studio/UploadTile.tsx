@@ -61,14 +61,19 @@ export function UploadTile({
   const wide = aspect !== "1 / 1";
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-center gap-3">
+      {/* A row under 20rem (a 320px phone, or large text) gives the words
+          the whole row and "Remove" goes under it, rather than squeezing
+          the words out of their box. In rem, so a wider row at 100% stays
+          as it was. */}
+      <div className="flex flex-wrap items-center gap-3 [container-type:inline-size]">
         <label
           htmlFor={inputId}
           aria-busy={busy || undefined}
           className={cn(
             // A finger held on the picture raises no "Save image": it is the
             // control, not a picture to keep.
-            "flex min-h-14 min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-field p-1.5 pe-4 touch-manipulation select-none [-webkit-touch-callout:none]",
+            "flex min-h-14 min-w-0 flex-1 flex-wrap cursor-pointer items-center gap-3 rounded-field p-1.5 pe-4 touch-manipulation select-none [-webkit-touch-callout:none]",
+            "[@container(max-width:20rem)]:basis-full",
             "has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
             "transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5",
             (disabled || busy) && "pointer-events-none opacity-50",
@@ -97,7 +102,11 @@ export function UploadTile({
               </span>
             )}
           </span>
-          <span className="flex min-w-0 flex-col">
+          {/* The words go under the picture only where their longest word
+              can't stand beside it (a word like "(optional)" with large
+              text on a phone); otherwise they wrap beside it, as wide as
+              they need and no wider. */}
+          <span className="flex min-w-0 max-w-max grow basis-[min-content] flex-col">
             <span className="type-body font-semibold text-ink">{title}</span>
             <span className="text-sm leading-snug text-ink-muted">
               {busy
