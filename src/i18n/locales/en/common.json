@@ -213,7 +213,8 @@
       "removeNamed": "Remove the field {{name}}",
       "removeTitle": "Remove the field {{name}}?",
       "removeBody": "It comes off every customer's card at the next save.",
-      "lastOne": "A card needs at least one field."
+      "lastOne": "A card needs at least one field.",
+      "messageAlways": "Without this message an iPhone doesn't alert on a new stamp, so one is always sent."
     },
     "readProblem": "The card didn't load",
     "sampleName": "Dana Levi",
@@ -244,7 +245,9 @@
       "changes_one": "1 change · not on customers' cards yet",
       "changes_other": "{{count}} changes · not on customers' cards yet",
       "discard": "Discard changes",
-      "saving": "Saving…"
+      "saving": "Saving…",
+      "count_one": "1 change",
+      "count_other": "{{count}} changes"
     },
     "kept": "You have changes from your last visit that aren't saved yet.",
     "back": {
@@ -287,7 +290,8 @@
       "other": "The server found a problem with the design, and passes won't update until it's fixed.",
       "advice": "The wallet has advice about this card's look. Passes update all the same.",
       "details": "The details",
-      "row": "Won't show on Google Wallet"
+      "row": "Won't show on Google Wallet",
+      "suggestion": "We have a suggestion for the card. Cards update either way."
     },
     "sync": {
       "failed": "The last update to passes in wallets didn't go through. We'll try again by ourselves, and Save tries right away.",
@@ -367,7 +371,18 @@
       "changed": "Changed by you",
       "back": "Back to the business colour"
     },
-    "iphoneOnly": "iPhone only"
+    "iphoneOnly": "iPhone only",
+    "savedQuiet": "Saved. Customers' cards update quietly, with no alert.",
+    "stickers": {
+      "outage": "The stickers didn't load just now, so they can't be changed. The stamps on the card stay as they are.",
+      "outageBehind": "The stickers didn't load just now, so what's behind the stamps can't be changed. It stays as it is.",
+      "has": "On the card now:",
+      "symbolDrops": "A symbol takes the sticker's place on the stamps.",
+      "ground": "a {{name}} ground",
+      "noGround": "no ground",
+      "pattern": "the pattern {{name}}",
+      "noPattern": "no pattern"
+    }
   },
   "cardControls": {
     "looks": "Ready-made looks",

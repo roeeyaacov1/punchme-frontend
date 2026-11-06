@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { problemsFor, readLint } from "./lintProblems";
+import { adviceShown, problemsFor, readLint } from "./lintProblems";
 
 // The real strings, as apps/wallet/lint.py writes them.
 const PENDING = [
@@ -108,5 +108,20 @@ describe("problemsFor", () => {
     expect(problemsFor(reading, "meta.custom", 0)).toHaveLength(2);
     expect(problemsFor(reading, "members.tier.name", 3)).toHaveLength(1);
     expect(problemsFor(reading, "person.displayName", 0)).toHaveLength(0);
+  });
+});
+
+describe("adviceShown", () => {
+  const name = "name: Google Wallet shows about 20 characters of the program's name; this one has 26, so the phone may cut it off";
+  const contrast = "design.background_color: the text colour contrasts 2.94:1 with the background";
+
+  it("leaves Google's name line to Names where the options are drawn", () => {
+    const reading = readLint([name, contrast]);
+    expect(adviceShown(reading, { namesSayGoogle: true })).toEqual([contrast]);
+  });
+
+  it("lists every piece of advice otherwise", () => {
+    const reading = readLint([name, contrast]);
+    expect(adviceShown(reading, { namesSayGoogle: false })).toEqual([name, contrast]);
   });
 });

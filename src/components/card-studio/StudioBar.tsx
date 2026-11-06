@@ -1,7 +1,8 @@
-import { forwardRef, type ReactNode } from "react";
+import { forwardRef, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { CircleAlert, Info } from "lucide-react";
 import { cn } from "../../lib/cn";
+import { Badge } from "../kit/Badge";
 import { Button } from "../kit/Button";
 import { linkText } from "../kit/classes";
 
@@ -28,6 +29,38 @@ export interface StudioBarProps {
    * here too where a tray covers what the stage says, with the way to try
    * again. */
   onRedraw?: () => void;
+  /** At a tray's foot, where the wallet draws the design options: once large
+   * text leaves the bar narrower than 16rem, it is one row, the count of
+   * changes as a badge, then Save, so the tray keeps room to scroll
+   * (brief §6.9). */
+  compact?: boolean;
+}
+
+/** Below this width, in rem, a compact bar stands in one row. */
+const ONE_ROW_REM = 16;
+
+/** Whether an element is narrower than `rem`, as text size and the screen
+ * change it. */
+function useNarrow(on: boolean, rem: number) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [narrow, setNarrow] = useState(false);
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!on || !element) {
+      setNarrow(false);
+      return;
+    }
+    const measure = () => {
+      const root = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      setNarrow(element.clientWidth / root < rem);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [on, rem]);
+  return [ref, narrow] as const;
 }
 
 /**
@@ -41,13 +74,61 @@ export interface StudioBarProps {
  * icon, and announced where it happened; focus stays on Save.
  */
 export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function StudioBar(
-  { changes, saving, onSave, onDiscard, problem, kept, fieldProblems = 0, onFieldProblems, stale, sentence, onRedraw },
+  {
+    changes,
+    saving,
+    onSave,
+    onDiscard,
+    problem,
+    kept,
+    fieldProblems = 0,
+    onFieldProblems,
+    stale,
+    sentence,
+    onRedraw,
+    compact = false,
+  },
   saveRef,
 ) {
   const { t } = useTranslation();
   const updateOnly = changes === 0 && !!stale;
+  const [box, narrow] = useNarrow(compact, ONE_ROW_REM);
+  const oneRow = narrow && changes > 0;
+  if (oneRow) {
+    return (
+      <div ref={box} className="flex flex-col gap-2">
+        <p role="status" className="sr-only">
+          {saving ? t("studio.bar.saving") : ""}
+        </p>
+        {onRedraw && (
+          <p className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
+            <Info aria-hidden className="mt-px size-4 shrink-0" />
+            <span>
+              {t("studio.drawn.failedBar")}{" "}
+              <button type="button" onClick={onRedraw} disabled={saving} className={cn(linkText, "text-start")}>
+                {t("studio.drawn.retry")}
+              </button>
+            </span>
+          </p>
+        )}
+        <div className="flex items-center gap-2">
+          {/* Discard waits in the bar under the page, a tray's close away. */}
+          <Badge>{t("studio.bar.count", { count: changes })}</Badge>
+          <Button ref={saveRef} busy={saving} onClick={onSave} className="ms-auto max-w-full !whitespace-normal text-center">
+            {t("studio.save")}
+          </Button>
+        </div>
+        {problem && (
+          <p role="alert" className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-danger">
+            <CircleAlert aria-hidden className="mt-px size-4 shrink-0" />
+            <span>{problem}</span>
+          </p>
+        )}
+      </div>
+    );
+  }
   return (
-    <div className="flex flex-col gap-2">
+    <div ref={box} className="flex flex-col gap-2">
       {/* There before it speaks, so the words are read when they come. */}
       <p role="status" className="sr-only">
         {saving ? t("studio.bar.saving") : ""}
