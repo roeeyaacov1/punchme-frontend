@@ -301,17 +301,26 @@ The save runs from a click only, never from an effect, and one at a time.
 | That create failed | `GET /api/businesses/me` again, to adopt a business that was created anyway | `getMyBusiness` |
 | Always | `GET {biz}/templates` | `listTemplates` |
 | No matching card | `POST {biz}/templates` (the full template) | `createTemplate` |
-| Picture stamp, after create | `POST {biz}/templates/{template_id}/images` multipart `use=stamp_art` | `uploadTemplateImage` |
+| A card from a look with a logo on the device, after create | `POST {biz}/templates/{template_id}/images` multipart `use=logo` | `uploadTemplateImage` |
+| Picture stamp, after create (and after the logo) | `POST {biz}/templates/{template_id}/images` multipart `use=stamp_art` | `uploadTemplateImage` |
 | Card exists, name or trade changed | `PATCH {biz}` `{name, niche}` | `patchBusiness` |
 | Card exists, design changed | `PATCH {biz}/templates/{template_id}` | `patchTemplate` |
+| Card exists, a different logo | `POST {biz}/templates/{template_id}/images` `logo` | `uploadTemplateImage` |
 | Card exists, a different picture | `POST {biz}/templates/{template_id}/images` `stamp_art` | `uploadTemplateImage` |
 
 - It looks before it creates. A second business is a 500, not a 409.
-- When nothing changed (same card, same fingerprint, same picture hash), it
-  writes nothing.
+- When nothing changed (same card, same fingerprint, same picture and logo
+  hashes), it writes nothing.
 - After Back-and-change it PATCHes instead of creating.
 - It asks before overwriting a card the wizard didn't make.
-- Progress is recorded in `draft.committed` after every write.
+- Progress is recorded in `draft.committed` after every write: the card as
+  soon as it is created, then each picture as it uploads (the logo,
+  `logoHash`, then the stamp's). A picture that didn't go is said as that
+  picture's, and the next save uploads only what is left, onto the same
+  card, with no PATCH when the card itself is as saved (card looks, step B).
+- A logo the device no longer has is left out, and the card is saved
+  without it. A refused logo (`invalid_image` on its upload) is placed on
+  the logo, with a way back to the business.
 
 ## Wallet step
 
@@ -435,7 +444,13 @@ Fixed, except where it says otherwise.
   so before a picture is chosen.
 - **One failure path shows the wrong screen.** If `createTemplate` succeeds
   but its response is lost, the retry shows "This account already has a
-  card". Not fixed: `commit.ts` is fixed during the redesign.
+  card". Not fixed: `commit.ts` is fixed during the redesign. Its sibling,
+  a picture whose upload failed after the create, reached the same screen;
+  since the card looks' step B the card is recorded as soon as it is
+  created, and the retry uploads only the picture.
+- **A saved logo can't be removed either** (card looks, step B), for the
+  same reason as the picture stamp: taking the logo away after the save
+  leaves the uploaded one on the card.
 - **`OnboardingGate`'s comment was wrong.** It now says the gate asks for an
   account only.
 - **A hire could land in the wizard** (found in Phase 2's check, 20 Oct).

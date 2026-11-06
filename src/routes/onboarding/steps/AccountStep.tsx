@@ -44,8 +44,8 @@ export function AccountStep() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, isAuthenticated, isLoading: authLoading, login, logout } = useAuth();
-  const { draft, resolved, templateInput, art, artPersisted, update, clear } = useOnboardingDraft();
-  const storageFull = useStorageFull(draft, artPersisted);
+  const { draft, resolved, templateInput, art, artPersisted, logo, logoPersisted, update, clear } = useOnboardingDraft();
+  const storageFull = useStorageFull(draft, artPersisted && logoPersisted);
   const keepCostId = useId();
   const [committing, setCommitting] = useState(false);
   const [problem, setProblem] = useState<SaveProblem | null>(null);
@@ -91,6 +91,8 @@ export function AccountStep() {
   );
 
   const artForUpload = resolved.stamp.kind !== "glyph" && art?.hash === resolved.stamp.hash ? art : null;
+  // A logo the device no longer has is left out: the card is saved without.
+  const logoForUpload = resolved.logo && logo?.hash === resolved.logo ? logo : null;
 
   async function commit(replaceExisting = false) {
     if (inFlight.current) return;
@@ -103,6 +105,7 @@ export function AccountStep() {
         resolved,
         input: templateInput,
         art: artForUpload,
+        logo: logoForUpload,
         queryClient,
         saveCommitted: (committed) => update({ committed }),
         replaceExisting,
@@ -157,6 +160,10 @@ export function AccountStep() {
         ) : problem.fix === "stamp" ? (
           <LinkButton to="/onboarding/stamp" variant="secondary" className={wrapButton}>
             {t("onboarding.account.problem.toPicture")}
+          </LinkButton>
+        ) : problem.fix === "logo" ? (
+          <LinkButton to="/onboarding/business" variant="secondary" className={wrapButton}>
+            {t("onboarding.account.problem.toLogo")}
           </LinkButton>
         ) : undefined
       }

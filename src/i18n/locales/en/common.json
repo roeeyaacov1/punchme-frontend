@@ -728,6 +728,8 @@
         "toName": "Check the name",
         "picture": "The stamp's picture couldn't be used. Choose it again, or another one, then save.",
         "toPicture": "Choose the picture again",
+        "logo": "The logo couldn't be used. Choose it again, or another one, then save.",
+        "toLogo": "Choose the logo again",
         "invalid": "Something on the card wasn't accepted, so it wasn't saved. Your design is still here."
       }
     },
