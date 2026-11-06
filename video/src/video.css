@@ -1,0 +1,11 @@
+/* The staged components keep their own CSS motion (the scan's snap, a
+   stamp landing, lights on), which runs on the browser's clock, not the
+   video's: a render would catch it at whatever moment a frame happened to
+   be taken. So it is frozen here at its final state, and the video rebuilds
+   every movement from frames. */
+.promo *,
+.promo *::before,
+.promo *::after {
+  animation: none !important;
+  transition: none !important;
+}
