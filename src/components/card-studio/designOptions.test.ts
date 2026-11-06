@@ -15,7 +15,9 @@ import {
   patternShows,
   picturesAt,
   readPicture,
+  savedPictureOf,
   serverAsk,
+  stageOnFailure,
   stagePictures,
   stampSummary,
   stampsDrawnInColour,
@@ -518,6 +520,38 @@ describe("stampsDrawnInColour", () => {
   it("leaves an untinted sticker or photo on its own to its own colours", () => {
     expect(stampsDrawnInColour({ stamp: { style: "icon", sticker: "bubble-tea" } }, false)).toBe(false);
     expect(stampsDrawnInColour({ stamp: { style: "icon" } }, true)).toBe(false);
+  });
+});
+
+describe("the stage when a drawing fails", () => {
+  const images = { strip_states: { "3": "data:strip" }, hero_states: { "3": "data:hero" } };
+
+  it("reads the saved card's own picture and its count off the design read", () => {
+    expect(savedPictureOf(images)).toEqual({ state: 3, strip: "data:strip", hero: "data:hero" });
+    expect(savedPictureOf({})).toBeNull();
+  });
+
+  it("shows a styled saved card at the count its picture was drawn at", () => {
+    const shown = stageOnFailure({ saved: BAKERY, savedPicture: savedPictureOf(images), sample: 6 });
+    expect(shown).toEqual({ currentStamps: 3, stripStates: { "3": "data:strip" }, heroStates: { "3": "data:hero" }, unsaved: false });
+  });
+
+  it("shows a plain saved card at the count shown, from its published pictures", () => {
+    const published = { "6": "https://cdn/strip6.png" };
+    expect(stageOnFailure({ saved: PLAIN, savedPicture: null, sample: 6, stripStates: published })).toEqual({
+      currentStamps: 6,
+      stripStates: published,
+      heroStates: undefined,
+      unsaved: false,
+    });
+  });
+
+  it("falls to the stand-in for a styled card with no picture of its own", () => {
+    expect(stageOnFailure({ saved: BAKERY, savedPicture: null, sample: 4 })).toEqual({ currentStamps: 4, unsaved: true });
+  });
+
+  it("never counts past the saved card's stamps", () => {
+    expect(stageOnFailure({ saved: PLAIN, savedPicture: null, sample: 12 }).currentStamps).toBe(8);
   });
 });
 

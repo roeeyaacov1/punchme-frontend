@@ -10,13 +10,23 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { Info } from "lucide-react";
+import { CreditCard, Info } from "lucide-react";
 import { cn } from "../../lib/cn";
+import { Button } from "../kit/Button";
 import { useReducedMotion } from "../kit/motion";
+import { Notice } from "../kit/Notice";
 import { SegmentedControl } from "../kit/SegmentedControl";
 import { WallpaperStage } from "../kit/WallpaperStage";
 import { AppleCardPreview, GoogleCardPreview, type CardPreviewValue } from "./CardPreviews";
-import { designOptions, drawKey, isStyled, stagePictures, type DrawnCard } from "./designOptions";
+import {
+  designOptions,
+  drawKey,
+  isStyled,
+  stageOnFailure,
+  stagePictures,
+  type DrawnCard,
+  type SavedPicture,
+} from "./designOptions";
 import { stampColourOf, type CardStudioImages, type CardStudioValue, type HeldPictures } from "./studioDraft";
 
 export type Wallet = "apple" | "google";
@@ -121,6 +131,15 @@ export const StudioStage = forwardRef<
     pictures?: readonly (DrawnCard | null)[];
     /** The card has a logo of the owner's own, held or saved. */
     hasLogo?: boolean;
+    /** The card as saved: what the stage shows when a drawing of the draft
+     * fails, since it is what customers have. */
+    saved?: CardStudioValue;
+    /** The saved card's own picture, out of the design read. */
+    savedPicture?: SavedPicture | null;
+    /** Ask for the failed drawing again. */
+    onRedraw?: () => void;
+    /** Told whether the stage shows the saved card for a drawing that failed. */
+    onFailed?: (failed: boolean) => void;
   }
 >(function StudioStage(
   {
@@ -140,6 +159,10 @@ export const StudioStage = forwardRef<
     foot,
     pictures: serverPictures = NO_PICTURES,
     hasLogo = false,
+    saved,
+    savedPicture = null,
+    onRedraw,
+    onFailed,
   },
   ref,
 ) {
@@ -174,35 +197,63 @@ export const StudioStage = forwardRef<
     key,
     loaded: (url) => loaded.has(url),
   });
-  const { stripStates, heroStates } = pictures;
-  const publishedShowing =
-    !pictures.unsaved && !!(wallet === "apple" ? stripStates : heroStates)?.[String(sample)];
-  // The server answered for this draft and count, and drew nothing.
-  const drawFailed = styled && pictures.failed;
+  // The server answered for this draft and count, and drew nothing: the
+  // stage shows the saved card, which is what customers have (§6.6).
+  const drawFailed = styled && pictures.failed && !!saved;
+  const onFailure = drawFailed
+    ? stageOnFailure({
+        saved: saved!,
+        savedPicture: savedPicture && (shown(savedPicture.strip) || shown(savedPicture.hero)) ? savedPicture : null,
+        sample,
+        stripStates: onlyLoaded(images.strip_states, loaded),
+        heroStates: onlyLoaded(images.hero_states, loaded),
+      })
+    : null;
+  const { stripStates, heroStates } = onFailure ?? pictures;
+  const shownCount = onFailure?.currentStamps ?? sample;
+  const shownUnsaved = onFailure ? onFailure.unsaved : pictures.unsaved;
+  const publishedShowing = !shownUnsaved && !!(wallet === "apple" ? stripStates : heroStates)?.[String(shownCount)];
+  // A drawing on its way: said from 500ms, so a quick one says nothing.
+  const drawing = styled && pictures.drawing && !drawFailed;
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    if (!drawing) {
+      setSlow(false);
+      return;
+    }
+    const id = window.setTimeout(() => setSlow(true), 500);
+    return () => window.clearTimeout(id);
+  }, [drawing]);
+  useEffect(() => {
+    onFailed?.(drawFailed);
+  }, [onFailed, drawFailed]);
   // A picture held for Save that the strip shows: the server hasn't had it.
   const heldOut = styled && !!(held.stamp_art || held.strip_base || held.stamped_art || held.unstamped_art);
 
+  // On a failure, the saved card as it is, with the pictures it has: none of
+  // the held ones, which haven't reached it.
+  const card = onFailure ? saved! : value;
   const preview: CardPreviewValue = {
     businessName,
-    cardName: value.name,
-    stampsRequired: value.stamps_required,
-    currentStamps: sample,
-    rewardDescription: value.reward_description,
-    backgroundColor: value.background_color,
-    foregroundColor: value.foreground_color,
-    labelColor: value.label_color,
-    design: value.design,
-    logoUrl: held.logo ?? shown(images.logo),
-    appleLogoUrl: held.logo ?? shown(images.apple_logo),
-    stampArtUrl: stampPicture ?? images.stamp_art,
-    stampedArtUrl: held.stamped_art ?? images.stamped_art,
-    unstampedArtUrl: held.unstamped_art ?? images.unstamped_art,
-    stripBaseUrl: held.strip_base ?? images.strip_base,
+    cardName: card.name,
+    stampsRequired: card.stamps_required,
+    currentStamps: shownCount,
+    rewardDescription: card.reward_description,
+    backgroundColor: card.background_color,
+    foregroundColor: card.foreground_color,
+    labelColor: card.label_color,
+    design: card.design,
+    logoUrl: (onFailure ? undefined : held.logo) ?? shown(images.logo),
+    appleLogoUrl: (onFailure ? undefined : held.logo) ?? shown(images.apple_logo),
+    stampArtUrl: (onFailure ? undefined : stampPicture) ?? images.stamp_art,
+    stampedArtUrl: (onFailure ? undefined : held.stamped_art) ?? images.stamped_art,
+    unstampedArtUrl: (onFailure ? undefined : held.unstamped_art) ?? images.unstamped_art,
+    stripBaseUrl: (onFailure ? undefined : held.strip_base) ?? images.strip_base,
     stripStates,
     heroStates,
-    unsaved: pictures.unsaved,
+    unsaved: shownUnsaved,
     holderName: t("studio.sampleName"),
-    logoText: hasLogo && designOptions(value.design).logoText,
+    logoText: hasLogo && designOptions(card.design).logoText,
   };
   const Preview = wallet === "apple" ? AppleCardPreview : GoogleCardPreview;
 
@@ -284,9 +335,9 @@ export const StudioStage = forwardRef<
   }, [landed, sample, wallet, reduced]);
 
   const summary = t("studio.stageSummary", {
-    name: value.name,
-    count: sample,
-    total: value.stamps_required,
+    name: card.name,
+    count: shownCount,
+    total: card.stamps_required,
   });
 
   return (
@@ -305,9 +356,9 @@ export const StudioStage = forwardRef<
           340px it runs to the screen's edges and clips the pass's sides. */}
       <div data-tour="design-studio" className="-mx-4 flex w-[calc(100%+2rem)] justify-center sm:mx-0 sm:w-full">
         <WallpaperStage
-          cardColor={value.background_color}
-          stampColor={stampColourOf(value)}
-          foregroundColor={value.foreground_color}
+          cardColor={card.background_color}
+          stampColor={stampColourOf(card)}
+          foregroundColor={card.foreground_color}
           summary={summary}
         >
           {/* A finger held on the card selects none of the pass's words and
@@ -345,12 +396,38 @@ export const StudioStage = forwardRef<
           <span>{t("studio.picture.notHere")}</span>
         </p>
       )}
-      {/* The server draws a styled card: said while it does, and when it
-          couldn't. Polite, and only the words change, so a screen reader
-          hears each once. */}
-      <p aria-live="polite" className="max-w-[340px] text-center text-sm leading-snug text-ink-muted empty:hidden">
-        {styled && (drawFailed ? t("studio.drawn.failed") : pictures.drawing ? t("studio.drawn.drawing") : "")}
-      </p>
+      {/* The server draws a styled card. From 500ms of a drawing, a lit tag
+          in the caption's shape says so, under the stage and never over the
+          pass; when it couldn't, the tag says the stage is the card customers
+          have, over a plain panel with the way to try again. Polite, and
+          only when its words change, so a drawing is said once however many
+          changes it takes in. Its place is kept while the card is drawn by
+          the server, so the tag coming and going moves nothing. */}
+      {styled && (
+        <div aria-live="polite" className="flex min-h-7 w-full max-w-[340px] flex-col items-center gap-3">
+          {(slow || drawFailed) && (
+            <span className="theme-lit type-tag inline-flex items-center gap-1.5 rounded-[1.30625rem] border border-border bg-surface/95 px-3 py-1 text-center text-ink-muted">
+              {drawFailed && <CreditCard aria-hidden className="size-4 shrink-0" />}
+              {drawFailed ? t("studio.drawn.current") : t("studio.drawn.drawing")}
+            </span>
+          )}
+          {drawFailed && (
+            <Notice
+              tone="warn"
+              className="w-full"
+              action={
+                onRedraw && (
+                  <Button variant="secondary" onClick={onRedraw}>
+                    {t("studio.drawn.retry")}
+                  </Button>
+                )
+              }
+            >
+              {t("studio.drawn.failedSaved")}
+            </Notice>
+          )}
+        </div>
+      )}
       {heldOut && (
         <p className="flex max-w-[340px] items-start gap-1.5 text-sm leading-snug text-ink-muted">
           <Info aria-hidden className="mt-px size-4 shrink-0" />

@@ -389,6 +389,55 @@ export function alreadyAsked(was: ServerAsk | null, ask: ServerAsk): boolean {
   return !ask.images || (was.images && was.state === ask.state);
 }
 
+/** The saved card's own picture, out of the design read: the server drew the
+ * stored card at one count. */
+export interface SavedPicture {
+  state: number;
+  strip?: string;
+  hero?: string;
+}
+
+export function savedPictureOf(images: unknown): SavedPicture | null {
+  const state = drawnState(images);
+  return state === null ? null : { state, ...picturesAt(images, state) };
+}
+
+/**
+ * What the stage shows when a drawing of the draft failed (§6.6): the saved
+ * card, which is what customers have, never a picture of a card that is
+ * neither the draft nor the saved one. A saved card the server draws itself
+ * stands at the count its picture was drawn at; a plain one at the count
+ * shown, from its published pictures, or the stand-in where they haven't
+ * loaded. A styled card with no picture of its own falls to the stand-in.
+ */
+export function stageOnFailure({
+  saved,
+  savedPicture,
+  sample,
+  stripStates,
+  heroStates,
+}: {
+  saved: CardStudioValue;
+  savedPicture: SavedPicture | null;
+  sample: number;
+  /** The published pictures that have loaded (a plain card's). */
+  stripStates?: Record<string, string>;
+  heroStates?: Record<string, string>;
+}): { currentStamps: number; stripStates?: Record<string, string>; heroStates?: Record<string, string>; unsaved: boolean } {
+  const count = Math.min(sample, saved.stamps_required);
+  if (!isStyled(saved.design)) return { currentStamps: count, stripStates, heroStates, unsaved: false };
+  if (!savedPicture || (!savedPicture.strip && !savedPicture.hero)) {
+    return { currentStamps: count, unsaved: true };
+  }
+  const at = (url?: string) => (url ? { [String(savedPicture.state)]: url } : undefined);
+  return {
+    currentStamps: savedPicture.state,
+    stripStates: at(savedPicture.strip),
+    heroStates: at(savedPicture.hero),
+    unsaved: false,
+  };
+}
+
 /** What the stage hands the frozen previews for the count shown: the
  * pictures to treat as published, whether they stand for the draft (so the
  * stand-in steps aside), whether a fresher one is on its way, and whether

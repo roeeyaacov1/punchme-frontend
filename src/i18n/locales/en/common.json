@@ -338,7 +338,10 @@
     "drawn": {
       "drawing": "Drawing the card…",
       "held": "Your new picture joins this card when you save.",
-      "failed": "The card's picture couldn't be drawn just now. What you see may not be the card yet."
+      "current": "This is the card your customers have now",
+      "failedSaved": "We couldn't draw your last change just now. It's kept in the draft, and Save sends it as it is.",
+      "retry": "Draw it again",
+      "failedBar": "We couldn't draw your last change, so the card shown is the saved one."
     },
     "colours": {
       "brand": "Your business colour",

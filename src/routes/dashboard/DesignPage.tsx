@@ -8,6 +8,7 @@ import {
   drawKey,
   picturesAt,
   readPicture,
+  savedPictureOf,
   serverAsk,
   studioStickers,
   type DrawnCard,
@@ -373,6 +374,12 @@ export function DesignPage() {
     setFailure(null);
   }, []);
 
+  // "לצייר שוב": the failed drawing goes, and the next ask draws it again.
+  const redraw = useCallback(() => {
+    asked.current = null;
+    setDrawn(null);
+  }, []);
+
   const hold = useCallback((use: HeldUse, dataUrl: string | null) => {
     setFailure(null);
     setHeld((current) => {
@@ -713,6 +720,8 @@ export function DesignPage() {
         focusName={nameFocus}
         stickers={studioStickers(stickersQuery)}
         pictures={pictures}
+        savedPicture={savedPictureOf(design.images)}
+        onRedraw={redraw}
         onSample={setSample}
         // A backend from before `pictures` sends none.
         hasLogo={!!held.logo || (design.pictures ?? []).includes("logo")}
