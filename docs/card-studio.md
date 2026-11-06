@@ -149,6 +149,13 @@ These come from the wallet renderer, not from taste:
   what the card has, and offer nothing that would drop it unasked: the
   glyphs wait behind "סמל פשוט", which says a symbol takes the sticker's
   place.
+- **The name on the pass:** the card's own, "שם העסק על הכרטיס"
+  (`design.organization_name`), where its design sets one, else the
+  business's (backend PR #20, item 5). Apple writes it in the logo row and
+  Google in its issuer line; Google's program line stays "{business} -
+  {card}" with the business's own name. A logo the server drew from the
+  name says the saved one, so while the draft renames the card the stage
+  prints the new name in its place.
 - **Barcode formats:** the four that `PassBarcode` draws.
 - **Fields:** 1 to 10, using PassKit's 5 sections and 4 alignments and five
   kinds of binding (`studioDraft.ts`). Each free-text field has a binding of

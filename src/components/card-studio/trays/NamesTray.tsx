@@ -55,8 +55,9 @@ export function NamesTray({
 }) {
   const { t } = useTranslation();
   const fields = value.design.fields ?? [];
-  const issuer = value.design.organization_name?.trim() || businessName;
-  const program = `${issuer} - ${value.name.trim() || "…"}`;
+  // Google's program line, as the backend writes it: the business's own name,
+  // whatever name the card gives itself (that one is the issuer's).
+  const program = `${businessName} - ${value.name.trim() || "…"}`;
   // What Google shows of a long name, the first 20 characters isolated.
   const googleLong = (text: string) => {
     const shown = options ? googleCut(text) : null;
