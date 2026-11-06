@@ -25,8 +25,10 @@ import {
   isStyled,
   stageOnFailure,
   stagePictures,
+  stageShown,
   type DrawnCard,
   type SavedPicture,
+  type StageShown,
 } from "./designOptions";
 import { stampColourOf, type CardStudioImages, type CardStudioValue, type HeldPictures } from "./studioDraft";
 
@@ -186,7 +188,9 @@ export const StudioStage = forwardRef<
   const loaded = useLoaded(published);
   const shown = (url: string | undefined) => (url && loaded.has(url) ? url : undefined);
   // The server's pictures of the card, once they have loaded, as the
-  // published ones are: staging, not redrawing.
+  // published ones are: staging, not redrawing. What the stage showed last
+  // stays up while a fresh one is drawn.
+  const lastShown = useRef<StageShown | null>(null);
   const key = drawKey(value, sample, heldArt(held));
   const pictures = stagePictures({
     styled,
@@ -197,6 +201,7 @@ export const StudioStage = forwardRef<
     pictures: serverPictures,
     key,
     loaded: (url) => loaded.has(url),
+    last: lastShown.current,
   });
   // The server answered for this draft and count, and drew nothing: the
   // stage shows the saved card, which is what customers have (§6.6).
@@ -214,6 +219,16 @@ export const StudioStage = forwardRef<
   const shownCount = onFailure?.currentStamps ?? sample;
   const shownUnsaved = onFailure ? onFailure.unsaved : pictures.unsaved;
   const publishedShowing = !shownUnsaved && !!(wallet === "apple" ? stripStates : heroStates)?.[String(shownCount)];
+  const shownNow = stageShown(lastShown.current, {
+    stripStates,
+    heroStates,
+    count: shownCount,
+    unsaved: shownUnsaved,
+    waiting: styled && !onFailure,
+  });
+  useLayoutEffect(() => {
+    lastShown.current = shownNow;
+  });
   // A drawing on its way: said from 500ms, so a quick one says nothing.
   const drawing = styled && pictures.drawing && !drawFailed;
   const [slow, setSlow] = useState(false);

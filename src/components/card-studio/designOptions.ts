@@ -483,6 +483,10 @@ export interface StagePictures {
   failed: boolean;
 }
 
+/** What the stage last showed in the strip's place: a picture (Apple's strip
+ * and Google's hero), or the stand-in a card is drawn with on the page. */
+export type StageShown = { strip?: string; hero?: string } | "stand-in";
+
 export function stagePictures({
   styled,
   unsaved,
@@ -492,6 +496,7 @@ export function stagePictures({
   pictures,
   key,
   loaded = () => true,
+  last = null,
 }: {
   styled: boolean;
   unsaved: boolean;
@@ -507,10 +512,13 @@ export function stagePictures({
   /** Whether a picture's image has loaded on this page: one that hasn't is
    * on its way, not missing. */
   loaded?: (url: string) => boolean;
+  /** What the stage showed last (`stageShown`), kept up while the fresh
+   * picture is on its way. */
+  last?: StageShown | null;
 }): StagePictures {
   if (!styled) return { stripStates, heroStates, unsaved, drawing: false, failed: false };
   const at = (url: string | undefined) => (url && loaded(url) ? { [String(sample)]: url } : undefined);
-  const shows = (picture: DrawnCard | null): picture is DrawnCard =>
+  const shows = (picture: { strip?: string; hero?: string } | null): picture is DrawnCard =>
     !!picture && !!((picture.strip && loaded(picture.strip)) || (picture.hero && loaded(picture.hero)));
   const fresh = pictures.find((picture) => shows(picture) && picture.key === key);
   if (fresh) {
@@ -519,11 +527,46 @@ export function stagePictures({
   // The server answered for this strip at this count and drew nothing. One
   // it drew that hasn't loaded yet is on its way, not a failure.
   const failed = pictures.some((picture) => picture?.key === key && !picture.strip && !picture.hero);
-  // The last picture the server drew, of an earlier draft or count, stands in
-  // until the fresh one comes: closer to the card than the badge grid.
+  // While the fresh one comes, the stage keeps what it shows (§6.6): another
+  // picture in between, such as the saved card's, would be a flash.
+  if (last === "stand-in") return { stripStates: undefined, heroStates: undefined, unsaved: true, drawing: !failed, failed };
+  if (last && shows(last)) {
+    return { stripStates: at(last.strip), heroStates: at(last.hero), unsaved: false, drawing: !failed, failed };
+  }
+  // Nothing to keep: the last picture the server drew, of an earlier draft or
+  // count, stands in until the fresh one comes, closer to the card than the
+  // badge grid.
   const stale = pictures.find(shows);
   if (stale) {
     return { stripStates: at(stale.strip), heroStates: at(stale.hero), unsaved: false, drawing: !failed, failed };
   }
   return { stripStates: undefined, heroStates: undefined, unsaved: true, drawing: !failed, failed };
+}
+
+/**
+ * What the stage shows now, for `stagePictures` to keep up while a drawing is
+ * on its way: the picture at the count, or the stand-in. A styled card's
+ * stand-in shown only until any picture of it has loaded (`waiting`) is
+ * nothing to keep, unless it was being kept already.
+ */
+export function stageShown(
+  last: StageShown | null,
+  {
+    stripStates,
+    heroStates,
+    count,
+    unsaved,
+    waiting,
+  }: {
+    stripStates?: Record<string, string>;
+    heroStates?: Record<string, string>;
+    count: number;
+    unsaved: boolean;
+    waiting: boolean;
+  },
+): StageShown | null {
+  const strip = unsaved ? undefined : stripStates?.[String(count)];
+  const hero = unsaved ? undefined : heroStates?.[String(count)];
+  if (strip || hero) return { strip, hero };
+  return !waiting || last === "stand-in" ? "stand-in" : null;
 }
