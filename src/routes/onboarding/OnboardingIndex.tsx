@@ -32,10 +32,10 @@ import { whereToStart } from "./walk";
  */
 export function OnboardingIndex() {
   const { isAuthenticated, isLoading } = useAuth();
-  const { draft, hasArt } = useOnboardingDraft();
+  const { draft, hasArt, looks } = useOnboardingDraft();
   if (isLoading) return null;
   if (!isAuthenticated) {
-    return <Navigate to={`/onboarding/${whereToStart(draft, hasArt)}`} replace />;
+    return <Navigate to={`/onboarding/${whereToStart(draft, hasArt, looks)}`} replace />;
   }
   return (
     <BusinessProvider>
@@ -46,10 +46,10 @@ export function OnboardingIndex() {
 
 function SignedInIndex() {
   const { isLoading, status, role } = useBusiness();
-  const { draft, hasArt } = useOnboardingDraft();
+  const { draft, hasArt, looks } = useOnboardingDraft();
   if (isLoading) return null;
 
-  const start = whereToStart(draft, hasArt);
+  const start = whereToStart(draft, hasArt, looks);
   if (status === "none") return <Navigate to={`/onboarding/${start}`} replace />;
   // A business that couldn't be read is never taken for none: the
   // dashboard's own page says so and asks again, and a hire's draft stays

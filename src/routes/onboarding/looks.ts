@@ -1,14 +1,15 @@
 import type { TFunction } from "i18next";
 import type { DesignDoc } from "../../api/designs";
 import type { Preset } from "../../api/presets";
-import type { ReadyLook } from "../../components/card-studio/controls/controlRules";
-import { isStyled } from "../../components/card-studio/designOptions";
+import type { CardPreviewValue } from "../../components/card-studio/CardPreviews";
+import { stickerLabel, type ReadyLook } from "../../components/card-studio/controls/controlRules";
+import { designOptions, isStyled } from "../../components/card-studio/designOptions";
 import { SUPPORTED_LANGS } from "../../i18n/languages";
 import { derivedLabelColor, relatedAccents } from "../../lib/accentPalette";
 import { CARD_PATTERNS, type CardPattern } from "../../lib/cardPatterns";
 import { normalizeHex, readableInk } from "../../lib/color";
 import { STAMP_GLYPH_NAMES } from "../../lib/stampGlyphs";
-import { NICHE_GLYPH, NICHES, type Niche, type OnboardingDraft } from "./draft";
+import { draftPreviewValue, NICHE_GLYPH, NICHES, resolveDraft, type Niche, type OnboardingDraft } from "./draft";
 
 /**
  * Ready-made looks — a finished card an owner can take whole.
@@ -284,5 +285,195 @@ export function withTradeLook(
     if (draft.stampsRequired === null) patch.stampsRequired = look.stamps;
   }
   if (draft.reward !== null && defaultRewards.includes(draft.reward.trim())) patch.reward = null;
+  return patch;
+}
+
+/* ── The looks screen (card looks, brief §7) ─────────────────────────── */
+
+/**
+ * A published look the wizard shows as itself: one built from the wallet's
+ * design options, with both its pictures drawn when staff published it
+ * (backend PR #20, item 1). A look whose drawing failed comes without them,
+ * and is left out.
+ */
+export function drawnLook(preset: Preset): boolean {
+  return !wizardOffers(preset) && !!preset.pictures?.strip && !!preset.pictures?.hero;
+}
+
+/**
+ * Whether the wizard opens on the looks: the wallet draws the design options
+ * (the public sticker list says `available`), and the catalog has a look to
+ * show for them. Otherwise, a list that says no or doesn't answer, or no
+ * look published yet, the wizard is today's, exactly.
+ */
+export function looksOffered(available: boolean | undefined, presets: Preset[] | undefined): boolean {
+  return available === true && (presets ?? []).some(drawnLook);
+}
+
+/** A trade's drawn looks, in the order `/admin` put them. */
+export function drawnLooks(niche: Niche, presets: Preset[] | undefined): Preset[] {
+  return (presets ?? []).filter((preset) => preset.niche === niche && drawnLook(preset));
+}
+
+/**
+ * The trades a screen offers: the ones the catalog has a look for once it
+ * has said, or all five while it hasn't or when it lists none (the API's
+ * closed set, and the built-in looks dress every one). The trade already
+ * chosen always stays, so a catalog that changed under a draft never hides
+ * it. The business tray's rule, for the looks screen.
+ */
+export function listedTrades(presets: Preset[] | undefined, chosen: Niche | null): Niche[] {
+  const listed = presets?.length ? NICHES.filter((niche) => presets.some((preset) => preset.niche === niche)) : NICHES;
+  return NICHES.filter((niche) => listed.includes(niche) || niche === chosen);
+}
+
+/** What is on a look's stamps, said in the page's language: its sticker, or
+ * its glyph where it has none. */
+function stampWords(preset: Preset, t: TFunction): string {
+  const design = (preset.design ?? {}) as DesignDoc;
+  const sticker = designOptions(design).sticker;
+  if (sticker) return stickerLabel(sticker, t);
+  const glyph = design.stamp?.glyph;
+  const niche = (NICHES as readonly string[]).includes(preset.niche) ? (preset.niche as Niche) : "other";
+  return t(`onboarding.stamp.glyphs.${glyph && STAMP_GLYPH_NAMES.includes(glyph) ? glyph : NICHE_GLYPH[niche]}`);
+}
+
+/**
+ * A look's name, by what is on its stamps (Roee, 6 Nov 2026): "קרואסון",
+ * "Croissant". The catalog has one name per look, in one language, so the
+ * wizard names a look from its own locale files instead. Two looks of one
+ * trade that would share a name are told apart by their place among those
+ * that do: the first keeps it, the next is "קרואסון 2".
+ */
+export function lookName(preset: Preset, siblings: readonly Preset[], t: TFunction): string {
+  const name = stampWords(preset, t);
+  const same = siblings.filter((look) => stampWords(look, t) === name);
+  const place = same.findIndex((look) => look.id === preset.id);
+  return place > 0 ? t("onboarding.look.again", { name, n: place + 1 }) : name;
+}
+
+/** How many stamps a look's picture shows: halfway full, at least one, as
+ * the backend draws it (`looks.halfway`). */
+export function pictureStamps(stampsRequired: number): number {
+  return Math.min(Math.max(1, Math.floor(stampsRequired / 2)), stampsRequired);
+}
+
+/**
+ * A drawn look as the pass shows it, as itself: its own colours and its own
+ * pictures, at the count they were drawn at, with the owner's name and
+ * reward where the draft has them. The look screen's card, and the map's
+ * when the draft can't be drawn ("כך הוא נראה בצבעים שלו").
+ */
+export function lookPreview(
+  preset: Preset,
+  draft: OnboardingDraft,
+  presets: Preset[] | undefined,
+  lang: string,
+  t: TFunction,
+  cardName?: string,
+): CardPreviewValue | null {
+  if (!preset.pictures) return null;
+  const itself: OnboardingDraft = { ...draft, look: undefined, stamp: null, stampsRequired: null };
+  const resolved = resolveDraft({ ...itself, ...lookChoicePatch(preset, itself, presets, []) }, presets, t);
+  const total = preset.stamps_required;
+  const at = pictureStamps(total);
+  return {
+    ...draftPreviewValue(resolved, lang, t, undefined, cardName),
+    stampsRequired: total,
+    currentStamps: at,
+    stripStates: { [at]: preset.pictures.strip },
+    heroStates: { [at]: preset.pictures.hero },
+    unsaved: false,
+  };
+}
+
+/**
+ * What "Continue" with a look writes, beside the trade: everything a look
+ * sets, the colours, the stamp and what stands behind it, the count's place
+ * and how it is written. Never what is the owner's own: the name, the logo
+ * and whether its name stands beside it, a picture for a stamp, a reward
+ * they wrote, or a count they set (one that isn't the last look's). A
+ * reward still saying a trade's default goes back to empty, to read the new
+ * trade's. The same look again changes nothing.
+ *
+ * The check mark isn't taken: Roee prefers cards without it, and the wizard
+ * never offers it (brief §5).
+ */
+export function lookChoicePatch(
+  preset: Preset,
+  draft: OnboardingDraft,
+  presets: Preset[] | undefined,
+  defaults: readonly string[],
+): Partial<OnboardingDraft> {
+  const patch: Partial<OnboardingDraft> = {};
+  if (draft.reward !== null && defaults.includes(draft.reward.trim())) patch.reward = null;
+  if (draft.look === preset.id) return patch;
+
+  const niche = (NICHES as readonly string[]).includes(preset.niche) ? (preset.niche as Niche) : "other";
+  const design = (preset.design ?? {}) as DesignDoc;
+  const options = designOptions(design);
+  const background = normalizeHex(preset.background_color) ?? "#0E1120";
+  const glyph = design.stamp?.glyph;
+  const pattern = design.pattern;
+
+  Object.assign(patch, {
+    look: preset.id,
+    background,
+    accent: normalizeHex(design.stamp?.color ?? "") ?? relatedAccents(background)[0] ?? readableInk(background),
+    foreground: normalizeHex(preset.foreground_color) ?? readableInk(background),
+    label: normalizeHex(preset.label_color),
+    pattern: pattern && (CARD_PATTERNS as string[]).includes(pattern) ? (pattern as CardPattern) : "none",
+    panel: normalizeHex(options.panelColor),
+    options: {
+      style: options.style,
+      sticker: options.sticker,
+      tint: options.tint,
+      wallpaper: options.wallpaper,
+      stamps_place: options.stampsPlace,
+      stamps_format: options.stampsFormat,
+      logo_text: draft.options?.logo_text ?? false,
+    },
+  } satisfies Partial<OnboardingDraft>);
+  if (draft.stamp?.kind !== "image") {
+    patch.stamp = { kind: "glyph", glyph: glyph && STAMP_GLYPH_NAMES.includes(glyph) ? glyph : NICHE_GLYPH[niche] };
+  }
+  if (!ownCount(draft, presets)) patch.stampsRequired = preset.stamps_required;
+  return patch;
+}
+
+/** The count is the owner's once it isn't what the last look set. */
+function ownCount(draft: OnboardingDraft, presets: Preset[] | undefined): boolean {
+  if (draft.stampsRequired === null) return false;
+  const last = presets?.find((look) => look.id === draft.look);
+  const lastBuiltIn = Object.values(BUILTIN_LOOKS)
+    .flat()
+    .find((look) => look.key === draft.look);
+  return draft.stampsRequired !== (last?.stamps_required ?? lastBuiltIn?.stamps);
+}
+
+/**
+ * The same for a trade with no drawn look: its classic look, as today's
+ * tile shows it (`looksFor`), started as a card of the looks with none of
+ * the options on, which the map's trays can then add.
+ */
+export function classicChoicePatch(
+  look: CardLook,
+  draft: OnboardingDraft,
+  presets: Preset[] | undefined,
+  defaults: readonly string[],
+): Partial<OnboardingDraft> {
+  const patch: Partial<OnboardingDraft> = {};
+  if (draft.reward !== null && defaults.includes(draft.reward.trim())) patch.reward = null;
+  if (draft.look === look.key) return patch;
+  const { stamp, stampsRequired, ...colours } = lookPatch(look);
+  Object.assign(patch, colours, {
+    look: look.key,
+    foreground: null,
+    label: null,
+    panel: null,
+    options: { logo_text: draft.options?.logo_text ?? false },
+  } satisfies Partial<OnboardingDraft>);
+  if (draft.stamp?.kind !== "image") patch.stamp = stamp;
+  if (!ownCount(draft, presets)) patch.stampsRequired = stampsRequired;
   return patch;
 }
