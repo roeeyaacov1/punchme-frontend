@@ -75,6 +75,7 @@
         "justUnpublish": "Just unpublish"
       },
       "deleted": "{{name}} deleted.",
+      "gone": "{{name}} isn't in the catalog any more. Someone may have deleted it meanwhile.",
       "readFailed": "We couldn't read the catalog.",
       "empty": "No looks in the catalog yet. Until there are, owners see the built-in looks.",
       "trades": "Trades",

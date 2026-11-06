@@ -1,6 +1,6 @@
 import type { Ref } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { Plus } from "lucide-react";
+import { Info, Plus } from "lucide-react";
 import { Badge, LinkButton, LitPanel } from "../../components/kit";
 import { LookRow } from "./LookRow";
 import type { RowNote } from "./rows";
@@ -39,6 +39,7 @@ export function TradePanel({
   trade,
   headingRef,
   rowState,
+  gone,
   busy,
   onActions,
   onPublishAgain,
@@ -48,6 +49,9 @@ export function TradePanel({
   trade: TradeShelf;
   headingRef: Ref<HTMLHeadingElement>;
   rowState: (row: ShelfRow) => RowState;
+  /** A look of this trade that was gone when it was written to, said here
+   * since its row is gone too. */
+  gone: string | null;
   busy: boolean;
   onActions: (row: ShelfRow) => void;
   onPublishAgain: (row: ShelfRow) => void;
@@ -81,6 +85,12 @@ export function TradePanel({
         </h2>
         <TradeStatusLine status={trade.status} />
       </div>
+      {gone && (
+        <p className="flex items-start gap-1.5 px-3 pb-3 text-sm leading-snug text-ink [@container(min-width:30rem)]:px-5">
+          <Info aria-hidden className="mt-px size-4 shrink-0 text-ink-muted" />
+          <span>{gone}</span>
+        </p>
+      )}
       {trade.shown.length > 0 && <ul className="divide-y divide-border border-t border-border">{trade.shown.map(row)}</ul>}
       {trade.notShown.length > 0 && (
         <div className="border-t border-border-strong">
