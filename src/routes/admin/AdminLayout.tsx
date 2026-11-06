@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
 import { CircleUserRound, Languages, LayoutDashboard, LogOut } from "lucide-react";
@@ -22,6 +22,7 @@ import logo from "../../assets/logo.png";
 export function AdminLayout() {
   const { t } = useTranslation();
   usePublicGround();
+  useNoGlide();
   const [account, setAccount] = useState(false);
   const accountButton = useRef<HTMLButtonElement>(null);
 
@@ -68,6 +69,25 @@ export function AdminLayout() {
       <AdminAccountSheet open={account} onClose={() => setAccount(false)} returnFocus={accountButton} />
     </div>
   );
+}
+
+/**
+ * No scroll the area makes is a glide, as in the dashboard's shell
+ * (`useShellViewport`): `<html>` takes `scroll-behavior: auto` over the
+ * landing page's smooth scroll while the area is mounted. Staff move about
+ * a long list many times a day, much of it by keyboard: a Tab that brings a
+ * row into view, a jump from the trades' index, focus put back on a look
+ * that moved. Each lands at once.
+ */
+function useNoGlide() {
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const saved = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    return () => {
+      root.style.scrollBehavior = saved;
+    };
+  }, []);
 }
 
 /** Who is signed in, the other language, the way back to the app, and the

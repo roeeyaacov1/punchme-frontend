@@ -17,11 +17,15 @@ import type { ShelfRow } from "./shelf";
  *
  * A row just moved or unpublished comes up lit, Panel Light fading in
  * under it with no travel, and says what happened until the next action.
+ * Done from a sheet or a dialog, the light waits for it to leave: lit
+ * behind the scrim it was full by the time the page cleared, so nothing
+ * showed which look had moved.
  */
 export function LookRow({
   row,
   note,
   litKey,
+  litAfterModal,
   busy,
   onActions,
   onPublishAgain,
@@ -32,6 +36,8 @@ export function LookRow({
   note: RowNote | null;
   /** A new value lights the row again. */
   litKey: number | null;
+  /** The light comes on once a sheet or a dialog has left. */
+  litAfterModal: boolean;
   busy: boolean;
   onActions: () => void;
   onPublishAgain: () => void;
@@ -54,6 +60,9 @@ export function LookRow({
           key={litKey}
           aria-hidden
           className={cn("absolute inset-0 bg-light", reduced ? "animate-gentle-in" : "animate-light-up")}
+          // The kit's exit: its scrim fades for --duration-exit in either
+          // motion setting. `both` keeps the row unlit while it waits.
+          style={litAfterModal ? { animationDelay: "var(--duration-exit)" } : undefined}
         />
       )}
       <div className="relative grid min-h-14 grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-2 px-3 py-2 [@container(min-width:30rem)]:gap-x-3 [@container(min-width:30rem)]:px-5">

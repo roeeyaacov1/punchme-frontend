@@ -18,7 +18,6 @@ import {
   Notice,
   Skeleton,
   focusRing,
-  useReducedMotion,
 } from "../../components/kit";
 import { LOOK_PICTURES_POLL_MS } from "../../components/card-studio/lookPictures";
 import { cn } from "../../lib/cn";
@@ -37,6 +36,8 @@ type Outcome =
       key: string;
       name: string;
       stamp: number;
+      /** It was done from a sheet or a dialog, still on its way out. */
+      fromModal: boolean;
     }
   | { kind: "deleted"; key: string; name: string; stamp: number }
   | {
@@ -72,7 +73,6 @@ export function AdminCatalogListPage() {
   const { t } = useTranslation();
   useDocumentTitle(t("admin.catalog.title"));
   const queryClient = useQueryClient();
-  const reduced = useReducedMotion();
 
   const catalog = useQuery({
     queryKey: ["admin-catalog"],
@@ -221,7 +221,11 @@ export function AdminCatalogListPage() {
       }
       await refresh();
       stamp.current += 1;
-      setOutcome({ kind, key: row.key, name, stamp: stamp.current });
+      setOutcome(
+        kind === "deleted"
+          ? { kind, key: row.key, name, stamp: stamp.current }
+          : { kind, key: row.key, name, stamp: stamp.current, fromModal: !!(sheetKey || deleteKey) },
+      );
     } catch (error) {
       stamp.current += 1;
       setOutcome({
@@ -245,15 +249,13 @@ export function AdminCatalogListPage() {
   }
 
   const rowState = (row: ShelfRow): RowState => {
-    if (!outcome || outcome.key !== row.key) return { note: null, litKey: null };
-    if (outcome.kind === "failed")
-      return {
-        note: { kind: "failed", message: outcome.message },
-        litKey: null,
-      };
-    if (outcome.kind === "unpublished") return { note: { kind: "unpublished" }, litKey: outcome.stamp };
+    const unlit = { litKey: null, litAfterModal: false };
+    if (!outcome || outcome.key !== row.key || outcome.kind === "deleted") return { note: null, ...unlit };
+    if (outcome.kind === "failed") return { note: { kind: "failed", message: outcome.message }, ...unlit };
+    const lit = { litKey: outcome.stamp, litAfterModal: outcome.fromModal };
+    if (outcome.kind === "unpublished") return { note: { kind: "unpublished" }, ...lit };
     const note: RowNote | null = row.place !== null ? { kind: "moved", n: row.place } : null;
-    return { note, litKey: outcome.stamp };
+    return { note, ...lit };
   };
 
   // Said once to a screen reader. The same words twice in a row are still
@@ -289,14 +291,14 @@ export function AdminCatalogListPage() {
     return outcome.stamp % 2 ? words : words + String.fromCharCode(0x200b);
   }, [outcome, shelf, t]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // A jump from the index lands at once, never a glide: staff use it many
+  // times a day, by keyboard as often as not, and a glide across a trade of
+  // twenty looks would take as long as the browser liked. Focus goes with it.
   const goToTrade = (niche: string) => (event: MouseEvent) => {
     const heading = headings.current.get(niche);
     if (!heading) return;
     event.preventDefault();
-    heading.scrollIntoView({
-      block: "start",
-      behavior: reduced ? "auto" : "smooth",
-    });
+    heading.scrollIntoView({ block: "start", behavior: "instant" });
     heading.focus({ preventScroll: true });
   };
 
@@ -349,8 +351,10 @@ export function AdminCatalogListPage() {
                       <a
                         href={`#trade-${trade.niche}`}
                         onClick={goToTrade(trade.niche)}
+                        // Hovered and pressed as the kit's rows are, so the
+                        // index and the sheets beside it answer alike.
                         className={cn(
-                          "flex min-h-11 flex-col justify-center gap-0.5 rounded-field px-3 py-1.5 hover-fine:bg-ink/5",
+                          "flex min-h-11 touch-manipulation select-none flex-col justify-center gap-0.5 rounded-field px-3 py-1.5 transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5 [-webkit-touch-callout:none]",
                           focusRing,
                         )}
                       >
