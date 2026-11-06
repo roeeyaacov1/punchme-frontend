@@ -373,6 +373,8 @@ export function CardStudio({
   // "מאחורי החותמות" where the wallet draws the options, or the card stands
   // something behind its stamps that only they draw; "הרקע" as before.
   const behind = mode === "options" || mode === "outage" || (mode === "off" && behindUsesOptions(value.design));
+  const sticker = designOptions(value.design).sticker;
+  const stickerArt = (sticker && stickers.list.find((candidate) => candidate.name === sticker)?.image) || null;
   // While Save runs, nothing that changes the draft can be reached: Save
   // sends the card as it was pressed, and starts again from what it read.
   const busy = bar.saving;
@@ -517,7 +519,8 @@ export function CardStudio({
             onChange={onChange}
             back={back}
             onFollow={onFollow}
-            stampPicture={stampPicture.url}
+            // What each stamp shows: a picture, or the sticker the list draws.
+            stampPicture={stampPicture.url ?? stickerArt}
             options={mode === "options"}
             sample={shownSample}
             savedFields={saved.design.fields ?? []}

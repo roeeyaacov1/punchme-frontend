@@ -40,12 +40,14 @@ export const RewardTray = forwardRef<
         />
         <BackDiffers back={back} onFollow={onFollow} />
       </div>
+      {/* The stamps on what they stand on: their ground where the card has
+          one, since stamps in the card's own colour vanish on the card. */}
       <StampCountControl
         value={value.stamps_required}
         onChange={(count) => onChange({ ...value, stamps_required: count })}
         glyph={value.design.stamp?.glyph ?? "check"}
         stampColour={stampColourOf(value)}
-        background={value.background_color}
+        background={designOptions(value.design).panelColor || value.background_color}
         pictureUrl={stampPicture}
       />
       {options && <CountOnCard value={value} onChange={onChange} sample={sample} savedFields={savedFields} />}
