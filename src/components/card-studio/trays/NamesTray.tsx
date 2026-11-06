@@ -1,9 +1,8 @@
 import type { Ref } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import type { DesignField } from "../../../api/designs";
 import { Input } from "../../kit/Input";
-import { SegmentedControl } from "../../kit/SegmentedControl";
-import { designOptions, withOption, withStampsPlace, type StampsFormat, type StampsPlace } from "../designOptions";
+import { googleCut } from "../designOptions";
 import {
   FACE_FIELDS,
   TEXT_LIMITS,
@@ -11,7 +10,6 @@ import {
   faceLabelFull,
   nameMissing,
   ownWordsDir,
-  sampleStart,
   withFaceLabel,
   type CardStudioValue,
 } from "../studioDraft";
@@ -24,6 +22,9 @@ const FACE_LABELS: Record<(typeof FACE_FIELDS)[number]["binding"], { label: stri
 /**
  * The words on the card: its name, which Google prints after the business's,
  * the two labels on its face, and the business's name as the pass prints it.
+ * Where the wallet draws the design options, a name Google would cut past
+ * its 20 characters says what Google will show (brief §6.5); the count's
+ * place and format are the reward tray's.
  * These are the only editors of the two labels. Every field stops at the
  * API's own limit, and says the two it can't stop at: a card with no name,
  * and a label whose field the card has no room for.
@@ -48,15 +49,27 @@ export function NamesTray({
   sayNameMissing: boolean;
   /** The card's name field, where focus goes when Save finds no name. */
   nameRef?: Ref<HTMLInputElement>;
-  /** The wallet draws the design options: where the count shows, and how. */
+  /** The wallet draws the design options: say what Google shows of a long
+   * name. */
   options?: boolean;
 }) {
   const { t } = useTranslation();
   const fields = value.design.fields ?? [];
   const issuer = value.design.organization_name?.trim() || businessName;
-  const chosen = designOptions(value.design);
-  // The count as the card would say it, at the studio's opening sample.
-  const example = sampleStart(value.stamps_required);
+  const program = `${issuer} - ${value.name.trim() || "…"}`;
+  // What Google shows of a long name, the first 20 characters isolated.
+  const googleLong = (text: string) => {
+    const shown = options ? googleCut(text) : null;
+    return shown ? (
+      <span className="mt-1 block">
+        <Trans
+          i18nKey="studio.names.googleLong"
+          values={{ shown }}
+          components={{ shown: <bdi className="text-ink" /> }}
+        />
+      </span>
+    ) : null;
+  };
   return (
     <div className="flex flex-col gap-5">
       <Input
@@ -71,7 +84,8 @@ export function NamesTray({
         autoComplete="off"
         hint={
           <>
-            {t("studio.names.google")} <bdi className="text-ink">{`${issuer} - ${value.name.trim() || "…"}`}</bdi>
+            {t("studio.names.google")} <bdi className="text-ink">{program}</bdi>
+            {googleLong(program)}
           </>
         }
       />
@@ -104,32 +118,14 @@ export function NamesTray({
           />
         );
       })}
-      {options && (
-        <div className="flex flex-col gap-4">
-          <SegmentedControl<StampsPlace>
-            label={t("studio.count.place")}
-            options={[
-              { value: "secondary", label: t("studio.count.places.secondary") },
-              { value: "header", label: t("studio.count.places.header") },
-            ]}
-            value={chosen.stampsPlace}
-            onChange={(place) => onChange(withStampsPlace(value, place, savedFields))}
-          />
-          <SegmentedControl<StampsFormat>
-            label={t("studio.count.format")}
-            options={[
-              { value: "count", label: <bdi dir="ltr">{example}</bdi> },
-              { value: "fraction", label: <bdi dir="ltr">{`${example}/${value.stamps_required}`}</bdi> },
-            ]}
-            value={chosen.stampsFormat}
-            onChange={(stamps_format) => onChange(withOption(value, { stamps_format }))}
-          />
-          <p className="-mt-2 text-sm leading-snug text-ink-muted">{t("studio.count.google")}</p>
-        </div>
-      )}
       <Input
         label={t("studio.names.organization")}
-        hint={t("studio.names.organizationHint")}
+        hint={
+          <>
+            {t("studio.names.organizationHint")}
+            {googleLong(value.design.organization_name?.trim() || businessName)}
+          </>
+        }
         placeholder={businessName}
         value={value.design.organization_name ?? ""}
         onChange={(event) => onChange({ ...value, design: { ...value.design, organization_name: event.target.value } })}

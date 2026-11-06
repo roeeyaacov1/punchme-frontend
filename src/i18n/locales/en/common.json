@@ -306,7 +306,8 @@
       "organizationHint": "Leave it empty to show your business's name.",
       "blank": "Empty: nothing shows above it on the card.",
       "nameMissing": "The card needs a name.",
-      "full": "The card already has the most fields it can hold. To add this label, remove one in Wallet details."
+      "full": "The card already has the most fields it can hold. To add this label, remove one in Wallet details.",
+      "googleLong": "Google Wallet shows about 20 characters, so it will read: <shown>{{shown}}</shown>"
     },
     "languageHint": "The language of the words the wallet adds to the card itself.",
     "barcodes": {
@@ -318,18 +319,21 @@
     "artTitle": "Custom art",
     "artHint": "Sent with everything else when you save.",
     "count": {
-      "place": "Where the stamp count shows on Apple Wallet",
+      "place": "Where it shows",
       "places": {
-        "secondary": "Under the strip",
-        "header": "At the top"
+        "secondary": "Under the stamps",
+        "header": "At the top, by the logo"
       },
       "format": "How it's written",
-      "google": "Google Wallet shows the number under the card's name either way."
+      "google": "On Google Wallet the number shows under the card's name either way.",
+      "legend": "The count on the card"
     },
     "logoText": {
       "label": "Your business's name beside the logo",
       "hint": "Apple Wallet writes it next to your logo. Best with a square mark: a wide logo that already says the name doesn't need it.",
-      "noLogo": "It shows once the card has a logo of your own. Until then, the logo the card draws already says the name."
+      "wide": "This logo is wide and already carries the name.",
+      "long": "On an iPhone a long name is cut short with an ellipsis.",
+      "google": "Google Wallet always writes the name beside its round logo."
     },
     "drawn": {
       "drawing": "Drawing the card…",
@@ -359,7 +363,8 @@
       "change": "Change",
       "changed": "Changed by you",
       "back": "Back to the business colour"
-    }
+    },
+    "iphoneOnly": "iPhone only"
   },
   "cardControls": {
     "looks": "Ready-made looks",
