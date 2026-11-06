@@ -237,7 +237,8 @@
       "reward": "Reward",
       "names": "Names",
       "logo": "Logo",
-      "wallet": "Wallet details"
+      "wallet": "Wallet details",
+      "behind": "Behind the stamps"
     },
     "bar": {
       "changes_one": "1 change · not on customers' cards yet",
@@ -413,9 +414,6 @@
         "gifts": "Gifts and more"
       }
     },
-    "stickers": {
-      "unavailable": "The stickers didn't load. Try again in a moment."
-    },
     "mark": {
       "label": "A check on each stamp",
       "hint": "A small check over every stamp a customer has.",
@@ -430,16 +428,27 @@
     },
     "iconOnly": "The check and the colour are for stamps on their own.",
     "panel": {
-      "legend": "A panel behind the stamps",
-      "none": "No panel",
-      "swatch": "Panel colour {{n}}: {{hex}}",
-      "hint": "A rounded panel inside the strip, with the stamps on it.",
-      "faint": "The panel will barely show on this card."
+      "legend": "A ground for the stamps",
+      "none": "No ground",
+      "hint": "A colour behind the stamps, inside the card.",
+      "faint": "This ground will barely show on this card.",
+      "names": {
+        "white": "White",
+        "cream": "Cream",
+        "sand": "Sand",
+        "mint": "Mint",
+        "blush": "Blush",
+        "navy": "Navy",
+        "shade": "A shade of your colour"
+      },
+      "stampsFaint": "The stamps will barely show on this ground."
     },
-    "wallpaper": {
-      "legend": "A wallpaper",
-      "none": "No wallpaper",
-      "hint": "A sticker repeated faintly behind the stamps, in the stamp colour, in place of the pattern. A background picture covers it."
+    "pattern": {
+      "legend": "A faint pattern behind",
+      "hint": "In the stamps' colour, faintly.",
+      "likeStamp": "Like the stamp",
+      "more": "More",
+      "covered": "Your background picture covers any pattern here."
     }
   },
   "stickers": {

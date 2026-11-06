@@ -104,6 +104,9 @@ export function oneParagraph(text: string): string {
 /** How a stamp is drawn: in a filled circle, or the art on its own. */
 export type StampStyle = "badge" | "icon";
 
+/** Where the list of stickers stands: on its way, there, or not to be had. */
+export type StickersStatus = "loading" | "ready" | "unavailable";
+
 /** One of the wallet's built-in stickers, as the server lists it: its name
  * and a small picture of it. */
 export interface Sticker {
@@ -121,6 +124,10 @@ export function stickerLabel(name: string, t: TFunction): string {
 /** Grounds offered for the panel: light ones for dark stamps and the reverse,
  * as the reference cards use them (white, cream, sand, mint, blush, navy). */
 export const PANEL_SWATCHES = ["#FFFFFF", "#F6E7CB", "#F5EFE6", "#E3F4EC", "#FFF1F2", "#1A1F38"] as const;
+
+/** Their names, in the same order: the grounds are said by name, never by
+ * their hex (`cardControls.panel.names.*`). */
+export const PANEL_SWATCH_NAMES = ["white", "cream", "sand", "mint", "blush", "navy"] as const;
 
 /** Below this a panel's colour is too close to the card's to show: the
  * renderer's own check (passbox lint, MIN_PANEL_CONTRAST). */

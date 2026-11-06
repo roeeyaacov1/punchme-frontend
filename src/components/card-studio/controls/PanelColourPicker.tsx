@@ -3,31 +3,41 @@ import { useTranslation } from "react-i18next";
 import { Ban, TriangleAlert } from "lucide-react";
 import { ChoiceTiles, type Tile } from "./ChoiceTiles";
 import { ColourPickerPanel } from "./ColourPickerPanel";
-import { PANEL_SWATCHES, panelFaint, swatchIndex } from "./controlRules";
+import { PANEL_SWATCHES, PANEL_SWATCH_NAMES, isFaint, panelFaint, swatchIndex } from "./controlRules";
 import { OwnColourFace, SwatchFace } from "./Swatch";
 
 const NONE = "none";
 const OWN = "own";
 
 /**
- * A rounded panel inside the strip, in a colour of its own, with the stamps
- * on it (and the texture or wallpaper inside it): none, one of a few light
- * and dark grounds, or a colour of one's own. A panel too close to the card
- * to show is allowed, and said, as a faint stamp is.
+ * A ground for the stamps: a rounded panel inside the strip, in a colour of
+ * its own, with the stamps on it (and the pattern inside it). None, the
+ * ground one business colour gives (when it isn't one of the six), the six by
+ * name (white, cream, sand, mint, blush, navy), or a colour of one's own.
+ * A ground too close to the card to show is allowed, and said, and so are
+ * stamps drawn in a colour that barely shows on it.
  */
 export function PanelColourPicker({
   value,
   onChange,
   background,
+  ruleGround,
+  stamps,
 }: {
-  /** "" is no panel. */
+  /** "" is no ground. */
   value: string;
   onChange: (hex: string) => void;
-  /** The card colour the panel stands on. */
+  /** The card colour the ground stands on. */
   background: string;
+  /** The ground the business colour gives, offered first after none. */
+  ruleGround?: string;
+  /** The stamps' colour, where they are drawn in it, to judge on the ground;
+   * none for a sticker or photo in its own colours. */
+  stamps?: string | null;
 }) {
   const { t } = useTranslation();
-  const offered = !value || swatchIndex(value, PANEL_SWATCHES) >= 0;
+  const named = !!ruleGround && swatchIndex(ruleGround, PANEL_SWATCHES) < 0 ? [ruleGround] : [];
+  const offered = !value || swatchIndex(value, [...named, ...PANEL_SWATCHES]) >= 0;
   const [ownOpen, setOwnOpen] = useState(!offered);
   const own = ownOpen || !offered;
 
@@ -41,9 +51,14 @@ export function PanelColourPicker({
         </span>
       ),
     },
+    ...named.map((hex) => ({
+      value: hex,
+      label: t("cardControls.panel.names.shade"),
+      render: (chosen: boolean) => <SwatchFace hex={hex} chosen={chosen} />,
+    })),
     ...PANEL_SWATCHES.map((hex, index) => ({
       value: hex,
-      label: t("cardControls.panel.swatch", { n: index + 1, hex }),
+      label: t(`cardControls.panel.names.${PANEL_SWATCH_NAMES[index]}`),
       render: (chosen: boolean) => <SwatchFace hex={hex} chosen={chosen} />,
     })),
     {
@@ -53,7 +68,12 @@ export function PanelColourPicker({
     },
   ];
 
-  const chosen = own ? OWN : value ? (PANEL_SWATCHES[swatchIndex(value, PANEL_SWATCHES)] ?? null) : NONE;
+  const offeredHexes = [...named, ...PANEL_SWATCHES];
+  const chosen = own ? OWN : value ? (offeredHexes[swatchIndex(value, offeredHexes)] ?? null) : NONE;
+  const warnings = [
+    value && panelFaint(value, background) ? t("cardControls.panel.faint") : "",
+    value && stamps && isFaint(stamps, value) ? t("cardControls.panel.stampsFaint") : "",
+  ].filter(Boolean);
   return (
     <div className="flex flex-col gap-4">
       <ChoiceTiles
@@ -71,12 +91,12 @@ export function PanelColourPicker({
         }}
       />
       <p className="-mt-2 text-sm leading-snug text-ink-muted">{t("cardControls.panel.hint")}</p>
-      {value && panelFaint(value, background) && (
-        <p className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-ink">
+      {warnings.map((warning) => (
+        <p key={warning} className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-ink">
           <TriangleAlert aria-hidden className="mt-px size-4 shrink-0 text-warn" />
-          <span>{t("cardControls.panel.faint")}</span>
+          <span>{warning}</span>
         </p>
-      )}
+      ))}
       {own && value && (
         <ColourPickerPanel label={t("cardControls.panel.legend")} value={value} onChange={onChange} />
       )}

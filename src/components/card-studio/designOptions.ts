@@ -1,6 +1,5 @@
 import type { DesignDoc, DesignField } from "../../api/designs";
-import type { Sticker } from "./controls/controlRules";
-import type { StickersStatus } from "./controls/StickerPicker";
+import type { Sticker, StickersStatus } from "./controls/controlRules";
 import type { CardStudioValue } from "./studioDraft";
 
 /**
@@ -247,6 +246,17 @@ export function tintDrawn(design: DesignDoc): boolean {
 export function markShows(design: DesignDoc, saved: DesignDoc, always = false): boolean {
   if (designOptions(design).style !== "icon") return false;
   return always || designOptions(design).mark === "check" || designOptions(saved).mark === "check";
+}
+
+/** Whether the stamps are drawn in their colour, so it is judged against what
+ * they stand on (§11): a circle is always in the stamp colour, and on its own
+ * a glyph is, or a sticker or a picture once tinted. An untinted sticker or
+ * photo keeps its own colours. */
+export function stampsDrawnInColour(design: DesignDoc, pictureInUse: boolean): boolean {
+  const options = designOptions(design);
+  if (options.style === "badge") return true;
+  if (!options.sticker && !pictureInUse) return true;
+  return tintDrawn(design);
 }
 
 /** A strip picture covers any pattern: the choice gives way to one line. */

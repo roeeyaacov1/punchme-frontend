@@ -11,9 +11,9 @@ export { TexturePicker } from "./TexturePicker";
 export { StampCountControl } from "./StampCountControl";
 export { RewardField } from "./RewardField";
 export { ColourPickerPanel } from "./ColourPickerPanel";
-export { StickerPicker, type StickersStatus } from "./StickerPicker";
 export { StampStylePicker } from "./StampStylePicker";
 export { PanelColourPicker } from "./PanelColourPicker";
+export { PatternPicker } from "./PatternPicker";
 export {
   MAX_STAMPS,
   MIN_STAMPS,
@@ -26,4 +26,5 @@ export {
   type ReadyLook,
   type StampStyle,
   type Sticker,
+  type StickersStatus,
 } from "./controlRules";
