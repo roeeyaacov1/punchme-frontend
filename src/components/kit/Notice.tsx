@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { CircleAlert, CircleCheck, TriangleAlert } from "lucide-react";
 import { cn } from "../../lib/cn";
-import { LitPanel } from "./LitPanel";
+import { LitPanel, type LitPanelProps } from "./LitPanel";
 
 export type NoticeTone = "ok" | "warn" | "danger";
 
@@ -33,6 +33,8 @@ export interface NoticeProps extends Omit<HTMLAttributes<HTMLDivElement>, "title
   lit?: boolean;
   /** Replaces the state's own icon. */
   icon?: ReactNode;
+  /** Lights on as it appears, as `LitPanel` does. */
+  arrive?: LitPanelProps["arrive"];
 }
 
 /**

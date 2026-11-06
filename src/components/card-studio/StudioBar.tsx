@@ -1,10 +1,11 @@
-import { forwardRef, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { forwardRef, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { CircleAlert, Info } from "lucide-react";
 import { cn } from "../../lib/cn";
 import { Badge } from "../kit/Badge";
 import { Button } from "../kit/Button";
 import { linkText } from "../kit/classes";
+import { useReducedMotion } from "../kit/motion";
 
 export interface StudioBarProps {
   /** How many kinds of thing changed. */
@@ -63,6 +64,31 @@ function useNarrow(on: boolean, rem: number) {
   return [ref, narrow] as const;
 }
 
+/** A drawing of the draft failed: said at the bar's top, with the way to try
+ * again. It lights on when the failure comes while the bar is up (the gentle
+ * fade with reduced motion); a bar that opens with it says it at once. */
+function RedrawLine({ onRedraw, saving, arrive }: { onRedraw: () => void; saving: boolean; arrive: boolean }) {
+  const { t } = useTranslation();
+  const reduced = useReducedMotion();
+  const [lights] = useState(arrive);
+  return (
+    <p
+      className={cn(
+        "flex items-start gap-1.5 text-sm leading-snug text-ink-muted",
+        lights && (reduced ? "animate-gentle-in" : "animate-lights-on"),
+      )}
+    >
+      <Info aria-hidden className="mt-px size-4 shrink-0" />
+      <span>
+        {t("studio.drawn.failedBar")}{" "}
+        <button type="button" onClick={onRedraw} disabled={saving} className={cn(linkText, "text-start")}>
+          {t("studio.drawn.retry")}
+        </button>
+      </span>
+    </p>
+  );
+}
+
 /**
  * Save, always in reach and saying what it does: "2 changes · not on
  * customers' cards yet", the one coral button, and a quiet "Discard changes"
@@ -93,6 +119,9 @@ export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function 
   const { t } = useTranslation();
   const updateOnly = changes === 0 && !!stale;
   const [box, narrow] = useNarrow(compact, ONE_ROW_REM);
+  // Up since its first frame: a line that comes after this is news.
+  const [settled, setSettled] = useState(false);
+  useEffect(() => setSettled(true), []);
   const oneRow = narrow && changes > 0;
   if (oneRow) {
     return (
@@ -100,17 +129,7 @@ export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function 
         <p role="status" className="sr-only">
           {saving ? t("studio.bar.saving") : ""}
         </p>
-        {onRedraw && (
-          <p className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
-            <Info aria-hidden className="mt-px size-4 shrink-0" />
-            <span>
-              {t("studio.drawn.failedBar")}{" "}
-              <button type="button" onClick={onRedraw} disabled={saving} className={cn(linkText, "text-start")}>
-                {t("studio.drawn.retry")}
-              </button>
-            </span>
-          </p>
-        )}
+        {onRedraw && <RedrawLine onRedraw={onRedraw} saving={saving} arrive={settled} />}
         <div className="flex items-center gap-2">
           {/* Discard waits in the bar under the page, a tray's close away. */}
           <Badge>{t("studio.bar.count", { count: changes })}</Badge>
@@ -134,17 +153,7 @@ export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function 
         {saving ? t("studio.bar.saving") : ""}
       </p>
       {kept && changes > 0 && <p className="text-sm leading-snug text-ink-muted">{t("studio.kept")}</p>}
-      {onRedraw && (
-        <p className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
-          <Info aria-hidden className="mt-px size-4 shrink-0" />
-          <span>
-            {t("studio.drawn.failedBar")}{" "}
-            <button type="button" onClick={onRedraw} disabled={saving} className={cn(linkText, "text-start")}>
-              {t("studio.drawn.retry")}
-            </button>
-          </span>
-        </p>
-      )}
+      {onRedraw && <RedrawLine onRedraw={onRedraw} saving={saving} arrive={settled} />}
       {saving ? (
         <p className="type-label text-ink">{t("studio.bar.saving")}</p>
       ) : changes > 0 ? (
