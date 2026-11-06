@@ -83,7 +83,8 @@ export function DeleteLook({
             onClick={onUnpublish}
             busy={busy === "unpublish"}
             disabled={busy === "delete"}
-            className="self-start"
+            // Its words wrap with large text rather than leave the dialog.
+            className="self-start !whitespace-normal text-start"
           >
             {t("admin.catalog.delete.justUnpublish")}
           </Button>

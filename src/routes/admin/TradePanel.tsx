@@ -9,7 +9,14 @@ import type { ShelfRow, TradeShelf, TradeStatus } from "./shelf";
 /** What a trade's head says owners get: how many looks, its classic one, or nothing. */
 export function TradeStatusLine({ status }: { status: TradeStatus }) {
   const { t } = useTranslation();
-  if (status.kind === "hidden") return <Badge tone="warn">{t("admin.catalog.hidden")}</Badge>;
+  // A tag that may wrap: with large text it is wider than a phone's panel.
+  if (status.kind === "hidden") {
+    return (
+      <Badge tone="warn" className="!whitespace-normal">
+        {t("admin.catalog.hidden")}
+      </Badge>
+    );
+  }
   if (status.kind === "classic") return <span className="text-sm text-ink-muted">{t("admin.catalog.classic")}</span>;
   return (
     <span className="text-sm text-ink-muted">
