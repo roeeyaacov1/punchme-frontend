@@ -27,6 +27,10 @@ export interface StampPicture {
  * picture; nor while a sticker is (`glyphHidden`). Without `onPicture` (a
  * catalog look, whose picture lives with its art) the picture tile only shows
  * that one is in use.
+ *
+ * Its two halves, `GlyphPicker` and `StampPictureField`, also stand on their
+ * own in the studio's stamp tray, where the design options put a sticker
+ * first and each half behind a button of its own.
  */
 export function StampPicker({
   glyph,
@@ -52,15 +56,40 @@ export function StampPicker({
   /** Why no glyph can be chosen now (a saved picture with no way back yet). */
   locked?: ReactNode;
 }) {
+  return (
+    <div className="flex flex-col gap-5">
+      <GlyphPicker
+        glyph={glyph}
+        glyphHidden={glyphHidden}
+        onGlyph={onGlyph}
+        niche={niche}
+        picture={picture}
+        locked={locked}
+      />
+      <StampPictureField picture={picture} onPicture={onPicture} note={note} />
+    </div>
+  );
+}
+
+/** The sixteen glyphs, the trade's own first; disabled, and said why, while a
+ * saved picture is the stamp. */
+export function GlyphPicker({
+  glyph,
+  glyphHidden = false,
+  onGlyph,
+  niche,
+  picture,
+  locked,
+}: {
+  glyph: string;
+  glyphHidden?: boolean;
+  onGlyph: (name: string) => void;
+  niche?: string | null;
+  picture: StampPicture;
+  locked?: ReactNode;
+}) {
   const { t } = useTranslation();
-  const inputId = useId();
-  const errorId = useId();
   const lockedId = useId();
-  // The error's key, not its sentence: worded as the picker renders, it
-  // follows a switch of language, where a sentence kept here stayed in the
-  // language it was made in.
-  const [errorKey, setErrorKey] = useState<string | null>(null);
-  const [reading, setReading] = useState(false);
 
   const tiles: Tile<string>[] = glyphsForTrade(niche).map((name) => {
     const Icon = STAMP_GLYPHS[name];
@@ -80,6 +109,49 @@ export function StampPicker({
       ),
     };
   });
+
+  return (
+    <>
+      {/* Four to a row while four fit (13.25rem with their gaps); with large
+          text on a phone, as many as fit, rather than a row that scrolls. */}
+      <ChoiceTiles
+        legend={t("cardControls.glyph")}
+        tiles={tiles}
+        value={picture.inUse || glyphHidden ? null : glyph}
+        onChange={onGlyph}
+        disabled={!!locked}
+        describedBy={locked ? lockedId : undefined}
+        className="[container-type:inline-size]"
+        listClassName="grid grid-cols-[repeat(4,2.75rem)] justify-between gap-y-3 [@container(max-width:13.25rem)]:grid-cols-[repeat(auto-fill,2.75rem)] sm:flex sm:justify-start"
+      />
+      {locked && (
+        <p id={lockedId} className="-mt-2 text-sm leading-snug text-ink-muted">
+          {locked}
+        </p>
+      )}
+    </>
+  );
+}
+
+/** A picture of one's own as the stamp: chosen here, cropped square, handed up
+ * as a data URL; or, with no `onPicture`, only said to be in use. */
+export function StampPictureField({
+  picture,
+  onPicture,
+  note,
+}: {
+  picture: StampPicture;
+  onPicture?: (dataUrl: string) => void;
+  note?: ReactNode;
+}) {
+  const { t } = useTranslation();
+  const inputId = useId();
+  const errorId = useId();
+  // The error's key, not its sentence: worded as the picker renders, it
+  // follows a switch of language, where a sentence kept here stayed in the
+  // language it was made in.
+  const [errorKey, setErrorKey] = useState<string | null>(null);
+  const [reading, setReading] = useState(false);
 
   async function choose(file: File) {
     setErrorKey(null);
@@ -110,74 +182,54 @@ export function StampPicker({
   );
 
   return (
-    <div className="flex flex-col gap-5">
-      {/* Four to a row while four fit (13.25rem with their gaps); with large
-          text on a phone, as many as fit, rather than a row that scrolls. */}
-      <ChoiceTiles
-        legend={t("cardControls.glyph")}
-        tiles={tiles}
-        value={picture.inUse || glyphHidden ? null : glyph}
-        onChange={onGlyph}
-        disabled={!!locked}
-        describedBy={locked ? lockedId : undefined}
-        className="[container-type:inline-size]"
-        listClassName="grid grid-cols-[repeat(4,2.75rem)] justify-between gap-y-3 [@container(max-width:13.25rem)]:grid-cols-[repeat(auto-fill,2.75rem)] sm:flex sm:justify-start"
-      />
-      {locked && (
-        <p id={lockedId} className="-mt-2 text-sm leading-snug text-ink-muted">
-          {locked}
+    <div className="flex flex-col gap-2">
+      {note && <p className="text-sm leading-snug text-ink-muted">{note}</p>}
+      {onPicture ? (
+        <label
+          htmlFor={inputId}
+          aria-busy={reading || undefined}
+          className={cn(
+            "flex min-h-14 w-fit max-w-full cursor-pointer items-center gap-3 rounded-full pe-5 ps-1.5 touch-manipulation select-none",
+            "has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
+            "active:bg-ink/[0.06] hover-fine:bg-ink/5 transition-colors duration-gentle ease-out",
+            noTapFlash,
+          )}
+        >
+          {face}
+          <span className="flex min-w-0 flex-col">
+            <span className="type-body font-semibold text-ink">
+              {picture.inUse ? t("cardControls.pictureReplace") : t("cardControls.picture")}
+            </span>
+            <span className="text-sm leading-snug text-ink-muted">{t("onboarding.stamp.uploadHint")}</span>
+          </span>
+          <input
+            id={inputId}
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            aria-describedby={errorKey ? errorId : undefined}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              // Cleared, so choosing the same file again still counts.
+              event.target.value = "";
+              if (file) void choose(file);
+            }}
+          />
+        </label>
+      ) : (
+        picture.inUse && (
+          <p className="flex items-center gap-3">
+            {face}
+            <span className="type-body font-semibold text-ink">{t("cardControls.pictureInUse")}</span>
+          </p>
+        )
+      )}
+      {errorKey && (
+        <p id={errorId} role="alert" className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-danger">
+          <CircleAlert aria-hidden className="mt-px size-4 shrink-0" />
+          <span>{t(errorKey)}</span>
         </p>
       )}
-
-      <div className="flex flex-col gap-2">
-        {note && <p className="text-sm leading-snug text-ink-muted">{note}</p>}
-        {onPicture ? (
-          <label
-            htmlFor={inputId}
-            aria-busy={reading || undefined}
-            className={cn(
-              "flex min-h-14 w-fit max-w-full cursor-pointer items-center gap-3 rounded-full pe-5 ps-1.5 touch-manipulation select-none",
-              "has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
-              "active:bg-ink/[0.06] hover-fine:bg-ink/5 transition-colors duration-gentle ease-out",
-              noTapFlash,
-            )}
-          >
-            {face}
-            <span className="flex min-w-0 flex-col">
-              <span className="type-body font-semibold text-ink">
-                {picture.inUse ? t("cardControls.pictureReplace") : t("cardControls.picture")}
-              </span>
-              <span className="text-sm leading-snug text-ink-muted">{t("onboarding.stamp.uploadHint")}</span>
-            </span>
-            <input
-              id={inputId}
-              type="file"
-              accept="image/*"
-              className="sr-only"
-              aria-describedby={errorKey ? errorId : undefined}
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                // Cleared, so choosing the same file again still counts.
-                event.target.value = "";
-                if (file) void choose(file);
-              }}
-            />
-          </label>
-        ) : (
-          picture.inUse && (
-            <p className="flex items-center gap-3">
-              {face}
-              <span className="type-body font-semibold text-ink">{t("cardControls.pictureInUse")}</span>
-            </p>
-          )
-        )}
-        {errorKey && (
-          <p id={errorId} role="alert" className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-danger">
-            <CircleAlert aria-hidden className="mt-px size-4 shrink-0" />
-            <span>{t(errorKey)}</span>
-          </p>
-        )}
-      </div>
     </div>
   );
 }

@@ -386,21 +386,47 @@
       "icon": "On its own"
     },
     "sticker": {
-      "legend": "A sticker",
-      "none": "No sticker",
-      "hint": "A sticker takes the symbol's place on the card.",
-      "pictureFirst": "The picture is the stamp, so a sticker wouldn't show."
+      "legend": "What's on each stamp",
+      "pictureFirst": "The picture is the stamp, so a sticker wouldn't show.",
+      "trade": {
+        "barber": "For a barber",
+        "cafe": "For a café",
+        "trainer": "For a trainer",
+        "therapist": "For a therapist",
+        "other": "For any business"
+      },
+      "more": "More stickers",
+      "symbol": "A plain symbol",
+      "picture": "Your own picture",
+      "search": "Find a sticker",
+      "searchHint": "Croissant, flower, cup…",
+      "noResults": "No sticker by that name. Try another word, or pick from the groups.",
+      "groups": {
+        "drinks": "Coffee and drinks",
+        "bakery": "Bakery and sweets",
+        "food": "Food",
+        "beauty": "Barber and beauty",
+        "wellness": "Wellness",
+        "fitness": "Fitness and sport",
+        "pets": "Pets",
+        "flowers": "Flowers",
+        "gifts": "Gifts and more"
+      }
     },
     "stickers": {
       "unavailable": "The stickers didn't load. Try again in a moment."
     },
     "mark": {
       "label": "A check on each stamp",
-      "hint": "A small check over every stamp a customer has."
+      "hint": "A small check over every stamp a customer has.",
+      "offHint": "This card ticks every stamp. You can switch it off."
     },
     "tint": {
-      "label": "In the stamp colour",
-      "hint": "The sticker or picture in shades of the stamp colour."
+      "label": "In the card's colour",
+      "hint": "The {{sticker}} in shades of that colour.",
+      "labelStamps": "In the stamps' colour",
+      "picture": "Your picture in shades of that colour.",
+      "ground": "It adds a ground behind the stamps too, so they show on the card."
     },
     "iconOnly": "The check and the colour are for stamps on their own.",
     "panel": {

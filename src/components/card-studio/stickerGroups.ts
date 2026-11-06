@@ -111,6 +111,12 @@ export function stickerShelves(list: readonly Sticker[], niche: string | null | 
   return { trade, first, groups };
 }
 
+/** Whether a sticker is among the trade's own, so "עוד מדבקות" can open on a
+ * card whose sticker is elsewhere. */
+export function inTradeFirst(list: readonly Sticker[], niche: string | null | undefined, name: string): boolean {
+  return stickerShelves(list, niche).first.some((sticker) => sticker.name === name);
+}
+
 /** A search as it is typed: no case, no Hebrew points, single spaces. */
 export function searchText(text: string): string {
   return text
