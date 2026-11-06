@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Two cards: the first square mark, tried on 6 Nov 2026. -->
+  <rect width="32" height="32" rx="7" fill="#f67748"/>
+  <g transform="translate(16 16) scale(1.08) translate(-16 -16)">
+    <rect x="9" y="6.5" width="14" height="19" rx="2.5" fill="#2b2521" transform="translate(2.4 0.4) rotate(13 16 16)"/>
+    <g transform="translate(-2 0.6) rotate(-11 16 16)">
+      <rect x="9" y="6.5" width="14" height="19" rx="2.5" fill="#fffdfa" stroke="#2b2521" stroke-width="2"/>
+      <circle cx="16" cy="13" r="3.2" fill="#2b2521"/>
+    </g>
+  </g>
+</svg>

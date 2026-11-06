@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- B: three cards, the two behind solid ink and split by a coral gap. -->
+  <rect width="32" height="32" rx="7" fill="#f67748"/>
+  <g transform="translate(15.2 16) scale(0.94) translate(-16 -16)">
+    <rect x="9" y="6.5" width="14" height="19" rx="2.5" fill="#2b2521" transform="translate(6 -0.6) rotate(20 16 16)"/>
+    <rect x="9" y="6.5" width="14" height="19" rx="2.5" fill="#2b2521" stroke="#f67748" stroke-width="1.6" transform="translate(1.8 -0.2) rotate(4 16 16)"/>
+    <g transform="translate(-3.2 0.9) rotate(-13 16 16)">
+      <rect x="9" y="6.5" width="14" height="19" rx="2.5" fill="#fffdfa" stroke="#2b2521" stroke-width="2"/>
+      <circle cx="16" cy="13" r="3.2" fill="#2b2521"/>
+    </g>
+  </g>
+</svg>
