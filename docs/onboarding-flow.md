@@ -138,7 +138,9 @@ all follow that one decision.
 
 - It lives in `localStorage` under `punchme.onboardingDraft`, written on
   every change. A picture lives separately under
-  `punchme.onboardingDraft.art`, written only when the picture changes.
+  `punchme.onboardingDraft.art`, written only when the picture changes, and
+  the logo under `punchme.onboardingDraft.logo`, the same way (card looks,
+  brief §11).
 - If storage fails, an in-memory copy stands in, and the wizard says so:
   - it writes and removes a key of its own, `punchme.onboardingStorageCheck`,
     as each screen opens, whenever a picture couldn't be kept, and with
@@ -162,6 +164,20 @@ all follow that one decision.
     owner walks the four parts with their choices in place. Only the walk
     reads it; `commit.ts` never does, so it never reaches the server and
     the save's fingerprint doesn't change.
+  - The card looks' fields (`docs/redesign/briefs/card-looks.md` §7.5),
+    each optional and absent on a draft from before them, which reads as a
+    classic card:
+    - `look`, the catalog look the card started from;
+    - `options`, the look's design options as the owner has them: `style`,
+      `sticker`, `tint`, `wallpaper`, `stamps_place`, `stamps_format`,
+      `logo_text`, each kept by its known values;
+    - `panel`, the ground behind the stamps, and `label`, the label colour;
+    - `logo`, the logo's hash.
+
+    A card from a look writes them into its design; the fields stay the
+    wizard's own, in the card's language (Roee, 6 Nov 2026). A classic card
+    writes none of them, so its design and its save's fingerprint are as
+    before.
 - Anything that isn't `v: 1` is discarded. A bad field is dropped on its own,
   without throwing away the rest of the draft.
 - It is cleared at exactly four points:
@@ -170,8 +186,10 @@ all follow that one decision.
   2. Wallet "Skip for now", which then goes on to `billing`
   3. Billing "Activate", before the redirect
   4. Billing "Not now"
+  Clearing takes the picture and the logo with the draft.
 - `src/routes/onboarding/draft.test.ts` covers the model, and `walk.test.ts`
-  the walk. Keep them passing.
+  the walk. Keep them passing. `draftLooks.test.ts`, beside them, covers the
+  looks' fields.
 
 ## Account step
 
