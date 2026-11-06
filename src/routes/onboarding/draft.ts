@@ -68,6 +68,20 @@ export interface CommittedRecord {
   errorBaseline: string;
 }
 
+/** The design options a look brings, as the design doc names them (card
+ * looks, brief §7.5). The check isn't one: the wizard never offers it. */
+export interface DraftOptions {
+  style?: "badge" | "icon";
+  /** "" is none: the glyph. */
+  sticker?: string;
+  tint?: boolean;
+  /** "" is none. */
+  wallpaper?: string;
+  stamps_place?: "secondary" | "header";
+  stamps_format?: "count" | "fraction";
+  logo_text?: boolean;
+}
+
 export interface OnboardingDraft {
   v: 1;
   name: string;
@@ -90,6 +104,18 @@ export interface OnboardingDraft {
    * a draft from before the map, which reads as none opened. Only the walk
    * reads it: `commit.ts` never does, so it never reaches the server. */
   seen?: MapPart[];
+  /* The card looks (brief §7.5). Each is absent on a draft from before them,
+   * which reads as a classic card: no look and no options. */
+  /** The catalog look the card started from, picked on `/onboarding/look`. */
+  look?: string;
+  /** The look's design options, as the owner has them now. */
+  options?: DraftOptions;
+  /** The ground behind the stamps → design.panel_color. Null is none. */
+  panel?: string | null;
+  /** The label colour Apple shows. Null derives it from the card, as before. */
+  label?: string | null;
+  /** The logo, by its hash: its pixels live under `LOGO_KEY`. */
+  logo?: string | null;
 }
 
 export function emptyDraft(): OnboardingDraft {
@@ -157,6 +183,46 @@ function parseSeen(value: unknown[]): MapPart[] {
   return seen;
 }
 
+/** A sticker's name as the wallet lists them: lowercase words joined by
+ * dashes ("hot-beverage"). */
+const STICKER_NAME = /^[a-z0-9][a-z0-9-]{0,63}$/;
+
+function stickerOrNone(value: unknown): string | undefined {
+  if (value === "") return "";
+  return typeof value === "string" && STICKER_NAME.test(value) ? value : undefined;
+}
+
+/** The known options, each by its known values; anything else is left out,
+ * one by one, as a bad field is. */
+function parseOptions(value: object): DraftOptions {
+  const raw = value as Record<string, unknown>;
+  const options: DraftOptions = {};
+  if (raw.style === "badge" || raw.style === "icon") options.style = raw.style;
+  const sticker = stickerOrNone(raw.sticker);
+  if (sticker !== undefined) options.sticker = sticker;
+  if (typeof raw.tint === "boolean") options.tint = raw.tint;
+  const wallpaper = stickerOrNone(raw.wallpaper);
+  if (wallpaper !== undefined) options.wallpaper = wallpaper;
+  if (raw.stamps_place === "secondary" || raw.stamps_place === "header") options.stamps_place = raw.stamps_place;
+  if (raw.stamps_format === "count" || raw.stamps_format === "fraction") options.stamps_format = raw.stamps_format;
+  if (typeof raw.logo_text === "boolean") options.logo_text = raw.logo_text;
+  return options;
+}
+
+/** The card looks' fields, each only when it was stored, so a draft from
+ * before them parses back to exactly what was stored. */
+function parseLookFields(raw: Record<string, unknown>): Partial<OnboardingDraft> {
+  const fields: Partial<OnboardingDraft> = {};
+  if (typeof raw.look === "string" && raw.look) fields.look = raw.look;
+  if (raw.options && typeof raw.options === "object" && !Array.isArray(raw.options)) {
+    fields.options = parseOptions(raw.options);
+  }
+  if ("panel" in raw) fields.panel = hexOrNull(raw.panel);
+  if ("label" in raw) fields.label = hexOrNull(raw.label);
+  if ("logo" in raw) fields.logo = typeof raw.logo === "string" && raw.logo ? raw.logo : null;
+  return fields;
+}
+
 /** Anything that isn't a v1 draft becomes null — a stale shape from an
  * older build must never resurrect as half a card. Field by field, so one
  * bad value drops that value rather than the whole draft. */
@@ -185,6 +251,7 @@ export function parseDraft(value: unknown): OnboardingDraft | null {
     // Left out, not emptied, when there is nothing to read: a draft from
     // before the map parses back to exactly what was stored.
     ...(Array.isArray(raw.seen) ? { seen: parseSeen(raw.seen) } : {}),
+    ...parseLookFields(raw),
   };
 }
 
@@ -253,6 +320,29 @@ export interface ResolvedDraft {
   pattern: CardPattern;
   stampsRequired: number;
   reward: string;
+  /** The look the card started from; null on a classic card. */
+  look: string | null;
+  /** The look's options, each at its default where the draft says nothing.
+   * Null on a classic card, which writes none of them. */
+  options: Required<DraftOptions> | null;
+  /** The ground behind the stamps, or null for none. */
+  panel: string | null;
+  /** The logo's hash, or null for none. */
+  logo: string | null;
+}
+
+/** A look's options with every one said: the card as it was before the
+ * options, where the draft says nothing. */
+export function optionsOf(options: DraftOptions | undefined): Required<DraftOptions> {
+  return {
+    style: options?.style ?? "badge",
+    sticker: options?.sticker ?? "",
+    tint: options?.tint ?? false,
+    wallpaper: options?.wallpaper ?? "",
+    stamps_place: options?.stamps_place ?? "secondary",
+    stamps_format: options?.stamps_format ?? "count",
+    logo_text: options?.logo_text ?? false,
+  };
 }
 
 /** The draft with every null filled by the trade's default, ready for the
@@ -281,11 +371,15 @@ export function resolveDraft(
     background,
     accent,
     foreground: draft.foreground ?? readableInk(background),
-    label: derivedLabelColor(background),
+    label: draft.label ?? derivedLabelColor(background),
     stamp: draft.stamp ?? { kind: "glyph", glyph: NICHE_GLYPH[niche] },
     pattern: draft.pattern ?? "none",
     stampsRequired: draft.stampsRequired ?? preset?.stamps_required ?? FALLBACK.stamps,
     reward: draft.reward ?? rewardDefault,
+    look: draft.look ?? null,
+    options: draft.look ? optionsOf(draft.options) : null,
+    panel: draft.look ? (draft.panel ?? null) : null,
+    logo: draft.logo ?? null,
   };
 }
 
@@ -296,11 +390,19 @@ export function resolveDraft(
  * line — with labels in the card's language rather than copied from the
  * preset, so an English owner gets English labels and a Hebrew owner gets
  * exactly the strings the presets already use. Always a full doc: the
- * server stores `design` wholesale. */
+ * server stores `design` wholesale.
+ *
+ * A card from a look also writes the look's options, as the owner has them
+ * (card looks, brief §7.5, with Roee's answer of 6 Nov: the fields stay the
+ * wizard's own, in the card's language). The count at the top takes its
+ * field to the header, as the studio's `withStampsPlace` does. A classic
+ * card writes none of them, so its doc, and the save's fingerprint, are
+ * what they were. */
 export function buildDesignDoc(resolved: ResolvedDraft, lang: string, t: TFunction): DesignDoc {
   const glyph = resolved.stamp.kind === "glyph" ? resolved.stamp.glyph : "check";
   const niche = resolved.niche;
-  return {
+  const options = resolved.options;
+  const doc: DesignDoc = {
     default_language: lang === "he" ? "HE" : "EN",
     fields: [
       {
@@ -313,7 +415,7 @@ export function buildDesignDoc(resolved: ResolvedDraft, lang: string, t: TFuncti
       {
         binding: "members.member.points",
         label: t(`onboarding.card.fields.points.${niche}`),
-        section: "SECONDARY_FIELDS",
+        section: options?.stamps_place === "header" ? "HEADER_FIELDS" : "SECONDARY_FIELDS",
         alignment: "RIGHT",
         default_value: "0",
         change_message: t("onboarding.card.fields.pointsChange"),
@@ -329,6 +431,16 @@ export function buildDesignDoc(resolved: ResolvedDraft, lang: string, t: TFuncti
     barcode: { format: "QR", payload: "${pid}", alt_text: "" },
     stamp: { glyph, color: resolved.accent },
     pattern: resolved.pattern,
+  };
+  if (!options) return doc;
+  return {
+    ...doc,
+    stamp: { glyph, color: resolved.accent, style: options.style, sticker: options.sticker, tint: options.tint },
+    panel_color: resolved.panel ?? "",
+    wallpaper: options.wallpaper,
+    stamps_place: options.stamps_place,
+    stamps_format: options.stamps_format,
+    logo_text: options.logo_text,
   };
 }
 
@@ -383,6 +495,8 @@ export function draftPreviewValue(
    * the Google header shows the same program name before and after the
    * template exists. */
   cardName?: string,
+  /** The logo kept on this device, when there is one. */
+  logoUrl?: string,
 ): CardPreviewValue {
   return {
     businessName: resolved.name,
@@ -396,6 +510,8 @@ export function draftPreviewValue(
     design: buildDesignDoc(resolved, lang, t),
     stampArtUrl: resolved.stamp.kind === "glyph" ? undefined : artUrl,
     unsaved: true,
+    // One logo, as the wizard keeps it: Apple's row and Google's circle.
+    ...(logoUrl ? { logoUrl, appleLogoUrl: logoUrl, logoText: resolved.options?.logo_text === true } : {}),
   };
 }
 
@@ -403,6 +519,9 @@ export function draftPreviewValue(
 
 export const DRAFT_KEY = "punchme.onboardingDraft";
 export const ART_KEY = "punchme.onboardingDraft.art";
+/** The logo, kept like the stamp's picture but under a key of its own (the
+ * card looks, brief §11): one picture per key. */
+export const LOGO_KEY = "punchme.onboardingDraft.logo";
 
 export interface StoredArt {
   hash: string;
@@ -457,8 +576,8 @@ export function saveDraft(draft: OnboardingDraft): void {
   writeKey(DRAFT_KEY, JSON.stringify(draft));
 }
 
-export function loadArt(): StoredArt | null {
-  const raw = readKey(ART_KEY);
+function loadPicture(key: string): StoredArt | null {
+  const raw = readKey(key);
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as Partial<StoredArt>;
@@ -471,6 +590,10 @@ export function loadArt(): StoredArt | null {
   return null;
 }
 
+export function loadArt(): StoredArt | null {
+  return loadPicture(ART_KEY);
+}
+
 /** False means the picture only survives in memory (quota) — the caller
  * can warn that a reload would lose it. */
 export function saveArt(art: StoredArt): boolean {
@@ -481,7 +604,21 @@ export function clearArt(): void {
   removeKey(ART_KEY);
 }
 
+export function loadLogo(): StoredArt | null {
+  return loadPicture(LOGO_KEY);
+}
+
+/** As `saveArt`: false when the logo only survives in memory. */
+export function saveLogo(logo: StoredArt): boolean {
+  return writeKey(LOGO_KEY, JSON.stringify(logo));
+}
+
+export function clearLogo(): void {
+  removeKey(LOGO_KEY);
+}
+
 export function clearDraft(): void {
   removeKey(DRAFT_KEY);
   removeKey(ART_KEY);
+  removeKey(LOGO_KEY);
 }
