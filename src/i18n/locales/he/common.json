@@ -88,6 +88,8 @@
         "published": "{{trade}} · מפורסם",
         "draft": "{{trade}} · טיוטה"
       },
+      "notFound": "המראה הזה לא בקטלוג. אולי הוא נמחק, או שהקישור שגוי.",
+      "lookReadFailed": "לא הצלחנו לקרוא את המראה.",
       "draft": "טיוטה",
       "nicheLabel": "תחום",
       "descriptionLabel": "תיאור",
