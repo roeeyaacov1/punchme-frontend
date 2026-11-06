@@ -258,6 +258,9 @@ export interface CardStudioProps {
   onSample?: (count: number) => void;
   /** The card has a logo of the owner's own, held or saved. */
   hasLogo?: boolean;
+  /** The catalog editor: the check on each stamp is always offered, as staff
+   * author looks with it. Owners only meet it on a card that has it. */
+  markAlways?: boolean;
 }
 
 /**
@@ -304,6 +307,7 @@ export function CardStudio({
   pictures,
   onSample,
   hasLogo = false,
+  markAlways = false,
 }: CardStudioProps) {
   const { t } = useTranslation();
   const [wide, studioBox] = useStudioWide();
@@ -459,9 +463,12 @@ export function CardStudio({
             onPicture={onHold ? (dataUrl) => onHold("stamp_art", dataUrl) : undefined}
             note={stampPicture.inUse ? undefined : pictureNote}
             locked={pictureLocked}
-            options={options}
+            mode={mode}
             stickers={stickers.list}
             stickersStatus={stickers.status}
+            savedDesign={saved.design}
+            markAlways={markAlways}
+            wide={wide}
           />
         );
       case "background":

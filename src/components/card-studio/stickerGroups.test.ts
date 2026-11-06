@@ -4,6 +4,7 @@ import he from "../../i18n/locales/he/common.json";
 import type { Sticker } from "./controls/controlRules";
 import {
   PATTERN_MOTIFS,
+  inTradeFirst,
   STICKER_GROUPS,
   STICKER_GROUP_KEYS,
   TRADE_STICKERS,
@@ -69,6 +70,14 @@ describe("the shelves", () => {
     expect(stickerTrade(undefined)).toBe("other");
     expect(stickerTrade("florist")).toBe("other");
     expect(stickerTrade("barber")).toBe("barber");
+  });
+});
+
+describe("inTradeFirst", () => {
+  it("says whether a sticker leads the trade's own", () => {
+    expect(inTradeFirst(list, "cafe", "croissant")).toBe(true);
+    expect(inTradeFirst(list, "cafe", "pizza")).toBe(false);
+    expect(inTradeFirst(list, "cafe", "")).toBe(false);
   });
 });
 

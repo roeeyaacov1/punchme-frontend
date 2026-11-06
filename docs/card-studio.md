@@ -101,7 +101,7 @@ from the frozen previews and never drawn on them.
 |---|---|---|
 | Card colour | `CardColourPicker`: the trade's looks (colours only), the same 10 backgrounds, one's own | `CardColourPicker`: the 6 palettes as ready looks, the 10 backgrounds, one's own. With the design options (`BrandColoursTray`): no palettes; the business colour (the 10 backgrounds, one's own), then the colours that follow it, each with "שינוי" (`brandColours.ts`) |
 | Stamp colour | `StampColourPicker` | `StampColourPicker`: the swatches that clear 3:1, and one's own with a warning under it |
-| Glyph and texture | `StampPicker` and `TexturePicker` | `StampPicker` (the trade's glyph first) and `TexturePicker` |
+| Glyph and texture | `StampPicker` and `TexturePicker` | `StampPicker` (the trade's glyph first) and `TexturePicker`. With the design options: the trade's stickers first with their names (`StampStickerPicker`, `stickerGroups.ts`), then "עוד מדבקות" (groups and a search), "סמל פשוט" (`GlyphPicker`) and "תמונה משלכם" (`StampPictureField`), each opened in place; the tint, "בצבע הכרטיס", under them; then "בתוך עיגול / לבד" |
 | Stamp picture | Cropped in the browser, kept on the device, uploaded at save | Cropped in the browser, held until Save |
 | Stamp count | `StampCountControl` | `StampCountControl`: the kit's slider and the strip |
 | Reward | `RewardField`, two lines; Enter goes on, as the tray's button does: the next part, or saving | `RewardField`, two lines; Enter does nothing |
@@ -119,7 +119,15 @@ These come from the wallet renderer, not from taste:
 - **Stamp art:** one of the 16 glyphs in `src/lib/stampGlyphs.ts`, one of
   the wallet's built-in stickers (`GET .../stickers`, passbox-api), or an
   uploaded picture. The renderer's order: a picture, then a sticker, then
-  the glyph.
+  the glyph. A sticker a newer server adds, with no name in the locale files,
+  is read out by its own name with spaces for dashes ("teapot"), in English
+  on a Hebrew page too (`stickerLabel`), and found under "מתנות וכללי" until
+  it is named in both files and given a group in `stickerGroups.ts`.
+- **The tint** shades a sticker or a picture in the stamp colour, and the
+  wallet draws it only on stamps on their own: switching it on stands the
+  stamps on their own, gives them the business colour, and brings the
+  rule's ground to a card with none (Roee, 6 Nov), since stamps in the
+  card's own colour on the card itself all but vanish.
 - **Textures:** none, waves, dots, stripes. A sticker wallpaper takes the
   texture's place; a panel holds either.
 - **Design options** (passbox-api v0.1.1): stamps in a circle or on their
