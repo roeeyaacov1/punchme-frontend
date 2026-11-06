@@ -1399,6 +1399,105 @@ Then verify per CLAUDE.md:
 Commit in scoped steps, and don't merge.
 ```
 
+### After the phases: /admin
+
+`/admin` is PunchMe's own staff area: the catalog of ready-made looks the
+wizard offers owners, up to three per trade. No phase moved it, and Phase 10
+only offered it a light pass. Roee chose to rework it properly (6 Nov 2026).
+Found that day:
+
+| Part | Now |
+|---|---|
+| The frame, `AdminLayout` | White and navy. The old `Badge` says "Staff" in gold at 2.70:1, under AA. The email, in Plex Mono, runs past a 375px screen. Back to the app, the language and sign-out are small text buttons |
+| The catalog list (`/admin`, `/admin/catalog`) | The old `Badge` and `Button`, and `LookTile`, the last old piece in `src/components/onboarding`, which draws a look as its colours only. ↑ and ↓ as text arrows to reorder. Delete through `window.confirm`, in red text. Each trade's count of published looks as gold chips |
+| The catalog editor (`/admin/catalog/:catalogId`, and `new`) | On Lightbox already: the studio's `CardStudio` and trays, the kit, `CatalogArtPanel`. It wears `theme-lightbox` itself and pulls out of the frame's padding with negative margins |
+| `RequireStaff`'s refusal, for a signed-in account that isn't staff | Its own old heading and text, in `src/auth` |
+
+It runs on `redesign/admin`, from `main`, in its own worktree outside the
+repo, in three steps:
+
+1. **Step A**, now, beside the card looks' wizard: the contract
+   (`docs/admin-pages.md`, which doesn't exist yet) and the brief. Docs
+   only, so it touches nothing the wizard does.
+2. **Step B**, once the card looks' wizard (`looks/onboarding`) has merged.
+   The list exists to show staff what owners will be offered, and that
+   wizard's `looks.ts` now decides it: which looks it draws (`drawnLook`),
+   what it calls them (`lookName`), and when it offers looks at all
+   (`looksOffered`).
+3. **Step D**, then the merge.
+
+There is no step C. Staff use this list many times a day, so by the
+frequency rule the kit's own transitions are enough. If step B adds motion
+anyway, send `/review-animations` before step D.
+
+```text
+/admin, step A: contract, diagnose and brief. Don't change any code.
+Branch: redesign/admin, from main. Work in a worktree of your own outside
+the repo; other sessions use the main checkout, so never switch its branch.
+
+/admin has no contract yet, so write one first: docs/admin-pages.md, in
+the style of docs/dashboard-routes.md.
+- Pages: /admin, /admin/catalog and /admin/catalog/:catalogId (with
+  "new"), behind RequireStaff, plus the refusal a signed-in account that
+  isn't staff gets.
+- For each: who can open it, what it shows, every API call on load and on
+  action with its src/api wrapper, and what must survive. The editor's
+  CardStudio is docs/card-studio.md's: point to it, don't repeat it.
+- Trace from src/main.tsx through the imports; don't work from memory.
+
+Read first: CLAUDE.md, PRODUCT.md, DESIGN.md, docs/card-studio.md and
+docs/redesign/card-looks-guide.md. The catalog's published looks are what
+the wizard offers owners, and the card looks' wizard changes how: read
+src/routes/onboarding/looks.ts on looks/onboarding, not main's.
+
+Look at /admin as PunchMe staff on the card looks' stack (8001 and 8002,
+the card looks brief's appendix), with a Vite of your worktree on 5188
+pointed at 8001. Sign in only as its test accounts; the copy also holds
+real people's emails, so never sign in as those. Read only: don't publish,
+unpublish, reorder, edit or delete anything there, because the wizard's
+step D uses the same looks. When you need to see a write's result, mock it
+with a fetch wrapper.
+
+1. /impeccable critique and /impeccable audit, Hebrew first at 375px, then
+   1280px. Weigh: can staff tell at a glance which looks the wizard offers
+   for each trade, and which trades are short of three? Is it plain that
+   deleting a look never touches a business's card, since every card is a
+   copy?
+2. /break-ui on the list: a long look name and description, a trade with
+   no looks, twenty looks, a look with no colour, a look with pictures.
+3. /impeccable shape them (mode: Operate). Draw two or three structures
+   for the list on a Design canvas at 375px in Hebrew, and stop for my
+   pick.
+   Fixed:
+   - the routes and calls in the contract;
+   - the frame is not DashboardLayout: staff accounts don't necessarily
+     own a business;
+   - light only, since night is for the dashboard (CLAUDE.md);
+   - the editor's CardStudio and trays are the studio's.
+   Ask me before:
+   - changing what RequireStaff renders for a refusal (src/auth is frozen,
+     and its logic stays as it is);
+   - anything that needs a new call or a backend change.
+
+Save the brief to docs/redesign/briefs/admin.md and stop for my review.
+```
+
+- **Step B** uses Template B, in Plan mode. It also keeps these:
+  - The list draws each look as the wizard offers it, from `main`'s
+    `looks.ts` after the wizard merges. `LookTile` goes once nothing uses
+    it.
+  - The editor drops its own `theme-lightbox` and negative margins once
+    the frame wears Lightbox.
+  - Publish, reorder and delete keep their calls. A delete is confirmed in
+    the page, not by `window.confirm`.
+- **Step D checks** (Template D):
+  - PunchMe staff, at 320px, 375px and 1280px and at 200% text;
+  - a signed-in owner who isn't staff gets the refusal out loud, not a
+    redirect;
+  - "new" and an existing look save as the studio does, per
+    `docs/card-studio.md`'s notes for `/admin/catalog/:id`;
+  - each trade's count matches what the wizard shows for it.
+
 ---
 
 ## 8. Phase 10: cleanup
@@ -1427,8 +1526,7 @@ Phase 10, cleanup. Branch: redesign/cleanup.
 Verify per CLAUDE.md and commit.
 ```
 
-`/admin` is for PunchMe staff only. Give it a light pass here, or leave it
-as it is.
+`/admin` has a pass of its own (§7, "After the phases: /admin").
 
 ---
 
@@ -1515,6 +1613,7 @@ as it is.
   - the admin header's email runs past a 375px screen;
   - the landing page's sample answer draws its own "Give the reward" pill, which crosses its outline by 2.3px in English at 320 and 375
 - [ ] The card's looks: passbox's design options, native in the studio and the wizard (`card-looks-guide.md`)
+- [ ] /admin, PunchMe's staff area (§7, "After the phases"): contract · A · B (after the looks' wizard merges) · D · merged
 - [ ] Phase 10, cleanup
 
 ---
