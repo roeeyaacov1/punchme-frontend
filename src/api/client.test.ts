@@ -111,6 +111,32 @@ describe("apiFetch", () => {
   });
 });
 
+describe("a picture's answer", () => {
+  it("hands back the bytes as they came, with no session asked for", async () => {
+    setTokens({ access: "owner-access", refresh: "owner-refresh" });
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+    const fetchMock = vi.fn<(url: unknown, init?: RequestInit) => Promise<Response>>(async () =>
+      new Response(png, { status: 200, headers: { "Content-Type": "image/png" } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const call = new AbortController();
+
+    const blob = await api.post<Blob>("/api/presets/draw", { role: "hero" }, { auth: false, as: "blob", signal: call.signal });
+
+    expect(blob).toBeInstanceOf(Blob);
+    expect(new Uint8Array(await blob.arrayBuffer())).toEqual(png);
+    const init = fetchMock.mock.calls[0][1];
+    expect(init?.signal).toBe(call.signal);
+    expect((init?.headers as Record<string, string>).Authorization).toBeUndefined();
+  });
+
+  it("says a refusal as any call does, by its status", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => json(429, { detail: "Too many requests." })));
+
+    await expect(api.post("/api/presets/draw", {}, { auth: false, as: "blob" })).rejects.toMatchObject({ status: 429 });
+  });
+});
+
 describe("the refresh's answer", () => {
   const bearer = (init: unknown) =>
     (init as RequestInit | undefined)?.headers as Record<string, string> | undefined;
