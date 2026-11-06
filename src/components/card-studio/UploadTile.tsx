@@ -66,7 +66,9 @@ export function UploadTile({
           htmlFor={inputId}
           aria-busy={busy || undefined}
           className={cn(
-            "flex min-h-14 min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-field p-1.5 pe-4 touch-manipulation select-none",
+            // A finger held on the picture raises no "Save image": it is the
+            // control, not a picture to keep.
+            "flex min-h-14 min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-field p-1.5 pe-4 touch-manipulation select-none [-webkit-touch-callout:none]",
             "has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink",
             "transition-colors duration-gentle ease-out active:bg-ink/[0.06] hover-fine:bg-ink/5",
             (disabled || busy) && "pointer-events-none opacity-50",
