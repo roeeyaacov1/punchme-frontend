@@ -284,7 +284,8 @@ export interface paths {
          * @description Stateless: applies the candidate changes in memory only and returns
          *     the same payload as GET .../design — the editor's debounced live-edit
          *     loop. Nothing is saved; under passbox-api the server checks the card,
-         *     and with `images` draws its strip and hero too.
+         *     and with `images` draws its strip and hero too, with the pictures held
+         *     for Save (`held`) in place of the card's own. Those are kept nowhere.
          */
         post: operations["apps_businesses_api_preview_template_design"];
         delete?: never;
@@ -419,8 +420,105 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Presets */
+        /**
+         * Get Presets
+         * @description The published looks. A styled look also has its `options` and, once
+         *     the wallet has drawn it, its `pictures`; a classic look has neither key
+         *     (exclude_none), so it reads as it always has.
+         */
         get: operations["apps_businesses_api_get_presets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/presets/{preset_id}/picture/{role}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Preset Picture
+         * @description A published styled look as the wallet draws it: Apple's strip or
+         *     Google's hero, at its stamp count halfway full, drawn when staff
+         *     published or saved it (never for a visitor). 404 for a look not drawn
+         *     yet. `v` names the bytes in the URL /presets hands out; only caches
+         *     compare it. A strong ETag, kept a day.
+         */
+        get: operations["apps_businesses_api_get_preset_picture"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/presets/draw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Draw Preset
+         * @description The wizard's draft as the wallet draws it: Apple's strip ("strip@2x")
+         *     or Google's hero, as a PNG. Enumerated values only (no text, no
+         *     pictures; any other key is a 422), drawn for a stand-in merchant, and
+         *     kept a minute by what is drawn. 404 `design_options_unavailable` while
+         *     the wallet draws no design options, 503 `wallet_unavailable` when it
+         *     can't draw now, 429 past a throttle.
+         */
+        post: operations["apps_businesses_api_draw_preset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stickers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Public Stickers
+         * @description The wallet's built-in stickers, each as the URL of its picture, and
+         *     whether the wallet draws the card design options at all (`available`,
+         *     as the studio's own list says it): the wizard offers them only then.
+         */
+        get: operations["apps_businesses_api_list_public_stickers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stickers/{name}.png": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Sticker Picture
+         * @description One sticker's picture. Cached a year: the wallet only ever adds
+         *     stickers, and a sticker's picture never changes.
+         */
+        get: operations["apps_businesses_api_get_sticker_picture"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1710,6 +1808,25 @@ export interface components {
              * @default false
              */
             images: boolean;
+            held?: components["schemas"]["HeldPicturesIn"] | null;
+        };
+        /**
+         * HeldPicturesIn
+         * @description Pictures the studio holds for Save, as data URLs, for the preview to
+         *     draw the card with before they reach any customer: sent to the wallet
+         *     as assets no program uses, drawn, and kept nowhere. The art is at most
+         *     512px on its longer side; the strip background no smaller than the
+         *     strip's 1125×432.
+         */
+        HeldPicturesIn: {
+            /** Stamp Art */
+            stamp_art?: string | null;
+            /** Stamped Art */
+            stamped_art?: string | null;
+            /** Unstamped Art */
+            unstamped_art?: string | null;
+            /** Strip Base */
+            strip_base?: string | null;
         };
         /** StickerOut */
         StickerOut: {
@@ -1820,6 +1937,45 @@ export interface components {
             /** Role */
             role: string;
         };
+        /**
+         * PresetOptionsOut
+         * @description A styled look's card design options, under the names its design doc
+         *     gives them, each at its default where the doc says nothing
+         *     (wallet.design.design_options). "" is none for a sticker, a ground or a
+         *     wallpaper.
+         */
+        PresetOptionsOut: {
+            /**
+             * Style
+             * @enum {string}
+             */
+            style: "badge" | "icon";
+            /**
+             * Mark
+             * @enum {string}
+             */
+            mark: "none" | "check";
+            /** Sticker */
+            sticker: string;
+            /** Tint */
+            tint: boolean;
+            /** Panel Color */
+            panel_color: string;
+            /** Wallpaper */
+            wallpaper: string;
+            /**
+             * Stamps Place
+             * @enum {string}
+             */
+            stamps_place: "secondary" | "header";
+            /**
+             * Stamps Format
+             * @enum {string}
+             */
+            stamps_format: "count" | "fraction";
+            /** Logo Text */
+            logo_text: boolean;
+        };
         /** PresetOut */
         PresetOut: {
             /** Id */
@@ -1850,6 +2006,101 @@ export interface components {
             design: {
                 [key: string]: unknown;
             };
+            options?: components["schemas"]["PresetOptionsOut"] | null;
+            pictures?: components["schemas"]["PresetPicturesOut"] | null;
+        };
+        /**
+         * PresetPicturesOut
+         * @description The look as the wallet draws it, at its stamp count halfway full:
+         *     Apple's strip and Google's hero, PNGs kept a day by browsers (GET
+         *     /api/presets/{preset_id}/picture/{role}). Each URL names its picture's
+         *     bytes, so a look drawn again is a new URL.
+         */
+        PresetPicturesOut: {
+            /** Strip */
+            strip: string;
+            /** Hero */
+            hero: string;
+        };
+        /**
+         * LookDrawIn
+         * @description The wizard's draft as the public drawing takes it: enumerated values
+         *     only. No text, no pictures and no merchant: the card is drawn for a
+         *     stand-in, and any other key is refused. A colour left null is the
+         *     default (white card, black ink, the label in the ink, the stamps in the
+         *     ink, no ground behind them); a sticker or wallpaper must be one the
+         *     sticker list names.
+         */
+        LookDrawIn: {
+            /** Background */
+            background?: string | null;
+            /** Foreground */
+            foreground?: string | null;
+            /** Label */
+            label?: string | null;
+            /** Stamp */
+            stamp?: string | null;
+            /** Panel */
+            panel?: string | null;
+            /**
+             * Style
+             * @default badge
+             * @enum {string}
+             */
+            style: "badge" | "icon";
+            /** Sticker */
+            sticker?: string | null;
+            /**
+             * Glyph
+             * @default check
+             * @enum {string}
+             */
+            glyph: "cake" | "check" | "coffee" | "crown" | "dumbbell" | "flower" | "gift" | "heart" | "leaf" | "paw-print" | "pizza" | "scissors" | "smile" | "sparkles" | "star" | "sun";
+            /**
+             * Tint
+             * @default false
+             */
+            tint: boolean;
+            /** Wallpaper */
+            wallpaper?: string | null;
+            /**
+             * Pattern
+             * @default none
+             * @enum {string}
+             */
+            pattern: "none" | "waves" | "dots" | "stripes";
+            /** Stamps Required */
+            stamps_required: number;
+            /** Stamps */
+            stamps: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "strip@2x" | "hero";
+        };
+        /** PublicStickerOut */
+        PublicStickerOut: {
+            /** Name */
+            name: string;
+            /** Url */
+            url: string;
+        };
+        /**
+         * PublicStickersOut
+         * @description The wallet's built-in stickers for the public onboarding wizard, each
+         *     as a URL to its picture rather than the picture itself, and whether the
+         *     wallet draws the card design options at all: the wizard offers them only
+         *     while `available`, exactly as the studio does (StickersOut).
+         */
+        PublicStickersOut: {
+            /** Available */
+            available: boolean;
+            /**
+             * Stickers
+             * @default []
+             */
+            stickers: components["schemas"]["PublicStickerOut"][];
         };
         /** OtpRequestIn */
         OtpRequestIn: {
@@ -3815,6 +4066,104 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PresetOut"][];
+                };
+            };
+        };
+    };
+    apps_businesses_api_get_preset_picture: {
+        parameters: {
+            query?: {
+                v?: string;
+            };
+            header?: never;
+            path: {
+                preset_id: string;
+                role: "strip" | "hero";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A PNG */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
+                };
+            };
+            /** @description Not modified: the If-None-Match ETag is this picture's */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    apps_businesses_api_draw_preset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LookDrawIn"];
+            };
+        };
+        responses: {
+            /** @description A PNG */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
+                };
+            };
+        };
+    };
+    apps_businesses_api_list_public_stickers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicStickersOut"];
+                };
+            };
+        };
+    };
+    apps_businesses_api_get_sticker_picture: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A PNG */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
                 };
             };
         };
