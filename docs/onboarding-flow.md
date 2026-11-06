@@ -68,7 +68,9 @@ them, exactly: `/onboarding/look` goes to `/onboarding/business`, where the
 business holds the trade, and the road is four stops. It is decided once
 per tab, as soon as the list has answered (and the catalog, where the list
 said yes), or after 4 s with what is known by then; until then no screen is
-shown. A draft that already has a look keeps the fifth stop, until its
+shown, and from 300 ms the frame a cold load shows stands in its place
+(`WizardSkeleton`), so a slow phone never sees an empty page and a list
+that answers at once never flashes it. A draft that already has a look keeps the fifth stop, until its
 options are taken off where the wallet draws none of them (below).
 
 Every screen stands in one column or two (`StepShell`). One on a phone and
@@ -113,11 +115,14 @@ all follow that one decision.
   same four parts, holding the studio's own trays over the draft
   (`studioValue.ts`, brief §7.4):
   - the business: the name; the trade as a line, "Café · Change", which goes
-    back to the looks; and "Logo (optional)", the studio's upload tile,
-    scaled down and kept on the device until the save. A mark narrower than
-    2:1 turns the name beside it on by itself, and a wide one doesn't. A
-    logo the draft has and the device doesn't is said there, and holds
-    nothing up: the card is saved without it;
+    back to the looks and is heard with the question above it; and "Logo
+    (optional)", the studio's upload tile, scaled down and kept on the
+    device until the save. A mark narrower than 2:1 turns the name beside
+    it on by itself, and a wide one doesn't. A logo the draft has and the
+    device doesn't is said there, and holds nothing up: the card is saved
+    without it. In a row under 20rem (a 320px phone, or large text) "Remove"
+    goes under the tile, and where large text on a phone leaves the row
+    under 12rem, the picture stands over the words (`UploadTile`);
   - the colours: `BrandColoursTray`, the business colour and what follows
     it, the look's own colours among them while the card is still its
     colour (`lookBase`);
@@ -209,9 +214,16 @@ all follow that one decision.
   preview's own rows, so the name lands as typed. The last picture stays
   while the next is drawn, shown once decoded, and from 500 ms a tag under
   the stage says one is coming. When it can't be drawn, the stage shows the
-  look as itself, in its own colours with the owner's name and reward, and
-  says so ("too many in a short time" for a 429); the save goes on, since
-  it sends the draft. A stamp that is a picture, which the drawing can't
+  look as itself, without the owner's changes but with their name and
+  reward, and says so ("too many in a short time" for a 429), with "Draw it
+  again"; the save goes on, since it sends the draft. A card the catalog
+  has no picture for (a look gone from it, or a trade's classic look)
+  stands in its circles instead, and the words say that (`failureKey`).
+  On a phone a tray covers what the stage says, so the tray's foot says it
+  too, over its button: a drawing on its way, and one that didn't come,
+  with "Draw it again" (card looks, step D). When a drawing comes after
+  "Draw it again", focus goes on to the tray's button, or to the map's
+  heading under the stage. A stamp that is a picture, which the drawing can't
   take, stands in the circles. Where the wallet draws none of the options
   the card has, no drawing is asked, since each would fail: the stage shows
   the look as itself, with nothing under it, as the notice over it says
@@ -538,3 +550,22 @@ Fixed, except where it says otherwise.
   the billing step's words ran out of their boxes and its buttons crossed
   their outlines. Two columns now wait until the step has 30rem beside the
   card (above), and nothing moves at 100%.
+- **A drawing's words hid under the tray** (card looks, step D, 6 Nov). On a
+  phone the tag for a drawing on its way and a failed drawing's reason
+  stood under the stage, where an open tray covers them: a colour picked
+  in the tray could turn the card back to the look's own colours with
+  nothing said. The tray's foot says them now, with "Draw it again", which
+  the wizard didn't have.
+- **A failed drawing said the wrong thing twice** (step D). "We couldn't
+  draw the look in your colour" also followed a new sticker, and the stage
+  showed the look's own colours where the catalog had no picture for the
+  card, showing circles. Both are said as they are now.
+- **The wait for the looks was an empty page** (step D): from 300 ms it is
+  the cold load's frame.
+- **The logo tile's words ran out of their box** beside "Remove" at 320px,
+  and at 375px with 200% text (step D). Fixed in `UploadTile`, the studio's
+  too; its tiles have no "Remove", and nothing moves at 100% there.
+- **Not fixed, the catalog's to change:** the bakery look's white text on
+  its own `#C65D3B` is 4.2:1 on the pass (step D's detector, in the pass
+  preview), under AA for its smaller labels. It is the look as staff
+  published it in `/admin`, not the wizard's colour.
