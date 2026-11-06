@@ -18,13 +18,13 @@ import { webpackOverride } from "../webpack-override.ts";
 const SETTLED: Record<string, number[]> = {
   hook: [60],
   promise: [140],
-  join: [235],
-  looks: [326],
-  stamps: [430],
+  join: [240],
+  looks: [334],
+  stamps: [380, 430],
   reward: [500],
-  winback: [596],
-  proof: [698],
-  price: [788],
+  winback: [600],
+  proof: [700],
+  price: [790],
   end: [899],
 };
 

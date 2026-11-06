@@ -3,7 +3,7 @@
 For Roee to send on WhatsApp with `out/punchme-promo-he.mp4` or
 `out/punchme-promo-en.mp4`. Plain, like the site: who's writing, what it is,
 what it costs, where to look, and the source of the one figure in the video,
-since a video can't be clicked.
+since a video can't be clicked. The video has sound (made for it, nothing licensed) but says everything on screen too.
 
 ## Hebrew
 
