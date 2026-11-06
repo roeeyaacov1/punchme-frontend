@@ -49,6 +49,7 @@ export function BusinessPanel({
   const navigate = useNavigate();
   const { draft, update, presets } = useOnboardingDraft();
   const tradeErrorId = useId();
+  const tradeQuestionId = useId();
   const fromLook = !!draft.look && !!draft.niche;
   // Once the card has a logo, its field stays for this visit, even after
   // the logo is taken off, which would otherwise take the field with it.
@@ -100,9 +101,13 @@ export function BusinessPanel({
       />
       {fromLook ? (
         <div ref={tradeRef} className="flex flex-col gap-1">
-          <p className="type-label text-ink">{t("onboarding.business.nicheLabel")}</p>
+          <p id={tradeQuestionId} className="type-label text-ink">
+            {t("onboarding.business.nicheLabel")}
+          </p>
+          {/* "Café · Change", heard with the question it answers. */}
           <Button
             variant="quiet"
+            aria-describedby={tradeQuestionId}
             onClick={() => navigate("/onboarding/look")}
             className="-ms-3 w-fit max-w-full !whitespace-normal text-start"
           >
