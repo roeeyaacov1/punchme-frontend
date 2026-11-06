@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Info } from "lucide-react";
 import { groundFor } from "../brandColours";
 import { PanelColourPicker, PatternPicker, type Sticker } from "../controls";
+import { PANEL_SWATCHES, PANEL_SWATCH_NAMES, stickerLabel, swatchIndex } from "../controls/controlRules";
 import {
   designOptions,
   patternChoice,
@@ -29,6 +30,7 @@ export function BehindTray({
   stickers,
   stripPicture,
   pictureInUse,
+  outage = false,
 }: {
   value: CardStudioValue;
   onChange: (next: CardStudioValue) => void;
@@ -37,10 +39,46 @@ export function BehindTray({
   stripPicture: boolean;
   /** The stamp is a picture, held or saved. */
   pictureInUse: boolean;
+  /** The sticker list can't be read on a card that has the options: say
+   * what is behind the stamps, and offer nothing that would drop it. */
+  outage?: boolean;
 }) {
   const { t } = useTranslation();
   const chosen = designOptions(value.design);
   const stamps = stampColourOf(value);
+  if (outage) {
+    const index = swatchIndex(chosen.panelColor, PANEL_SWATCHES);
+    const ground = !chosen.panelColor
+      ? t("studio.stickers.noGround")
+      : t("studio.stickers.ground", {
+          name:
+            index >= 0
+              ? t(`cardControls.panel.names.${PANEL_SWATCH_NAMES[index]}`)
+              : chosen.panelColor.toUpperCase() === groundFor(value.background_color)
+                ? t("cardControls.panel.names.shade")
+                : t("cardControls.own"),
+        });
+    const choice = patternChoice(value.design);
+    const pattern =
+      choice === "none"
+        ? t("studio.stickers.noPattern")
+        : t("studio.stickers.pattern", {
+            name: choice.startsWith("sticker:")
+              ? stickerLabel(choice.slice("sticker:".length), t)
+              : t(`studio.patterns.${choice}`),
+          });
+    return (
+      <div className="flex flex-col gap-4">
+        <p className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
+          <Info aria-hidden className="mt-px size-4 shrink-0" />
+          <span>{t("studio.stickers.outageBehind")}</span>
+        </p>
+        <p className="type-body text-ink">
+          <b className="font-semibold">{t("studio.stickers.has")}</b> {ground}, {pattern}
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-6">
       <PanelColourPicker

@@ -138,6 +138,17 @@ These come from the wallet renderer, not from taste:
   count at the top and as "6/8", the name beside the logo. Offered only
   while the sticker list says the wallet draws them (`available`); a server
   before v0.1.1 refuses any of them.
+- **The stamps' alert message:** an iPhone alerts on a new stamp only for a
+  field with a change message, so every design keeps one (Roee, 4 Nov; the
+  backend's `stamps_change_message`). Where the wallet draws the design
+  options, the stamps field's message can't be emptied: cleared, it takes
+  the card language's default as the field is left, and one without its
+  `%@` gets " %@" (`stampsChangeMessage`).
+- **While the sticker list can't be read** on a card that uses the options
+  (`studioMode` "outage"), the stamp tray and "מאחורי החותמות" say so and
+  what the card has, and offer nothing that would drop it unasked: the
+  glyphs wait behind "סמל פשוט", which says a symbol takes the sticker's
+  place.
 - **Barcode formats:** the four that `PassBarcode` draws.
 - **Fields:** 1 to 10, using PassKit's 5 sections and 4 alignments and five
   kinds of binding (`studioDraft.ts`). Each free-text field has a binding of

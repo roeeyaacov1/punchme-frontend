@@ -112,6 +112,16 @@ export function readLint(lint: readonly string[] | undefined): LintReading {
   return reading;
 }
 
+/** passbox-api's advice that Google shows about 20 characters of a name. */
+const GOOGLE_NAME = /\bGoogle Wallet shows about \d+ characters of\b/;
+
+/** The advice the studio's notice lists. Where the wallet draws the design
+ * options, Names says what Google shows of a long name in its own line
+ * (brief §6.5), so passbox's line about it isn't said again here. */
+export function adviceShown(reading: LintReading, { namesSayGoogle }: { namesSayGoogle: boolean }): string[] {
+  return namesSayGoogle ? reading.advice.filter((text) => !GOOGLE_NAME.test(text)) : reading.advice;
+}
+
 /** The problems that belong to one field of the card, by binding or index. */
 export function problemsFor(reading: LintReading, binding: string, index: number): FieldProblem[] {
   return reading.fields.filter((problem) => problem.binding === binding || problem.index === index);

@@ -15,7 +15,7 @@ import {
   type ServerAsk,
 } from "../../components/card-studio/designOptions";
 import { useStudioWide } from "../../components/card-studio/useStudioWide";
-import { readLint } from "../../components/card-studio/lintProblems";
+import { adviceShown, readLint } from "../../components/card-studio/lintProblems";
 import {
   changesBetween,
   fieldName,
@@ -356,6 +356,9 @@ export function DesignPage() {
     staleTime: Infinity,
     retry: 1,
   });
+  // Whether the wallet draws the design options: the studio's new words wait
+  // for them, so with them off the page is today's (Roee, 6 Nov).
+  const optionsDrawn = studioStickers(stickersQuery).available;
   // Its latest answer, for a save that starts again from what it sent: one
   // can land while the save runs.
   const latestLint = useRef(lint);
@@ -556,7 +559,9 @@ export function DesignPage() {
     if (after) reseed(after.value, after.lint, after.at);
     else reseed(sentValue, latestLint.current, { templates: Date.now(), design: Date.now() });
     setSaving(false);
-    toast.show({ tone: "ok", title: t("studio.saved") });
+    // Where the wallet draws the options, the passbox phones showed: a design
+    // change reaches every card quietly, with no alert (brief §6.9, §11).
+    toast.show({ tone: "ok", title: t(optionsDrawn ? "studio.savedQuiet" : "studio.saved") });
     heading.current?.focus();
   }
 
@@ -596,6 +601,8 @@ export function DesignPage() {
 
   const design = designQuery.data;
   const reading = readLint(lint);
+  // Names says what Google shows of a long name, where the options are drawn.
+  const advice = adviceShown(reading, { namesSayGoogle: optionsDrawn });
   const sync = design.sync;
   // Art just sent is on the card until a read says otherwise, even when the
   // re-read after the save failed.
@@ -620,20 +627,20 @@ export function DesignPage() {
     </>
   );
 
-  const notices = (sync.error || reading.other.length > 0 || reading.advice.length > 0) && (
+  const notices = (sync.error || reading.other.length > 0 || advice.length > 0) && (
     <div className="flex flex-col gap-3">
       {sync.error && <Notice tone="warn">{t("studio.sync.failed")}</Notice>}
-      {reading.advice.length > 0 && (
+      {advice.length > 0 && (
         <div className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
           <Info aria-hidden className="mt-px size-4 shrink-0" />
           <div>
-            <p>{t("studio.check.advice")}</p>
+            <p>{t(optionsDrawn ? "studio.check.suggestion" : "studio.check.advice")}</p>
             <details className="mt-1">
               <summary className="w-fit cursor-pointer underline underline-offset-[3px]">
                 {t("studio.check.details")}
               </summary>
               <ul lang="en" dir="ltr" className="mt-2 list-disc ps-5 text-start">
-                {reading.advice.map((text) => (
+                {advice.map((text) => (
                   <li key={text}>{text}</li>
                 ))}
               </ul>

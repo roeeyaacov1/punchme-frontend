@@ -1,5 +1,6 @@
 import { useId, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { Info } from "lucide-react";
 import { STAMP_GLYPHS } from "../../../lib/stampGlyphs";
 import { Button } from "../../kit/Button";
 import { Switch } from "../../kit/Switch";
@@ -19,6 +20,7 @@ import { stampsInCardColour, tintBringsGround, withTint } from "../brandColours"
 import {
   designOptions,
   markShows,
+  stampSummary,
   tintDrawn,
   tintShows,
   withStamp,
@@ -115,6 +117,9 @@ export function StampTray({
     onChange(withStamp(value, chosen.sticker ? { glyph: name, sticker: "" } : { glyph: name }));
   };
 
+  if (mode === "outage") {
+    return <OutageStamp value={value} niche={niche} picture={picture} onGlyph={glyphAt} />;
+  }
   if (mode !== "options") {
     return (
       <div className="flex flex-col gap-6">
@@ -147,6 +152,61 @@ export function StampTray({
       wide={wide}
       onGlyph={glyphAt}
     />
+  );
+}
+
+/**
+ * A styled card while the sticker list can't be read (§6.7): it says so and
+ * what the stamps have ("קרואסון, בצבע הכרטיס, לבד"), and offers nothing that
+ * would drop them unasked. The glyphs wait behind "סמל פשוט", which says that
+ * a symbol takes the sticker's place.
+ */
+function OutageStamp({
+  value,
+  niche,
+  picture,
+  onGlyph,
+}: {
+  value: CardStudioValue;
+  niche?: string | null;
+  picture: StampPicture;
+  onGlyph: (name: string) => void;
+}) {
+  const { t } = useTranslation();
+  const symbolId = useId();
+  const [open, setOpen] = useState(false);
+  const chosen = designOptions(value.design);
+  const summary = stampSummary(value.design, {
+    sticker: (name) => stickerLabel(name, t),
+    tinted: t("cardControls.tint.label"),
+    badge: t("cardControls.style.badge"),
+    icon: t("cardControls.style.icon"),
+  });
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
+        <Info aria-hidden className="mt-px size-4 shrink-0" />
+        <span>{t("studio.stickers.outage")}</span>
+      </p>
+      <p className="type-body text-ink">
+        <b className="font-semibold">{t("studio.stickers.has")}</b> {summary}
+      </p>
+      <Button
+        variant={open ? "secondary" : "quiet"}
+        aria-expanded={open}
+        aria-controls={symbolId}
+        onClick={() => setOpen((was) => !was)}
+        className="-ms-3 w-fit"
+      >
+        {t("cardControls.sticker.symbol")}
+      </Button>
+      {open && (
+        <div id={symbolId} className="flex flex-col gap-5">
+          {chosen.sticker && <p className="text-sm leading-snug text-ink-muted">{t("studio.stickers.symbolDrops")}</p>}
+          <GlyphPicker glyph={value.design.stamp?.glyph ?? "check"} glyphHidden={!!chosen.sticker} onGlyph={onGlyph} niche={niche} picture={picture} />
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -376,7 +376,7 @@ export function CardStudio({
     { id: "colours", label: t("studio.chips.colours") },
     { id: "stamp", label: t("studio.chips.stamp") },
     // "מאחורי החותמות" where the wallet draws the options; "הרקע" as before.
-    { id: "background", label: t(mode === "options" ? "studio.chips.behind" : "studio.chips.background") },
+    { id: "background", label: t(mode === "plain" ? "studio.chips.background" : "studio.chips.behind") },
     { id: "reward", label: t("studio.chips.reward") },
     { id: "names", label: t("studio.chips.names") },
     ...(owner ? [{ id: "logo", label: t("studio.chips.logo") }] : []),
@@ -488,13 +488,14 @@ export function CardStudio({
           />
         );
       case "background":
-        return mode === "options" ? (
+        return mode !== "plain" ? (
           <BehindTray
             value={value}
             onChange={onChange}
             stickers={stickers.list}
             stripPicture={!!(held.strip_base ?? images.strip_base)}
             pictureInUse={stampPicture.inUse}
+            outage={mode === "outage"}
           />
         ) : (
           <BackgroundTray value={value} onChange={onChange} />
@@ -547,6 +548,7 @@ export function CardStudio({
             editing={editingField}
             onEditing={onEditingField}
             art={onHold ? { held, images, assets, notKept, onPick: onHold } : undefined}
+            alwaysMessage={mode === "options"}
           />
         );
       default:
@@ -738,7 +740,7 @@ export function CardStudio({
         foot={
           barDrawn ? (
             <BarLight phase={barPhase} reduced={reduced}>
-              {studioBar}
+              {mode === "options" ? <StudioBar ref={saveRef} {...barProps} onRedraw={stageFailed ? onRedraw : undefined} compact /> : studioBar}
             </BarLight>
           ) : undefined
         }

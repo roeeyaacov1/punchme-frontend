@@ -10,7 +10,7 @@ import { Select } from "../../kit/Select";
 import { Textarea } from "../../kit/Textarea";
 import { isolate } from "../../../routes/dashboard/problem";
 import { ChoiceTiles, type Tile } from "../controls/ChoiceTiles";
-import { withFields } from "../designOptions";
+import { COUNT_BINDING, withFields } from "../designOptions";
 import { problemsFor, type LintReading } from "../lintProblems";
 import { fitPicture, pictureSize, readPicture, STRIP_MIN, type FittedUse } from "../pictureFiles";
 import {
@@ -24,6 +24,7 @@ import {
   newField,
   nextCustomBinding,
   ownWordsDir,
+  stampsChangeMessage,
   type CardStudioImages,
   type CardStudioValue,
   type FieldKind,
@@ -72,6 +73,7 @@ export function WalletDetailsTray({
   editing,
   onEditing,
   art,
+  alwaysMessage = false,
 }: {
   value: CardStudioValue;
   onChange: (next: CardStudioValue) => void;
@@ -81,6 +83,9 @@ export function WalletDetailsTray({
   onEditing: (index: number | null) => void;
   /** The owner's custom art, held for Save. A catalog look keeps its own. */
   art?: WalletArt;
+  /** The stamps field always keeps its message on a change (brief §6.9), as
+   * the backend sends one: where the wallet draws the design options. */
+  alwaysMessage?: boolean;
 }) {
   const { t } = useTranslation();
   const fields = value.design.fields ?? [];
@@ -96,6 +101,8 @@ export function WalletDetailsTray({
         index={editing}
         fields={fields}
         rtl={(value.design.default_language ?? "HE") === "HE"}
+        language={value.design.default_language ?? "HE"}
+        alwaysMessage={alwaysMessage}
         lint={lint}
         nameOf={nameOf}
         onBack={() => onEditing(null)}
@@ -261,6 +268,8 @@ function FieldEditor({
   index,
   fields,
   rtl,
+  language,
+  alwaysMessage,
   lint,
   nameOf,
   onBack,
@@ -271,6 +280,9 @@ function FieldEditor({
   index: number;
   fields: DesignField[];
   rtl: boolean;
+  /** The card's language, whose default message a cleared one takes. */
+  language: string;
+  alwaysMessage: boolean;
   lint: LintReading;
   nameOf: (field: DesignField) => string;
   onBack: () => void;
@@ -308,6 +320,10 @@ function FieldEditor({
 
   const message = field.change_message ?? "";
   const example = message.includes("%@") ? message.split("%@").join(EXAMPLE_VALUE) : message;
+  // The stamps field's message can't be emptied: an iPhone alerts on a new
+  // stamp only for a field with one. Cleared, it takes the card language's
+  // default as the field is left, and one without its count gets " %@".
+  const keepsMessage = alwaysMessage && field.binding === COUNT_BINDING;
 
   return (
     <div className="flex flex-col gap-5">
@@ -392,18 +408,29 @@ function FieldEditor({
       <Input
         label={t("studio.fields.changeMessage")}
         hint={
-          message ? (
-            <>
-              {t("studio.fields.example")} <bdi className="text-ink">{example}</bdi>
-            </>
-          ) : (
-            <>
-              {t("studio.fields.changeHint")} <bdi dir="ltr">%@</bdi>
-            </>
-          )
+          <>
+            {message ? (
+              <>
+                {t("studio.fields.example")} <bdi className="text-ink">{example}</bdi>
+              </>
+            ) : (
+              <>
+                {t("studio.fields.changeHint")} <bdi dir="ltr">%@</bdi>
+              </>
+            )}
+            {keepsMessage && <span className="mt-1 block">{t("studio.fields.messageAlways")}</span>}
+          </>
         }
         value={message}
         onChange={(event) => onField({ ...field, change_message: event.target.value })}
+        onBlur={
+          keepsMessage
+            ? () => {
+                const kept = stampsChangeMessage(message, language);
+                if (kept !== message) onField({ ...field, change_message: kept });
+              }
+            : undefined
+        }
         maxLength={TEXT_LIMITS.changeMessage}
         dir={ownWordsDir(message)}
         autoComplete="off"
