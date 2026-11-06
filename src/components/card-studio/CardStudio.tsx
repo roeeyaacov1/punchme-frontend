@@ -346,7 +346,6 @@ export function CardStudio({
   useEffect(() => {
     onSample?.(shownSample);
   }, [onSample, shownSample]);
-  const options = stickers.available;
   // The options offered (the list says the wallet draws them), said while
   // the list can't be read on a card that has them, or today's studio.
   const mode = studioMode(stickers, value.design);
@@ -487,7 +486,16 @@ export function CardStudio({
         );
       case "reward":
         return (
-          <RewardTray value={value} onChange={onChange} back={back} onFollow={onFollow} stampPicture={stampPicture.url} />
+          <RewardTray
+            value={value}
+            onChange={onChange}
+            back={back}
+            onFollow={onFollow}
+            stampPicture={stampPicture.url}
+            options={mode === "options"}
+            sample={shownSample}
+            savedFields={saved.design.fields ?? []}
+          />
         );
       case "names":
         return (
@@ -498,7 +506,7 @@ export function CardStudio({
             businessName={businessName}
             sayNameMissing={sayNameMissing}
             nameRef={nameField}
-            options={options}
+            options={mode === "options"}
           />
         );
       case "logo":
@@ -509,8 +517,10 @@ export function CardStudio({
             onPick={(dataUrl) => onHold("logo", dataUrl)}
             notKept={notKept.includes("logo")}
             logoText={designOptions(value.design).logoText}
-            onLogoText={options ? (logo_text) => onChange(withOption(value, { logo_text })) : undefined}
+            onLogoText={mode === "options" ? (logo_text) => onChange(withOption(value, { logo_text })) : undefined}
             hasLogo={hasLogo}
+            shapeOf={held.logo ?? images.apple_logo ?? images.logo}
+            name={value.design.organization_name?.trim() || businessName}
           />
         ) : null;
       case "wallet":

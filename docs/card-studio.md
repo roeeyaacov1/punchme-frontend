@@ -103,7 +103,7 @@ from the frozen previews and never drawn on them.
 | Stamp colour | `StampColourPicker` | `StampColourPicker`: the swatches that clear 3:1, and one's own with a warning under it |
 | Glyph and texture | `StampPicker` and `TexturePicker` | `StampPicker` (the trade's glyph first) and `TexturePicker`. With the design options: the trade's stickers first with their names (`StampStickerPicker`, `stickerGroups.ts`), then "עוד מדבקות" (groups and a search), "סמל פשוט" (`GlyphPicker`) and "תמונה משלכם" (`StampPictureField`), each opened in place; the tint, "בצבע הכרטיס", under them; then "בתוך עיגול / לבד" |
 | Stamp picture | Cropped in the browser, kept on the device, uploaded at save | Cropped in the browser, held until Save |
-| Stamp count | `StampCountControl` | `StampCountControl`: the kit's slider and the strip |
+| Stamp count | `StampCountControl` | `StampCountControl`: the kit's slider and the strip. With the design options, "המספר על הכרטיס" under it in the reward tray: under the stamps or at the top by the logo, "6" or "6/8" at the count the stage shows, tagged "רק באייפון". Names keeps the words only, and says what Google shows of a name past 20 characters; the logo tray offers the name beside a logo only for a mark of one's own narrower than 2:1 |
 | Reward | `RewardField`, two lines; Enter goes on, as the tray's button does: the next part, or saving | `RewardField`, two lines; Enter does nothing |
 | Saving | Draft in `localStorage`, then `commit.ts` | Explicit Save: the held pictures, then one PATCH. The draft is kept in the tab |
 
