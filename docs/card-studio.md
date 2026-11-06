@@ -77,8 +77,8 @@ type drifts, while the barcode plates hold at any width.
 | File | What it is |
 |---|---|
 | `card-studio/CardStudio.tsx` | The studio (Phase 3). The card is the map: on a phone the stage, the sample, the reward as a sentence and a row of chips, each opening a tray over the lower half; from 1024px the trays are tabs beside a sticky card. That line is 64rem (`useStudioWide.ts`, which the loading skeleton follows too), so a larger text size keeps the phone's layout until the screen is as much wider: 2048px at 200%, where the card's 22rem column would otherwise be wider than the page's |
-| `card-studio/StudioStage.tsx` | The kit's `WallpaperStage` with the pass in its 300px slot, the Apple/Google switch, and the tap regions over the pass (pointer shortcuts, measured from the pass's own rows). A card the server draws (`isStyled`) keeps what the stage showed last, a picture or the stand-in, while the next is drawn (`stageShown`), never another picture in between, with a lit tag under the stage from 500ms; a picture counts once the wallet's own one, Apple's strip or Google's hero, has loaded and decoded. When a drawing fails it shows the saved card, which is what customers have, with "כך הכרטיס אצל הלקוחות עכשיו" and "לצייר שוב" (`stageOnFailure`), never a picture of a card that is neither the draft nor the saved one. On a phone, where an open tray covers that, the save bar says it too. The motion (card looks, step C): a new drawing, or the saved card standing in, crosses over the last, which stays over the slot as a layer and goes out in 240ms on the in-out (`crossfade-out`; the 150ms fade with reduced motion), so the pass itself is never touched; a swap that changes the card's height, between the stand-in grid and a drawn strip, cuts. The tag fades in, and the failure's panel and the bar's line light on |
-| `card-studio/StudioTray.tsx`, `StudioBar.tsx`, `UploadTile.tsx`, `trays/` | The non-modal tray, the save bar, the picture tile, and the seven trays: colours, the stamp, the background, the reward, the names, the logo, Wallet details. With the design options the colours are `BrandColoursTray` and the background is "מאחורי החותמות" (`BehindTray`: a ground by name, and one faint pattern, a texture or a sticker); without them, `ColoursTray` and "הרקע" with the texture, as before. A tray stops at half the screen, or at 18rem where half would hold little past its heading and foot (large text, a short screen, a phone on its side), never past 85% (onboarding's step D, 31 Oct 2026) |
+| `card-studio/StudioStage.tsx` | The kit's `WallpaperStage` with the pass in its 300px slot, the Apple/Google switch, and the tap regions over the pass (pointer shortcuts, measured from the pass's own rows). A card the server draws (`isStyled`) keeps what the stage showed last, a picture or the stand-in, while the next is drawn (`stageShown`), never another picture in between, with a lit tag under the stage from 500ms; a picture counts once the wallet's own one, Apple's strip or Google's hero, has loaded and decoded. When a drawing fails it shows the saved card, which is what customers have, with "כך הכרטיס אצל הלקוחות עכשיו" and "לצייר שוב" (`stageOnFailure`), never a picture of a card that is neither the draft nor the saved one. On a phone, where an open tray covers that, the save bar says it too, and so it does a drawing still on its way after 2s (card looks, step D), so a choice never looks ignored. The motion (card looks, step C): a new drawing, or the saved card standing in, crosses over the last, which stays over the slot as a layer and goes out in 240ms on the in-out (`crossfade-out`; the 150ms fade with reduced motion), so the pass itself is never touched; a swap that changes the card's height, between the stand-in grid and a drawn strip, cuts. The tag fades in, and the failure's panel and the bar's line light on |
+| `card-studio/StudioTray.tsx`, `StudioBar.tsx`, `UploadTile.tsx`, `trays/` | The non-modal tray, the save bar, the picture tile, and the seven trays: colours, the stamp, the background, the reward, the names, the logo, Wallet details. With the design options the colours are `BrandColoursTray` and the background is "מאחורי החותמות" (`BehindTray`: a ground by name, and one faint pattern, a texture or a sticker); without them, `ColoursTray` and "הרקע" with the texture, as before. A tray stops at half the screen, or at 18rem where half would hold little past its heading and foot (large text, a short screen, a phone on its side), never past 85% (onboarding's step D, 31 Oct 2026). Where the wallet draws the options, the bar at a tray's foot is one row (the count as a badge, then Save) once it is narrower than 16rem or the screen shorter than 36rem, so a wide window at 200% text keeps room to scroll too (card looks, step D). "עוד מדבקות"'s search says a word that finds nothing under the field, inside the box that holds it in view, and a search typed while the field is held at the top brings the panel's start back |
 | `card-studio/controls/` | The card controls the studio and (from Phase 4) onboarding share: card, stamp and text colour, the stamp, the texture, the stamp count, the reward, and a colour of one's own. The reward is a paragraph of two lines that grows to three (Phase 4): Enter does the screen's own action, if it passes one, and a pasted line break becomes a space. With large text on a phone, the glyphs and the textures take as many to a row as fit, and four at 100% (Phase 4) |
 | `card-studio/studioDraft.ts`, `lintProblems.ts`, `studioProblems.ts`, `studioSession.ts` | The draft's rules (tested), the server's check read by kind (tested), a failed save or upload as a sentence (tested), and the draft kept in the tab |
 | `wallet-card/WalletCardPreview.tsx` | A legacy mock that nothing uses since `/style-guide` was rebuilt on the kit (Phase 1, step 1.4). Its English strings are hard-coded; Phase 10 deletes it |
@@ -149,6 +149,24 @@ These come from the wallet renderer, not from taste:
   what the card has, and offer nothing that would drop it unasked: the
   glyphs wait behind "סמל פשוט", which says a symbol takes the sticker's
   place.
+- **Where the wallet draws none of the options** (the list says
+  `available: false`, as a server before v0.1.1 does) and the card still
+  uses one (`usesOptions`: a sticker, stamps on their own, a check, a tint,
+  a ground, a sticker pattern, the count at the top or as "6/8", the name
+  beside the logo), `studioMode` is "off" (card looks, step D): the wallet
+  refuses every drawing and every save of that card, and a refused design
+  isn't tried again. The page says so once, in place of the refusals it
+  causes, with "להוריד אותם מהכרטיס", which takes every option off
+  (`withoutOptions`: stamps in circles with their glyph, the count back
+  where the saved card had it); the stamp tray and "מאחורי החותמות" say what
+  they hold and offer the same, where their part uses an option. Taken off,
+  the card is today's studio again.
+- **A sync the wallet refused** (`studioProblems.syncProblem`, by the
+  backend's `design_sync_error`): where the options are drawn, the page
+  says the design wasn't accepted and customers' cards stayed as they were,
+  with the server's words folded under it, never "we'll try again by
+  ourselves", which holds only for a wallet that couldn't be reached.
+  Without the options, today's words.
 - **The name on the pass:** the card's own, "שם העסק על הכרטיס"
   (`design.organization_name`), where its design sets one, else the
   business's (backend PR #20, item 5). Apple writes it in the logo row and
@@ -226,6 +244,23 @@ Fixed in Phase 3, except where it says otherwise.
   passbox. Fixed: the stage keeps what it showed. In the same pass, a
   picture whose hero had loaded under Google went to Apple's pass before its
   strip had, and the grid showed for a frame. Fixed: the wallet's own.
+- **What step D found, hardening the studio** (card looks, 6 Nov), all
+  fixed:
+  - on a v0.1.0 wallet a styled card had today's trays, which can't take
+    the options off, and the page said "we'll try again by ourselves" of a
+    refusal that is never retried (the "off" mode above);
+  - a slow drawing was said only under the stage, behind an open tray on a
+    phone;
+  - a sticker search that found nothing said so under the sticky field,
+    out of sight once the field was held at the top of a scrolled tray;
+  - the stamps strip in the reward tray drew tinted stamps in the card's
+    own colour on the card, so they vanished: it shows the sticker, on the
+    stamps' ground where there is one;
+  - at 200% text the wide picture tile in Wallet details squeezed its words
+    off the screen: it is 3rem tall, at most 45% of its row (the same box
+    at 100%);
+  - the check's hint said "this card ticks every stamp" after it was
+    switched off.
 - **The stand-in grid and a drawn strip are different heights.** The grid
   is 54px for six stamps or fewer and 92px for more; Apple's strip is 115px
   and Google's hero 98px. So a card that goes from a sticker to a plain
