@@ -116,23 +116,30 @@ function AdminAccountSheet({
             components={{ email: <bdi dir="ltr" className="font-semibold [overflow-wrap:anywhere]" /> }}
           />
         </p>
+        {/* Each row's words may wrap: the kit's row keeps one line and
+            cuts the rest, and with large text on a phone "Back to app" in
+            Hebrew is wider than the sheet. */}
         <List className="-mx-6 border-y border-border">
           <ListRow
             onClick={() => void i18n.changeLanguage(other)}
             leading={<Languages aria-hidden className="size-5 text-ink-muted" />}
             // The other language's own name, in its own language.
-            title={<span lang={other}>{t("language.switch")}</span>}
+            title={
+              <span lang={other} className="whitespace-normal [overflow-wrap:anywhere]">
+                {t("language.switch")}
+              </span>
+            }
           />
           <ListRow
             to="/dashboard"
             leading={<LayoutDashboard aria-hidden className="size-5 text-ink-muted" />}
-            title={t("admin.backToApp")}
+            title={<span className="whitespace-normal [overflow-wrap:anywhere]">{t("admin.backToApp")}</span>}
             chevron
           />
           <ListRow
             onClick={logout}
             leading={<LogOut aria-hidden className="size-5 text-ink-muted rtl:-scale-x-100" />}
-            title={t("dashboard.nav.signOut")}
+            title={<span className="whitespace-normal [overflow-wrap:anywhere]">{t("dashboard.nav.signOut")}</span>}
           />
         </List>
       </div>

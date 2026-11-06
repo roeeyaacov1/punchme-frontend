@@ -52,8 +52,9 @@ export function LookRow({
   return (
     // The row lays itself out by its own width, in rem, so large text is
     // measured too. Under 30rem its gaps and edges are 8px and 12px, so the
-    // names keep as much of it as they can; under 16rem, which only large
-    // text reaches, the names go under the picture, across the row.
+    // names keep as much of it as they can. Under 16rem, which only large
+    // text reaches, it stacks: the place and the actions on the first line,
+    // then the picture, then the names, each across the row.
     <li className="relative [container-type:inline-size]">
       {litKey !== null && (
         <span
@@ -69,8 +70,10 @@ export function LookRow({
         <span dir="ltr" className="w-5 text-center font-heading font-medium tabular-nums text-ink [@container(min-width:30rem)]:w-6">
           {row.place ?? ""}
         </span>
-        <LookPicture picture={row.picture} />
-        <div className="flex min-w-0 flex-col items-start gap-1 [@container(max-width:16rem)]:col-span-full [@container(max-width:16rem)]:row-start-2">
+        <span className="flex [@container(max-width:16rem)]:col-span-full [@container(max-width:16rem)]:row-start-2">
+          <LookPicture picture={row.picture} />
+        </span>
+        <div className="flex min-w-0 flex-col items-start gap-1 [@container(max-width:16rem)]:col-span-full [@container(max-width:16rem)]:row-start-3">
           <span dir="auto" className="line-clamp-2 font-heading font-medium leading-snug text-ink [overflow-wrap:anywhere]">
             {name}
           </span>
