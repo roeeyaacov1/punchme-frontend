@@ -220,19 +220,8 @@ The invitation link opens `/invite/{token}`, which is public.
 ## Admin: PunchMe staff only
 
 Needs `user.is_staff`, which is not a business role. It is reached from the
-dashboard's account menu, and the API answers 403 to anyone else.
-
-| Route | When | Call | Wrapper |
-|---|---|---|---|
-| `/admin`, `/admin/catalog`: the catalog of ready-made looks | Load | `GET /api/admin/catalog` | `listCatalog` |
-| | Reorder | `POST /api/admin/catalog/reorder` `{ids}` | `reorderCatalog` |
-| | Publish or unpublish | `PATCH /api/admin/catalog/{id}` `{is_published}` | `patchCatalogEntry` |
-| | Delete | `DELETE /api/admin/catalog/{id}` | `deleteCatalogEntry` |
-| `/admin/catalog/:catalogId` (`new` to create): one look | Load, existing | `GET /api/admin/catalog/{id}` | `getCatalogEntry` |
-| | Load, and 400 ms after each edit | `POST /api/admin/catalog/preview` | `previewCatalogDesign` |
-| | Save | `POST /api/admin/catalog` when new, `PATCH /api/admin/catalog/{id}` after | `createCatalogEntry`, `patchCatalogEntry` |
-| | Upload or remove a picture | `POST /api/admin/catalog/{id}/images` (multipart), `DELETE /api/admin/catalog/{id}/images/{use}` | `uploadCatalogImage`, `deleteCatalogImage` |
-| | The shelf, on a published look the server draws, and again after each save: its pictures as the wizard shows them (`pictures`, drawn by a task after the save, so looked for again every 5 s for up to two minutes until they come; backend PR #20, item 1) | `GET /api/presets?niche={niche}` | `getPresets` |
+dashboard's account menu, and the API answers 403 to anyone else. Its pages,
+calls and what must survive are in `docs/admin-pages.md` (6 Nov 2026).
 
 ## Calls no page makes yet
 
