@@ -3,7 +3,8 @@ import { CLAMP, IN_OUT, progress } from "../motion.ts";
 
 /**
  * A phone camera's aiming corners closing on a square: from 150% to its
- * size over `frames`, on the in-out, in ink. `size` is the square's side.
+ * size over `frames`, on the in-out, drawn in the lit panel's white with
+ * an ink shadow, so they read on a dark sign and on the wall. `size` is the square's side.
  */
 export function Brackets({ x, y, size, at, frame, frames = 12, out }: { x: number; y: number; size: number; at: number; frame: number; frames?: number; out?: number }) {
   const lock = progress(frame, at, frames, IN_OUT);

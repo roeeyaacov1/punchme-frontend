@@ -18,6 +18,7 @@ export function Slam({
   off,
   size = 136,
   weight = 700,
+  tone = "ink",
   className,
   style,
   children,
@@ -26,6 +27,8 @@ export function Slam({
   off?: number;
   size?: number;
   weight?: 500 | 700;
+  /** Ink on the light grounds, the lit panel's cream on the dark band. */
+  tone?: "ink" | "light";
   className?: string;
   style?: CSSProperties;
   children: ReactNode;
@@ -38,7 +41,7 @@ export function Slam({
   const kick = KICK[Math.floor(t - at)] ?? 0;
   return (
     <div
-      className={cn("text-balance text-center font-heading text-ink", className)}
+      className={cn("text-balance text-center font-heading", tone === "ink" ? "text-ink" : "text-surface", className)}
       style={{
         fontSize: size,
         fontWeight: weight,

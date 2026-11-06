@@ -4,16 +4,19 @@ import { useHebrew } from "../pieces";
 /**
  * What a beat stands on. The wall and the lit panel are the day palette's
  * grounds; coral and gold are fills that carry ink (5.50:1 and 9.4:1), so a
- * beat on them sets its words in ink like a button's label. A punch that
+ * beat on them sets its words in ink like a button's label. The ink band
+ * is the day palette's dark band, its words in the lit panel's cream
+ * (14.88:1), for the reward, so its gold lights up. A punch that
  * opens onto a different ground reads as a hole.
  */
-export type Ground = "wall" | "panel" | "coral" | "gold";
+export type Ground = "wall" | "panel" | "coral" | "gold" | "ink";
 
 const GROUND_CLASS: Record<Ground, string> = {
   wall: "bg-background",
   panel: "bg-surface",
   coral: "bg-primary",
   gold: "bg-gold",
+  ink: "bg-navy-deep",
 };
 
 /** Large faint stamp rings drifting behind everything, for depth. */
@@ -34,7 +37,7 @@ export function Wall({ ground = "wall" }: { ground?: Ground }) {
       {RINGS.map((ring, index) => (
         <div
           key={index}
-          className="absolute rounded-full border-ink/[0.05]"
+          className={ground === "ink" ? "absolute rounded-full border-surface/[0.05]" : "absolute rounded-full border-ink/[0.05]"}
           style={{
             left: ring.x - ring.r + drift * ring.speed * 6,
             top: ring.y - ring.r + drift * ring.speed * 2,

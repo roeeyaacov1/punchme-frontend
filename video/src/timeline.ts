@@ -67,7 +67,7 @@ export const PUNCH_POINTS: Record<Exclude<BeatId, "hook">, { cx: number; cy: num
   join: { cx: 540, cy: 1000 },
   looks: { cx: 540, cy: 1045 },
   stamps: { cx: 540, cy: 1100 },
-  reward: { cx: 540, cy: 1100 },
+  reward: { cx: 540, cy: 1045 },
   winback: { cx: 540, cy: 1050 },
   proof: { cx: 540, cy: 1150 },
   price: { cx: 540, cy: 1000 },
@@ -84,7 +84,7 @@ export const PUNCHES: PunchAt[] = BEATS.slice(1).map((beat, index) => ({
 /** The tenth stamp, punched on the last beat: the card full. */
 export const FINAL_STAMP = beatStart("end") + 30;
 
-/** Where the tenth is punched: the logo's centre on the end card. */
-export const FINAL_PUNCH: PunchAt = { at: FINAL_STAMP, cx: 540, cy: 760, slot: 9 };
+/** Where the tenth is punched: the middle of the end card, where the button lands. */
+export const FINAL_PUNCH: PunchAt = { at: FINAL_STAMP, cx: 540, cy: 1000, slot: 9 };
 
 export const ALL_PUNCHES: PunchAt[] = [...PUNCHES, FINAL_PUNCH];

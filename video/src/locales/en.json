@@ -17,5 +17,19 @@
     "yourBusiness": "Your business",
     "line1": "Your card.",
     "line2": "Your look."
+  },
+  "stamps": {
+    "line": "Every visit, a stamp."
+  },
+  "reward": {
+    "line1": "Card full.",
+    "line2": "Reward ready."
+  },
+  "winback": {
+    "line": "Then it reminds them to come back.",
+    "badge": "Sample · iPhone"
+  },
+  "price": {
+    "free": "Free to design. You pay once customers can join."
   }
 }

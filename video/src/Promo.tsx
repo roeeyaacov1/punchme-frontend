@@ -7,11 +7,16 @@ import { I18N, type Lang } from "./i18n";
 import { FontGate } from "./pieces";
 import { shake } from "./punch.ts";
 import { Discs, HoleEdges, Punched } from "./stage/Punched";
+import { End } from "./scenes/End";
 import { Hook } from "./scenes/Hook";
 import { Join } from "./scenes/Join";
 import { Looks } from "./scenes/Looks";
+import { Price } from "./scenes/Price";
 import { PromiseScene } from "./scenes/Promise";
-import { Slam } from "./stage/Slam";
+import { Proof } from "./scenes/Proof";
+import { Reward } from "./scenes/Reward";
+import { Stamps } from "./scenes/Stamps";
+import { Winback } from "./scenes/Winback";
 import { Sounds } from "./stage/Sounds";
 import { Strip } from "./stage/Strip";
 import type { Ground } from "./stage/Wall";
@@ -19,28 +24,18 @@ import { BEATS, DURATION, PUNCH, beatStart, type BeatId } from "./timeline.ts";
 
 export { DURATION };
 
-function stub(id: BeatId): ComponentType {
-  return function Stub() {
-    return (
-      <AbsoluteFill className="items-center justify-center">
-        <Slam at={6}>{id}</Slam>
-      </AbsoluteFill>
-    );
-  };
-}
-
 /** Each beat's scene and the ground it stands on. */
 const SCENES: Record<BeatId, { Scene: ComponentType; ground: Ground }> = {
   hook: { Scene: Hook, ground: "wall" },
   promise: { Scene: PromiseScene, ground: "coral" },
   join: { Scene: Join, ground: "wall" },
   looks: { Scene: Looks, ground: "panel" },
-  stamps: { Scene: stub("stamps"), ground: "wall" },
-  reward: { Scene: stub("reward"), ground: "gold" },
-  winback: { Scene: stub("winback"), ground: "wall" },
-  proof: { Scene: stub("proof"), ground: "panel" },
-  price: { Scene: stub("price"), ground: "wall" },
-  end: { Scene: stub("end"), ground: "wall" },
+  stamps: { Scene: Stamps, ground: "wall" },
+  reward: { Scene: Reward, ground: "ink" },
+  winback: { Scene: Winback, ground: "wall" },
+  proof: { Scene: Proof, ground: "panel" },
+  price: { Scene: Price, ground: "wall" },
+  end: { Scene: End, ground: "wall" },
 };
 
 const OPENING = PUNCH.openDelay + PUNCH.open;
