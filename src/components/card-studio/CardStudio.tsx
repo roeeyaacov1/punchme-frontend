@@ -724,6 +724,9 @@ export function CardStudio({
             variant={tray === id ? "ink" : "secondary"}
             aria-expanded={tray === id}
             onClick={() => (tray === id ? close() : open(id))}
+            // "Behind the stamps" is wider than a phone at 200% text: a chip
+            // wraps its words rather than run off the screen.
+            className={mode === "plain" ? undefined : "max-w-full !whitespace-normal text-center"}
           >
             {label}
           </Button>
