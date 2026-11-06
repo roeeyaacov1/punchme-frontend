@@ -49,7 +49,9 @@ export function DeleteLook({
       onClose={() => {
         if (!busy) onClose();
       }}
-      title={t("admin.catalog.delete.title", { name })}
+      // A name of one long unbroken word breaks anywhere rather than run
+      // out of the dialog.
+      title={<span className="[overflow-wrap:anywhere]">{t("admin.catalog.delete.title", { name })}</span>}
       returnFocus={returnFocus}
       footer={
         <>

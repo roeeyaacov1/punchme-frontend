@@ -9,6 +9,7 @@ import {
   patchCatalogEntry,
   reorderCatalog,
 } from "../../api/catalog";
+import { ApiError } from "../../api/errors";
 import { getPresets } from "../../api/presets";
 import {
   Button,
@@ -26,7 +27,16 @@ import { useDocumentTitle } from "../public/useDocumentTitle";
 import { DeleteLook } from "./DeleteLook";
 import { LookActions, type LookAction } from "./LookActions";
 import { reasonKey, rowName, type RowNote } from "./rows";
-import { deleteFact, movedOrder, ranked, shelf as workOut, type Live, type ShelfRow, type TradeShelf } from "./shelf";
+import {
+  deleteFact,
+  movedOrder,
+  ranked,
+  shelf as workOut,
+  STICKERS_PATIENCE_MS,
+  type Live,
+  type ShelfRow,
+  type TradeShelf,
+} from "./shelf";
 import { TradePanel, TradeStatusLine, type RowState } from "./TradePanel";
 
 /** What the last action did, to light its row and say it. */
@@ -40,6 +50,9 @@ type Outcome =
       fromModal: boolean;
     }
   | { kind: "deleted"; key: string; name: string; stamp: number }
+  /** The look wasn't there any more: deleted meanwhile, in another tab or by
+   * someone else. Said in its trade, since its row is gone. */
+  | { kind: "gone"; key: string; name: string; niche: string; stamp: number }
   | {
       kind: "failed";
       key: string;
@@ -93,19 +106,23 @@ export function AdminCatalogListPage() {
     retry: 1,
   });
 
+  // A sticker list that hangs never holds the page: past the wizard's own
+  // patience it reads as the wizard reads it, not answering, until it does.
+  const [patienceOver, setPatienceOver] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setPatienceOver(true), STICKERS_PATIENCE_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const stickersSettled = !stickers.isPending || patienceOver;
+  const available = stickers.isError || stickers.isPending ? null : (stickers.data?.available ?? false);
+
   const now = Math.max(presets.dataUpdatedAt, catalog.dataUpdatedAt);
   const shelf = useMemo(
     () =>
-      catalog.data && presets.data && !stickers.isPending
-        ? workOut({
-            entries: catalog.data,
-            presets: presets.data,
-            available: stickers.isError ? null : (stickers.data?.available ?? false),
-            now,
-            t,
-          })
+      catalog.data && presets.data && stickersSettled
+        ? workOut({ entries: catalog.data, presets: presets.data, available, now, t })
         : null,
-    [catalog.data, presets.data, stickers.isPending, stickers.isError, stickers.data, now, t],
+    [catalog.data, presets.data, stickersSettled, available, now, t],
   );
   useEffect(() => setDrawing(!!shelf?.drawing), [shelf?.drawing]);
 
@@ -227,16 +244,24 @@ export function AdminCatalogListPage() {
           : { kind, key: row.key, name, stamp: stamp.current, fromModal: !!(sheetKey || deleteKey) },
       );
     } catch (error) {
+      // A write the server refused (4xx) was most likely made on a page out
+      // of date, a look added or deleted elsewhere: the list is read again,
+      // so the next try goes right. Not on a 403 or a throttle, nor when
+      // the server or the network failed, where reading again fails too.
+      const status = error instanceof ApiError ? error.status : null;
+      if (status !== null && status >= 400 && status < 500 && status !== 403 && status !== 429) {
+        await refresh().catch(() => undefined);
+      }
       stamp.current += 1;
-      setOutcome({
-        kind: "failed",
-        key: row.key,
-        name,
-        message: t(problemKey(error)),
-        stamp: stamp.current,
-      });
-      focusWish.current = { kind: "actions", key: row.key };
-      deleted.current = action === "delete";
+      if (status === 404) {
+        setOutcome({ kind: "gone", key: row.key, name, niche: trade.niche, stamp: stamp.current });
+        focusWish.current = { kind: "trade", niche: trade.niche };
+        deleted.current = true;
+      } else {
+        setOutcome({ kind: "failed", key: row.key, name, message: t(problemKey(error)), stamp: stamp.current });
+        focusWish.current = { kind: "actions", key: row.key };
+        deleted.current = action === "delete";
+      }
     } finally {
       setBusy(null);
       if (sheetKey || deleteKey) {
@@ -250,7 +275,9 @@ export function AdminCatalogListPage() {
 
   const rowState = (row: ShelfRow): RowState => {
     const unlit = { litKey: null, litAfterModal: false };
-    if (!outcome || outcome.key !== row.key || outcome.kind === "deleted") return { note: null, ...unlit };
+    if (!outcome || outcome.key !== row.key || outcome.kind === "deleted" || outcome.kind === "gone") {
+      return { note: null, ...unlit };
+    }
     if (outcome.kind === "failed") return { note: { kind: "failed", message: outcome.message }, ...unlit };
     const lit = { litKey: outcome.stamp, litAfterModal: outcome.fromModal };
     if (outcome.kind === "unpublished") return { note: { kind: "unpublished" }, ...lit };
@@ -267,6 +294,7 @@ export function AdminCatalogListPage() {
     const name = isolate(placed ? rowName(placed.row) : outcome.name);
     let words: string;
     if (outcome.kind === "deleted") words = t("admin.catalog.deleted", { name });
+    else if (outcome.kind === "gone") words = t("admin.catalog.gone", { name });
     else if (outcome.kind === "failed")
       words = t("admin.catalog.saidAbout", {
         name,
@@ -302,7 +330,10 @@ export function AdminCatalogListPage() {
     heading.focus({ preventScroll: true });
   };
 
-  const failed = catalog.isError || presets.isError;
+  // Only a list never read is a failed page: a read again that fails (the
+  // pictures looked for while a look is drawn, say, with the network gone)
+  // keeps the list it has.
+  const readError = (!catalog.data && catalog.error) || (!presets.data && presets.error) || null;
 
   return (
     // The page lays itself out by the frame's width, in rem, so larger text
@@ -324,18 +355,21 @@ export function AdminCatalogListPage() {
             {shelf && <LiveLine live={shelf.live} />}
           </header>
 
-          {failed ? (
+          {readError ? (
+            // What failed and why, by its cause: no network, the server, the
+            // throttle, or an account no longer staff.
             <Notice
               tone="danger"
               role="alert"
               className="[@container(min-width:60rem)]:col-start-2"
+              title={t("admin.catalog.readFailed")}
               action={
                 <Button variant="secondary" onClick={() => void Promise.all([catalog.refetch(), presets.refetch()])}>
                   {t("common.retry")}
                 </Button>
               }
             >
-              {t("admin.catalog.readFailed")}
+              {t(problemKey(readError))}
             </Notice>
           ) : !shelf ? (
             <ListSkeleton />
@@ -382,6 +416,11 @@ export function AdminCatalogListPage() {
                       else headings.current.delete(trade.niche);
                     }}
                     rowState={rowState}
+                    gone={
+                      outcome?.kind === "gone" && outcome.niche === trade.niche
+                        ? t("admin.catalog.gone", { name: isolate(outcome.name) })
+                        : null
+                    }
                     busy={busy !== null}
                     onActions={(row) => {
                       if (busy) return;
@@ -416,7 +455,9 @@ export function AdminCatalogListPage() {
           onClose={() => {
             if (!busy) setSheetKey(null);
           }}
-          title={<bdi>{rowName(open.row)}</bdi>}
+          // A name of one long unbroken word breaks anywhere rather than
+          // run out of the sheet.
+          title={<bdi className="[overflow-wrap:anywhere]">{rowName(open.row)}</bdi>}
           where={
             open.row.place !== null
               ? t("admin.catalog.place", {

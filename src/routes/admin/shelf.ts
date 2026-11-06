@@ -116,6 +116,14 @@ export interface ShelfInput {
   t: TFunction;
 }
 
+/**
+ * How long the sticker list may take before it counts as not answering:
+ * the wizard's own patience (`LOOKS_PATIENCE_MS` in onboarding's
+ * `DraftContext`), after which an owner gets the wizard without the looks.
+ * The list waits no longer than an owner does.
+ */
+export const STICKERS_PATIENCE_MS = 4000;
+
 /** Which wizard owners get, as the wizard decides it (`looksOffered`). */
 export function liveWizard(available: boolean | null, presets: Preset[]): Live {
   if (available === null) return "unanswered";
