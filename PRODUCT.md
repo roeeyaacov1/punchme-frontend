@@ -76,8 +76,8 @@ plainly what it costs and what it does.
   wallet, then Activate or "Not now".
 - **Bringing customers in.** A printed standee or a shared link puts the
   `/join` QR in front of them. They give a mobile number (name and birthday
-  optional, marketing consent a separate unticked box), confirm an SMS code and
-  add the pass.
+  optional), tick the marketing consent, which joining needs since 1 Nov 2026
+  (its own box, never ticked for them), confirm an SMS code and add the pass.
 - **After they leave.** Automatic rules (win-back, birthday, reward waiting)
   and broadcasts reach the pass, and keep running whether or not the owner
   opens the dashboard. On iPhone a message raises a lock-screen alert. On
@@ -122,8 +122,11 @@ plainly what it costs and what it does.
   rank says no out loud instead of redirecting.
 - **Customer data.** The business controls its customer data and PunchMe
   processes it on the business's behalf. `/join` carries a privacy notice under
-  the Israeli Privacy Protection Law and a separate, unticked marketing consent
-  under the Spam Law. The mobile number must be Israeli.
+  the Israeli Privacy Protection Law and a marketing consent under the Spam
+  Law, in its own box that starts unticked. Since 1 Nov 2026 joining needs it
+  ticked (the club's benefits come as its messages), and withdrawing it later
+  keeps the card and stops the marketing messages. The mobile number must be
+  Israeli.
 - **No tracking.** The site has no analytics.
 - **Routes and API calls are fixed** through the redesign. Each page group's
   contract is in `docs/`.

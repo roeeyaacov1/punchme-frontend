@@ -45,8 +45,9 @@ URLs live in `sources.ts`, keyed by `id`. The copy lives in
 | `harris` | 58% | 58% are less likely to join a loyalty program that makes them download an app (and 79% more likely to join one with no physical card) | Harris Poll for Wilbur, 2019 | How it works, beside the card |
 
 Harris's caveat also carries the survey's other half: people wary of
-programs that collect personal data, and only the mobile number required
-here. HBR's says why it is a range. In Hebrew, a range keeps its own
+programs that collect personal data, the mobile number the only personal
+detail required here, and joining meaning agreeing to the business's
+messages. HBR's says why it is a range. In Hebrew, a range keeps its own
 left-to-right run (`פי <ltr>5–25</ltr>`).
 
 ## The calculator, taken off
@@ -68,7 +69,7 @@ CLAUDE.md still describe it; Roee updates those.
 |---|---|---|
 | Header | – | Logo; the three anchors from 1024px; language toggle; "Sign in" and "Start free" when signed out, "Dashboard" and an account menu when signed in; below 1024px a menu with the same |
 | The counter | – | "Your punch card, in Wallet": no app, no account, no password, free to design, ₪99 a month including VAT once customers can join; "Start free"; the sign, the real pass (`AppleCardPreview` from `heroTemplates.ts`) and the scan's answer, each labelled; a trade switch |
-| How it works | `how-it-works` | The sign (designed free, printed once the code goes live), the card (scan, mobile number and SMS code, Apple Wallet or Google Wallet, the real `GoogleCardPreview`, the 58%), the scan (punched and full answers) |
+| How it works | `how-it-works` | The sign (designed free, printed once the code goes live), the card (scan, mobile number and SMS code, the consent to messages that joining needs, Apple Wallet or Google Wallet, the real `GoogleCardPreview`, the 58%), the scan (punched and full answers) |
 | After they leave | – | A sample lock-screen message; what each phone does; the three automatic rules with their starter settings (30 days, the birthday, 7 days, 10:00, a gift stamp); broadcasts, two a week, with a gift of one to three stamps or a full card, as the composer offers; 6x and 5–25x |
 | The price | `pricing` | Free is the sign with its code not live yet; Pro is ₪99 a month including VAT and what it opens; how to cancel and what cancelling does, in Billing's words |
 | FAQ | `faq` | Eight questions in native `<details>`: no app; what customers give; iPhone and Android; changing phones; adding a stamp; changing the design; the cost; how to stop |
@@ -107,7 +108,12 @@ Phase 9's step B.
   11. (Phase 9) Offers reach only customers who agreed. The join asks for
       that consent in its own box, but a message can be narrowed to them
       only when the owner asks, and not once two customers hold the card,
-      so the page says only that the box exists.
+      so the page says only that the box exists. Since 1 Nov 2026 joining
+      needs the box ticked, and the page had gone on calling it separate
+      and unticked: the card in How it works, the FAQ on what customers
+      give and Harris's caveat now say that joining needs the consent, that
+      the box is never ticked for them, and (the FAQ) that withdrawing it
+      later keeps the card and stops the messages (6 Nov).
   12. (Phase 9) Setup times ("in a minute", "live in minutes") with no
       source are gone.
 - **Wrong FAQ answers** (PRODUCT.md):
