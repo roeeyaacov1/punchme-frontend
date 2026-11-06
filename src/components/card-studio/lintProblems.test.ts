@@ -46,6 +46,9 @@ const WARNINGS = [
 ];
 const CONTACT =
   "merchant.contact: the merchant has no contact details for the back of the pass; add a phone, WhatsApp, email, website or address";
+/** The second line passbox-api v0.1.1 sends about it, on every card. */
+const CONTACT_APPLE =
+  "merchant.contact: the back of the pass has no contact details, which Apple asks for (GUIDE §5.1): set the merchant's contact, or build with a Platform";
 
 describe("readLint", () => {
   it("sets the pictures a save makes aside, saying nothing about them", () => {
@@ -62,6 +65,10 @@ describe("readLint", () => {
 
   it("leaves the wallet's missing-contact warning unsaid: there is nowhere to add one", () => {
     expect(readLint([CONTACT, ...ADVICE])).toEqual({ pending: [], fields: [], advice: ADVICE, other: [] });
+  });
+
+  it("leaves its second missing-contact line, Apple's, unsaid too: never a problem", () => {
+    expect(readLint([CONTACT, CONTACT_APPLE, ...ADVICE])).toEqual({ pending: [], fields: [], advice: ADVICE, other: [] });
   });
 
   it("says a line once, however many times the server sends it", () => {
