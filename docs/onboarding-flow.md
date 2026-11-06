@@ -5,9 +5,10 @@ stores, and the API calls it makes. Written 8 Oct 2026 from `src/main.tsx`,
 `src/routes/onboarding/` and `src/components/onboarding/`, as the input for
 the redesign, and brought up to date by Phase 4's build (30 Oct 2026,
 `docs/redesign/briefs/onboarding.md`), by the map (31 Oct 2026,
-`docs/redesign/briefs/onboarding-map.md`) and by step D's hardening (31 Oct
-2026). Like `docs/dashboard-routes.md`, it says nothing about design on
-purpose.
+`docs/redesign/briefs/onboarding-map.md`), by step D's hardening (31 Oct
+2026) and by the card looks' step B (6 Nov 2026,
+`docs/redesign/briefs/card-looks.md` §7). Like `docs/dashboard-routes.md`,
+it says nothing about design on purpose.
 
 - `{biz}` stands for `/api/businesses/{business_id}`.
 - The last column is the wrapper in `src/api/` (or the hook that calls it).
@@ -384,7 +385,10 @@ which clears the draft and goes to `billing`, and "Continue" once it is.
   matches before the first paint.
 - The card studio and the wizard share the card controls in
   `card-studio/controls` and its `StudioTray`. The reward field's two lines
-  are the studio's too.
+  are the studio's too. A card from a look takes the studio's trays
+  themselves, over the draft (`studioValue.ts`): `BrandColoursTray` (with the
+  look as its `base`), `StampTray`, `BehindTray` and `RewardTray`'s
+  `CountOnCard`. After changing one, check the studio.
 - The `/admin` catalog pages use `LookTile`, `presetLook`, `MAX_LOOKS` and
   `NICHES`.
 - The wizard stands the card-studio Apple and Google previews on the kit's
