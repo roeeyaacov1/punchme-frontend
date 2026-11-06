@@ -30,19 +30,26 @@ export interface StudioBarProps {
    * here too where a tray covers what the stage says, with the way to try
    * again. */
   onRedraw?: () => void;
+  /** A drawing of the draft has been on its way for a while: said here too
+   * where a tray covers the stage's tag, so a choice doesn't look ignored. */
+  drawing?: boolean;
   /** At a tray's foot, where the wallet draws the design options: once large
-   * text leaves the bar narrower than 16rem, it is one row, the count of
-   * changes as a badge, then Save, so the tray keeps room to scroll
-   * (brief §6.9). */
+   * text leaves the bar narrower than 16rem, or the screen shorter than
+   * 36rem, it is one row, the count of changes as a badge, then Save, so the
+   * tray keeps room to scroll (brief §6.9). */
   compact?: boolean;
 }
 
 /** Below this width, in rem, a compact bar stands in one row. */
 const ONE_ROW_REM = 16;
+/** And on a screen shorter than this, in rem: a wide window at 200% text, or
+ * a phone on its side, where three rows of bar would leave the tray little
+ * to scroll. */
+const ONE_ROW_TALL_REM = 36;
 
-/** Whether an element is narrower than `rem`, as text size and the screen
- * change it. */
-function useNarrow(on: boolean, rem: number) {
+/** Whether an element is narrower than `rem`, or the screen shorter than
+ * `tallRem`, as text size and the screen change them. */
+function useNarrow(on: boolean, rem: number, tallRem: number) {
   const ref = useRef<HTMLDivElement>(null);
   const [narrow, setNarrow] = useState(false);
   useLayoutEffect(() => {
@@ -53,15 +60,38 @@ function useNarrow(on: boolean, rem: number) {
     }
     const measure = () => {
       const root = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-      setNarrow(element.clientWidth / root < rem);
+      setNarrow(element.clientWidth / root < rem || window.innerHeight / root < tallRem);
     };
     measure();
-    if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [on, rem]);
+    window.addEventListener("resize", measure);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    observer?.observe(element);
+    return () => {
+      window.removeEventListener("resize", measure);
+      observer?.disconnect();
+    };
+  }, [on, rem, tallRem]);
   return [ref, narrow] as const;
+}
+
+/** A drawing taking long: said quietly at the bar's top, since the stage's
+ * own tag is the one read out. It lights on (the gentle fade with reduced
+ * motion). */
+function DrawingLine() {
+  const { t } = useTranslation();
+  const reduced = useReducedMotion();
+  return (
+    <p
+      aria-hidden
+      className={cn(
+        "flex items-start gap-1.5 text-sm leading-snug text-ink-muted",
+        reduced ? "animate-gentle-in" : "animate-lights-on",
+      )}
+    >
+      <Info aria-hidden className="mt-px size-4 shrink-0" />
+      <span>{t("studio.drawn.drawingBar")}</span>
+    </p>
+  );
 }
 
 /** A drawing of the draft failed: said at the bar's top, with the way to try
@@ -112,13 +142,15 @@ export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function 
     stale,
     sentence,
     onRedraw,
+    drawing = false,
     compact = false,
   },
   saveRef,
 ) {
   const { t } = useTranslation();
   const updateOnly = changes === 0 && !!stale;
-  const [box, narrow] = useNarrow(compact, ONE_ROW_REM);
+  const [box, narrow] = useNarrow(compact, ONE_ROW_REM, ONE_ROW_TALL_REM);
+  const drawingLine = drawing && !onRedraw && <DrawingLine />;
   // Up since its first frame: a line that comes after this is news.
   const [settled, setSettled] = useState(false);
   useEffect(() => setSettled(true), []);
@@ -130,6 +162,7 @@ export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function 
           {saving ? t("studio.bar.saving") : ""}
         </p>
         {onRedraw && <RedrawLine onRedraw={onRedraw} saving={saving} arrive={settled} />}
+        {drawingLine}
         <div className="flex items-center gap-2">
           {/* Discard waits in the bar under the page, a tray's close away. */}
           <Badge>{t("studio.bar.count", { count: changes })}</Badge>
@@ -154,6 +187,7 @@ export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function 
       </p>
       {kept && changes > 0 && <p className="text-sm leading-snug text-ink-muted">{t("studio.kept")}</p>}
       {onRedraw && <RedrawLine onRedraw={onRedraw} saving={saving} arrive={settled} />}
+      {drawingLine}
       {saving ? (
         <p className="type-label text-ink">{t("studio.bar.saving")}</p>
       ) : changes > 0 ? (
