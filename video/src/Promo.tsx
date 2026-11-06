@@ -8,6 +8,7 @@ import { FontGate } from "./pieces";
 import { shake } from "./punch.ts";
 import { Discs, HoleEdges, Punched } from "./stage/Punched";
 import { Slam } from "./stage/Slam";
+import { Sounds } from "./stage/Sounds";
 import { Strip } from "./stage/Strip";
 import type { Ground } from "./stage/Wall";
 import { BEATS, DURATION, PUNCH, beatStart, type BeatId } from "./timeline.ts";
@@ -73,6 +74,7 @@ export function Promo({ lang }: { lang: Lang }) {
             <Strip />
             <Discs />
           </Camera>
+          <Sounds />
         </FontGate>
       </AbsoluteFill>
     </I18nextProvider>

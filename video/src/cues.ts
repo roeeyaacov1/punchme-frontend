@@ -52,14 +52,15 @@ export const MOMENTS = {
   full: FINAL_STAMP + PUNCH.flight,
 } as const;
 
+/** Each sound's level in the mix: the whole mix peaks near -3 dBFS (`scripts/sfx.ts` prints it), headroom for the AAC encode. */
 const VOLUME: Record<string, number> = {
-  punch: 0.9,
-  slam: 0.55,
-  whoosh: 0.35,
-  stamp: 0.6,
-  shutter: 0.5,
-  ding: 0.6,
-  chime: 0.7,
+  punch: 0.68,
+  slam: 0.42,
+  whoosh: 0.27,
+  stamp: 0.45,
+  shutter: 0.38,
+  ding: 0.45,
+  chime: 0.53,
 };
 
 const volumeOf = (sound: Sound) => VOLUME[sound.startsWith("stamp-") ? "stamp" : sound];
