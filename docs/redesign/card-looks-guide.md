@@ -20,10 +20,12 @@ decided once. The build is two branches, one per page group.
 | Backend PR #17 (`wallet/design-options`) | Merged and deployed, 4 Nov. The design doc's new keys, the sticker list (for managers and up, and for staff), styled cards drawn by passbox, and twelve styled catalog looks seeded as drafts |
 | Frontend PR #40 (`studio/design-options`) | Merged 4 Nov, on top of the opening (#42). Every option is a control in the studio's trays and the catalog editor, shown wherever the sticker list says passbox draws them |
 | The false "cards won't update" notice | Fixed on its own by PR #44, merged 4 Nov |
+| Backend PR #20 (the backend's part) | Merged 4 Nov: the brief's items 1–7, among them a published look's pictures, the card's own name on the pass and the picture held for Save |
+| The studio (`looks/studio`) | Merged 6 Nov as PR #45: steps B, C and D and the motion review. Where the wallet draws the options, the trays offer them in an owner's words |
 | The wizard | Still leaves styled looks out: it can offer a look only as its colours |
 
-Brought up to date on the evening of 4 Nov. The input's §5 lists what #40
-and #17 left open.
+Brought up to date on 6 Nov, as the studio merged. The input's §5 lists
+what #40 and #17 left open.
 
 ## How the skills fit
 
@@ -347,7 +349,7 @@ and at 200% text. Commit per part.
 - [x] The decisions step A made itself, kept, and its open questions 1 and 2, yes (4 Nov)
 - [x] #17 and #40 merged (4 Nov). #40 went in on top of the opening (#42). Today's `main` builds, lints and passes its 792 tests, and every key resolves
 - [x] The false "cards won't update" notice, fixed on its own: PR #44, merged 4 Nov
-- [ ] The studio: B (6 Nov, on `looks/studio`, rebuilt from `main` plus the plan's docs against backend `main` with PR #20, so the held picture, the card's own name and a published look's pictures are wired; the first B, of 5 Nov, is kept on `looks/studio-b1`) · C (6 Nov: the stage keeps what it shows while a drawing comes, a new drawing crosses over the last, a failure lights on, the trays on a phone; `/review-animations` next) · D (6 Nov: harden, adapt, clarify, polish and detect; a v0.1.0 wallet's refusal said, with the way to take the options off; the bakery in 13 taps and bubble tea in 7, no hex; `docs/card-studio.md` has what it found) · merged
-- [ ] The backend's part (if needed): PR · merged
+- [x] The studio: B (6 Nov, on `looks/studio`, rebuilt from `main` plus the plan's docs against backend `main` with PR #20, so the held picture, the card's own name and a published look's pictures are wired; the first B, of 5 Nov, is kept on `looks/studio-b1`) · C (6 Nov: the stage keeps what it shows while a drawing comes, a new drawing crosses over the last, a failure lights on, the trays on a phone) · D (6 Nov: harden, adapt, clarify, polish and detect; a v0.1.0 wallet's refusal said, with the way to take the options off; the bakery in 13 taps and bubble tea in 7, no hex; `docs/card-studio.md` has what it found) · `/review-animations` (6 Nov, after D: the crossfade in the exit's 180ms on the ease-out, a second drawing under the one going, the bar's slow line only fading up; checked in Hebrew and English) · merged: PR #45, 6 Nov
+- [x] The backend's part: backend PR #20, items 1–7, merged 4 Nov
 - [ ] The wizard: B · C · D · merged
 - [ ] passbox production on v0.1.1
