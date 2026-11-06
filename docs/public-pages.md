@@ -164,7 +164,9 @@ taking customers".
 - **Details.** "Join this loyalty card"; name (optional, cased on the way out
   of the field); mobile number (required, left to right, `inputMode="tel"`);
   birthday (optional, a date field with its hint); the marketing consent, a
-  separate box that starts unticked; the privacy notice as a
+  separate box that starts unticked and that joining needs ticked since
+  1 Nov 2026 (`optInProblem`, the API's `marketing_consent_required`, both
+  said under the box); the privacy notice as a
   `<details>` line that opens the full text; and the submit button, "Send SMS
   verification code", or "Add to my wallet" when there is no code step.
 - **Code.** "Enter the verification code", "We sent a 6-digit code to
@@ -204,8 +206,8 @@ taking customers".
 **Must survive.**
 
 - The privacy notice under the Privacy Protection Law (s.11), with its full
-  text one tap away, and the marketing consent as its own unticked box
-  (Spam Law). Both in both languages, from the same keys.
+  text one tap away, and the marketing consent as its own box, never ticked
+  for the customer (Spam Law), which joining needs ticked. Both in both languages, from the same keys.
 - The Israeli-number check before any request, and no code requested when
   the code step is off (each request spends the phone's hourly allowance).
 - The name cased on the way out of the field, so the customer sees what the
