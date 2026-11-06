@@ -448,6 +448,9 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
           editingField={editingField}
           onEditingField={setEditingField}
           extraTrays={extraTrays}
+          // Staff author looks with the check on each stamp; owners only meet
+          // it on a card that has it (brief §5, §6.10).
+          markAlways
           sayNameMissing={!isNew || saveTried}
           focusName={nameFocus}
           stickers={studioStickers(stickersQuery)}
