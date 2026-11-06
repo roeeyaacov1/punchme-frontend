@@ -53,3 +53,11 @@ export type DrawFailure = "tooMany" | "failed";
 export function drawFailure(err: unknown): DrawFailure {
   return err instanceof ApiError && err.status === 429 ? "tooMany" : "failed";
 }
+
+/** What a failure says, as one key: why, and what stands in the drawing's
+ * place, the look's own picture (`own`) or, where the catalog has none for
+ * the card, the circles. */
+export function failureKey(failure: DrawFailure, own: boolean): string {
+  if (failure === "tooMany") return own ? "onboarding.look.tooMany" : "onboarding.look.tooManyCircles";
+  return own ? "onboarding.look.drawFailed" : "onboarding.look.drawFailedCircles";
+}

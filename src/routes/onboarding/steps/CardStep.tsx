@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type AnimationEvent, type ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowRight, Check, Gift, Pencil } from "lucide-react";
+import { ArrowRight, Check, Gift, Info, Pencil } from "lucide-react";
 import { StudioTray } from "../../../components/card-studio/StudioTray";
 import { rewardForRow } from "../../../components/card-studio/studioDraft";
 import { Button, focusRingInset, Tab, TabList, TabPanel, Tabs, useReducedMotion } from "../../../components/kit";
@@ -10,7 +10,7 @@ import { wrapButton } from "../../../components/onboarding/largeText";
 import { StepHeading, StepShell } from "../../../components/onboarding/StepShell";
 import { useWide } from "../../../components/onboarding/useWide";
 import { cn } from "../../../lib/cn";
-import { CardStage, type StageHandle } from "../CardStage";
+import { CardStage, DrawingFailed, type StageDrawing, type StageHandle } from "../CardStage";
 import {
   buildTemplateInput,
   draftPreviewValue,
@@ -115,6 +115,10 @@ export function CardStep() {
   );
   const [businessAsked, setBusinessAsked] = useState(emptied);
   const [trayHeight, setTrayHeight] = useState(0);
+  // A card from a look is the wallet's drawing: what it is doing, said
+  // again at a tray's foot, since on a phone the tray covers the stage's
+  // own words, so a choice never looks ignored.
+  const [drawing, setDrawing] = useState<StageDrawing | null>(null);
   // Counted up when something asks for the reward field: it takes focus as
   // soon as its tray or tab is there to hold it.
   const [rewardWanted, setRewardWanted] = useState(0);
@@ -619,6 +623,7 @@ export function CardStep() {
             onPart={(part) => (wide ? showTab(part) : open(part))}
             lit={showing}
             land={landing}
+            onDrawing={setDrawing}
           />
         }
         under={under}
@@ -693,7 +698,22 @@ export function CardStep() {
             trayKey={trayPart ?? ""}
             onClose={close}
             onHeight={setTrayHeight}
-            foot={walkButton(trayPart)}
+            foot={
+              // The line's place comes first and is kept, so the button
+              // under it is never mounted again as it comes and goes.
+              <>
+                {drawing?.failure ? (
+                  <DrawingFailed drawing={drawing} className="mb-3 animate-gentle-in" />
+                ) : drawing?.slow ? (
+                  // The stage's own tag is the one read out.
+                  <p aria-hidden className="mb-3 flex animate-gentle-in items-start gap-1.5 text-sm leading-snug text-ink-muted">
+                    <Info aria-hidden className="mt-px size-4 shrink-0" />
+                    <span>{t("onboarding.look.drawingBar")}</span>
+                  </p>
+                ) : null}
+                {walkButton(trayPart)}
+              </>
+            }
             start={
               tray === "reward" && asked
                 ? rewardField
