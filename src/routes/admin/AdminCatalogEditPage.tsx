@@ -452,6 +452,10 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
           focusName={nameFocus}
           stickers={studioStickers(stickersQuery)}
           pictures={pictures}
+          onRedraw={() => {
+            asked.current = null;
+            setDrawn(null);
+          }}
           onSample={setSample}
           notices={
             isStyled(draft.design) && Object.keys(art).length > 0 ? (

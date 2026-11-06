@@ -1,6 +1,6 @@
 import { forwardRef, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { CircleAlert } from "lucide-react";
+import { CircleAlert, Info } from "lucide-react";
 import { cn } from "../../lib/cn";
 import { Button } from "../kit/Button";
 import { linkText } from "../kit/classes";
@@ -24,6 +24,10 @@ export interface StudioBarProps {
   /** What the changes are, when the page says it otherwise: a catalog look
    * is on no customer's card. */
   sentence?: string;
+  /** A drawing of the draft failed, and the stage shows the saved card: said
+   * here too where a tray covers what the stage says, with the way to try
+   * again. */
+  onRedraw?: () => void;
 }
 
 /**
@@ -37,7 +41,7 @@ export interface StudioBarProps {
  * icon, and announced where it happened; focus stays on Save.
  */
 export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function StudioBar(
-  { changes, saving, onSave, onDiscard, problem, kept, fieldProblems = 0, onFieldProblems, stale, sentence },
+  { changes, saving, onSave, onDiscard, problem, kept, fieldProblems = 0, onFieldProblems, stale, sentence, onRedraw },
   saveRef,
 ) {
   const { t } = useTranslation();
@@ -49,6 +53,17 @@ export const StudioBar = forwardRef<HTMLButtonElement, StudioBarProps>(function 
         {saving ? t("studio.bar.saving") : ""}
       </p>
       {kept && changes > 0 && <p className="text-sm leading-snug text-ink-muted">{t("studio.kept")}</p>}
+      {onRedraw && (
+        <p className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
+          <Info aria-hidden className="mt-px size-4 shrink-0" />
+          <span>
+            {t("studio.drawn.failedBar")}{" "}
+            <button type="button" onClick={onRedraw} disabled={saving} className={cn(linkText, "text-start")}>
+              {t("studio.drawn.retry")}
+            </button>
+          </span>
+        </p>
+      )}
       {saving ? (
         <p className="type-label text-ink">{t("studio.bar.saving")}</p>
       ) : changes > 0 ? (

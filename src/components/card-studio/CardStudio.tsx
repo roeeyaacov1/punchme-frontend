@@ -7,7 +7,14 @@ import { focusRingInset, noTapFlash } from "../kit/classes";
 import { useReducedMotion } from "../kit/motion";
 import { Tab, TabList, TabPanel, Tabs } from "../kit/Tabs";
 import type { StampPicture } from "./controls";
-import { designOptions, studioMode, withOption, type DrawnCard, type StudioStickers } from "./designOptions";
+import {
+  designOptions,
+  studioMode,
+  withOption,
+  type DrawnCard,
+  type SavedPicture,
+  type StudioStickers,
+} from "./designOptions";
 import type { LintReading } from "./lintProblems";
 import { StudioBar, type StudioBarProps } from "./StudioBar";
 import { StudioStage, type CardPart, type StageHandle, type Wallet } from "./StudioStage";
@@ -262,6 +269,11 @@ export interface CardStudioProps {
   /** The catalog editor: the check on each stamp is always offered, as staff
    * author looks with it. Owners only meet it on a card that has it. */
   markAlways?: boolean;
+  /** The saved card's own picture, out of the design read: the stage shows
+   * it when a drawing of the draft fails. */
+  savedPicture?: SavedPicture | null;
+  /** Ask for a drawing that failed again. */
+  onRedraw?: () => void;
 }
 
 /**
@@ -309,6 +321,8 @@ export function CardStudio({
   onSample,
   hasLogo = false,
   markAlways = false,
+  savedPicture,
+  onRedraw,
 }: CardStudioProps) {
   const { t } = useTranslation();
   const [wide, studioBox] = useStudioWide();
@@ -322,6 +336,7 @@ export function CardStudio({
   const [trayHeight, setTrayHeight] = useState(0);
   const [barHeight, setBarHeight] = useState(0);
   const [shownTray, setShownTray] = useState(tray);
+  const [stageFailed, setStageFailed] = useState(false);
   // The tray the card was last fitted above, and how tall it was then.
   const fitted = useRef<{ tray: string; height: number } | null>(null);
   // Save found no name: Names starts at the name field, until it closes or
@@ -540,7 +555,9 @@ export function CardStudio({
   };
 
   const { drawn: barDrawn, props: barProps, phase: barPhase } = useBarPresence(bar, reduced);
-  const studioBar = <StudioBar ref={saveRef} {...barProps} />;
+  // On a phone a tray covers what the stage says of a failed drawing, so the
+  // bar at its foot says it too.
+  const studioBar = <StudioBar ref={saveRef} {...barProps} onRedraw={!wide && !!tray && stageFailed ? onRedraw : undefined} />;
 
   const sampleRow = (
     // Quick taps on + land one stamp each, never a double-tap zoom.
@@ -626,6 +643,10 @@ export function CardStudio({
       busy={busy}
       pictures={pictures}
       hasLogo={hasLogo}
+      saved={saved}
+      savedPicture={savedPicture}
+      onRedraw={onRedraw}
+      onFailed={setStageFailed}
     />
   );
 
