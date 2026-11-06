@@ -129,12 +129,11 @@ describe("a draft from a look", () => {
 
   it("writes the look's options into the design, the count's field at the top with it", () => {
     const doc = design(lookDraft(), "he");
-    expect(doc.stamp).toEqual({ glyph: "scissors", color: "#C88A11", style: "badge", sticker: "scissors", tint: false });
+    expect(doc.stamp).toEqual({ glyph: "scissors", color: "#C88A11", sticker: "scissors" });
     expect(doc.panel_color).toBe("#1A1F38");
     expect(doc.wallpaper).toBe("sparkles");
     expect(doc.stamps_place).toBe("header");
     expect(doc.stamps_format).toBe("fraction");
-    expect(doc.logo_text).toBe(false);
     expect(doc.fields?.find((f) => f.binding === "members.member.points")?.section).toBe("HEADER_FIELDS");
     // The wizard's own fields, in the card's language (Roee, 6 Nov).
     expect(doc.fields?.[0].label).toBe("onboarding.card.fields.name.barber");
@@ -143,14 +142,27 @@ describe("a draft from a look", () => {
     expect(doc.fields?.[1].change_message).toBe("onboarding.card.fields.pointsChange");
   });
 
-  it("fills an option the draft doesn't say at its default, and a missing ground as none", () => {
-    const draft: OnboardingDraft = { ...lookDraft(), options: { sticker: "croissant" }, panel: null };
+  it("writes only the options that are on: one the draft doesn't say, or says at its default, has no key", () => {
+    const draft: OnboardingDraft = {
+      ...lookDraft(),
+      options: { sticker: "croissant", style: "badge", tint: false, stamps_format: "count", logo_text: false },
+      panel: null,
+    };
     const doc = design(draft);
-    expect(doc.stamp?.style).toBe("badge");
-    expect(doc.panel_color).toBe("");
-    expect(doc.wallpaper).toBe("");
-    expect(doc.stamps_place).toBe("secondary");
+    expect(doc.stamp).toEqual({ glyph: "scissors", color: "#C88A11", sticker: "croissant" });
+    for (const key of ["panel_color", "wallpaper", "stamps_place", "stamps_format", "logo_text"]) {
+      expect(doc).not.toHaveProperty(key);
+    }
     expect(doc.fields?.[1].section).toBe("SECONDARY_FIELDS");
+    const on = design({ ...lookDraft(), options: { style: "icon", tint: true, logo_text: true } });
+    expect(on.stamp).toMatchObject({ style: "icon", tint: true });
+    expect(on.logo_text).toBe(true);
+  });
+
+  it("saves a look with every option off as the card before the options, which every wallet takes", () => {
+    const off: OnboardingDraft = { ...lookDraft(), options: {}, panel: null };
+    const classic: OnboardingDraft = { ...off, look: undefined, options: undefined, panel: undefined };
+    expect(design(off)).toEqual(design(classic));
   });
 
   it("keeps the look's label colour, and takes the card's when it has none", () => {
