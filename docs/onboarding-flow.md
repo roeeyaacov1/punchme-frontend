@@ -122,7 +122,10 @@ all follow that one decision.
   - the stamp: `StampTray`, the trade's stickers first, more with a search, a
     plain symbol and a picture of one's own, the tint, and in a circle or on
     its own, with "Ground and pattern" (`BehindTray`) folded at its foot.
-    With a picture, a line says the card shows it in circles here;
+    With a picture, a line says the card shows it in circles here, and no
+    sticker reads as chosen under it: the picture is the stamp, and any
+    sticker tapped, the last one included, takes its place, a lost
+    picture's too;
   - the reward: as before, and "The count on the card" (`CountOnCard`).
 
   The trade's classic look is never written over a card from a look. A

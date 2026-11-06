@@ -2,7 +2,7 @@ import { useId, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, Info, TriangleAlert } from "lucide-react";
 import { StampPicker, TexturePicker } from "../../../../components/card-studio/controls";
-import { studioMode } from "../../../../components/card-studio/designOptions";
+import { studioMode, withStamp } from "../../../../components/card-studio/designOptions";
 import { BehindTray } from "../../../../components/card-studio/trays/BehindTray";
 import { StampTray } from "../../../../components/card-studio/trays/StampTray";
 import { focusRing } from "../../../../components/kit";
@@ -114,7 +114,12 @@ function LookStamp({
 }) {
   const { t, i18n } = useTranslation();
   const { resolved, update, artUrl, stickers, templateInput } = useOnboardingDraft();
-  const shown = studioValueOf(resolved, i18n.resolvedLanguage ?? "en", t, templateInput.name);
+  const card = studioValueOf(resolved, i18n.resolvedLanguage ?? "en", t, templateInput.name);
+  // A picture is the stamp, drawn before any sticker: under one, no sticker
+  // reads as chosen, so tapping any of them, the last one included, takes
+  // the picture's place. One whose pixels this device lost is chosen again
+  // that way too.
+  const shown = picture ? withStamp(card, { sticker: "" }) : card;
   return (
     <>
       <StampTray
