@@ -408,7 +408,12 @@ export function resolveDraft(
  * wizard's own, in the card's language). The count at the top takes its
  * field to the header, as the studio's `withStampsPlace` does. A classic
  * card writes none of them, so its doc, and the save's fingerprint, are
- * what they were. */
+ * what they were.
+ *
+ * Only the options that are on are written, as the studio's
+ * `withoutOptions` leaves a card: a wallet that draws none of them refuses
+ * even their defaults' keys, and a look with every option off is then the
+ * card before the options, which every wallet takes. */
 export function buildDesignDoc(resolved: ResolvedDraft, lang: string, t: TFunction): DesignDoc {
   const glyph = resolved.stamp.kind === "glyph" ? resolved.stamp.glyph : "check";
   const niche = resolved.niche;
@@ -446,12 +451,18 @@ export function buildDesignDoc(resolved: ResolvedDraft, lang: string, t: TFuncti
   if (!options) return doc;
   return {
     ...doc,
-    stamp: { glyph, color: resolved.accent, style: options.style, sticker: options.sticker, tint: options.tint },
-    panel_color: resolved.panel ?? "",
-    wallpaper: options.wallpaper,
-    stamps_place: options.stamps_place,
-    stamps_format: options.stamps_format,
-    logo_text: options.logo_text,
+    stamp: {
+      glyph,
+      color: resolved.accent,
+      ...(options.style !== "badge" && { style: options.style }),
+      ...(options.sticker && { sticker: options.sticker }),
+      ...(options.tint && { tint: true }),
+    },
+    ...(resolved.panel && { panel_color: resolved.panel }),
+    ...(options.wallpaper && { wallpaper: options.wallpaper }),
+    ...(options.stamps_place === "header" && { stamps_place: "header" }),
+    ...(options.stamps_format !== "count" && { stamps_format: options.stamps_format }),
+    ...(options.logo_text && { logo_text: true }),
   };
 }
 

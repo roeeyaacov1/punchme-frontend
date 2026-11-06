@@ -234,10 +234,12 @@ all follow that one decision.
     - `panel`, the ground behind the stamps, and `label`, the label colour;
     - `logo`, the logo's hash.
 
-    A card from a look writes them into its design; the fields stay the
-    wizard's own, in the card's language (Roee, 6 Nov 2026). A classic card
-    writes none of them, so its design and its save's fingerprint are as
-    before.
+    A card from a look writes the options that are on into its design; the
+    fields stay the wizard's own, in the card's language (Roee, 6 Nov 2026).
+    An option at its default has no key, as the studio's `withoutOptions`
+    leaves a card, so a look with every option off saves as a card from
+    before them, which a wallet that draws none takes. A classic card writes
+    none of them, so its design and its save's fingerprint are as before.
 - Anything that isn't `v: 1` is discarded. A bad field is dropped on its own,
   without throwing away the rest of the draft.
 - It is cleared at exactly four points:
