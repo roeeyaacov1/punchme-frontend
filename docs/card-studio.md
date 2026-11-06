@@ -94,7 +94,8 @@ type drifts, while the barcode plates hold at any width.
 and its trays) is built on the same controls and the same `StudioTray`
 (Phase 4), and a card from a look on the studio's own trays (`BrandColoursTray`
 with the look's colours as its `base`, `StampTray`, `BehindTray`,
-`CountOnCard`; the card looks' wizard, step B, in `docs/onboarding-flow.md`). Like the studio's stage, its card is the map: `CardStage` lays
+`CountOnCard`, and the trays' `onTakeOff` where the wallet draws none of
+the options; the card looks' wizard, step B, in `docs/onboarding-flow.md`). Like the studio's stage, its card is the map: `CardStage` lays
 places of its own over the pass's rows (the name opens the business, the
 stamps the stamp, the count the reward) and outlines the open part, measured
 from the frozen previews and never drawn on them.

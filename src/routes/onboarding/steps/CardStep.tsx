@@ -24,6 +24,7 @@ import { defaultRewards, numberedDefault, withTradeLook } from "../looks";
 import { MAP, openMove, TRAY_ROUTE, type TrayState } from "../mapHistory";
 import { useStorageFull } from "../storageCheck";
 import { StorageNotice } from "../StorageNotice";
+import { LookOffNotice } from "./card/LookOffNotice";
 import { useOnboardingDraft } from "../useOnboardingDraft";
 import { businessMissing, nextUnseen, partAtAddress, seenOf, walkDone } from "../walk";
 import { BusinessPanel } from "./card/BusinessPanel";
@@ -603,7 +604,12 @@ export function CardStep() {
           // A tray the map opens by itself takes focus to its own heading.
           <StepHeading title={t("onboarding.map.title")} lead={t("onboarding.map.lead")} autoFocus={wide || !tray} />
         }
-        notice={<StorageNotice full={storageFull} />}
+        notice={
+          <>
+            <LookOffNotice />
+            <StorageNotice full={storageFull} />
+          </>
+        }
         card={
           <CardStage
             ref={stage}

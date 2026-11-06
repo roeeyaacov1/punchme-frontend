@@ -450,6 +450,19 @@ export function lookChoicePatch(
   return patch;
 }
 
+/**
+ * A card from a look made a card from before the looks, where the wallet
+ * draws none of the options (`studioMode` "off"; the studio's
+ * `withoutOptions`). The look goes, with its options, its ground and its
+ * label colour, which today's wizard leaves to the card, and the wizard is
+ * today's again, exactly. The name, the colours, the stamp's symbol or
+ * picture, the texture, the count, the reward and the logo stay: none of
+ * them is an option.
+ */
+export function withoutLook(): Partial<OnboardingDraft> {
+  return { look: undefined, options: undefined, panel: undefined, label: undefined };
+}
+
 /** The count is the owner's once it isn't what the last look set. */
 function ownCount(draft: OnboardingDraft, presets: Preset[] | undefined): boolean {
   if (draft.stampsRequired === null) return false;

@@ -2,7 +2,7 @@ import { useId, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, Info, TriangleAlert } from "lucide-react";
 import { StampPicker, TexturePicker } from "../../../../components/card-studio/controls";
-import { studioMode, withStamp } from "../../../../components/card-studio/designOptions";
+import { behindUsesOptions, studioMode, withStamp } from "../../../../components/card-studio/designOptions";
 import { BehindTray } from "../../../../components/card-studio/trays/BehindTray";
 import { StampTray } from "../../../../components/card-studio/trays/StampTray";
 import { focusRing } from "../../../../components/kit";
@@ -11,6 +11,7 @@ import { hashDataUrl } from "../../../../lib/stampArt";
 import { NICHE_GLYPH } from "../../draft";
 import { draftPatchOf, studioValueOf } from "../../studioValue";
 import { useOnboardingDraft } from "../../useOnboardingDraft";
+import { useLookOff } from "../../useLookOff";
 
 /**
  * The stamp: one of the sixteen symbols, the trade's first, or a picture of
@@ -23,7 +24,8 @@ import { useOnboardingDraft } from "../../useOnboardingDraft";
  * On a card from a look, the studio's own stamp tray (brief §7.4): the
  * trade's stickers first, more stickers with a search, a plain symbol and a
  * picture of one's own, the tint, and in a circle or on its own; and folded
- * at its foot, what stands behind the stamps.
+ * at its foot, what stands behind the stamps. Where the wallet draws none of
+ * the options the card has, both say so and take them off (`useLookOff`).
  */
 export function StampPanel({
   storageFull,
@@ -36,11 +38,19 @@ export function StampPanel({
   /** A symbol or a picture picked: it lands on the card. */
   onPick?: () => void;
 }) {
-  const { t } = useTranslation();
-  const { draft, resolved, update, setArt, artUrl } = useOnboardingDraft();
+  const { t, i18n } = useTranslation();
+  const { draft, resolved, update, setArt, artUrl, stickers, templateInput } = useOnboardingDraft();
   const [notKept, setNotKept] = useState(false);
   const picture = resolved.stamp.kind === "image";
   const lost = picture && !artUrl;
+  // "Ground and pattern" where the studio has "Behind the stamps": the
+  // wallet draws the options, the list can't be read on a card that has
+  // them, or the card stands something behind its stamps that only they
+  // draw. Otherwise the texture, as today.
+  const design = draft.look ? studioValueOf(resolved, i18n.resolvedLanguage ?? "en", t, templateInput.name).design : null;
+  const mode = design ? studioMode(stickers, design) : "plain";
+  const behind =
+    !!design && (mode === "options" || mode === "outage" || (mode === "off" && behindUsesOptions(design)));
 
   const takePicture = (dataUrl: string) => {
     const hash = hashDataUrl(dataUrl);
@@ -86,7 +96,7 @@ export function StampPanel({
           </p>
         )}
       </div>
-      {draft.look ? (
+      {behind ? (
         <BehindFold />
       ) : (
         <TexturePicker
@@ -114,6 +124,7 @@ function LookStamp({
 }) {
   const { t, i18n } = useTranslation();
   const { resolved, update, artUrl, stickers, templateInput } = useOnboardingDraft();
+  const { takeOff } = useLookOff();
   const card = studioValueOf(resolved, i18n.resolvedLanguage ?? "en", t, templateInput.name);
   // A picture is the stamp, drawn before any sticker: under one, no sticker
   // reads as chosen, so tapping any of them, the last one included, takes
@@ -141,6 +152,7 @@ function LookStamp({
         stickers={stickers.list}
         stickersStatus={stickers.status}
         savedDesign={{}}
+        onTakeOff={takeOff}
       />
       {picture && artUrl && (
         <p className="flex items-start gap-1.5 text-sm leading-snug text-ink-muted">
@@ -159,6 +171,7 @@ function BehindFold() {
   const id = useId();
   const [open, setOpen] = useState(false);
   const { resolved, update, stickers, templateInput } = useOnboardingDraft();
+  const { takeOff } = useLookOff();
   const shown = studioValueOf(resolved, i18n.resolvedLanguage ?? "en", t, templateInput.name);
   const mode = studioMode(stickers, shown.design);
   return (
@@ -186,6 +199,7 @@ function BehindFold() {
             stripPicture={false}
             pictureInUse={resolved.stamp.kind === "image"}
             outage={mode === "outage" ? "unread" : mode === "off" ? "off" : undefined}
+            onTakeOff={takeOff}
           />
         </div>
       )}

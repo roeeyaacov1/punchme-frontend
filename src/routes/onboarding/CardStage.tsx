@@ -24,6 +24,7 @@ import { cn } from "../../lib/cn";
 import { MAX_STAMPS, type MapPart, type Niche } from "./draft";
 import { drawBody } from "./drawing";
 import { lookPreview } from "./looks";
+import { useLookOff } from "./useLookOff";
 import { useStageWallet } from "./stageWallet";
 import { useLookDrawing } from "./useLookDrawing";
 import { useOnboardingDraft } from "./useOnboardingDraft";
@@ -112,23 +113,31 @@ export const CardStage = forwardRef<
   const cut = crop === "top" && !wide;
   const slot = useRef<HTMLDivElement>(null);
 
-  // The draft's own card from a look is the wallet's drawing of it.
-  const body = useMemo(() => (given || !draft.look ? null : drawBody(resolved, wallet)), [given, draft.look, resolved, wallet]);
+  // The draft's own card from a look is the wallet's drawing of it. Where
+  // the wallet draws none of the options the card has, every drawing would
+  // fail: none is asked, and the card shows as its look, as on a failed
+  // drawing, with nothing said under it, since the notice over it says why.
+  const { off } = useLookOff();
+  const body = useMemo(
+    () => (given || !draft.look || off ? null : drawBody(resolved, wallet)),
+    [given, draft.look, off, resolved, wallet],
+  );
   const drawing = useLookDrawing(body);
   const lang = i18n.resolvedLanguage ?? "en";
   const itself = useMemo(() => {
-    const look = drawing.failure ? presets?.find((preset) => preset.id === draft.look) : undefined;
+    const look = drawing.failure || off ? presets?.find((preset) => preset.id === draft.look) : undefined;
     return look ? lookPreview(look, draft, presets, lang, t, templateInput.name) : null;
-  }, [drawing.failure, presets, draft, lang, t, templateInput.name]);
+  }, [drawing.failure, off, presets, draft, lang, t, templateInput.name]);
   const preview = useMemo((): CardPreviewValue => {
     if (given) return given;
+    if (off) return itself ?? drafted;
     if (!body) return drafted;
     if (drawing.failure) return itself ?? drafted;
     const picture = drawing.picture;
     if (!picture || picture.role !== body.role) return drafted;
     const states = { [String(drafted.currentStamps)]: picture.url };
     return { ...drafted, unsaved: false, ...(picture.role === "hero" ? { heroStates: states } : { stripStates: states }) };
-  }, [given, body, drafted, drawing.failure, drawing.picture, itself]);
+  }, [given, off, body, drafted, drawing.failure, drawing.picture, itself]);
   const [boxes, setBoxes] = useState<Partial<Record<MapPart, Box>>>({});
 
   const shown = useMemo<CardPreviewValue>(
