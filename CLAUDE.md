@@ -220,9 +220,12 @@ Already in place and must survive any redesign: skip link, visible focus rings
 
 ## Verification
 
-There are **no component or render tests** — the 65 test files cover pure logic
+There are **no component or render tests** — the 71 test files cover pure logic
 only: the API client, the calculator, the onboarding draft and its road, the
 walk over the card's parts and the history its trays keep, the trades' looks,
+the card looks in the draft, a look's name and what picking one writes, the
+road with the looks, the draft as the studio's trays take it, a look's
+drawing and its failures, the save's writes and what it resumes,
 onboarding's failures said by cause, whether the device kept the draft, what
 a sheet let go of does, the language a first visit opens in, the dashboard's
 navigation by role, the tour and where
