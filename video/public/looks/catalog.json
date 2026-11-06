@@ -1,0 +1,539 @@
+[
+  {
+    "id": "barber-gold-scissors",
+    "niche": "barber",
+    "name": "Gold Scissors Card",
+    "description": "Scissors in gold circles on a dark panel with sparkles, the count on top",
+    "stamps_required": 10,
+    "reward_description": "התספורת העשירית חינם",
+    "background_color": "#0E1120",
+    "foreground_color": "#FFFFFF",
+    "label_color": "#C88A11",
+    "design": {
+      "stamp": {
+        "color": "#C88A11",
+        "glyph": "scissors",
+        "style": "badge",
+        "sticker": "scissors"
+      },
+      "fields": [
+        {
+          "label": "שם",
+          "binding": "person.displayName",
+          "section": "SECONDARY_FIELDS",
+          "alignment": "LEFT",
+          "default_value": ""
+        },
+        {
+          "label": "תספורות",
+          "binding": "members.member.points",
+          "section": "HEADER_FIELDS",
+          "alignment": "RIGHT",
+          "default_value": "0",
+          "change_message": "עודכנו החותמות שלך: %@"
+        },
+        {
+          "label": "מידע",
+          "binding": "universal.info",
+          "section": "BACK_FIELDS",
+          "alignment": "NATURAL",
+          "default_value": "התספורת העשירית חינם"
+        }
+      ],
+      "barcode": {
+        "format": "QR",
+        "payload": "${pid}",
+        "alt_text": ""
+      },
+      "pattern": "none",
+      "wallpaper": "sparkles",
+      "panel_color": "#1A1F38",
+      "stamps_place": "header",
+      "stamps_format": "fraction",
+      "default_language": "HE"
+    },
+    "options": {
+      "style": "badge",
+      "mark": "none",
+      "sticker": "scissors",
+      "tint": false,
+      "panel_color": "#1A1F38",
+      "wallpaper": "sparkles",
+      "stamps_place": "header",
+      "stamps_format": "fraction",
+      "logo_text": false
+    },
+    "pictures": {
+      "strip": "looks/barber-gold-scissors-strip.png",
+      "hero": "looks/barber-gold-scissors-hero.png"
+    }
+  },
+  {
+    "id": "cafe-bakery-croissants",
+    "niche": "cafe",
+    "name": "Bakery Card",
+    "description": "Croissants in the card's colour on a cream panel, a wheat wallpaper, the count on top",
+    "stamps_required": 8,
+    "reward_description": "המאפה התשיעי חינם",
+    "background_color": "#C65D3B",
+    "foreground_color": "#FFFFFF",
+    "label_color": "#FFFFFF",
+    "design": {
+      "stamp": {
+        "tint": true,
+        "color": "#C65D3B",
+        "glyph": "check",
+        "style": "icon",
+        "sticker": "croissant"
+      },
+      "fields": [
+        {
+          "label": "שם",
+          "binding": "person.displayName",
+          "section": "SECONDARY_FIELDS",
+          "alignment": "LEFT",
+          "default_value": ""
+        },
+        {
+          "label": "התקדמות",
+          "binding": "members.member.points",
+          "section": "HEADER_FIELDS",
+          "alignment": "RIGHT",
+          "default_value": "0",
+          "change_message": "עודכנו החותמות שלך: %@"
+        },
+        {
+          "label": "מידע",
+          "binding": "universal.info",
+          "section": "BACK_FIELDS",
+          "alignment": "NATURAL",
+          "default_value": "המאפה התשיעי חינם"
+        }
+      ],
+      "barcode": {
+        "format": "QR",
+        "payload": "${pid}",
+        "alt_text": ""
+      },
+      "pattern": "none",
+      "wallpaper": "sheaf-of-rice",
+      "panel_color": "#F6E7CB",
+      "stamps_place": "header",
+      "stamps_format": "fraction",
+      "default_language": "HE"
+    },
+    "options": {
+      "style": "icon",
+      "mark": "none",
+      "sticker": "croissant",
+      "tint": true,
+      "panel_color": "#F6E7CB",
+      "wallpaper": "sheaf-of-rice",
+      "stamps_place": "header",
+      "stamps_format": "fraction",
+      "logo_text": false
+    },
+    "pictures": {
+      "strip": "looks/cafe-bakery-croissants-strip.png",
+      "hero": "looks/cafe-bakery-croissants-hero.png"
+    }
+  },
+  {
+    "id": "cafe-count-on-top",
+    "niche": "cafe",
+    "name": "Café Card, Count on Top",
+    "description": "Coffee glyphs with a check on a light panel, the count on top as 8/8",
+    "stamps_required": 8,
+    "reward_description": "הקפה השמיני חינם",
+    "background_color": "#4B2E1E",
+    "foreground_color": "#FFFFFF",
+    "label_color": "#D2B48C",
+    "design": {
+      "stamp": {
+        "color": "#4B2E1E",
+        "glyph": "coffee",
+        "style": "icon"
+      },
+      "fields": [
+        {
+          "label": "שם",
+          "binding": "person.displayName",
+          "section": "SECONDARY_FIELDS",
+          "alignment": "LEFT",
+          "default_value": ""
+        },
+        {
+          "label": "חותמות",
+          "binding": "members.member.points",
+          "section": "HEADER_FIELDS",
+          "alignment": "RIGHT",
+          "default_value": "0",
+          "change_message": "עודכנו החותמות שלך: %@"
+        },
+        {
+          "label": "מידע",
+          "binding": "universal.info",
+          "section": "BACK_FIELDS",
+          "alignment": "NATURAL",
+          "default_value": "הקפה השמיני חינם"
+        }
+      ],
+      "barcode": {
+        "format": "QR",
+        "payload": "${pid}",
+        "alt_text": ""
+      },
+      "pattern": "none",
+      "panel_color": "#F5EFE6",
+      "stamps_place": "header",
+      "stamps_format": "fraction",
+      "default_language": "HE"
+    },
+    "options": {
+      "style": "icon",
+      "mark": "none",
+      "sticker": "",
+      "tint": false,
+      "panel_color": "#F5EFE6",
+      "wallpaper": "",
+      "stamps_place": "header",
+      "stamps_format": "fraction",
+      "logo_text": false
+    },
+    "pictures": {
+      "strip": "looks/cafe-count-on-top-strip.png",
+      "hero": "looks/cafe-count-on-top-hero.png"
+    }
+  },
+  {
+    "id": "cafe-dark-cups",
+    "niche": "cafe",
+    "name": "Bubble Tea Card",
+    "description": "Bubble tea cups on a dark card, the empty ones faded",
+    "stamps_required": 10,
+    "reward_description": "המשקה העשירי חינם",
+    "background_color": "#1E1E1E",
+    "foreground_color": "#FFFFFF",
+    "label_color": "#B5B5B5",
+    "design": {
+      "stamp": {
+        "color": "#FFFFFF",
+        "glyph": "coffee",
+        "style": "icon",
+        "sticker": "bubble-tea"
+      },
+      "fields": [
+        {
+          "label": "שם",
+          "binding": "person.displayName",
+          "section": "SECONDARY_FIELDS",
+          "alignment": "LEFT",
+          "default_value": ""
+        },
+        {
+          "label": "משקאות",
+          "binding": "members.member.points",
+          "section": "SECONDARY_FIELDS",
+          "alignment": "RIGHT",
+          "default_value": "0",
+          "change_message": "עודכנו החותמות שלך: %@"
+        },
+        {
+          "label": "מידע",
+          "binding": "universal.info",
+          "section": "BACK_FIELDS",
+          "alignment": "NATURAL",
+          "default_value": "המשקה העשירי חינם"
+        }
+      ],
+      "barcode": {
+        "format": "QR",
+        "payload": "${pid}",
+        "alt_text": ""
+      },
+      "pattern": "none",
+      "default_language": "HE"
+    },
+    "options": {
+      "style": "icon",
+      "mark": "none",
+      "sticker": "bubble-tea",
+      "tint": false,
+      "panel_color": "",
+      "wallpaper": "",
+      "stamps_place": "secondary",
+      "stamps_format": "count",
+      "logo_text": false
+    },
+    "pictures": {
+      "strip": "looks/cafe-dark-cups-strip.png",
+      "hero": "looks/cafe-dark-cups-hero.png"
+    }
+  },
+  {
+    "id": "cafe-latte-cups",
+    "niche": "cafe",
+    "name": "Latte Card",
+    "description": "Coffee cups in their own colours on a white panel",
+    "stamps_required": 10,
+    "reward_description": "הקפה העשירי חינם",
+    "background_color": "#9C6B4E",
+    "foreground_color": "#FFFFFF",
+    "label_color": "#FFFFFF",
+    "design": {
+      "stamp": {
+        "color": "#5A3A28",
+        "glyph": "coffee",
+        "style": "icon",
+        "sticker": "hot-beverage"
+      },
+      "fields": [
+        {
+          "label": "שם",
+          "binding": "person.displayName",
+          "section": "SECONDARY_FIELDS",
+          "alignment": "LEFT",
+          "default_value": ""
+        },
+        {
+          "label": "כוסות קפה",
+          "binding": "members.member.points",
+          "section": "SECONDARY_FIELDS",
+          "alignment": "RIGHT",
+          "default_value": "0",
+          "change_message": "עודכנו החותמות שלך: %@"
+        },
+        {
+          "label": "מידע",
+          "binding": "universal.info",
+          "section": "BACK_FIELDS",
+          "alignment": "NATURAL",
+          "default_value": "הקפה העשירי חינם"
+        }
+      ],
+      "barcode": {
+        "format": "QR",
+        "payload": "${pid}",
+        "alt_text": ""
+      },
+      "pattern": "none",
+      "panel_color": "#FFFFFF",
+      "default_language": "HE"
+    },
+    "options": {
+      "style": "icon",
+      "mark": "none",
+      "sticker": "hot-beverage",
+      "tint": false,
+      "panel_color": "#FFFFFF",
+      "wallpaper": "",
+      "stamps_place": "secondary",
+      "stamps_format": "count",
+      "logo_text": false
+    },
+    "pictures": {
+      "strip": "looks/cafe-latte-cups-strip.png",
+      "hero": "looks/cafe-latte-cups-hero.png"
+    }
+  },
+  {
+    "id": "other-hearts",
+    "niche": "other",
+    "name": "Hearts Card",
+    "description": "Hearts in their own colours on a blush panel, the count on top",
+    "stamps_required": 8,
+    "reward_description": "הטבה בביקור השמיני",
+    "background_color": "#7A1F3D",
+    "foreground_color": "#FFFFFF",
+    "label_color": "#F0DCC0",
+    "design": {
+      "stamp": {
+        "color": "#7A1F3D",
+        "glyph": "heart",
+        "style": "icon",
+        "sticker": "red-heart"
+      },
+      "fields": [
+        {
+          "label": "שם",
+          "binding": "person.displayName",
+          "section": "SECONDARY_FIELDS",
+          "alignment": "LEFT",
+          "default_value": ""
+        },
+        {
+          "label": "חותמות",
+          "binding": "members.member.points",
+          "section": "HEADER_FIELDS",
+          "alignment": "RIGHT",
+          "default_value": "0",
+          "change_message": "עודכנו החותמות שלך: %@"
+        },
+        {
+          "label": "מידע",
+          "binding": "universal.info",
+          "section": "BACK_FIELDS",
+          "alignment": "NATURAL",
+          "default_value": "הטבה בביקור השמיני"
+        }
+      ],
+      "barcode": {
+        "format": "QR",
+        "payload": "${pid}",
+        "alt_text": ""
+      },
+      "pattern": "none",
+      "panel_color": "#FFF1F2",
+      "stamps_place": "header",
+      "stamps_format": "fraction",
+      "default_language": "HE"
+    },
+    "options": {
+      "style": "icon",
+      "mark": "none",
+      "sticker": "red-heart",
+      "tint": false,
+      "panel_color": "#FFF1F2",
+      "wallpaper": "",
+      "stamps_place": "header",
+      "stamps_format": "fraction",
+      "logo_text": false
+    },
+    "pictures": {
+      "strip": "looks/other-hearts-strip.png",
+      "hero": "looks/other-hearts-hero.png"
+    }
+  },
+  {
+    "id": "therapist-lotus",
+    "niche": "therapist",
+    "name": "Lotus Card",
+    "description": "Lotus flowers in their own colours on a white panel",
+    "stamps_required": 6,
+    "reward_description": "הטיפול השישי חינם",
+    "background_color": "#312E81",
+    "foreground_color": "#FFFFFF",
+    "label_color": "#D9D6FE",
+    "design": {
+      "stamp": {
+        "color": "#312E81",
+        "glyph": "leaf",
+        "style": "icon",
+        "sticker": "lotus"
+      },
+      "fields": [
+        {
+          "label": "שם",
+          "binding": "person.displayName",
+          "section": "SECONDARY_FIELDS",
+          "alignment": "LEFT",
+          "default_value": ""
+        },
+        {
+          "label": "טיפולים",
+          "binding": "members.member.points",
+          "section": "SECONDARY_FIELDS",
+          "alignment": "RIGHT",
+          "default_value": "0",
+          "change_message": "עודכנו החותמות שלך: %@"
+        },
+        {
+          "label": "מידע",
+          "binding": "universal.info",
+          "section": "BACK_FIELDS",
+          "alignment": "NATURAL",
+          "default_value": "הטיפול השישי חינם"
+        }
+      ],
+      "barcode": {
+        "format": "QR",
+        "payload": "${pid}",
+        "alt_text": ""
+      },
+      "pattern": "none",
+      "panel_color": "#FFFFFF",
+      "default_language": "HE"
+    },
+    "options": {
+      "style": "icon",
+      "mark": "none",
+      "sticker": "lotus",
+      "tint": false,
+      "panel_color": "#FFFFFF",
+      "wallpaper": "",
+      "stamps_place": "secondary",
+      "stamps_format": "count",
+      "logo_text": false
+    },
+    "pictures": {
+      "strip": "looks/therapist-lotus-strip.png",
+      "hero": "looks/therapist-lotus-hero.png"
+    }
+  },
+  {
+    "id": "trainer-trophies",
+    "niche": "trainer",
+    "name": "Trophy Card",
+    "description": "Trophies in their own colours on a navy card with a faint trophy wallpaper",
+    "stamps_required": 12,
+    "reward_description": "אימון אחד חינם",
+    "background_color": "#12455F",
+    "foreground_color": "#FFFFFF",
+    "label_color": "#5ED3C3",
+    "design": {
+      "stamp": {
+        "color": "#5ED3C3",
+        "glyph": "dumbbell",
+        "style": "icon",
+        "sticker": "trophy"
+      },
+      "fields": [
+        {
+          "label": "שם",
+          "binding": "person.displayName",
+          "section": "SECONDARY_FIELDS",
+          "alignment": "LEFT",
+          "default_value": ""
+        },
+        {
+          "label": "אימונים",
+          "binding": "members.member.points",
+          "section": "SECONDARY_FIELDS",
+          "alignment": "RIGHT",
+          "default_value": "0",
+          "change_message": "עודכנו החותמות שלך: %@"
+        },
+        {
+          "label": "מידע",
+          "binding": "universal.info",
+          "section": "BACK_FIELDS",
+          "alignment": "NATURAL",
+          "default_value": "אימון אחד חינם"
+        }
+      ],
+      "barcode": {
+        "format": "QR",
+        "payload": "${pid}",
+        "alt_text": ""
+      },
+      "pattern": "none",
+      "wallpaper": "trophy",
+      "default_language": "HE"
+    },
+    "options": {
+      "style": "icon",
+      "mark": "none",
+      "sticker": "trophy",
+      "tint": false,
+      "panel_color": "",
+      "wallpaper": "trophy",
+      "stamps_place": "secondary",
+      "stamps_format": "count",
+      "logo_text": false
+    },
+    "pictures": {
+      "strip": "looks/trainer-trophies-strip.png",
+      "hero": "looks/trainer-trophies-hero.png"
+    }
+  }
+]
