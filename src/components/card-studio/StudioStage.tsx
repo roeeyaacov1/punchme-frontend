@@ -232,8 +232,18 @@ export const StudioStage = forwardRef<
   // On a failure, the saved card as it is, with the pictures it has: none of
   // the held ones, which haven't reached it.
   const card = onFailure ? saved! : value;
+  // The name every pass carries is the card's own where its design sets one
+  // (backend PR #20, item 5): Apple writes it in the logo row. Google's
+  // issuer line reads it from the design itself, and its program line is
+  // "{business} - {card}" with the business's own name, as the backend sends.
+  const passName = wallet === "apple" ? card.design.organization_name?.trim() || businessName : businessName;
+  // A logo the server drew from the name, not the owner's own, says the name
+  // the card was saved with: while the draft names it otherwise, the row
+  // prints the new name, as the next save draws it.
+  const renamed =
+    !hasLogo && (card.design.organization_name?.trim() ?? "") !== (saved?.design.organization_name?.trim() ?? "");
   const preview: CardPreviewValue = {
-    businessName,
+    businessName: passName,
     cardName: card.name,
     stampsRequired: card.stamps_required,
     currentStamps: shownCount,
@@ -243,7 +253,7 @@ export const StudioStage = forwardRef<
     labelColor: card.label_color,
     design: card.design,
     logoUrl: (onFailure ? undefined : held.logo) ?? shown(images.logo),
-    appleLogoUrl: (onFailure ? undefined : held.logo) ?? shown(images.apple_logo),
+    appleLogoUrl: (onFailure ? undefined : held.logo) ?? (renamed ? undefined : shown(images.apple_logo)),
     stampArtUrl: (onFailure ? undefined : stampPicture) ?? images.stamp_art,
     stampedArtUrl: (onFailure ? undefined : held.stamped_art) ?? images.stamped_art,
     unstampedArtUrl: (onFailure ? undefined : held.unstamped_art) ?? images.unstamped_art,
