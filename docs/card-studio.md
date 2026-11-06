@@ -99,7 +99,7 @@ from the frozen previews and never drawn on them.
 
 | Concern | Onboarding | Studio |
 |---|---|---|
-| Card colour | `CardColourPicker`: the trade's looks (colours only), the same 10 backgrounds, one's own | `CardColourPicker`: the 6 palettes as ready looks, the 10 backgrounds, one's own |
+| Card colour | `CardColourPicker`: the trade's looks (colours only), the same 10 backgrounds, one's own | `CardColourPicker`: the 6 palettes as ready looks, the 10 backgrounds, one's own. With the design options (`BrandColoursTray`): no palettes; the business colour (the 10 backgrounds, one's own), then the colours that follow it, each with "שינוי" (`brandColours.ts`) |
 | Stamp colour | `StampColourPicker` | `StampColourPicker`: the swatches that clear 3:1, and one's own with a warning under it |
 | Glyph and texture | `StampPicker` and `TexturePicker` | `StampPicker` (the trade's glyph first) and `TexturePicker` |
 | Stamp picture | Cropped in the browser, kept on the device, uploaded at save | Cropped in the browser, held until Save |
