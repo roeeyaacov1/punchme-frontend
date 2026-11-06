@@ -20,6 +20,13 @@ import { uploadTemplateImage } from "../../api/designs";
 import { ApiError } from "../../api/errors";
 import { dataUrlToFile } from "../../lib/stampArt";
 import { fingerprint, type CommittedRecord, type OnboardingDraft, type ResolvedDraft } from "./draft";
+import { PictureNotTaken } from "./problems";
+
+/** A picture kept on the device, by its hash. */
+interface KeptPicture {
+  hash: string;
+  dataUrl: string;
+}
 
 export interface CommitContext {
   draft: OnboardingDraft;
@@ -29,11 +36,14 @@ export interface CommitContext {
   input: CardTemplateIn;
   /** The picture to upload as stamp_art, when the stamp is a picture. Null
    * for a glyph. */
-  art: { hash: string; dataUrl: string } | null;
+  art: KeptPicture | null;
+  /** The logo to upload as `logo`, when a card from a look has one on this
+   * device (card looks, brief §7.5). */
+  logo?: KeptPicture | null;
   queryClient: QueryClient;
   /** Persist progress into the draft as it happens (business created →
-   * template created), so a retry after a lost response resumes rather
-   * than duplicates. */
+   * template created → each picture uploaded), so a retry after a lost
+   * response or a failed upload resumes rather than duplicates. */
   saveCommitted: (record: CommittedRecord) => void;
   /** A returning owner who already had a card chose to replace its design. */
   replaceExisting?: boolean;
@@ -62,15 +72,45 @@ function seedCaches(queryClient: QueryClient, business: Business, template: Card
   void queryClient.invalidateQueries({ queryKey: ["design", template.id] });
 }
 
-async function uploadArt(businessId: string, templateId: string, art: CommitContext["art"]) {
-  if (!art) return;
-  await uploadTemplateImage(businessId, templateId, "stamp_art", dataUrlToFile(art.dataUrl, "stamp"));
+/** One picture uploaded, its failure said as that picture's. */
+async function upload(businessId: string, templateId: string, use: "logo" | "stamp_art", picture: KeptPicture) {
+  try {
+    await uploadTemplateImage(businessId, templateId, use, dataUrlToFile(picture.dataUrl, use === "logo" ? "logo" : "stamp"));
+  } catch (err) {
+    throw new PictureNotTaken(use, err);
+  }
+}
+
+/**
+ * The card's pictures that this save hasn't uploaded yet: the logo, then
+ * the stamp's picture, each once. The record is kept after each, so a retry
+ * uploads only what is left.
+ */
+async function uploadPictures(
+  record: CommittedRecord,
+  { art, logo }: Pick<CommitContext, "art" | "logo">,
+  saveCommitted: CommitContext["saveCommitted"],
+): Promise<CommittedRecord> {
+  let kept = record;
+  if (logo && logo.hash !== (kept.logoHash ?? null)) {
+    await upload(kept.businessId, kept.templateId!, "logo", logo);
+    kept = { ...kept, logoHash: logo.hash };
+    saveCommitted(kept);
+  }
+  if (art && art.hash !== kept.artHash) {
+    await upload(kept.businessId, kept.templateId!, "stamp_art", art);
+    kept = { ...kept, artHash: art.hash };
+    saveCommitted(kept);
+  }
+  return kept;
 }
 
 export async function commitDraft(ctx: CommitContext): Promise<CommitOutcome> {
   const { draft, resolved, input, art, queryClient, saveCommitted } = ctx;
+  const logo = ctx.logo ?? null;
   const fp = fingerprint(input);
   const artHash = art?.hash ?? null;
+  const logoHash = logo?.hash ?? null;
 
   let business = await getMyBusinessOrNull();
 
@@ -115,25 +155,26 @@ export async function commitDraft(ctx: CommitContext): Promise<CommitOutcome> {
 
   if (!template) {
     template = await createTemplate(businessId, input);
-    await uploadArt(businessId, template.id!, art);
-    seedCaches(queryClient, business, template);
-    saveCommitted({
+    // The card exists before its pictures do: kept now, so a retry after a
+    // picture that didn't go uploads only the pictures, onto this card.
+    const created: CommittedRecord = {
       businessId,
       templateId: template.id!,
       fingerprint: fp,
-      artHash,
+      artHash: null,
+      ...(logo ? { logoHash: null } : {}),
       syncBaseline: template.design_synced_at ?? null,
       errorBaseline: "",
-    });
+    };
+    saveCommitted(created);
+    await uploadPictures(created, { art, logo }, saveCommitted);
+    seedCaches(queryClient, business, template);
     return { kind: "ready", businessId, templateId: template.id! };
   }
 
   // The template exists — ours from an earlier pass, or adopted above.
-  const unchanged =
-    committed !== null &&
-    committed.templateId === template.id &&
-    committed.fingerprint === fp &&
-    committed.artHash === artHash;
+  const sameCard = committed !== null && committed.templateId === template.id && committed.fingerprint === fp;
+  const unchanged = sameCard && committed.artHash === artHash && (committed.logoHash ?? null) === logoHash;
   if (unchanged) {
     seedCaches(queryClient, business, template);
     return { kind: "ready", businessId, templateId: template.id! };
@@ -142,20 +183,25 @@ export async function commitDraft(ctx: CommitContext): Promise<CommitOutcome> {
   if (business.name !== resolved.name || business.niche !== resolved.niche) {
     business = await patchBusiness(businessId, { name: resolved.name, niche: resolved.niche });
   }
-  const patched = await patchTemplate(businessId, template.id!, input);
-  if (art && artHash !== committed?.artHash) {
-    await uploadArt(businessId, template.id!, art);
-  }
-  seedCaches(queryClient, business, patched);
-  saveCommitted({
+  // Only the pictures left to upload: the card itself is as it was saved.
+  const patched = sameCard ? template : await patchTemplate(businessId, template.id!, input);
+  const record: CommittedRecord = {
     businessId,
     templateId: patched.id!,
     fingerprint: fp,
-    artHash,
+    // A picture is the same one once its hash is; a stamp that is no longer
+    // a picture has none to keep.
+    artHash: art && committed?.artHash === art.hash ? art.hash : null,
+    ...(logo || committed?.logoHash ? { logoHash: logo && committed?.logoHash === logo.hash ? logo.hash : null } : {}),
     // The PATCH queues a fresh sync; whatever timestamp the row carries now
     // is the OLD one, and the wallet step must wait for a newer one.
-    syncBaseline: patched.design_synced_at ?? committed?.syncBaseline ?? null,
+    syncBaseline: sameCard
+      ? (committed?.syncBaseline ?? null)
+      : (patched.design_synced_at ?? committed?.syncBaseline ?? null),
     errorBaseline: "",
-  });
+  };
+  saveCommitted(record);
+  await uploadPictures(record, { art, logo }, saveCommitted);
+  seedCaches(queryClient, business, patched);
   return { kind: "ready", businessId, templateId: patched.id! };
 }

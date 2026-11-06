@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ApiError } from "../../api/errors";
-import { checkoutProblemKey, saveProblem } from "./problems";
+import { checkoutProblemKey, PictureNotTaken, saveProblem } from "./problems";
 
 const card = { name: "Rothschild Coffee" };
 
@@ -33,6 +33,30 @@ describe("saveProblem", () => {
 
   it("never reads the error's own words", () => {
     expect(saveProblem(new Error("Unprocessable Entity"), card)).toEqual({ key: "dashboard.problem.other" });
+  });
+});
+
+describe("saveProblem: a picture that didn't upload", () => {
+  const refused = new ApiError(422, "file can't be decoded as an image", "invalid_image");
+
+  it("places a refused logo on the logo, and a refused stamp's picture on the stamp", () => {
+    expect(saveProblem(new PictureNotTaken("logo", refused), card)).toEqual({
+      key: "onboarding.account.problem.logo",
+      fix: "logo",
+    });
+    expect(saveProblem(new PictureNotTaken("stamp_art", refused), card)).toEqual({
+      key: "onboarding.account.problem.picture",
+      fix: "stamp",
+    });
+  });
+
+  it("says any other failure of an upload by its cause, as a save's", () => {
+    expect(saveProblem(new PictureNotTaken("logo", new TypeError("Failed to fetch")), card)).toEqual({
+      key: "dashboard.problem.offline",
+    });
+    expect(saveProblem(new PictureNotTaken("stamp_art", new ApiError(500, "Internal Server Error")), card)).toEqual({
+      key: "dashboard.problem.server",
+    });
   });
 });
 

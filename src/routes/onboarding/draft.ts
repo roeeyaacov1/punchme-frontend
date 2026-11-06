@@ -63,6 +63,9 @@ export interface CommittedRecord {
   fingerprint: string;
   /** Which picture was uploaded as stamp_art, if any. */
   artHash: string | null;
+  /** Which logo was uploaded, if any. Absent on a record from before the
+   * looks, which uploaded none. */
+  logoHash?: string | null;
   /** `design_synced_at` right after create/PATCH: the wallet step waits for
    * a sync *newer* than this, or it would trust last time's PNGs. */
   syncBaseline: string | null;
@@ -168,6 +171,7 @@ function parseCommitted(value: unknown): CommittedRecord | null {
     templateId: typeof raw.templateId === "string" ? raw.templateId : null,
     fingerprint: typeof raw.fingerprint === "string" ? raw.fingerprint : "",
     artHash: typeof raw.artHash === "string" ? raw.artHash : null,
+    ...("logoHash" in raw ? { logoHash: typeof raw.logoHash === "string" ? raw.logoHash : null } : {}),
     syncBaseline: typeof raw.syncBaseline === "string" ? raw.syncBaseline : null,
     errorBaseline: typeof raw.errorBaseline === "string" ? raw.errorBaseline : "",
   };
