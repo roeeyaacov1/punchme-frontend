@@ -26,6 +26,7 @@ export function TradeStatusLine({ status }: { status: TradeStatus }) {
 export interface RowState {
   note: RowNote | null;
   litKey: number | null;
+  litAfterModal: boolean;
 }
 
 /**
@@ -63,6 +64,7 @@ export function TradePanel({
         row={look}
         note={state.note}
         litKey={state.litKey}
+        litAfterModal={state.litAfterModal}
         busy={busy}
         onActions={() => onActions(look)}
         onPublishAgain={() => onPublishAgain(look)}
