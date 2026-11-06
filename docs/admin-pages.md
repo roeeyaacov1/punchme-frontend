@@ -59,16 +59,25 @@ RootLayout
 | Any 401 | `POST /api/auth/refresh`, then the request is retried once | `apiFetch` |
 | Sign out | `POST /api/auth/logout` `{refresh}`, not awaited; then `/login` | `revokeRefreshToken` (`AuthProvider.logout`) |
 
-It shows the area's name, a "Staff" badge, the signed-in email, "Back to
-app" (`/dashboard`), the language switch (Hebrew and English, the same
-saved choice as the rest of the app) and sign-out. It reads no business.
+It stands on Lightbox by day only, from the first paint (`index.html` lists
+`/admin` with the public pages). A bar shows PunchMe's mark (a link to
+`/admin`), a "Staff" tag, and an account button that opens a sheet with the
+signed-in email, the language switch (Hebrew and English, the same saved
+choice as the rest of the app), "Back to app" (`/dashboard`) and sign-out.
+It reads no business.
 
 ## The refusal: signed in, not staff
 
-No call of its own: the account came with `/api/auth/me`. It shows "Staff
-area", a sentence naming the signed-in email, and "Back to app"
+| When | Call | Wrapper |
+|---|---|---|
+| Sign in with another account | `POST /api/auth/logout` `{refresh}`, not awaited; `ProtectedRoute` then sends the page to `/login` with `state.from`, and signing in comes back to `/admin` | `revokeRefreshToken` (`AuthProvider.logout`) |
+
+The account came with `/api/auth/me`. On Lightbox, it shows "Staff area",
+that the area is for PunchMe staff, the signed-in email and that it has no
+staff access, then "Sign in with another account" and "Back to app"
 (`/dashboard`). It is `RequireStaff` itself, in `src/auth`, which is frozen:
-what it renders changes only with Roee's yes, and its logic stays as it is.
+its rendering moved with Roee's yes (6 Nov, the brief's §6), and its logic
+stays as it is.
 
 ## `/admin` and `/admin/catalog`: the catalog
 
@@ -78,22 +87,25 @@ editor's back link goes to `/admin/catalog`.
 | When | Call | Wrapper |
 |---|---|---|
 | Load | `GET /api/admin/catalog`: every entry, published and draft, by `sort_order` then name. Each carries its card (colours, count, reward, `design`), `niche`, `description`, `is_published` and `art_uses`, the picture slots that are filled (the pictures themselves only come with one entry) | `listCatalog`, query `["admin-catalog"]` |
-| Publish or unpublish | `PATCH /api/admin/catalog/{id}` `{is_published}`, then the list again | `patchCatalogEntry` |
-| Move up or down | `POST /api/admin/catalog/reorder` `{ids}`: every id in the list, two of them swapped; then the list again | `reorderCatalog` |
-| Delete, once confirmed | `DELETE /api/admin/catalog/{id}`, then the list again | `deleteCatalogEntry` |
-| New, Edit | Links to `/admin/catalog/new` and `/admin/catalog/{id}` | none |
+| Load | `GET /api/presets`, public: every trade's published looks, in the wizard's order, with their pictures. Again every 5 s while a look is being drawn, for up to two minutes after its last save | `getPresets`, query `["presets"]` (the wizard's own key) |
+| Load | `GET /api/admin/catalog/stickers`: whether the wallet draws the design options (`available`), so which wizard owners get. Kept for the tab, retried once | `getCatalogStickers`, query `["stickers"]` (the editor's key) |
+| Publish or unpublish | `PATCH /api/admin/catalog/{id}` `{is_published}`, then the list's first two reads again | `patchCatalogEntry` |
+| Move (to first, up one, down one), inside its trade | `POST /api/admin/catalog/reorder` `{ids}`: every id in the list, the trade's offered looks swapped among the places they hold and every other where it was; then the list's first two reads again | `reorderCatalog` |
+| Delete, once confirmed in the page | `DELETE /api/admin/catalog/{id}`, then the list's first two reads again | `deleteCatalogEntry` |
+| New, New for this trade, Edit | Links to `/admin/catalog/new` (with the trade in router state, `niche`, from a trade's panel) and `/admin/catalog/{id}` | none |
 
-Added for the rework, with Roee's yes (6 Nov 2026,
-`docs/redesign/briefs/admin.md` §6): the list also reads `GET
-/api/presets` (`getPresets`, every trade at once: each published look's
-pictures, and so which ones the wizard shows) and `GET
-/api/admin/catalog/stickers` (`getCatalogStickers`: whether the wizard
-opens on the looks). Both are calls the editor already makes.
+The two later reads were added for the rework, with Roee's yes (6 Nov 2026,
+`docs/redesign/briefs/admin.md` §6). Both are calls the editor already
+makes. A write reads the presets again as well as the catalog, because the
+wizard's order and pictures come from them.
 
-Worked out in the browser, with no call: each look's sketch (`LookTile`
-over `presetLook` from `routes/onboarding/looks.ts`), the mark on a look
-that carries pictures, and the count of published looks per trade against
-`MAX_LOOKS` (three).
+Worked out in the browser, with no call: `routes/admin/shelf.ts`, tested,
+through the wizard's own `routes/onboarding/looks.ts` and nothing else
+(`looksOffered`, `listedTrades`, `drawnLooks`, `looksFor`, `lookName`,
+`readyLooks`, `presetLook`): which wizard owners get, each trade's looks in
+the order and under the names owners meet them, and why the wizard leaves
+each other look out (the brief's §7.6). A sticker list that fails reads as
+the wizard reads it: the wizard without the looks.
 
 What the server does with these, which the page relies on:
 - **A delete never touches a business's card.** A card made from a look is
@@ -149,6 +161,12 @@ trays of the catalog's own:
   look it says to save once first, since pictures are stored against the
   look's id.
 
+Its head, with no call of its own: the name owners read for a drawn look
+(`lookName`, over the `["presets", niche]` read above), the name staff typed
+under it, then the look's trade, whether it is published and, while the
+wizard opens on the looks, its place in the trade; then its id. A new look
+opened from a trade's panel starts in that trade (router state `niche`).
+
 ## Calls no page makes
 
 | Call | Wrapper |
@@ -169,7 +187,8 @@ trays of the catalog's own:
 - **The frame is not `DashboardLayout`**, and it is light only: night is
   for the dashboard (CLAUDE.md).
 - **Publish, reorder and delete keep their calls**, the delete confirmed
-  first, and the list read again after each.
+  first in the page (never `window.confirm`), and the list read again
+  after each. A failed write is said on its row.
 - **The order staff set is the order the wizard offers.**
 - **The editor:**
   - keyed by its id;
@@ -181,7 +200,8 @@ trays of the catalog's own:
   - the studio's own rules, per `docs/card-studio.md`.
 - **The query keys.** `["admin-catalog"]`, which the editor refreshes after
   each save and picture, and `["presets"]`, which it refreshes after each
-  save.
+  save. The list reads under `["admin-catalog"]`, `["presets"]` and
+  `["stickers"]`.
 - **Copy that other pages read.**
   - `admin.catalog.art.uses.*` and `admin.catalog.art.removeNamed`: the
     owner's studio too (`WalletDetailsTray`, `UploadTile`).
@@ -191,7 +211,11 @@ trays of the catalog's own:
 
 ## Found while writing this
 
-Left for the rework (`docs/redesign/briefs/admin.md`):
+Left for the rework (`docs/redesign/briefs/admin.md`). Step B (7 Nov) fixed
+all but the last: a failed write is said on its row, a list that can't be
+read says so with a way to try again, the list is the wizard's own shelf
+through `shelf.ts`, each look is shown as its picture, and the id is only
+in the editor.
 
 - **A failed publish, reorder or delete says nothing.** The three mutations
   have no error handling: the row stays as it was, with no word of why.

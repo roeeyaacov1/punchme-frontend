@@ -49,6 +49,7 @@ it keeps and checks.
 9. What step B keeps, touches and checks
 10. Open questions for Roee
 11. Left for other phases
+12. What step B did differently
 
 ---
 
@@ -648,6 +649,43 @@ nothing reads them). Kept as they are: `admin.title`, `badge`,
   `/admin` (`LookTile` included) and leaves the files.
 - The `["stickers"]` query key shared with the owner's studio (contract,
   "Found while writing this").
+
+## 12. What step B did differently
+
+Built 7 Nov, with Roee's yes to the plan. Where it departs from §7 and §8:
+
+- **Publish doesn't move a look to its trade's end.** That would take a
+  reorder after the patch, and publish keeps its one call. The look takes
+  the place its order gives it, so one unpublished and published again gets
+  its old place back, and its row says the place.
+- **A fourth live line,** for a wallet that draws but has no published look
+  drawn yet, where "the wallet isn't drawing" would be false
+  (`admin.catalog.live.notDrawnYet`).
+- **A fifth reason,** a plain published look past the three the wizard
+  without the looks offers, shown by neither wizard
+  (`admin.catalog.reasons.beyondThree`).
+- **A third delete fact,** for a published look the wizard doesn't show
+  (`admin.catalog.delete.notShown`); a polite "{name} deleted." after a
+  delete; the index's label (`trades`); each row's Edit named with its look
+  (`editFor`); and the editor's line under its title (`head.*`).
+- **The rows owners don't see lead with the staff name,** their reason under
+  it: owners have no name for a look they never meet.
+- **The editor's place comes from its own reads,** `["presets", niche]` and
+  `["stickers"]`, so it shows for a drawn look while the wizard opens on the
+  looks. The list's cached read goes stale after a save.
+- **"Just unpublish" stands under the delete's facts,** not in its footer, so
+  on a phone Cancel and Delete keep one line.
+- **The rows lay themselves out by their own width,** in rem: 72px pictures
+  under 20rem, 160px and Edit from 42rem, and under 16rem, which only large
+  text reaches, the names go under the picture. The page's two columns
+  start at 60rem of the frame (1024px at the default text size). Pictures
+  are sized in px, so `StampGrid`'s scale matches its box.
+- **Existing copy, reused** rather than added: the account button and sheet
+  are `dashboard.groups.account` ("חשבון") and `invite.signedInAs`; "Try
+  again" is `common.retry` ("נסו שוב"); a draft and a drawing are
+  `admin.catalog.draft` and `admin.catalog.pictures.drawing`.
+- **`index.html`** lists `/admin` with the pages painted on Lightbox before
+  React mounts.
 
 ## Appendix: how this step looked at the stack
 

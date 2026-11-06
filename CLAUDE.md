@@ -38,10 +38,11 @@ Vite · React 18 · TypeScript · Tailwind 3.4 · react-router-dom 6 · TanStack
 
 Hand-rolled primitives — no shadcn, no Radix. New code uses the Lightbox set in
 `src/components/kit`, with its own outline `focusRing`; `/style-guide` shows
-every piece. Three older sets stay in use until Phase 10 deletes them:
+every piece. Three older sets stay until Phase 10 deletes them:
 `src/components/ui`, `src/components/dashboard/primitives.tsx` and
-`LookTile`, the one old piece left in `src/components/onboarding` (`/admin`'s
-catalog list uses it); the rest of that folder is onboarding's new frame. The
+`LookTile`, the one old piece left in `src/components/onboarding`, which
+nothing uses since `/admin` moved onto the kit; the rest of that folder is
+onboarding's new frame. The
 card controls the studio and onboarding share are in
 `src/components/card-studio/controls`. Marketing layout primitives (`Section`,
 `Container`, `SectionHeader`, `Eyebrow`, `ctaClasses`, `focusRing`) in
@@ -220,7 +221,7 @@ Already in place and must survive any redesign: skip link, visible focus rings
 
 ## Verification
 
-There are **no component or render tests** — the 71 test files cover pure logic
+There are **no component or render tests** — the 72 test files cover pure logic
 only: the API client, the calculator, the onboarding draft and its road, the
 walk over the card's parts and the history its trays keep, the trades' looks,
 the card looks in the draft, a look's name and what picking one writes, the
@@ -237,8 +238,9 @@ wait for Stripe's word, the card controls' rules, the studio's draft and the
 reward on the back of the card, the studio's reads, the draft it keeps in
 the tab and the size a held picture is kept at, the server's check read by
 kind, the card's design options, the text a business colour takes, the
-stickers' groups and shelves, a catalog look's pictures on its shelf, a
-failed save or upload as a sentence, the kit's wallpaper and arrow keys, the kit's copy in both languages, the price the copy writes out, a
+stickers' groups and shelves, a catalog look's pictures on its shelf, the
+staff list's trades as owners meet them, a failed save or upload as a
+sentence, the kit's wallpaper and arrow keys, the kit's copy in both languages, the price the copy writes out, a
 refused sign-in in the page's language, the join's answers and which way its
 steps move, when the wallet wait stops, the name a public pass prints, which
 failures end a session and how the start-up check tries again, when the

@@ -1610,10 +1610,9 @@ Verify per CLAUDE.md and commit.
 - [ ] 200% text, still open:
   - `/style-guide`;
   - on a desk an open studio tray covers the rail;
-  - the admin header's email runs past a 375px screen;
   - the landing page's sample answer draws its own "Give the reward" pill, which crosses its outline by 2.3px in English at 320 and 375
 - [ ] The card's looks: passbox's design options, native in the studio and the wizard (`card-looks-guide.md`)
-- [ ] /admin, PunchMe's staff area (§7, "After the phases"): contract (6 Nov, `docs/admin-pages.md`) · A (6 Nov: the list ranked by trade, as owners meet it; `briefs/admin.md`) · B · D · merged
+- [ ] /admin, PunchMe's staff area (§7, "After the phases"): contract (6 Nov, `docs/admin-pages.md`) · A (6 Nov: the list ranked by trade, as owners meet it; `briefs/admin.md`) · B (7 Nov: the frame, the list as the wizard's shelf, the editor's head and the refusal, on Lightbox; the admin header's email, open at 200% text, gone into the account sheet) · D · merged
 - [ ] Phase 10, cleanup
 
 ---
