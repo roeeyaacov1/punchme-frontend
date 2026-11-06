@@ -564,7 +564,8 @@
       "reward": "Your card",
       "account": "Saving",
       "wallet": "In your wallet",
-      "billing": "Going live"
+      "billing": "Going live",
+      "look": "The look"
     },
     "progress": "Step {{n}} of {{total}}",
     "next": "Next: {{step}}",
@@ -629,6 +630,19 @@
         "calm": "Calm"
       },
       "numbered": "Look {{n}}"
+    },
+    "look": {
+      "heading": "Pick a look for your card",
+      "lead": {
+        "barber": "Looks for a barber. You choose the colour, the stamp and the reward next, and can change anything later in Card Studio.",
+        "cafe": "Looks for a café. You choose the colour, the stamp and the reward next, and can change anything later in Card Studio.",
+        "trainer": "Looks for a personal trainer. You choose the colour, the stamp and the reward next, and can change anything later in Card Studio.",
+        "therapist": "Looks for a therapist. You choose the colour, the stamp and the reward next, and can change anything later in Card Studio.",
+        "other": "Looks for any business. You choose the colour, the stamp and the reward next, and can change anything later in Card Studio."
+      },
+      "next": "Continue with {{look}}",
+      "noTrade": "Pick a kind of business to see its looks.",
+      "again": "{{name}} {{n}}"
     },
     "accent": {
       "title": "Now the stamp colour",

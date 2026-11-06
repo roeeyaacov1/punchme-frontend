@@ -30,8 +30,9 @@ export type Niche = (typeof NICHES)[number];
 
 /** The steps whose state lives in the draft, in order. `account` closes the
  * list: everything after it (wallet, billing) is governed by the account and
- * the created card, not by anything stored here. */
-export const DRAFT_STEPS = ["business", "color", "accent", "stamp", "reward", "account"] as const;
+ * the created card, not by anything stored here. `look` opens it, and is a
+ * step only while the wizard offers the card looks. */
+export const DRAFT_STEPS = ["look", "business", "color", "accent", "stamp", "reward", "account"] as const;
 export type DraftStep = (typeof DRAFT_STEPS)[number];
 
 /** Every screen of the wizard, for the progress row. */
@@ -263,11 +264,17 @@ export function stepIndex(step: WizardStep): number {
 
 /** The first draft step that still needs the owner. `hasArt` says whether
  * the picture a stamp choice points at is actually in the art store — a
- * quota failure can drop it, and then the stamp step has to be revisited. */
+ * quota failure can drop it, and then the stamp step has to be revisited.
+ *
+ * `looks`: the wizard offers the card looks, where the trade is asked with
+ * them, first. A draft with a trade but no look is a card from before them,
+ * and goes on as one. */
 export function firstIncompleteStep(
   draft: OnboardingDraft | null,
   hasArt: (hash: string) => boolean = () => true,
+  looks = false,
 ): DraftStep {
+  if (looks && !draft?.niche) return "look";
   if (!draft || !draft.name.trim() || !draft.niche) return "business";
   if (!draft.background || !HEX_RE.test(draft.background)) return "color";
   if (!draft.accent || !HEX_RE.test(draft.accent)) return "accent";

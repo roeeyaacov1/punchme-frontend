@@ -3,6 +3,7 @@
 export { OnboardingLayout } from "../onboarding/OnboardingLayout";
 export { OnboardingIndex } from "../onboarding/OnboardingIndex";
 export { OnboardingGate } from "../onboarding/OnboardingGate";
+export { LookStep } from "../onboarding/steps/LookStep";
 // One screen at five addresses: the map at /reward, its trays at /business,
 // /color, /accent and /stamp. The same component under every name, so moving
 // between them keeps the card on screen rather than mounting it again.

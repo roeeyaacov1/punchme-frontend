@@ -51,12 +51,23 @@ purpose.
 
 ## The road and the steps
 
-Eight routes, four stops. The road is the same four stops from the first
-screen to the last, signed in or out (`road.ts`, `roadOf`): the map is the
-first, and walking its parts decides nothing about the road; signing up
-adds no stops. A line under the top bar says where the owner is and what
-comes next ("Step 1 of 4 · Next: Saving") over a four-part rule. It is not
-a control: Back is each screen's own.
+Nine routes, four stops, or five while the wizard offers the card looks
+(below). The road is the same stops from the first screen to the last,
+signed in or out (`road.ts`, `roadOf`): the map is the first, after the
+look where there is one, and walking its parts decides nothing about the
+road; signing up adds no stops. A line under the top bar says where the
+owner is and what comes next ("Step 1 of 4 · Next: Saving") over a rule of
+as many parts. It is not a control: Back is each screen's own.
+
+**The card looks** (`docs/redesign/briefs/card-looks.md` §7). The wizard
+opens on them when the public sticker list says the wallet draws the design
+options (`available`) and the catalog has at least one look drawn for them
+(`looksOffered` in `looks.ts`). Otherwise it is the wizard as it was before
+them, exactly: `/onboarding/look` goes to `/onboarding/business`, where the
+business holds the trade, and the road is four stops. It is decided once
+per tab, as soon as the list has answered (and the catalog, where the list
+said yes), or after 4 s with what is known by then; until then no screen is
+shown. A draft that already has a look keeps the fifth stop.
 
 Every screen stands in one column or two (`StepShell`). One on a phone and
 a tablet: the card under the heading, or above it, and the action docked at
@@ -72,6 +83,7 @@ all follow that one decision.
 
 | # | Route | Stop | Public | What it collects | Limits | Pressed on with it missing |
 |---|---|---|---|---|---|---|
+| 0 | `/onboarding/look` | 1 of 5, only while the wizard offers the looks | yes | The trade, as pills, and the look the card starts from: the trade's drawn looks, each its own picture (Apple's strip, or Google's hero on an Android), the draft's look or the trade's first chosen. A trade with none drawn shows its classic look | Trades without a look are hidden once the catalog loads, as on the business | "Continue" with no trade says so under the pills and takes focus there |
 | 1 | `/onboarding/business` | 1, the map, its business tray | yes | Business name (Google Places suggestions when `VITE_GOOGLE_MAPS_API_KEY` is set, which also fills the phone) and trade: barber, café, personal trainer, therapist, other | Name at most 120 (the field holds it; a longer one from a draft made before is held like a missing name, saying how many characters are too many). Trades without a preset are hidden once presets load, unless the catalog lists none; the trade chosen always shows | Every way out of it holds, Save included: says which is missing, there, and takes focus to it |
 | 2 | `/onboarding/color` | 1, the map, its colours tray | yes | Card colour: the trade's looks (colours only), 10 swatches, or one's own; the stamp colour; folded, the text colour | A card colour that leaves the stamp colour under 3:1 takes the first stamp colour that fits | – |
 | 3 | `/onboarding/accent` | 1, the same tray, opened at the stamp colour | yes | As `color` | As `color` | – |
@@ -81,6 +93,20 @@ all follow that one decision.
 | 7 | `/onboarding/wallet` | 3, In your wallet | gated | The owner adds their own pass to their wallet | – | – |
 | 8 | `/onboarding/billing` | 4, Going live | gated | Activate (checkout) or "Not now" | – | – |
 
+- **The look** (`LookStep`): "What kind of business is it?" over the trades,
+  then "Pick a look for your card" with a lead per trade, and the looks as
+  one radio group, one to a row on a phone and two from 1024px, where the
+  chosen one stands as the whole pass in the card's column. A look is named
+  by what is on its stamps, its sticker or its glyph, from the locale files
+  (Roee, 6 Nov 2026: the catalog has one name per look, in one language);
+  two that would share a name are told apart by their place ("Croissant
+  2"). Nothing is written until "Continue with {look}", which writes the
+  trade and the look (`lookChoicePatch`: the colours, the stamp, the ground,
+  the pattern, the count's place and format, and the count while it is
+  still the last look's) and opens the map at its business. A look never
+  takes what is the owner's: the name, the logo, a picture stamp, a reward
+  they wrote (one still a trade's default goes, to read the new trade's) or
+  a count they set. The same look again changes nothing.
 - **The map** is `/onboarding/reward`: the card at full size, the reward
   said as a sentence under it, chips for the other parts, and one coral
   button. Its four parts, in the walk's order, are the business, the
@@ -190,6 +216,14 @@ all follow that one decision.
 - `src/routes/onboarding/draft.test.ts` covers the model, and `walk.test.ts`
   the walk. Keep them passing. `draftLooks.test.ts`, beside them, covers the
   looks' fields.
+
+## Calls before the account
+
+| When | Call | Wrapper |
+|---|---|---|
+| Load, once per tab | `GET /api/presets` (public): the catalog's looks, a drawn one with its options and `pictures` | `getPresets` |
+| Load, once per tab, given up after 4 s | `GET /api/stickers` (public): `{available, stickers: [{name, url}]}` | `getPublicStickers` |
+| The look screen and the stage show a drawn look | `GET /api/presets/{id}/picture/{strip\|hero}?v=…`, as `<img>`, cached a day | – |
 
 ## Account step
 

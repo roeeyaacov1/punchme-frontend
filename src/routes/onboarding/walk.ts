@@ -65,9 +65,11 @@ export function businessMissing(draft: Pick<OnboardingDraft, "name" | "niche">):
  * part not yet opened, and once the walk is done, the map at rest, where
  * Save is: a last look at the card before the account, never the account
  * itself. */
-export function whereToStart(draft: OnboardingDraft, hasArt?: (hash: string) => boolean): DraftStep {
-  const first = firstIncompleteStep(draft, hasArt);
-  if (first === "business" || first === "color" || first === "accent" || first === "stamp") return first;
+export function whereToStart(draft: OnboardingDraft, hasArt?: (hash: string) => boolean, looks = false): DraftStep {
+  const first = firstIncompleteStep(draft, hasArt, looks);
+  if (first === "look" || first === "business" || first === "color" || first === "accent" || first === "stamp") {
+    return first;
+  }
   const unseen = nextUnseen(seenOf(draft));
   return unseen ? addressOf(unseen) : "reward";
 }

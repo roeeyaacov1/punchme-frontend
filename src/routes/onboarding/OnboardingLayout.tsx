@@ -58,14 +58,16 @@ function Shell({ columnRef }: { columnRef: (element: HTMLElement | null) => void
   const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
   const location = useLocation();
-  const { draft, resolved, preview, hasArt } = useOnboardingDraft();
+  const { draft, resolved, preview, hasArt, looks, looksSettled } = useOnboardingDraft();
   const reduced = useReducedMotion();
   const wide = useWide();
   usePublicGround();
 
   const step = stepFromPath(location.pathname);
-  const first = firstIncompleteStep(draft, hasArt);
-  const place = step ? roadOf(step) : null;
+  const first = firstIncompleteStep(draft, hasArt, looks);
+  // Until it's known whether the wizard opens on the looks, the road and the
+  // screen wait: either could be the wrong one.
+  const place = step && looksSettled ? roadOf(step, looks) : null;
 
   // The tab names the screen, and a tray by its own name.
   useEffect(() => {
@@ -104,12 +106,17 @@ function Shell({ columnRef }: { columnRef: (element: HTMLElement | null) => void
   // reachable by URL. Wallet and billing govern themselves.
   // And saving waits for the walk: until every part of the card has been
   // opened on the map, the account step sends the owner to the first that
-  // hasn't.
+  // hasn't. The look's address is the business's while the wizard offers no
+  // looks, where the trade is asked as before.
   let redirect: string | null = null;
-  if (step && (DRAFT_STEPS as readonly string[]).includes(step) && stepIndex(step) > stepIndex(first)) {
+  if (!looksSettled) {
+    // Nothing is shown yet, so nothing is sent anywhere.
+  } else if (step === "look" && !looks) {
+    redirect = "/onboarding/business";
+  } else if (step && (DRAFT_STEPS as readonly string[]).includes(step) && stepIndex(step) > stepIndex(first)) {
     redirect = `/onboarding/${first}`;
   } else if (step === "account" && !walkDone(seenOf(draft))) {
-    redirect = `/onboarding/${whereToStart(draft, hasArt)}`;
+    redirect = `/onboarding/${whereToStart(draft, hasArt, looks)}`;
   }
 
   // A new stop arrives from the side it comes from (`StepArrival`): on from
@@ -172,9 +179,7 @@ function Shell({ columnRef }: { columnRef: (element: HTMLElement | null) => void
         )}
 
         <div id="onboarding-step" tabIndex={-1} className="outline-none">
-          <StepArrival.Provider value={arrivalValue}>
-            <Outlet />
-          </StepArrival.Provider>
+          <StepArrival.Provider value={arrivalValue}>{looksSettled && <Outlet />}</StepArrival.Provider>
         </div>
       </main>
 

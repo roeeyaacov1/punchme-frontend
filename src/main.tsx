@@ -77,6 +77,9 @@ const router = createBrowserRouter([
         lazy: async () => ({ Component: (await onboarding()).OnboardingLayout }),
         children: [
           { index: true, lazy: async () => ({ Component: (await onboarding()).OnboardingIndex }) },
+          // The card looks' first stop (brief §7.3); the business's address
+          // while the wizard offers no looks.
+          { path: "look", lazy: async () => ({ Component: (await onboarding()).LookStep }) },
           { path: "business", lazy: async () => ({ Component: (await onboarding()).BusinessStep }) },
           { path: "color", lazy: async () => ({ Component: (await onboarding()).ColorStep }) },
           { path: "accent", lazy: async () => ({ Component: (await onboarding()).AccentStep }) },

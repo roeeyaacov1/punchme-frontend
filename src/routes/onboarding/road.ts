@@ -7,11 +7,17 @@ import type { WizardStep } from "./draft";
  * trays with the others (`business`, `color`, `accent`, `stamp`), so walking
  * the card's parts decides nothing about the road and signing up adds no
  * stops to it.
+ *
+ * While the wizard offers the card looks, the road has a fifth stop at its
+ * start, the look (`/look`): the trade and the look the card starts from
+ * (card looks, brief §7.2). The same five on every screen then.
  */
 export const ROAD = ["reward", "account", "wallet", "billing"] as const;
-export type RoadStop = (typeof ROAD)[number];
+export const LOOKS_ROAD = ["look", ...ROAD] as const;
+export type RoadStop = (typeof LOOKS_ROAD)[number];
 
 const STOP_OF: Record<WizardStep, RoadStop> = {
+  look: "look",
   business: "reward",
   color: "reward",
   accent: "reward",
@@ -23,7 +29,7 @@ const STOP_OF: Record<WizardStep, RoadStop> = {
 };
 
 export interface RoadPlace {
-  /** 1 to 4. */
+  /** 1 to 4, or to 5 with the looks. */
   stop: number;
   total: number;
   /** The stop this screen belongs to. */
@@ -32,9 +38,12 @@ export interface RoadPlace {
   next: RoadStop | null;
 }
 
-/** Where a screen stands on the road. */
-export function roadOf(step: WizardStep): RoadPlace {
-  const at = STOP_OF[step];
-  const index = ROAD.indexOf(at);
-  return { stop: index + 1, total: ROAD.length, at, next: ROAD[index + 1] ?? null };
+/** Where a screen stands on the road. `looks`: the road starts at the look.
+ * Without it the look's address belongs to the map, where it goes. */
+export function roadOf(step: WizardStep, looks = false): RoadPlace {
+  const road: readonly RoadStop[] = looks ? LOOKS_ROAD : ROAD;
+  const stop = STOP_OF[step];
+  const at = road.includes(stop) ? stop : "reward";
+  const index = road.indexOf(at);
+  return { stop: index + 1, total: road.length, at, next: road[index + 1] ?? null };
 }

@@ -93,8 +93,14 @@ export function CardStep() {
   const lostMessage = useRef<HTMLParagraphElement>(null);
   const [asked, setAsked] = useState(false);
   // A business with a look but no name was emptied after it was finished
-  // (and then Back, or a reload): it says so at once.
-  const [emptied] = useState(() => !!businessMissing(draft) && draft.background !== null);
+  // (and then Back, or a reload): it says so at once. A card from the looks
+  // screen has its colours before its name, so there it is a business shown
+  // before.
+  const [emptied] = useState(
+    () =>
+      !!businessMissing(draft) &&
+      (draft.look ? seenOf({ seen: draft.seen }).includes("business") : draft.background !== null),
+  );
   const [businessAsked, setBusinessAsked] = useState(emptied);
   const [trayHeight, setTrayHeight] = useState(0);
   // Counted up when something asks for the reward field: it takes focus as
