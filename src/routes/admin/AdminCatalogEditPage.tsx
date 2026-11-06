@@ -26,6 +26,7 @@ import {
   type CardStudioImages,
   type CardStudioValue,
 } from "../../components/card-studio/studioDraft";
+import { lookAgainIn, lookPicturesState } from "../../components/card-studio/lookPictures";
 import { saveProblem } from "../../components/card-studio/studioProblems";
 import { isolate } from "../dashboard/problem";
 import { Checkbox, focusRing, Input, Notice, Select } from "../../components/kit";
@@ -40,6 +41,7 @@ import {
   uploadCatalogImage,
   type CatalogArtUse,
 } from "../../api/catalog";
+import { getPresets } from "../../api/presets";
 import { NICHES } from "../onboarding/draft";
 import { useDebounce } from "../../hooks/useDebounce";
 import { cn } from "../../lib/cn";
@@ -212,6 +214,27 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
     retry: 1,
   });
 
+  // A published look's pictures, as the wizard shows them (backend PR #20,
+  // item 1): drawn by a task after each save, so looked for again every 5s
+  // for up to two minutes until they come.
+  const [savedAt, setSavedAt] = useState(() => Date.now());
+  const styledSaved = !!saved && isStyled(saved.design);
+  const shelfState = (presets: Awaited<ReturnType<typeof getPresets>> | undefined, at: number) =>
+    lookPicturesState({
+      published: savedShelf.isPublished,
+      styled: styledSaved,
+      pictures: presets?.find((preset) => preset.id === catalogId)?.pictures,
+      savedAt,
+      now: at,
+    });
+  const picturesQuery = useQuery({
+    queryKey: ["presets", savedShelf.niche],
+    queryFn: () => getPresets(savedShelf.niche),
+    enabled: !isNew && savedShelf.isPublished && styledSaved,
+    refetchInterval: (query) => lookAgainIn(shelfState(query.state.data, query.state.dataUpdatedAt)),
+  });
+  const lookPictures = shelfState(picturesQuery.data, picturesQuery.dataUpdatedAt || savedAt);
+
   const shelfChanged =
     shelf.niche !== savedShelf.niche ||
     shelf.description !== savedShelf.description ||
@@ -293,6 +316,8 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
       setDraft(value);
       setSavedShelf(shelf);
       setJustSaved(true);
+      setSavedAt(Date.now());
+      await queryClient.invalidateQueries({ queryKey: ["presets"] });
       heading.current?.focus();
     } catch (error) {
       const failed = saveProblem(error);
@@ -373,6 +398,32 @@ function CatalogEditor({ catalogId }: { catalogId: string | undefined }) {
             label={t("admin.catalog.publishedLabel")}
             description={t("admin.catalog.publishedHint")}
           />
+          {lookPictures.kind !== "plain" && (
+            <div className="flex flex-col gap-2">
+              <p className="type-label text-ink">{t("admin.catalog.pictures.title")}</p>
+              {lookPictures.kind === "drawn" ? (
+                <div className="flex flex-col gap-3">
+                  {([
+                    ["strip", "studio.preview.apple"],
+                    ["hero", "studio.preview.google"],
+                  ] as const).map(([role, wallet]) => (
+                    <figure key={role} className="flex flex-col gap-1">
+                      <img
+                        src={lookPictures.pictures[role]}
+                        alt={t("admin.catalog.pictures.alt", { wallet: t(wallet) })}
+                        className="w-full rounded-field ring-1 ring-inset ring-border"
+                      />
+                      <figcaption className="text-sm text-ink-muted">{t(wallet)}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              ) : (
+                <p role="status" className="text-sm leading-snug text-ink-muted">
+                  {t(`admin.catalog.pictures.${lookPictures.kind}`)}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       ),
     },

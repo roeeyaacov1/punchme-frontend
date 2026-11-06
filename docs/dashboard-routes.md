@@ -232,6 +232,7 @@ dashboard's account menu, and the API answers 403 to anyone else.
 | | Load, and 400 ms after each edit | `POST /api/admin/catalog/preview` | `previewCatalogDesign` |
 | | Save | `POST /api/admin/catalog` when new, `PATCH /api/admin/catalog/{id}` after | `createCatalogEntry`, `patchCatalogEntry` |
 | | Upload or remove a picture | `POST /api/admin/catalog/{id}/images` (multipart), `DELETE /api/admin/catalog/{id}/images/{use}` | `uploadCatalogImage`, `deleteCatalogImage` |
+| | The shelf, on a published look the server draws, and again after each save: its pictures as the wizard shows them (`pictures`, drawn by a task after the save, so looked for again every 5 s for up to two minutes until they come; backend PR #20, item 1) | `GET /api/presets?niche={niche}` | `getPresets` |
 
 ## Calls no page makes yet
 

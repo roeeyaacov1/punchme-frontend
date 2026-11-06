@@ -77,7 +77,14 @@
       "savedHidden": "Saved. Owners won't see this look until it's published.",
       "drawnWithoutArt": "The wallet draws this look here without its own pictures. Owners who take it get them on their cards.",
       "changes_one": "1 change not saved yet",
-      "changes_other": "{{count}} changes not saved yet"
+      "changes_other": "{{count}} changes not saved yet",
+      "pictures": {
+        "title": "How the wizard shows this look",
+        "alt": "The look as {{wallet}} draws it",
+        "unpublished": "Once it's published, the look is drawn here as the wizard shows it.",
+        "drawing": "Drawing the look…",
+        "failed": "We couldn't draw the look, so the wizard leaves it out. Saving again tries once more."
+      }
     },
     "staffOnly": "Staff area",
     "staffOnlyBody": "This area is for PunchMe staff. You're signed in as {{email}}, which doesn't have staff access.",
