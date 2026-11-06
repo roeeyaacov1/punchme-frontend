@@ -13,6 +13,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 import { cn } from "../../lib/cn";
 import { usePublicGround } from "../../theme/usePublicGround";
 import { deviceWallet } from "../public/wallet";
+import { WizardSkeleton } from "../RouteLoading";
 import { OnboardingDraftProvider } from "./DraftContext";
 import { ALL_STEPS, DRAFT_STEPS, firstIncompleteStep, stepIndex, type WizardStep } from "./draft";
 import { roadOf } from "./road";
@@ -48,6 +49,22 @@ export function OnboardingLayout() {
 
 /** Past a screen's 240ms arrival (or the 150ms fade), with room to spare. */
 const ARRIVAL_EXPIRES_MS = 400;
+
+/** How long the wait for the looks shows nothing, so a list that answers
+ * at once never flashes the frame. */
+const WAIT_QUIET_MS = 300;
+
+/** While it isn't known whether the wizard opens on the looks (up to the
+ * draft's patience, `DraftContext`): after a moment, the frame a cold load
+ * shows, rather than an empty page on a slow phone. */
+function LooksWait() {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setShown(true), WAIT_QUIET_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
+  return shown ? <WizardSkeleton /> : null;
+}
 
 function stepFromPath(pathname: string): WizardStep | null {
   const last = pathname.replace(/\/+$/, "").split("/").pop() ?? "";
@@ -179,7 +196,7 @@ function Shell({ columnRef }: { columnRef: (element: HTMLElement | null) => void
         )}
 
         <div id="onboarding-step" tabIndex={-1} className="outline-none">
-          <StepArrival.Provider value={arrivalValue}>{looksSettled && <Outlet />}</StepArrival.Provider>
+          <StepArrival.Provider value={arrivalValue}>{looksSettled ? <Outlet /> : <LooksWait />}</StepArrival.Provider>
         </div>
       </main>
 
