@@ -55,9 +55,10 @@ who visits at least four times a year, across seven years of US small-business
 transactions; that caveat and the link go in the message sent with the video.
 
 Everything else with a number in it is a picture of the product, not a claim:
-the sample card's stamps (7, 8, 9 and 10 of 10), the scan's "2 more to the
-reward", the sample message's "30 days" (the win-back rule's starter
-setting), and the price, ₪99 a month including VAT
+the sample cards' stamps (the three trades as the landing page shows them,
+then one customer's card from 0 to 10, back to 0 and its gift stamp), the
+scan's "9 more to the reward", the sample message's "30 days" (the win-back
+rule's starter setting), and the price, ₪99 a month including VAT
 (`PUNCHME_MONTHLY_PRICE`).
 
 ## How it is made
@@ -88,14 +89,32 @@ setting), and the price, ₪99 a month including VAT
   `src/font-fallbacks.css` never reach a frame. The Apple Wallet preview sets
   itself in the system face, as it does on the site.
 - **The motion.** Every movement is driven by the frame, on DESIGN.md's
-  curves (`src/motion.ts`): lights on in 240ms with at most 8 site pixels of
-  travel (2.7 frame pixels to the site pixel), an exit in 180ms that starts
-  150ms before whatever replaces it, the scan's snap at the Scan page's own
-  timing (the flash from 0.85 in 220ms, the settle from 1.04 in 180ms, the
-  stamp from 1.45 in 240ms after 60ms, on the overshoot), and the card's
-  activation in 600ms. The staged components' own CSS animations are frozen
-  at their final state (`src/video.css`). Two flashes in all, four seconds
-  apart. Sourced numbers and the price are printed, never counted.
+  curves (`src/motion.ts`), and the staged components' own CSS animations
+  are frozen at their final state (`src/video.css`). Roee asked on 7 Nov
+  2026 for livelier motion than the first cut's lights alone, so:
+  - **One card's journey.** From the join to the lock screen the video
+    follows one customer's card: it rises out of the sign's code into both
+    wallets, the Google card sliding out from behind the Apple one; flies
+    into the owner's camera, whose window closes round it; takes its first
+    stamp, fills visit by visit, is redeemed back to zero; and leaves the
+    camera for the lock screen, which builds round it, where the win-back
+    message brings its free stamp. Between those beats the card is handed
+    from one to the next (`handoff` in `src/Promo.tsx`), never cut. These
+    are things already on screen moving across it, on the in-out.
+  - **The sweep.** The other beats change behind a band of bare wall that
+    crosses the frame the way the language reads, right to left in Hebrew,
+    in about 870ms on the in-out, so two beats' words never overlap.
+  - **The rest stays the site's.** Lights on in 240ms with at most 8 site
+    pixels of travel (2.7 frame pixels to the site pixel), captions line by
+    line 100ms apart, an exit in 180ms that starts 150ms before whatever
+    replaces it; the scan's snap at the Scan page's own timing (the flash
+    from 0.85 in 220ms, the settle from 1.04 in 180ms, the stamp from 1.45
+    in 240ms after 60ms, on the overshoot); the aiming corners locking on;
+    activation in 600ms for the field light and the price's panel, which
+    switches on as the sign does; a press that sinks to 0.97 for "Give the
+    reward" and "Start free"; and the landing page's crossover between
+    trades. Two flashes in all, 3.4 seconds apart. Sourced numbers and the
+    price are printed, never counted.
 - **The safe area.** Words stay 80px from the sides, 220px from the top and
   320px from the bottom, clear of WhatsApp's and Stories' own controls.
 
