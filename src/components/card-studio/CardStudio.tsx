@@ -7,7 +7,7 @@ import { focusRingInset, noTapFlash } from "../kit/classes";
 import { useReducedMotion } from "../kit/motion";
 import { Tab, TabList, TabPanel, Tabs } from "../kit/Tabs";
 import type { StampPicture } from "./controls";
-import { designOptions, withOption, type DrawnCard, type StudioStickers } from "./designOptions";
+import { designOptions, studioMode, withOption, type DrawnCard, type StudioStickers } from "./designOptions";
 import type { LintReading } from "./lintProblems";
 import { StudioBar, type StudioBarProps } from "./StudioBar";
 import { StudioStage, type CardPart, type StageHandle, type Wallet } from "./StudioStage";
@@ -24,6 +24,7 @@ import {
   type HeldUse,
 } from "./studioDraft";
 import { BackgroundTray } from "./trays/BackgroundTray";
+import { BrandColoursTray } from "./trays/BrandColoursTray";
 import { ColoursTray } from "./trays/ColoursTray";
 import { LogoTray } from "./trays/LogoTray";
 import { NamesTray } from "./trays/NamesTray";
@@ -341,6 +342,9 @@ export function CardStudio({
     onSample?.(shownSample);
   }, [onSample, shownSample]);
   const options = stickers.available;
+  // The options offered (the list says the wallet draws them), said while
+  // the list can't be read on a card that has them, or today's studio.
+  const mode = studioMode(stickers, value.design);
   // While Save runs, nothing that changes the draft can be reached: Save
   // sends the card as it was pressed, and starts again from what it read.
   const busy = bar.saving;
@@ -440,7 +444,11 @@ export function CardStudio({
   const body = (id: string | null) => {
     switch (id) {
       case "colours":
-        return <ColoursTray value={value} onChange={onChange} />;
+        return mode === "options" ? (
+          <BrandColoursTray value={value} onChange={onChange} />
+        ) : (
+          <ColoursTray value={value} onChange={onChange} />
+        );
       case "stamp":
         return (
           <StampTray

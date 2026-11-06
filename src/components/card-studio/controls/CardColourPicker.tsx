@@ -22,12 +22,16 @@ const OWN = "own";
  * decides what else follows (the text colour, when it is automatic).
  */
 export function CardColourPicker({
+  legend,
   colours,
   looks = [],
   glyph,
   onLook,
   onBackground,
 }: {
+  /** What the colour is called: the card's, or (in the studio, with the
+   * design options) the business's, which sets the rest. */
+  legend?: string;
   colours: CardColours;
   /** Passed in as data: the studio's palettes, or onboarding's trade looks. */
   looks?: readonly ReadyLook[];
@@ -95,7 +99,7 @@ export function CardColourPicker({
 
       <div className="flex flex-col gap-4">
         <ChoiceTiles
-          legend={t("cardControls.cardColour")}
+          legend={legend ?? t("cardControls.cardColour")}
           tiles={backgroundTiles}
           value={chosenBackground}
           onChange={(next) => {
@@ -108,7 +112,7 @@ export function CardColourPicker({
           }}
         />
         {own && (
-          <ColourPickerPanel label={t("cardControls.cardColour")} value={colours.background} onChange={onBackground} />
+          <ColourPickerPanel label={legend ?? t("cardControls.cardColour")} value={colours.background} onChange={onBackground} />
         )}
       </div>
     </div>

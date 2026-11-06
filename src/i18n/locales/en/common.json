@@ -334,6 +334,30 @@
       "drawing": "Drawing the card…",
       "held": "Your new picture joins this card when you save.",
       "failed": "The card's picture couldn't be drawn just now. What you see may not be the card yet."
+    },
+    "colours": {
+      "brand": "Your business colour",
+      "follow": "The other colours follow it",
+      "rows": {
+        "stamps": "<b>The stamps</b> in your colour",
+        "stampsAccent": "<b>The stamps</b> in a colour that stands out on it",
+        "ground": "<b>Their ground</b> {{colour}}",
+        "text": "<b>The text</b> {{colour}}, so it reads"
+      },
+      "parts": {
+        "stamps": "The stamps",
+        "ground": "Their ground",
+        "text": "The text"
+      },
+      "names": {
+        "white": "white",
+        "dark": "dark",
+        "cream": "cream",
+        "shade": "a shade of your colour"
+      },
+      "change": "Change",
+      "changed": "Changed by you",
+      "back": "Back to the business colour"
     }
   },
   "cardControls": {
