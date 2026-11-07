@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Loading, Skeleton } from "../components/kit";
 import { column } from "../components/onboarding/column";
@@ -5,6 +6,7 @@ import { Opening } from "../components/opening/Opening";
 import { TopBar } from "../components/onboarding/TopBar";
 import { useWideFrame, WideProvider } from "../components/onboarding/useWide";
 import { cn } from "../lib/cn";
+import { setWizardFrameShown } from "./wizardFrame";
 
 /**
  * What a cold load shows while a group that loads on demand fetches its
@@ -29,9 +31,14 @@ export function RouteLoading() {
   );
 }
 
-/** The wizard's frame on the column the wizard will stand on. */
+/** The wizard's frame on the column the wizard will stand on. While it is
+ * up, the wizard's own wait knows to take over from it at once. */
 function WizardLoading() {
   const [wide, setColumn] = useWideFrame();
+  useLayoutEffect(() => {
+    setWizardFrameShown(true);
+    return () => setWizardFrameShown(false);
+  }, []);
   return (
     <WideProvider value={wide}>
       <div className="theme-lightbox flex min-h-svh flex-col bg-background text-ink">
