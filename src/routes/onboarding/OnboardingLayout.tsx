@@ -50,14 +50,16 @@ export function OnboardingLayout() {
 /** Past a screen's 240ms arrival (or the 150ms fade), with room to spare. */
 const ARRIVAL_EXPIRES_MS = 400;
 
-/** How long the wait for the looks shows nothing, so a list that answers
+/** How long the wait for the screen shows nothing, so a list that answers
  * at once never flashes the frame. */
 const WAIT_QUIET_MS = 300;
 
-/** While it isn't known whether the wizard opens on the looks (up to the
- * draft's patience, `DraftContext`): after a moment, the frame a cold load
- * shows, rather than an empty page on a slow phone. */
-function LooksWait() {
+/** While the screen's place on the road isn't known: until it is known
+ * whether the wizard opens on the looks (up to the draft's patience,
+ * `DraftContext`), and while `/onboarding` decides where to start. After a
+ * moment, the frame a cold load shows, rather than an empty page on a slow
+ * phone. */
+function ScreenWait() {
   const [shown, setShown] = useState(false);
   useEffect(() => {
     const timer = window.setTimeout(() => setShown(true), WAIT_QUIET_MS);
@@ -186,18 +188,31 @@ function Shell({ columnRef }: { columnRef: (element: HTMLElement | null) => void
           </LitPanel>
         )}
 
-        {place && (
-          <ProgressLine
-            stop={place.stop}
-            total={place.total}
-            here={t(`onboarding.steps.${place.at}`)}
-            next={place.next ? t(`onboarding.steps.${place.next}`) : null}
-          />
+        {/* The road and the screen under it come together, once the screen's
+            place is known: a screen drawn first would be pushed down when
+            the road arrived above it. Until then the wait stands in for
+            both, and `/onboarding` itself, which only sends the owner on,
+            draws nothing of its own. */}
+        {place ? (
+          <>
+            <ProgressLine
+              stop={place.stop}
+              total={place.total}
+              here={t(`onboarding.steps.${place.at}`)}
+              next={place.next ? t(`onboarding.steps.${place.next}`) : null}
+            />
+            <div id="onboarding-step" tabIndex={-1} className="outline-none">
+              <StepArrival.Provider value={arrivalValue}>
+                <Outlet />
+              </StepArrival.Provider>
+            </div>
+          </>
+        ) : (
+          <>
+            <ScreenWait />
+            {looksSettled && <Outlet />}
+          </>
         )}
-
-        <div id="onboarding-step" tabIndex={-1} className="outline-none">
-          <StepArrival.Provider value={arrivalValue}>{looksSettled ? <Outlet /> : <LooksWait />}</StepArrival.Provider>
-        </div>
       </main>
 
       <p className="sr-only" aria-live="polite">
