@@ -11,11 +11,10 @@ import { Scaled } from "../pieces";
 import { findStrip, stampInStrip, useInnerBox } from "../stage/measure";
 import { Slam } from "../stage/Slam";
 import { useImagesReady } from "../stage/useImagesReady";
+import { LOCK } from "../layout.ts";
 import { beatStart } from "../timeline.ts";
 import { StampRing } from "./Stamps";
 
-/** The lock screen: the kit's stage, 340px wide, at this scale and top. */
-export const LOCK = { s: 1.9, top: 690 } as const;
 
 /**
  * Beat 7: "Then it reminds them to come back." The kit's lock-screen stage,

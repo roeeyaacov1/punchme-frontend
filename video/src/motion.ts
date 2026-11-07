@@ -29,3 +29,12 @@ export function progress(frame: number, start: number, frames: number, easing: (
 }
 
 export const lerp = (from: number, to: number, p: number) => from + (to - from) * p;
+
+/**
+ * A slam's look at frame `t` for words landing at `at`: lit on the frame they land,
+ * at 135%, settling to their size over five frames on the overshoot. Lit at
+ * once, so words landing on frame 0 are the video's first picture.
+ */
+export function slam(t: number, at: number): { opacity: number; scale: number } {
+  return { opacity: interpolate(t, [at - 1, at], [0, 1], CLAMP), scale: lerp(1.35, 1, progress(t, at, 5, OVERSHOOT)) };
+}

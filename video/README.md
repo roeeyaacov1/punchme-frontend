@@ -53,6 +53,7 @@ Then, from `video/`:
 |---|---|
 | `npm run studio` | Preview both compositions, and the contact sheet, in the browser, frame by frame |
 | `npm run render:he`, `npm run render:en` | Render `out/punchme-promo-he.mp4` and `out/punchme-promo-en.mp4` |
+| `npx remotion still PromoHe out/punchme-promo-he-poster.png --frame=60` | A poster (the same for `PromoEn`): the hook with its pass. Frame 0 is the opening line, so a thumbnail made from the first frame is never an empty wall |
 | `npm run stills` | A still of every beat at its settled frame, both languages, into `out/stills/` (`--lang he`, beat ids, or `--frames 150,412` to narrow it) |
 | `npm run stills -- --sheet 75,78,84,91 --cols 4 --name punch` | One contact sheet of those frames at a quarter size, per language: the quickest way to check motion |
 | `npm test` | The timing, the punch's geometry, the stamps, the sound cues, the drawing's request and the WAV writer (`node --test`) |

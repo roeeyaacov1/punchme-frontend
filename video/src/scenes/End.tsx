@@ -5,7 +5,8 @@ import { MOMENTS } from "../cues.ts";
 import { CLAMP, IN_OUT, OVERSHOOT, lerp, progress } from "../motion.ts";
 import { SLOT, slotCenter } from "../punch.ts";
 import { Logo, Ltr, useHebrew } from "../pieces";
-import { STRIP_HANDOFF, stripRect } from "../stage/Strip";
+import { stripRect } from "../stage/Strip";
+import { STRIP_HANDOFF } from "../strip.ts";
 import { FINAL_PUNCH, beatStart } from "../timeline.ts";
 
 /** The button the full strip becomes. */
@@ -74,7 +75,9 @@ export function End() {
             height: box.h,
             borderRadius: lerp(30, BUTTON.h / 2, morph),
             background: `color-mix(in srgb, #f67748 ${coral * 100}%, #f0b429)`,
-            boxShadow: "0 18px 40px rgb(43 37 33 / 0.22)",
+            // From the strip as it stands, border, shadow and all, to the button.
+            border: `2px solid rgb(216 204 187 / ${1 - morph})`,
+            boxShadow: `0 ${lerp(12, 18, morph)}px ${lerp(32, 40, morph)}px rgb(43 37 33 / ${lerp(0.16, 0.22, morph)})`,
           }}
         >
           {slots > 0 &&

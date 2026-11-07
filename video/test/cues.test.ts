@@ -37,9 +37,11 @@ test("volumes stay between silence and full", () => {
   assert.ok(all.every((cue) => cue.volume > 0 && cue.volume <= 1));
 });
 
-test("every word lands inside its own beat, clear of the punch and the whoosh", () => {
+test("every word lands inside its own beat, clear of the punch and the whoosh that open it", () => {
   for (const [id, frames] of Object.entries(SLAMS) as [BeatId, number[]][]) {
     assert.ok(BEATS.some((beat) => beat.id === id));
-    for (const frame of frames) assert.ok(frame > PUNCH.openDelay && frame < beatLength(id), `${id} ${frame}`);
+    // The hook has no punch before it: its words may land on frame 0.
+    const earliest = id === "hook" ? 0 : PUNCH.openDelay + 1;
+    for (const frame of frames) assert.ok(frame >= earliest && frame < beatLength(id), `${id} ${frame}`);
   }
 });

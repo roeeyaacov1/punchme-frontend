@@ -23,7 +23,8 @@ export interface Cue {
 
 /** The frames, from each beat's start, at which its words land. */
 export const SLAMS: Partial<Record<BeatId, number[]>> = {
-  hook: [6, 16],
+  // The first line lands on frame 0: WhatsApp's thumbnail is the first frame.
+  hook: [0, 10],
   promise: [8, 20, 32],
   join: [6],
   looks: [6, 16],
@@ -33,6 +34,13 @@ export const SLAMS: Partial<Record<BeatId, number[]>> = {
   proof: [8],
   price: [8],
 };
+
+/**
+ * The hook's first line is this many frames into its landing on frame 0,
+ * so the video's first picture (WhatsApp's thumbnail) is the line at its
+ * size, its slam still settling, rather than an empty wall or the line at 135%.
+ */
+export const HOOK_LEAD = 3;
 
 /** The moments the scenes and the sounds share, in absolute frames. */
 export const MOMENTS = {
