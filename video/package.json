@@ -9,7 +9,8 @@
     "stills": "node scripts/stills.ts",
     "render:he": "remotion render PromoHe out/punchme-promo-he.mp4",
     "render:en": "remotion render PromoEn out/punchme-promo-en.mp4",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"test/**/*.test.ts\""
   },
   "dependencies": {
     "@remotion/cli": "4.0.538",
