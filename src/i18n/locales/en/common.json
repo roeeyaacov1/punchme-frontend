@@ -2760,7 +2760,7 @@
     },
     "terms": {
       "title": "Terms of use",
-      "updated": "Last updated 1 November 2026",
+      "updated": "Last updated 7 November 2026",
       "lead": "These terms apply to PunchMe's digital loyalty cards and to the punchmeapp.com website. By joining or using a card, you agree to them.",
       "sections": [
         {
@@ -2849,6 +2849,7 @@
           "heading": "For businesses",
           "blocks": [
             "A business that uses PunchMe is responsible for the rewards it offers and for honouring them, for what its messages say, for sending marketing messages only to people who agreed to receive them, and for having the right to use the name, logo and pictures it uploads.",
+            "A business that uses PunchMe authorizes PunchMe to issue its customers' cards in Apple Wallet and Google Wallet on its behalf, with its name, logo and the pictures it uploads, and to submit them to Apple and Google for that purpose. Each card shows the business's name, says that PunchMe issued it on the business's behalf, and gives PunchMe's support contact.",
             "The business controls its customer database, and PunchMe processes the data on its behalf. It may use the data only to run its loyalty program, as the law allows.",
             "The subscription is paid monthly through Stripe and can be cancelled at any time from the billing page in the dashboard."
           ]
