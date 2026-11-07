@@ -45,7 +45,7 @@ export function Winback() {
         </Slam>
         <span
           className="inline-flex items-center whitespace-nowrap rounded-full border-[3px] border-border-strong font-body font-semibold text-ink-muted"
-          style={{ fontSize: 38, lineHeight: 1.3, minHeight: 64, paddingInline: 28, opacity: progress(f, 14, 5) }}
+          style={{ fontSize: 38, lineHeight: 1.3, minHeight: 64, paddingInline: 28, opacity: progress(f, 20, 5) }}
         >
           {t("video:winback.badge")}
         </span>

@@ -5,15 +5,17 @@ import "../../src/index.css";
 import "./video.css";
 import { I18N, type Lang } from "./i18n";
 import { FontGate } from "./pieces";
+import { pulse } from "./beat.ts";
+import { MOMENTS } from "./cues.ts";
 import { shake } from "./punch.ts";
-import { Discs, HoleEdges, Punched } from "./stage/Punched";
+import { Confetti } from "./stage/Confetti";
+import { Discs, HoleEdges, Punched, Shockwaves } from "./stage/Punched";
 import { End } from "./scenes/End";
 import { Hook } from "./scenes/Hook";
 import { Join } from "./scenes/Join";
 import { Looks } from "./scenes/Looks";
 import { Price } from "./scenes/Price";
 import { PromiseScene } from "./scenes/Promise";
-import { Proof } from "./scenes/Proof";
 import { Reward } from "./scenes/Reward";
 import { Stamps } from "./scenes/Stamps";
 import { Winback } from "./scenes/Winback";
@@ -33,24 +35,28 @@ const SCENES: Record<BeatId, { Scene: ComponentType; ground: Ground }> = {
   stamps: { Scene: Stamps, ground: "wall" },
   reward: { Scene: Reward, ground: "ink" },
   winback: { Scene: Winback, ground: "wall" },
-  proof: { Scene: Proof, ground: "panel" },
   price: { Scene: Price, ground: "wall" },
   end: { Scene: End, ground: "wall" },
 };
 
 const OPENING = PUNCH.openDelay + PUNCH.open;
 
-/** The camera: still, but for three frames' shake and a small jolt at each punch. */
+/**
+ * The camera: it bumps in with every kick of the track, and shakes for three
+ * frames with a jolt at each punch.
+ */
 function Camera({ children }: { children: ReactNode }) {
   const frame = useCurrentFrame();
   const { x, y } = shake(frame);
   const hit = x !== 0 || y !== 0;
-  return <AbsoluteFill style={{ transform: hit ? `translate(${x}px, ${y}px) scale(1.03)` : undefined }}>{children}</AbsoluteFill>;
+  const scale = (hit ? 1.03 : 1) * (1 + 0.014 * pulse(frame));
+  return <AbsoluteFill style={{ transform: `translate(${x}px, ${y}px) scale(${scale})` }}>{children}</AbsoluteFill>;
 }
 
 /**
- * The promo: ten beats on the wall, each punched through to the next, a
- * strip of ten slots across the top filling with the punched discs.
+ * The promo: nine beats cut to a 120 BPM track, each punched through to the
+ * next on a downbeat, a strip of ten slots across the top filling with the
+ * punched discs.
  */
 export function Promo({ lang }: { lang: Lang }) {
   return (
@@ -70,8 +76,11 @@ export function Promo({ lang }: { lang: Lang }) {
               );
             })}
             <HoleEdges />
+            <Shockwaves />
             <Strip />
             <Discs />
+            <Confetti at={MOMENTS.reward} origin={{ x: 540, y: 1040 }} />
+            <Confetti at={MOMENTS.full} origin={{ x: 540, y: 262 }} seed={23} />
           </Camera>
           <Sounds />
         </FontGate>

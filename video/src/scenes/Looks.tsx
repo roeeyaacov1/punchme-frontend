@@ -16,7 +16,7 @@ const SCALE = 1.7;
 /** The ring's middle on the frame. */
 const MIDDLE = 1100;
 
-const SPIN = { at: MOMENTS.looksSpin - beatStart("looks"), frames: 56, turns: 540 } as const;
+const SPIN = { at: MOMENTS.looksSpin - beatStart("looks"), frames: 40, turns: 540 } as const;
 
 /**
  * Beat 4: "Your card. / Your look." The eight published styled looks, each

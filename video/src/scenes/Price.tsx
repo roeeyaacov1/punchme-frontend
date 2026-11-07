@@ -29,7 +29,7 @@ export function Price() {
           </span>
         </div>
       </div>
-      <Lead size={54} className="mt-[64px]" style={{ opacity: progress(f, at + 14, 5) }}>
+      <Lead size={54} className="mt-[64px]" style={{ opacity: progress(f, at + 15, 4) }}>
         {t("video:price.free")}
       </Lead>
     </AbsoluteFill>

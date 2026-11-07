@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { DIE_R, SLOT, discFlight, holeRadius, pressScale, shake, slotCenter, stampsLanded } from "../src/punch.ts";
-import { DURATION, FINAL_STAMP, PUNCH, PUNCHES } from "../src/timeline.ts";
+import { DURATION, FINAL_PUNCHES, PUNCH, PUNCHES } from "../src/timeline.ts";
 
 const first = PUNCHES[0];
 
@@ -50,10 +50,10 @@ test("the disc flies from the punch to its slot, mirrored in Hebrew", () => {
   assert.equal(discFlight(first.at + PUNCH.flight, first, false), null);
 });
 
-test("stamps land one per punch, the tenth on the last beat", () => {
+test("stamps land one per punch, the last two on the end card", () => {
   assert.equal(stampsLanded(0), 0);
   assert.equal(stampsLanded(first.at + PUNCH.flight - 1), 0);
   assert.equal(stampsLanded(first.at + PUNCH.flight), 1);
-  assert.equal(stampsLanded(FINAL_STAMP + PUNCH.flight - 1), 9);
+  assert.equal(stampsLanded(FINAL_PUNCHES[1].at + PUNCH.flight - 1), 9);
   assert.equal(stampsLanded(DURATION - 1), 10);
 });

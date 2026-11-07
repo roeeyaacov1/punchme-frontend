@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { SLAMS, cues } from "../src/cues.ts";
 import { HERO_STAMPS } from "../src/stamping.ts";
-import { BEATS, DURATION, FINAL_STAMP, PUNCH, PUNCHES, beatLength, type BeatId } from "../src/timeline.ts";
+import { BEATS, DURATION, FINAL_PUNCHES, PUNCH, PUNCHES, beatLength, beatStart, type BeatId } from "../src/timeline.ts";
 
 const all = cues();
 
@@ -15,9 +15,9 @@ test("every sound starts inside the video, in order", () => {
   assert.ok(all.every((cue, i) => i === 0 || cue.frame > all[i - 1].frame));
 });
 
-test("a punch at every boundary and on the tenth stamp", () => {
+test("a punch at every boundary and on the last two stamps", () => {
   const punches = all.filter((cue) => cue.sound === "punch").map((cue) => cue.frame);
-  assert.deepEqual(punches, [...PUNCHES.map((p) => p.at), FINAL_STAMP]);
+  assert.deepEqual(punches, [...PUNCHES.map((p) => p.at), ...FINAL_PUNCHES.map((p) => p.at)]);
 });
 
 test("the hole opening out sounds as it opens", () => {
@@ -43,5 +43,13 @@ test("every word lands inside its own beat, clear of the punch and the whoosh th
     // The hook has no punch before it: its words may land on frame 0.
     const earliest = id === "hook" ? 0 : PUNCH.openDelay + 1;
     for (const frame of frames) assert.ok(frame >= earliest && frame < beatLength(id), `${id} ${frame}`);
+  }
+});
+
+test("every punch and every slam lands on the beat, or on its half", () => {
+  const eighth = (frame: number) => Math.abs(frame / 7.5 - Math.round(frame / 7.5)) * 7.5 <= 0.5 + 1e-9;
+  for (const p of [...PUNCHES, ...FINAL_PUNCHES]) assert.equal(p.at % 15, 0, String(p.at));
+  for (const [id, frames] of Object.entries(SLAMS) as [BeatId, number[]][]) {
+    for (const frame of frames) assert.ok(eighth(beatStart(id) + frame), `${id} ${frame}`);
   }
 });

@@ -66,7 +66,7 @@ export function Stamps() {
           x={LEFT + code.box.x + code.box.w / 2}
           y={STAMP_CARD.top + code.box.y + code.box.h / 2}
           size={code.box.w * 1.3}
-          at={8}
+          at={15}
           frame={f}
           out={flash + 4}
         />

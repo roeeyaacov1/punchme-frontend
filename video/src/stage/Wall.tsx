@@ -1,4 +1,6 @@
 import { AbsoluteFill, useCurrentFrame } from "remotion";
+import { pulse } from "../beat.ts";
+import { beatStart, type BeatId } from "../timeline.ts";
 import { useHebrew } from "../pieces";
 
 /**
@@ -28,8 +30,10 @@ const RINGS = [
   { x: 600, y: 1080, r: 170, speed: 0.5 },
 ];
 
-export function Wall({ ground = "wall" }: { ground?: Ground }) {
+export function Wall({ ground = "wall", beat }: { ground?: Ground; beat: BeatId }) {
+  // The rings breathe with the kick: read on the video's own clock.
   const frame = useCurrentFrame();
+  const beatPulse = pulse(beatStart(beat) + frame);
   const rtl = useHebrew();
   const drift = frame * 0.15 * (rtl ? -1 : 1);
   return (
@@ -45,6 +49,7 @@ export function Wall({ ground = "wall" }: { ground?: Ground }) {
             height: ring.r * 2,
             borderWidth: Math.round(ring.r * 0.09),
             borderStyle: "solid",
+            transform: `scale(${1 + 0.06 * beatPulse})`,
           }}
         />
       ))}

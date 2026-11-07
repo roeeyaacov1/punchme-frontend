@@ -1,22 +1,21 @@
 /**
- * The punched cut's beats, in frames at 30 fps. Pure, so it can be tested:
- * `test/timeline.test.ts`. The spec's script, with its end times, is in
- * `docs/superpowers/specs/2026-11-07-promo-video-punch-design.md`.
+ * The punched cut's beats, in frames at 30 fps, cut to a 120 BPM track: a
+ * beat is 15 frames and a bar 60, and every beat of the video starts on a
+ * beat of the music. Pure, so it can be tested: `test/timeline.test.ts`.
  */
 
-export type BeatId = "hook" | "promise" | "join" | "looks" | "stamps" | "reward" | "winback" | "proof" | "price" | "end";
+export type BeatId = "hook" | "promise" | "join" | "looks" | "stamps" | "reward" | "winback" | "price" | "end";
 
 export const BEATS: readonly { id: BeatId; length: number }[] = [
-  { id: "hook", length: 78 },
-  { id: "promise", length: 72 },
-  { id: "join", length: 96 },
+  { id: "hook", length: 60 },
+  { id: "promise", length: 60 },
+  { id: "join", length: 90 },
   { id: "looks", length: 90 },
-  { id: "stamps", length: 108 },
-  { id: "reward", length: 66 },
-  { id: "winback", length: 96 },
-  { id: "proof", length: 102 },
-  { id: "price", length: 90 },
-  { id: "end", length: 102 },
+  { id: "stamps", length: 90 },
+  { id: "reward", length: 60 },
+  { id: "winback", length: 60 },
+  { id: "price", length: 60 },
+  { id: "end", length: 120 },
 ];
 
 export const DURATION = BEATS.reduce((sum, beat) => sum + beat.length, 0);
@@ -69,22 +68,25 @@ export const PUNCH_POINTS: Record<Exclude<BeatId, "hook">, { cx: number; cy: num
   stamps: { cx: 540, cy: 1100 },
   reward: { cx: 540, cy: 1045 },
   winback: { cx: 540, cy: 1050 },
-  proof: { cx: 540, cy: 1150 },
-  price: { cx: 540, cy: 1000 },
+  price: { cx: 540, cy: 1100 },
   end: { cx: 540, cy: 1000 },
 };
 
-/** The punches between beats: one at every boundary, slots 0 to 8. */
+/** The punches between beats, on their downbeats: one at every boundary, slots 0 to 7. */
 export const PUNCHES: PunchAt[] = BEATS.slice(1).map((beat, index) => ({
   at: beatStart(beat.id),
   ...PUNCH_POINTS[beat.id as Exclude<BeatId, "hook">],
   slot: index,
 }));
 
-/** The tenth stamp, punched on the last beat: the card full. */
-export const FINAL_STAMP = beatStart("end") + 30;
+/**
+ * The last two stamps, punched side by side on the end card on beats three
+ * and four, so the card is full on the next downbeat. The button the strip
+ * becomes lands over their holes.
+ */
+export const FINAL_PUNCHES: PunchAt[] = [
+  { at: beatStart("end") + 30, cx: 400, cy: 1000, slot: 8 },
+  { at: beatStart("end") + 45, cx: 680, cy: 1000, slot: 9 },
+];
 
-/** Where the tenth is punched: the middle of the end card, where the button lands. */
-export const FINAL_PUNCH: PunchAt = { at: FINAL_STAMP, cx: 540, cy: 1000, slot: 9 };
-
-export const ALL_PUNCHES: PunchAt[] = [...PUNCHES, FINAL_PUNCH];
+export const ALL_PUNCHES: PunchAt[] = [...PUNCHES, ...FINAL_PUNCHES];

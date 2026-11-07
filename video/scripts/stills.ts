@@ -16,16 +16,15 @@ import { webpackOverride } from "../webpack-override.ts";
 
 /** Each beat's settled frames: when what it shows has arrived and holds still. */
 const SETTLED: Record<string, number[]> = {
-  hook: [60],
-  promise: [140],
-  join: [240],
-  looks: [334],
-  stamps: [380, 430],
-  reward: [500],
-  winback: [600],
-  proof: [700],
-  price: [790],
-  end: [899],
+  hook: [50],
+  promise: [115],
+  join: [200],
+  looks: [290],
+  stamps: [340, 385],
+  reward: [445],
+  winback: [505],
+  price: [565],
+  end: [689],
 };
 
 const args = process.argv.slice(2);

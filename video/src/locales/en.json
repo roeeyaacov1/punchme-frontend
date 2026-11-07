@@ -9,9 +9,7 @@
     "password": "No password."
   },
   "join": {
-    "scan": "Scan the sign.",
-    "code": "A mobile number and a code from a text.",
-    "codeOff": "A mobile number."
+    "scan": "Scan the sign."
   },
   "looks": {
     "yourBusiness": "Your business",
@@ -26,10 +24,10 @@
     "line2": "Reward ready."
   },
   "winback": {
-    "line": "Then it reminds them to come back.",
+    "line": "Reminds them to come back.",
     "badge": "Sample · iPhone"
   },
   "price": {
-    "free": "Free to design. You pay once customers can join."
+    "free": "Free to design."
   }
 }

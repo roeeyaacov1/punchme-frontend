@@ -1,38 +1,40 @@
 # The PunchMe promo video
 
-A 30-second vertical video (1080 × 1920, 30 fps) for Roee to send to
+A 23-second vertical video (1080 × 1920, 30 fps) for Roee to send to
 business owners on WhatsApp and post to Stories, in Hebrew (`PromoHe`) and
 English (`PromoEn`), rendered by [Remotion](https://www.remotion.dev) from
-the app's own components and copy, with sound effects made by a script.
-Every word is on screen, so it works on mute. `message.md` has the message
-to send with it.
+the app's own components and copy, cut to a 120 BPM track. The track and
+the sound effects are made by a script. Every word is on screen, so it
+works on mute. `message.md` has the message to send with it.
 
 The design, agreed on 7 Nov 2026, is
-`docs/superpowers/specs/2026-11-07-promo-video-punch-design.md`, and the
-build plan is beside it in `docs/superpowers/plans/`.
+`docs/superpowers/specs/2026-11-07-promo-video-punch-design.md`, with the
+second pass (the beat, no facts, 23 seconds) at its end. The build plan is
+beside it in `docs/superpowers/plans/`.
 
 ## The idea
 
-**The video is a punch card.** Ten empty slots sit across the top. Every
-beat ends with a punch: a round die presses into the frame, the camera
-jolts, the next beat shows through the hole, and the hole opens out while
-the camera goes through it. The punched-out disc arcs up into the next
-slot. The tenth is punched on the end card: the card is full, the strip
-turns gold (the reward) and comes down into the hole it left as the
-"Start free" button.
+**The video is a punch card, cut to a beat.** Ten empty slots sit across
+the top. Every beat of the video starts on a downbeat with a punch: a round
+die presses into the frame, the camera jolts, a shockwave rings out, the
+next beat shows through the hole, and the hole opens out while the camera
+goes through it. The punched-out disc arcs up into the next slot, trailing
+ghosts. The last two are punched side by side on the end card, on beats
+three and four; on the next downbeat the card is full, gold confetti bursts,
+the strip turns gold (the reward) and comes down over the holes as the
+"Start free" button. The picture bumps with every kick.
 
-| # | Beat | Says | Ground |
-|---|---|---|---|
-| 1 | hook | Your punch card, in Wallet. The hero pass swings in in 3D | wall |
-| 2 | promise | No app. No account. No password. A hole punched beside each | coral |
-| 3 | join | Scan the sign. A mobile number and a code from a text. The standee's sign, the camera's corners, the flash, the pass out of the code into Apple and Google Wallet | wall |
-| 4 | looks | Your card. Your look. The eight published styled looks on a ring that spins onto the hero | panel |
-| 5 | stamps | Every visit, a stamp. Ten stamps, faster and faster, each the wallet's own drawing | wall |
-| 6 | reward | Card full. Reward ready. The scan's own "Card full!" answer | dark band |
-| 7 | winback | Then it reminds them to come back. The kit's lock screen, marked "Sample · iPhone", the win-back message and its free stamp | wall |
-| 8 | proof | 6x, its claim and its source | panel |
-| 9 | price | ₪99 a month, including VAT. Free to design. You pay once customers can join. | wall |
-| 10 | end | The logo, the tenth stamp, Start free, punchmeapp.com | wall |
+| # | Beat | Says | Ground | Music |
+|---|---|---|---|---|
+| 1 | hook | Your punch card, in Wallet. The hero pass swings in in 3D | wall | half-time intro |
+| 2 | promise | No app. No account. No password. A hole punched beside each | coral | groove |
+| 3 | join | Scan the sign. The standee's sign, the camera's corners, the flash, the pass out of the code into Apple and Google Wallet | wall | groove |
+| 4 | looks | Your card. Your look. The eight published styled looks on a ring that spins onto the hero | panel | groove |
+| 5 | stamps | Every visit, a stamp. Ten stamps on eighths then sixteenths, each the wallet's own drawing | wall | build: the kick drops out under a riser |
+| 6 | reward | Card full. Reward ready. The scan's own "Card full!" answer, and confetti | dark band | the drop |
+| 7 | winback | Reminds them to come back. The kit's lock screen, marked "Sample · iPhone", the win-back message and its free stamp | wall | groove with a pluck |
+| 8 | price | ₪99 a month, including VAT. Free to design. | wall | groove with a pluck |
+| 9 | end | The logo, the last two stamps, Start free, punchmeapp.com | wall | a last hit as the card fills |
 
 ## Run it
 
@@ -53,10 +55,10 @@ Then, from `video/`:
 |---|---|
 | `npm run studio` | Preview both compositions, and the contact sheet, in the browser, frame by frame |
 | `npm run render:he`, `npm run render:en` | Render `out/punchme-promo-he.mp4` and `out/punchme-promo-en.mp4` |
-| `npx remotion still PromoHe out/punchme-promo-he-poster.png --frame=60` | A poster (the same for `PromoEn`): the hook with its pass. Frame 0 is the opening line, so a thumbnail made from the first frame is never an empty wall |
+| `npx remotion still PromoHe out/punchme-promo-he-poster.png --frame=50` | A poster (the same for `PromoEn`): the hook with its pass. Frame 0 is the opening line, so a thumbnail made from the first frame is never an empty wall |
 | `npm run stills` | A still of every beat at its settled frame, both languages, into `out/stills/` (`--lang he`, beat ids, or `--frames 150,412` to narrow it) |
-| `npm run stills -- --sheet 75,78,84,91 --cols 4 --name punch` | One contact sheet of those frames at a quarter size, per language: the quickest way to check motion |
-| `npm test` | The timing, the punch's geometry, the stamps, the sound cues, the drawing's request and the WAV writer (`node --test`) |
+| `npm run stills -- --sheet 60,63,70 --cols 3 --name punch` | One contact sheet of those frames at a quarter size, per language: the quickest way to check motion |
+| `npm test` | The timeline and the beat grid, the punch's geometry, the stamps, the sound cues, the confetti, the drawing's request and the WAV writer (`node --test`) |
 | `npm run typecheck` | TypeScript over the video and the app files it imports |
 | `npx remotion ffprobe out/punchme-promo-he.mp4` | Check the codec, the pixel format, the audio and the length |
 
@@ -78,20 +80,26 @@ Both are committed, so a render needs neither the backend nor a rerun.
   on 8001 and passbox on 8002). `scripts/drawBody.ts` builds the request as
   the wizard does, and the script checks it: the drawing at count 5 must be
   byte for byte the look's published picture.
-- **`public/sfx/`: the sounds.** `node scripts/sfx.ts` synthesizes them from
-  a fixed seed (a punch, a slam for words, a whoosh, a shutter, a ding, a
-  chime and ten stamps a whole tone apart), each peaking at -1 dBFS, then
-  mixes the whole video from the cues and prints the mix's peak. It stood at
-  -3.0 dBFS on 7 Nov 2026; under 0 is the rule.
+- **`public/sfx/`: the track and the sounds.** `node scripts/sfx.ts`
+  synthesizes, from a fixed seed, the track (`music.wav`, from
+  `scripts/music.ts`: kick, clap, hats, an eighth-note bass in A minor, a
+  riser, two crashes and a pluck, its kicks the ones in `src/beat.ts`) and
+  the effects (a punch, a slam for words, a whoosh, a shutter, a ding, a
+  chime and ten stamps a whole tone apart). Then it mixes the whole video
+  and prints the mix's peak: -3.0 dBFS on 7 Nov 2026; under 0 is the rule.
+  `scripts/synth.ts` holds the building blocks.
 
 ## How it is made
 
 - **Every frame is decided by pure functions**, tested with `node --test`:
-  `src/timeline.ts` (the beats, the punch's timing and points),
-  `src/punch.ts` (the hole, the shake, the disc's flight, the strip's
-  slots), `src/stamping.ts` (the run of stamps, its gaps shrinking from
-  300ms to 90ms), `src/cues.ts` (every sound on its own frame). The scenes
-  in `src/scenes/` and the stage pieces in `src/stage/` only read them.
+  `src/timeline.ts` (the beats, each starting on the track's beat, and the
+  punches), `src/beat.ts` (120 BPM: a beat is 15 frames, a bar 60; the
+  kicks and the picture's pulse), `src/punch.ts` (the hole, the shake, the
+  disc's flight, the strip's slots), `src/stamping.ts` (the run of stamps on
+  the sixteenth-note grid), `src/cues.ts` (every sound on its own frame,
+  every punch and word on the beat or its half), `src/confetti.ts`,
+  `src/strip.ts` and `src/layout.ts`. The scenes in `src/scenes/` and the
+  stage pieces in `src/stage/` only read them.
 - **The real pieces.** `AppleCardPreview` and `GoogleCardPreview` made from
   a look exactly as the wizard makes them (`lookPreview` in
   `src/routes/onboarding/looks.ts`), the wallet's drawings as their strips;
@@ -112,12 +120,12 @@ Both are committed, so a render needs neither the backend nor a rerun.
 - **The faces.** Rubik 500/700 and Assistant 400/600 with their Hebrew and
   Latin files, and Roboto for the Google Wallet preview, through
   `@remotion/google-fonts`. `FontGate` holds every frame until they are in.
-- **The motion.** Words slam in from 135% on the overshoot with a small
-  kick; passes swing in in a perspective box and sway; the carousel blurs
-  with its speed; the staged components' own CSS animations are frozen
-  (`src/video.css`) and every movement comes from the frame. Horizontal
-  motion mirrors in Hebrew: the strip fills from the right, the discs fly
-  right, the ring turns the other way.
+- **The motion.** Words slam in on the beat, lit at 135% and settling on
+  the overshoot with a small kick; passes swing in in a perspective box and
+  sway; the carousel blurs with its speed; the staged components' own CSS
+  animations are frozen (`src/video.css`) and every movement comes from the
+  frame. Horizontal motion mirrors in Hebrew: the strip fills from the
+  right, the discs fly right, the ring turns the other way.
 - **The safe area.** Words stay 80px from the sides, 220px from the top and
   320px from the bottom, clear of WhatsApp's and Stories' own controls. The
   strip sits just under the top 220px.
@@ -128,39 +136,24 @@ Remotion is free for individuals and for companies of up to three people,
 which PunchMe is ([remotion.dev/license](https://www.remotion.dev/license)).
 A company that grows past three needs a company licence.
 
-## The figure on screen, and its source
+## Numbers on screen
 
-The video prints one sourced figure, and only that one, with its source on
-screen the whole time it is shown (beat 8):
-
-| Figure | Claim | Source as printed | Link |
-|---|---|---|---|
-| 6x / פי 6 | Regulars generate about six times more annual revenue than one-time customers | Square Local Economy Report, March 2026 (US data) | https://squareup.com/us/en/press/2026-local-economy-report |
-
-The claim and the source are the landing page's own (`landing.proof.stats`,
-`src/components/marketing/sources.ts`). Square counted a regular as someone
-who visits at least four times a year; that caveat and the link go in the
-message sent with the video.
-
-Everything else with a number in it is a picture of the product, not a
-claim: the looks' own sample counts, the hero card from 0 to 10, the sample
-win-back message's "30 days" (the rule's starter setting), and the price,
-₪99 a month including VAT (`PUNCHME_MONTHLY_PRICE`).
+The video prints no statistic: Roee cut the sourced 6x figure on 7 Nov
+2026 ("no boring facts"). Every number left is a picture of the product,
+not a claim: the looks' own sample counts, the hero card from 0 to 10, the
+sample win-back message's "30 days" (the rule's starter setting), and the
+price, ₪99 a month including VAT (`PUNCHME_MONTHLY_PRICE`).
 
 ## Switches
 
-`src/config.ts`:
-
-- `SMS_CODE`: whether the join's line says "and a code from a text". On,
-  since the SMS code will be live when the video goes out (Roee, 6 Nov 2026).
-- `SITE_URL`: the address on the end card, and where the sample sign's code
-  leads.
+`src/config.ts`: `SITE_URL`, the address on the end card, and where the
+sample sign's code leads.
 
 ## The rules it keeps
 
-CLAUDE.md's "The brand is candour", PRODUCT.md's "Evidence on Hand" and
-DESIGN.md's Lightbox. In short: no figure without its source on screen, no
-promise of results ("it reminds them to come back", never "it brings them
+CLAUDE.md's "The brand is candour", PRODUCT.md and DESIGN.md's Lightbox.
+In short: no figure without its source on screen (so, now, no figure), no
+promise of results ("reminds them to come back", never "brings them
 back"), no "unlimited" or "no signup", no names, logos, photos or drawn
 people beyond the landing page's own sample, no official wallet badges, a
 sample says it is one, the iPhone lock screen says it is iPhone's, and

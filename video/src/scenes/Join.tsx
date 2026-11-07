@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
 import { StandeeSheet } from "../../../src/components/dashboard/Standee";
 import { sampleSign, tradeTemplate } from "../../../src/components/marketing/samples";
-import { SITE_URL, SMS_CODE } from "../config";
+import { SITE_URL } from "../config";
 import { MOMENTS, SLAMS } from "../cues.ts";
 import { EASE_OUT, IN_OUT, OVERSHOOT, lerp, progress } from "../motion.ts";
 import { HERO } from "../looks";
-import { Lead, Tag, useHebrew } from "../pieces";
+import { Tag, useHebrew } from "../pieces";
 import { Brackets, Flash } from "../stage/Camera";
 import { LookCard, PASS_H } from "../stage/LookCard";
 import { Slam } from "../stage/Slam";
@@ -18,12 +18,12 @@ const SIGN = { left: 280, top: 790, width: 520 } as const;
 
 /** The beat's moments, from its first frame. */
 const J = {
-  signIn: 8,
-  aim: 22,
+  signIn: 15,
+  aim: 30,
   flash: MOMENTS.joinFlash - beatStart("join"),
-  rise: 40,
-  fan: 60,
-  tags: 70,
+  rise: 47,
+  fan: 64,
+  tags: 74,
 } as const;
 
 /** The pair, fanned: each pass at 1.45 (435px wide), their tops here. */
@@ -64,9 +64,6 @@ export function Join() {
         <Slam at={SLAMS.join![0]} size={100}>
           {t("video:join.scan")}
         </Slam>
-        <Lead size={50} style={{ opacity: progress(f, 16, 6) }}>
-          {t(SMS_CODE ? "video:join.code" : "video:join.codeOff")}
-        </Lead>
       </div>
 
       {signOut < 1 && (
@@ -88,7 +85,7 @@ export function Join() {
           </Tag>
         </div>
       )}
-      <Brackets x={qrX} y={qrY} size={qr.size * 1.15} at={J.aim} frame={f} out={J.rise} />
+      <Brackets x={qrX} y={qrY} size={qr.size * 1.15} at={J.aim} frame={f} frames={12} out={J.rise} />
 
       {f >= J.rise && (
         <>

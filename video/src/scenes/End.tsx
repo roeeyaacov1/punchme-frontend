@@ -7,30 +7,31 @@ import { SLOT, slotCenter } from "../punch.ts";
 import { Logo, Ltr, useHebrew } from "../pieces";
 import { stripRect } from "../stage/Strip";
 import { STRIP_HANDOFF } from "../strip.ts";
-import { FINAL_PUNCH, beatStart } from "../timeline.ts";
+import { SLAMS } from "../cues.ts";
+import { FINAL_PUNCHES, beatStart } from "../timeline.ts";
 
 /** The button the full strip becomes. */
-const BUTTON = { w: 640, h: 152, cy: FINAL_PUNCH.cy } as const;
+const BUTTON = { w: 640, h: 152, cy: FINAL_PUNCHES[0].cy } as const;
 const MORPH = 14;
 
 /**
- * Beat 10: the logo lands; the tenth stamp is punched out of the middle and
- * flies to the strip, which is full and turns gold, the reward; then the
- * strip comes down into the hole it left and becomes "Start free", coral
- * with its label in ink, the address under it.
+ * The last beat: the logo lands; the last two stamps are punched out side by
+ * side, on beats three and four, and fly to the strip, which is full on the
+ * downbeat and turns gold, the reward; then the strip comes down over the
+ * holes they left and becomes "Start free", coral with its label in ink,
+ * the address under it.
  */
 export function End() {
   const { t } = useTranslation();
   const f = useCurrentFrame();
   const hebrew = useHebrew();
   const start = beatStart("end");
-  const punch = FINAL_PUNCH.at - start;
   const handoff = STRIP_HANDOFF - start;
   const morph = progress(f, handoff, MORPH, IN_OUT);
-  const logo = progress(f, 6, 6, OVERSHOOT);
+  const logoAt = SLAMS.end![0];
+  const logo = progress(f, logoAt, 6, OVERSHOOT);
 
-  // The hole the tenth stamp leaves, filled by the button as it lands.
-  const hole = f >= punch && morph < 1;
+  // The holes the last two stamps leave, filled by the button as it lands.
   const holeScale = 1 - morph;
 
   // The strip, from its place to the button's.
@@ -49,22 +50,23 @@ export function End() {
 
   return (
     <AbsoluteFill>
-      <div className="absolute inset-x-0 flex justify-center" style={{ top: 640, opacity: progress(f, 6, 2), transform: `scale(${lerp(1.35, 1, logo)})` }}>
+      <div className="absolute inset-x-0 flex justify-center" style={{ top: 640, opacity: progress(f, logoAt - 1, 1), transform: `scale(${lerp(1.35, 1, logo)})` }}>
         <Logo height={150} />
       </div>
-      {hole && (
+      {FINAL_PUNCHES.filter((p) => f >= p.at - start && morph < 1).map((p) => (
         <div
+          key={p.slot}
           className="absolute rounded-full bg-ink"
           style={{
-            left: FINAL_PUNCH.cx - 130,
-            top: FINAL_PUNCH.cy - 130,
+            left: p.cx - 130,
+            top: p.cy - 130,
             width: 260,
             height: 260,
             transform: `scale(${holeScale})`,
             boxShadow: "inset 0 26px 40px rgb(0 0 0 / 0.6)",
           }}
         />
-      )}
+      ))}
       {f >= handoff && (
         <div
           className="absolute flex items-center justify-center"

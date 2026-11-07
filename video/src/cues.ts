@@ -1,9 +1,10 @@
 import { HERO_STAMPS } from "./stamping.ts";
-import { FINAL_STAMP, PUNCH, PUNCHES, beatStart, type BeatId } from "./timeline.ts";
+import { FINAL_PUNCHES, PUNCH, PUNCHES, beatStart, type BeatId } from "./timeline.ts";
 
 /**
- * What the video sounds like when. The scenes move on the same frames, so
- * the moments live here and both read them. Pure: `test/cues.test.ts`.
+ * What the video sounds like when, over the track (`music.wav`). The scenes
+ * move on the same frames, so the moments live here and both read them;
+ * every one is on the track's beat or its half. Pure: `test/cues.test.ts`.
  */
 
 export type Sound =
@@ -21,18 +22,21 @@ export interface Cue {
   volume: number;
 }
 
-/** The frames, from each beat's start, at which its words land. */
+/**
+ * The frames, from each beat's start, at which its words land: on the
+ * second beat, after the punch that opens the beat on its first.
+ */
 export const SLAMS: Partial<Record<BeatId, number[]>> = {
   // The first line lands on frame 0: WhatsApp's thumbnail is the first frame.
-  hook: [0, 10],
-  promise: [8, 20, 32],
-  join: [6],
-  looks: [6, 16],
-  stamps: [6],
-  reward: [12, 22],
-  winback: [6],
-  proof: [8],
-  price: [8],
+  hook: [0, 15],
+  promise: [15, 30, 45],
+  join: [15],
+  looks: [15, 30],
+  stamps: [15],
+  reward: [30, 37.5],
+  winback: [15],
+  price: [15],
+  end: [15],
 };
 
 /**
@@ -44,31 +48,31 @@ export const HOOK_LEAD = 3;
 
 /** The moments the scenes and the sounds share, in absolute frames. */
 export const MOMENTS = {
-  /** The camera's corners lock on the sign's code, and the flash. */
-  joinFlash: beatStart("join") + 36,
-  /** The carousel of looks starts to spin. */
-  looksSpin: beatStart("looks") + 24,
-  /** The owner's camera on the hero card, and the flash. */
-  stampsFlash: beatStart("stamps") + 22,
-  /** "Card full" bursts open. */
-  reward: beatStart("reward") + 8,
-  /** The win-back message lands on the lock screen. */
-  ding: beatStart("winback") + 34,
-  /** Its free stamp lands on the card. */
-  freeStamp: beatStart("winback") + 56,
-  /** The strip, full, turns gold. */
-  full: FINAL_STAMP + PUNCH.flight,
+  /** The camera's corners lock on the sign's code, and the flash: beat four. */
+  joinFlash: beatStart("join") + 45,
+  /** The carousel of looks starts to spin: beat four, after its two lines. */
+  looksSpin: beatStart("looks") + 45,
+  /** The owner's camera on the hero card, and the flash: beat three. */
+  stampsFlash: beatStart("stamps") + 30,
+  /** "Card full" bursts open on the drop's second beat. */
+  reward: beatStart("reward") + 15,
+  /** The win-back message lands on the lock screen: beat three. */
+  ding: beatStart("winback") + 30,
+  /** Its free stamp lands on the card: beat four. */
+  freeStamp: beatStart("winback") + 45,
+  /** The strip, full, turns gold: as the last disc lands, a frame before the downbeat. */
+  full: FINAL_PUNCHES[1].at + PUNCH.flight,
 } as const;
 
-/** Each sound's level in the mix: the whole mix peaks near -3 dBFS (`scripts/sfx.ts` prints it), headroom for the AAC encode. */
+/** Each sound's level over the track: `scripts/sfx.ts` mixes them with it and prints the peak. */
 const VOLUME: Record<string, number> = {
-  punch: 0.68,
-  slam: 0.42,
-  whoosh: 0.27,
-  stamp: 0.45,
-  shutter: 0.38,
-  ding: 0.45,
-  chime: 0.53,
+  punch: 0.5,
+  slam: 0.34,
+  whoosh: 0.22,
+  stamp: 0.42,
+  shutter: 0.34,
+  ding: 0.42,
+  chime: 0.48,
 };
 
 const volumeOf = (sound: Sound) => VOLUME[sound.startsWith("stamp-") ? "stamp" : sound];
@@ -80,7 +84,7 @@ const volumeOf = (sound: Sound) => VOLUME[sound.startsWith("stamp-") ? "stamp" :
 export function cues(): Cue[] {
   const wanted: [number, Sound][] = [
     ...PUNCHES.map((p): [number, Sound] => [p.at, "punch"]),
-    [FINAL_STAMP, "punch"],
+    ...FINAL_PUNCHES.map((p): [number, Sound] => [p.at, "punch"]),
     ...HERO_STAMPS.map((frame, i): [number, Sound] => [frame, `stamp-${i + 1}` as Sound]),
     ...PUNCHES.map((p): [number, Sound] => [p.at + PUNCH.openDelay, "whoosh"]),
     [MOMENTS.joinFlash, "shutter"],
@@ -91,7 +95,7 @@ export function cues(): Cue[] {
     [MOMENTS.freeStamp, "stamp-1"],
     [MOMENTS.full, "chime"],
     ...(Object.entries(SLAMS) as [BeatId, number[]][]).flatMap(([id, frames]) =>
-      frames.map((frame): [number, Sound] => [beatStart(id) + frame, "slam"]),
+      frames.map((frame): [number, Sound] => [Math.round(beatStart(id) + frame), "slam"]),
     ),
   ];
   const taken = new Set<number>();

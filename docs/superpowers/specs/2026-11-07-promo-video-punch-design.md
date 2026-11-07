@@ -133,3 +133,30 @@ sounds never start on the same frame.
 - Mid-transition frames checked: the hole, the shake, the disc on its way
   to the strip.
 - The sound's peaks reported below 0 dBFS in the mix.
+
+## Second pass, 7 Nov 2026: cut to a beat, no facts
+
+Roee, after the first render: "even cooler", then "no boring facts.
+straight to the point and cool animations", and yes to this design.
+
+- **A beat to cut to.** A synthesized track at 120 BPM (a beat is 15
+  frames, a bar 60): a half-time intro, a groove with claps and an
+  eighth-note bass in A minor, a build where the kick drops out under a
+  riser while the stamps land, the drop on "Card full", a pluck over the
+  drop, and a last hit as the card fills. Every beat of the video starts on
+  a beat of the track with its punch; words land on the next beat; the ten
+  stamps run on eighths then sixteenths. `src/beat.ts` lists the kicks once
+  for the track and the picture.
+- **No facts.** The 6x beat is cut, with its claim and source, and the
+  video prints no statistic. The SMS line under "Scan the sign" is cut.
+  The win-back says "Reminds them to come back." and the price "₪99 a
+  month, including VAT" with "Free to design." The "Sample · iPhone" tag
+  stays.
+- **Tighter.** Nine beats in 23 seconds (690 frames): hook 2s, promise 2s,
+  join 3s, looks 3s, stamps 3s, reward 2s, win-back 2s, price 2s, end 4s.
+  The last two stamps are punched side by side on the end card, so the
+  strip still fills to ten.
+- **Cooler motion.** The camera bumps with every kick and the wall's rings
+  breathe with it; every punch throws a shockwave; the discs trail ghosts;
+  gold and coral stamp confetti bursts on "Card full" and as the strip
+  fills.

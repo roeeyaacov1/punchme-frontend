@@ -13,7 +13,7 @@ const OPENING = PUNCH.openDelay + PUNCH.open;
  * it sees the previous beat's punch land on that frame: until the hole
  * covers the frame, it is drawn only inside the hole, settling from 112% as
  * the hole opens. Before its own punch it gives under the die; once punched
- * it steps back and dims while the next beat opens over it.
+ * the camera rushes through it, and it dims, while the next beat opens over it.
  */
 export function Punched({ id, ground, children }: { id: BeatId; ground: Ground; children: ReactNode }) {
   const index = BEATS.findIndex((beat) => beat.id === id);
@@ -41,7 +41,7 @@ export function Punched({ id, ground, children }: { id: BeatId; ground: Ground; 
 
   return (
     <AbsoluteFill style={{ clipPath, transform: scale === 1 ? undefined : `scale(${scale})`, transformOrigin: origin }}>
-      <Wall ground={ground} />
+      <Wall ground={ground} beat={id} />
       {children}
       {dim > 0 && <AbsoluteFill style={{ background: `rgb(43 37 33 / ${dim})` }} />}
     </AbsoluteFill>
@@ -78,12 +78,64 @@ export function HoleEdges() {
   );
 }
 
-/** The discs punched out, on their way up to the strip. */
+/**
+ * The punch's shockwave: a ring of light thrown out from the hole's edge,
+ * thinning and fading over twelve frames.
+ */
+export function Shockwaves() {
+  const f = useCurrentFrame();
+  return (
+    <>
+      {ALL_PUNCHES.filter((p) => f >= p.at && f < p.at + 12).map((p) => {
+        const k = progress(f, p.at, 12, EASE_OUT);
+        const r = lerp(140, 720, k);
+        return (
+          <div
+            key={p.at}
+            className="pointer-events-none absolute rounded-full"
+            style={{
+              left: p.cx - r,
+              top: p.cy - r,
+              width: r * 2,
+              height: r * 2,
+              opacity: 0.85 * (1 - k),
+              boxShadow: `0 0 0 ${lerp(18, 2, k)}px rgb(255 253 250), 0 0 40px rgb(255 253 250 / 0.6)`,
+            }}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+const TRAIL = [1.2, 2.4, 3.6];
+
+/** The discs punched out, on their way up to the strip, each with a trail of fading ghosts. */
 export function Discs() {
   const f = useCurrentFrame();
   const rtl = useHebrew();
   return (
     <>
+      {ALL_PUNCHES.flatMap((p) =>
+        TRAIL.map((back, i) => {
+          const ghost = discFlight(f - back, p, rtl);
+          if (!ghost || !discFlight(f, p, rtl)) return null;
+          return (
+            <div
+              key={`${p.at}-${i}`}
+              className="absolute rounded-full bg-primary"
+              style={{
+                left: ghost.x - 130,
+                top: ghost.y - 130,
+                width: 260,
+                height: 260,
+                opacity: 0.32 - i * 0.1,
+                transform: `scale(${ghost.scale * (1 - 0.08 * (i + 1))})`,
+              }}
+            />
+          );
+        }),
+      )}
       {ALL_PUNCHES.map((p) => {
         const flight = discFlight(f, p, rtl);
         if (!flight) return null;
