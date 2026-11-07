@@ -67,10 +67,13 @@ options (`available`) and the catalog has at least one look drawn for them
 them, exactly: `/onboarding/look` goes to `/onboarding/business`, where the
 business holds the trade, and the road is four stops. It is decided once
 per tab, as soon as the list has answered (and the catalog, where the list
-said yes), or after 4 s with what is known by then; until then no screen is
-shown, and from 300 ms the frame a cold load shows stands in its place
-(`WizardSkeleton`), so a slow phone never sees an empty page and a list
-that answers at once never flashes it. A draft that already has a look keeps the fifth stop, until its
+said yes), or after 4 s with what is known by then; until then neither the
+road nor a screen is shown, and from 300 ms the frame a cold load shows
+stands in their place (`WizardSkeleton`), so a slow phone never sees an
+empty page and a list that answers at once never flashes it. On a cold load
+that frame is already up, so it stays, with no blank moment between the
+two. The road and the screen arrive together: a screen drawn before its
+road would be pushed down when the road came. A draft that already has a look keeps the fifth stop, until its
 options are taken off where the wallet draws none of them (below).
 
 Every screen stands in one column or two (`StepShell`). One on a phone and
@@ -565,6 +568,15 @@ Fixed, except where it says otherwise.
 - **The logo tile's words ran out of their box** beside "Remove" at 320px,
   and at 375px with 200% text (step D). Fixed in `UploadTile`, the studio's
   too; its tiles have no "Remove", and nothing moves at 100% there.
+- **The screen jumped down as the road arrived** (found measuring the
+  fonts, 7 Nov). The step's frame was drawn as the wizard's code came,
+  before the road above it, which waits for the looks to be known; the
+  road then pushed it down 54px. On Slow 4G at 412px that was a layout
+  shift of 0.056 in 13 of 16 loads, and in all 10 (up to 0.060) when the
+  API took a round trip; at 1280px, 0.023 even on an ordinary connection.
+  The page also went blank between the cold load's frame and the wait's.
+  Both fixed: the shift is in no load since, and the screen arrives no
+  later.
 - **Not fixed, the catalog's to change:** the bakery look's white text on
   its own `#C65D3B` is 4.2:1 on the pass (step D's detector, in the pass
   preview), under AA for its smaller labels. It is the look as staff
