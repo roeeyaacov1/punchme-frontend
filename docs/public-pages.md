@@ -367,6 +367,44 @@ or at the section a link names.
 - The date at the top of `/privacy` and `/terms` (`info.privacy.updated`,
   `info.terms.updated`) moves with any change to what they say.
 
+## No page here, and a page that didn't load
+
+Added on 7 Nov 2026, after Phase 10's audit: an address no route had, and a
+page that threw anywhere outside the dashboard's pages, both fell to React
+Router's default error page, English developer text ("Unexpected
+Application Error! 404 Not Found", "Hey developer") with no skip link, no
+language switch and no way home.
+
+| Where | What it shows |
+|---|---|
+| `*`, the root's last child (`NotFoundPage`) | "There's no page here", "The link may be old or mistyped.", "To the home page" (`/`) and "Sign in" (`/login`) |
+| The root's `errorElement` (`PageErrorPage`) | "This page didn't load", "Try again, or go to the home page.", "Try again" (a reload) and "To the home page" |
+
+**Who.** Anyone. The catch-all answers any address no route has: a link
+that is old, mistyped or cut short, `/join` with no id, `/admin/nope`.
+Addresses under `/dashboard` have the shell's own (`DashboardNotFound`), and
+the wizard's lead back to `/onboarding`, so neither reaches it. The error
+element answers a page that throws, or whose code doesn't arrive, wherever
+the shell's `DashboardPageError` doesn't. **Calls.** None of their own: only
+the app's start-up check. **Frame.** `PublicPage`'s team frame, as on
+`/login`: the mark home and the language switch over one lit panel, light,
+titled "{title} — PunchMe" in the visitor's language. Both are in the entry
+chunk, so they draw at once.
+
+**Must survive.**
+
+- Each says what happened, on the page and in the visitor's language. The
+  catch-all never sends anyone home without a word, which would look like a
+  broken link.
+- The way home, and on the page with no page the way to sign-in: `/login`
+  sends an owner who is already signed in straight on.
+- The heading doesn't take focus, so the first Tab lands on the skip link.
+- "Try again" reloads, because the router clears its error only when the
+  address changes. The error still goes to the console, as the router's own
+  page sent it there.
+- Copy under `notFound` and `pageError`, with `auth.signInCta` and
+  `common.retry` for the buttons.
+
 ## Calls Phase 8 adds
 
 Approved by Roee on 27 Oct 2026, in Phase 8's step A
