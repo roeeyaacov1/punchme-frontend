@@ -45,7 +45,7 @@
       "reasons": {
         "noColour": "No card colour, so not in the wizard",
         "classicOnly": "Published, and shown only when the wallet isn't drawing looks",
-        "beyondThree": "Published, but the wizard offers only a trade's first three",
+        "beyondThree": "Published, but the wizard offers only a trade's first three plain looks",
         "styledOnly": "Published, and shown only when the wallet draws looks",
         "failed": "Not drawn, so not in the wizard. Saving again tries once more."
       },
@@ -60,7 +60,7 @@
         "publish": "Publish",
         "delete": "Delete"
       },
-      "moved": "Moved to {{n}}",
+      "moved": "Moved to place {{n}}",
       "movedSaid": "{{name}}: now {{n}} of {{total}}",
       "saidAbout": "{{name}}: {{what}}",
       "unpublished": "Unpublished",
@@ -89,7 +89,7 @@
       "notFound": "This look isn't in the catalog. It may have been deleted, or the link is wrong.",
       "lookReadFailed": "We couldn't read this look.",
       "draft": "Draft",
-      "nicheLabel": "Niche",
+      "nicheLabel": "Trade",
       "descriptionLabel": "Description",
       "publishedLabel": "Published",
       "publishedHint": "Only published looks appear in the wizard, in their order within the trade.",
@@ -141,7 +141,7 @@
     "staffOnlySignedInAs": "You're signed in as <email>{{email}}</email>, which doesn't have staff access.",
     "otherAccount": "Sign in with another account",
     "staffHere": "You're signed in as PunchMe staff.",
-    "openAdmin": "Open the template catalog"
+    "openAdmin": "Open the ready-made looks"
   },
   "scaffold": {
     "title": "Scaffold OK",
