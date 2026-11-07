@@ -88,7 +88,7 @@ editor's back link goes to `/admin/catalog`.
 |---|---|---|
 | Load | `GET /api/admin/catalog`: every entry, published and draft, by `sort_order` then name. Each carries its card (colours, count, reward, `design`), `niche`, `description`, `is_published` and `art_uses`, the picture slots that are filled (the pictures themselves only come with one entry) | `listCatalog`, query `["admin-catalog"]` |
 | Load | `GET /api/presets`, public: every trade's published looks, in the wizard's order, with their pictures. Again every 5 s while a look is being drawn, for up to two minutes after its last save | `getPresets`, query `["presets"]` (the wizard's own key) |
-| Load | `GET /api/admin/catalog/stickers`: whether the wallet draws the design options (`available`), so which wizard owners get. Kept for the tab, retried once | `getCatalogStickers`, query `["stickers"]` (the editor's key) |
+| Load | `GET /api/admin/catalog/stickers`: whether the wallet draws the design options (`available`), so which wizard owners get. Kept for the tab, retried once. Not answered within the wizard's own patience (4 s), it reads as not answering until it does, so the list is never held | `getCatalogStickers`, query `["stickers"]` (the editor's key) |
 | Publish or unpublish | `PATCH /api/admin/catalog/{id}` `{is_published}`, then the list's first two reads again | `patchCatalogEntry` |
 | Move (to first, up one, down one), inside its trade | `POST /api/admin/catalog/reorder` `{ids}`: every id in the list, the trade's offered looks swapped among the places they hold and every other where it was; then the list's first two reads again | `reorderCatalog` |
 | Delete, once confirmed in the page | `DELETE /api/admin/catalog/{id}`, then the list's first two reads again | `deleteCatalogEntry` |
@@ -98,6 +98,15 @@ The two later reads were added for the rework, with Roee's yes (6 Nov 2026,
 `docs/redesign/briefs/admin.md` §6). Both are calls the editor already
 makes. A write reads the presets again as well as the catalog, because the
 wizard's order and pictures come from them.
+
+When a call fails (step D, 7 Nov):
+- **A read** that never succeeded says what failed and why, by its cause
+  (no network, the server, the throttle, no staff access), with "Try
+  again". A read again that fails, once the list is on the page, keeps it.
+- **A write the server refuses** (4xx, not 403 or 429) reads the list's
+  first two reads again, since a page out of date is the likely cause. One
+  on a look that is gone (404) says so in its trade, where focus goes. Any
+  other failure is said on its row.
 
 Worked out in the browser, with no call: `routes/admin/shelf.ts`, tested,
 through the wizard's own `routes/onboarding/looks.ts` and nothing else
@@ -167,6 +176,10 @@ under it, then the look's trade, whether it is published and, while the
 wizard opens on the looks, its place in the trade; then its id. A new look
 opened from a trade's panel starts in that trade (router state `niche`).
 
+A look that can't be read keeps the way back to the list. If it isn't in
+the catalog (404), it says so; any other failure says why, with "Try
+again", which makes the same `GET /api/admin/catalog/{id}` again.
+
 ## Calls no page makes
 
 | Call | Wrapper |
@@ -205,7 +218,8 @@ opened from a trade's panel starts in that trade (router state `niche`).
 - **Copy that other pages read.**
   - `admin.catalog.art.uses.*` and `admin.catalog.art.removeNamed`: the
     owner's studio too (`WalletDetailsTray`, `UploadTile`).
-  - `admin.staffHere` and `admin.openAdmin`: the wizard's frame.
+  - `admin.staffHere` and `admin.openAdmin`: the wizard's frame. Since
+    step D the link says "Open the ready-made looks", the page's own name.
   - `admin.title`: the account sheet.
   - Renaming one moves those with it.
 
