@@ -2194,6 +2194,10 @@
     "body": "The link may be old or mistyped.",
     "home": "To the home page"
   },
+  "pageError": {
+    "title": "This page didn't load",
+    "body": "Try again, or go to the home page."
+  },
   "referrals": {
     "title": "Refer a friend",
     "lead": "A customer shows their card, a friend scans it with their phone and gets a join page that knows who invited them. You decide what each of them gets.",

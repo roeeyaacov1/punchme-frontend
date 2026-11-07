@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { LinkButton, LitPanel } from "../../components/kit";
+import { useRouteError } from "react-router-dom";
+import { Button, LinkButton, LitPanel } from "../../components/kit";
 import { PublicPage } from "./PublicPage";
 
 /** The panel's sides, and the links' in it, hold at their 100% widths on a
@@ -37,6 +38,36 @@ export function NotFoundPage() {
       </LinkButton>
       <LinkButton to="/login" variant="secondary" className={WAY}>
         {t("auth.signInCta")}
+      </LinkButton>
+    </Missing>
+  );
+}
+
+/**
+ * A page that threw while it drew itself, or whose code didn't arrive,
+ * where nothing nearer catches it: the root route's error element. The
+ * dashboard's pages fail inside the shell (`DashboardPageError`); this
+ * takes the rest, from the landing page to the wizard, on the same frame
+ * as the page with no page rather than on the router's English developer
+ * page. "Try again" reloads, because the router only clears its error when
+ * the address changes; the other way on is the home page.
+ *
+ * What went wrong still goes to the console, as the router's own page sent
+ * it there: a page whose code didn't arrive is said nowhere else.
+ */
+export function PageErrorPage() {
+  const { t } = useTranslation();
+  const error = useRouteError();
+  useEffect(() => {
+    console.error("A page didn't load", error);
+  }, [error]);
+  return (
+    <Missing title={t("pageError.title")} body={t("pageError.body")}>
+      <Button onClick={() => window.location.reload()} className={WAY}>
+        {t("common.retry")}
+      </Button>
+      <LinkButton to="/" variant="secondary" className={WAY}>
+        {t("notFound.home")}
       </LinkButton>
     </Missing>
   );

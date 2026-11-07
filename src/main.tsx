@@ -21,7 +21,7 @@ import { JoinPage } from "./routes/public/JoinPage";
 import { InvitePage } from "./routes/invite/InvitePage";
 import { CardStatusPage } from "./routes/public/CardStatusPage";
 import { PublicCardPage } from "./routes/public/PublicCardPage";
-import { NotFoundPage } from "./routes/public/NotFoundPage";
+import { NotFoundPage, PageErrorPage } from "./routes/public/NotFoundPage";
 
 // The dashboard, the wizard, admin and the checkout returns load on demand,
 // each group as one chunk, and the landing page on its own, so a customer
@@ -41,6 +41,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
+    // A page that throws, or whose code doesn't arrive, anywhere the
+    // dashboard's own error page doesn't cover: said on the public pages'
+    // frame, not on the router's English developer page.
+    errorElement: <PageErrorPage />,
     children: [
       { index: true, lazy: async () => ({ Component: (await import("./routes/marketing/LandingPage")).LandingPage }) },
       // Loaded on its own: the guide carries the whole redesign kit, and none
