@@ -687,6 +687,31 @@ Built 7 Nov, with Roee's yes to the plan. Where it departs from §7 and §8:
 - **`index.html`** lists `/admin` with the pages painted on Lightbox before
   React mounts.
 
+Step D (7 Nov), harden, adapt, clarify and polish, added:
+
+- **What failing reads and writes say,** by cause, and the list kept on a
+  failed read again (`docs/admin-pages.md`, "When a call fails").
+- **A look gone meanwhile:** `admin.catalog.gone`, said in its trade.
+- **The editor's failed read:** `admin.catalog.notFound` and
+  `admin.catalog.lookReadFailed`, with the way back.
+- **The sticker list waits no longer than the wizard does** (4 s).
+- **At 200% text on a phone, a row stacks** its place and actions, then its
+  picture, then its names.
+- **Clarified copy:**
+  - "Trade", not "Niche";
+  - "Moved to place n";
+  - the plain looks past a trade's three;
+  - the wizard's staff link names the ready-made looks, not "the template
+    catalog".
+- **`admin.*` joined the copy test** for both languages (`kitCopy.test.ts`).
+- **Left as they are, with their reasons:**
+  - the kit's dialog padding at 200% text leaves a long title little room
+    (the kit's, shared);
+  - the studio's hue slider is a 24px target at 1280 (the owner's studio
+    component);
+  - the detector's one advisory, a card colour in `shelf.test.ts`, is a
+    look's own data.
+
 ## Appendix: how this step looked at the stack
 
 - **Accounts.** Two test accounts made for this step in the copy
