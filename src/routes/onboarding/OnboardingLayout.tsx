@@ -14,6 +14,7 @@ import { cn } from "../../lib/cn";
 import { usePublicGround } from "../../theme/usePublicGround";
 import { deviceWallet } from "../public/wallet";
 import { WizardSkeleton } from "../RouteLoading";
+import { wizardFrameShown } from "../wizardFrame";
 import { OnboardingDraftProvider } from "./DraftContext";
 import { ALL_STEPS, DRAFT_STEPS, firstIncompleteStep, stepIndex, type WizardStep } from "./draft";
 import { roadOf } from "./road";
@@ -58,9 +59,10 @@ const WAIT_QUIET_MS = 300;
  * whether the wizard opens on the looks (up to the draft's patience,
  * `DraftContext`), and while `/onboarding` decides where to start. After a
  * moment, the frame a cold load shows, rather than an empty page on a slow
- * phone. */
+ * phone; at once on a cold load, where that frame is already up, so the
+ * page never goes blank between the two. */
 function ScreenWait() {
-  const [shown, setShown] = useState(false);
+  const [shown, setShown] = useState(wizardFrameShown);
   useEffect(() => {
     const timer = window.setTimeout(() => setShown(true), WAIT_QUIET_MS);
     return () => window.clearTimeout(timer);
