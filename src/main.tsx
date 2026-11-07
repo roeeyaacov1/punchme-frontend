@@ -21,6 +21,7 @@ import { JoinPage } from "./routes/public/JoinPage";
 import { InvitePage } from "./routes/invite/InvitePage";
 import { CardStatusPage } from "./routes/public/CardStatusPage";
 import { PublicCardPage } from "./routes/public/PublicCardPage";
+import { NotFoundPage } from "./routes/public/NotFoundPage";
 
 // The dashboard, the wizard, admin and the checkout returns load on demand,
 // each group as one chunk, and the landing page on its own, so a customer
@@ -218,6 +219,12 @@ const router = createBrowserRouter([
           },
         ],
       },
+      // No page here: an old, mistyped or cut-short link, said on the public
+      // pages' frame in the visitor's language rather than on the router's
+      // English developer page. The dashboard and the wizard answer their
+      // own addresses; this takes the rest. In the entry, as the public
+      // pages are: it draws at once, and it is a few lines.
+      { path: "*", element: <NotFoundPage /> },
     ],
   },
 ]);
